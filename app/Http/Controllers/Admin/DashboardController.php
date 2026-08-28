@@ -177,5 +177,42 @@ class DashboardController extends Controller
         
         return response()->json(['success' => false, 'message' => 'Cannot delete this user']);
     }
+    public function saveTable(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'qr_code_url' => 'required|string'
+        ]);
+
+        $user = \Illuminate\Support\Facades\Auth::user();
+        
+        $table = \App\Models\Table::create([
+            'shop_id' => $user->shop_id,
+            'name' => $request->name,
+            'qr_code_url' => $request->qr_code_url
+        ]);
+
+        return response()->json(['success' => true, 'table' => $table]);
+    }
+
+    public function updateTableQR(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'qr_code_url' => 'required|string'
+        ]);
+
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $table = \App\Models\Table::where('shop_id', $user->shop_id)->where('name', $request->name)->first();
+        
+        if ($table) {
+            $table->qr_code_url = $request->qr_code_url;
+            $table->save();
+            return response()->json(['success' => true, 'table' => $table]);
+        }
+        
+        return response()->json(['success' => false, 'message' => 'Table not found']);
+    }
 }
+
 

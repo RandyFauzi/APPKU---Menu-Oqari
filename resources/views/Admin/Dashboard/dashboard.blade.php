@@ -845,13 +845,29 @@ handleDraftImageUpload(event, index) {
                     }
                     
                     const tableNumStr = this.newTableId.replace(/[^a-zA-Z0-9]/g, ''); // bersihkan untuk URL
-                    this.tables.push({
-                        id: this.newTableId.trim(),
-                        qr: this.getQRUrl(tableNumStr)
-                    });
+                    const tableName = this.newTableId.trim();
+                    const qrUrl = this.getQRUrl(tableNumStr);
                     
-                    this.newTableId = '';
-                    this.showAddTableModal = false;
+                    fetch('/admin/api/table', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ name: tableName, qr_code_url: qrUrl })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            this.tables.push({
+                                id: data.table.name,
+                                qr: data.table.qr_code_url
+                            });
+                            this.newTableId = '';
+                            this.showAddTableModal = false;
+                            this.addToast('Meja berhasil ditambahkan', 'success');
+                        }
+                    });
                 },
                 printQR(table) {
                     if(window.printQRWindow) window.printQRWindow(table);
@@ -860,7 +876,23 @@ handleDraftImageUpload(event, index) {
                     if(confirm(`Yakin ingin mereset/mengganti URL QR Code untuk ${table.id}? URL lama tidak akan bisa diakses lagi.`)) {
                         const randomToken = Math.random().toString(36).substring(2, 8);
                         const tableNum = table.id.replace('Meja ', '');
-                        table.qr = this.getQRUrl(tableNum, randomToken);
+                        const newQrUrl = this.getQRUrl(tableNum, randomToken);
+                        
+                        fetch('/admin/api/table', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({ name: table.id, qr_code_url: newQrUrl })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if(data.success) {
+                                table.qr = newQrUrl;
+                                this.addToast('QR Code di-reset!', 'success');
+                            }
+                        });
                     }
                 },
                 handleLogoUpload(event) {

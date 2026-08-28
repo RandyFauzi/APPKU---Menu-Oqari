@@ -18,6 +18,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
     Route::post('/admin/api/crew', [DashboardController::class, 'saveCrew']);
     Route::delete('/admin/api/crew/{id}', [DashboardController::class, 'deleteCrew']);
+    Route::post('/admin/api/table', [DashboardController::class, 'saveTable']);
+    Route::put('/admin/api/table', [DashboardController::class, 'updateTableQR']);
 });
 
 Route::middleware('auth')->group(function () {
