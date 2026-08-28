@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - {{ config('app.name', 'Appku') }}</title>
+    <title>Dashboard - {{ $shop->name ?? config('app.name', 'Appku') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="icon" type="image/webp" href="Pavico.webp">
+    
+    <!-- Favicon -->
+    @if(isset($shop) && $shop->logo_url)
+        <link rel="icon" type="image/png" href="{{ asset('storage/' . $shop->logo_url) }}">
+    @else
+        <link rel="icon" type="image/webp" href="{{ asset('Pavico.webp') }}">
+    @endif
     
     <!-- View Transitions API -->
     <meta name="view-transition" content="same-origin" />
@@ -60,10 +66,14 @@
 
     <!-- Sidebar -->
     <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg">
-        <div class="flex items-center gap-2 mb-2">
-            <img src="Pavico.webp" alt="Logo" class="w-8 h-8 object-contain">
+        <div class="flex items-center gap-3 mb-2">
+            @if(isset($shop) && $shop->logo_url)
+                <img src="{{ asset('storage/' . $shop->logo_url) }}" alt="Logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
+            @else
+                <img src="{{ asset('Pavico.webp') }}" alt="Logo" class="w-10 h-10 object-contain">
+            @endif
             <div class="flex flex-col">
-                <span class="font-bold text-lg leading-tight">Bitten</span>
+                <span class="font-bold text-lg leading-tight truncate w-32">{{ $shop->name ?? 'Appku' }}</span>
                 <span class="text-[10px] text-brewlymuted uppercase tracking-wider">Coffee Shops. Stronger.</span>
             </div>
         </div>
