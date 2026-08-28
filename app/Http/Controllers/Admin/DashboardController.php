@@ -38,19 +38,25 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'is_sold_out' => $menu->is_sold_out]);
     }
 
-    public function saveMenu(Request $request)
+        public function saveMenu(Request $request)
     {
         $user = \Illuminate\Support\Facades\Auth::user();
         $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
         
+        $data = [
+            'name' => $request->name,
+            'price' => $request->price,
+            'category_name' => $request->categoryId,
+            'description' => $request->desc,
+        ];
+
+        if ($request->hasFile('image')) {
+            $data['image_url'] = $request->file('image')->store('menus', 'public');
+        }
+
         $menu = \App\Models\Product::updateOrCreate(
             ['id' => $request->id, 'shop_id' => $shopId],
-            [
-                'name' => $request->name,
-                'price' => $request->price,
-                'category_name' => $request->categoryId,
-                'description' => $request->desc,
-            ]
+            $data
         );
         return response()->json(['success' => true, 'menu' => $menu]);
     }

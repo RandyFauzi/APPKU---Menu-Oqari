@@ -1,72 +1,35 @@
-import re
+﻿import re
 
 with open('app/Http/Controllers/Admin/DashboardController.php', 'r', encoding='utf-8') as f:
     content = f.read()
 
-old_saveMenu = '''    public function saveMenu(Request )
+new_saveMenu = r"""    public function saveMenu(Request $request)
     {
-         = \Illuminate\Support\Facades\Auth::user();
-         = ->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
         
-         = \App\Models\Product::updateOrCreate(
-            ['id' => ->id, 'shop_id' => ],
-            [
-                'name' => ->name,
-                'price' => ->price,
-                'category_name' => ->categoryId,
-                'description' => ->desc,
-            ]
-        );
-        return response()->json(['success' => true, 'menu' => ]);
-    }'''
-
-new_saveMenu = '''    public function saveMenu(Request )
-    {
-         = \Illuminate\Support\Facades\Auth::user();
-         = \App\Models\Shop::find(->shop_id) ?? \App\Models\Shop::first() ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop']);
-         = ->id;
-        
-         = [
-            'name' => ->name,
-            'price' => ->price,
-            'category_name' => ->categoryId,
-            'description' => ->desc,
+        $data = [
+            'name' => $request->name,
+            'price' => $request->price,
+            'category_name' => $request->categoryId,
+            'description' => $request->desc,
         ];
-        
-         = null;
-        if (->id) {
-             = \App\Models\Product::where('id', ->id)->where('shop_id', )->first();
+
+        if ($request->hasFile('image')) {
+            $data['image_url'] = $request->file('image')->store('menus', 'public');
         }
 
-        if (->hasFile('image')) {
-             = ->file('image');
-             = \Illuminate\Support\Str::slug(->name);
-             = ->getClientOriginalExtension();
-             = "{}.{}";
-             = "shops/{->slug}/menus";
-            
-             = ->storeAs(, , 'public');
-            ['image_url'] = ;
+        $menu = \App\Models\Product::updateOrCreate(
+            ['id' => $request->id, 'shop_id' => $shopId],
+            $data
+        );
+        return response()->json(['success' => true, 'menu' => $menu]);
+    }"""
 
-            if ( && ->image_url && ->image_url !== ) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete(->image_url);
-            }
-        }
+# Use regex to replace the old saveMenu function
+pattern = r"public function saveMenu\(Request \$request\).*?return response\(\)->json\(\['success' => true, 'menu' => \$menu\]\);\s*\}"
+content = re.sub(pattern, new_saveMenu.replace('\\', '\\\\'), content, flags=re.DOTALL)
 
-        if () {
-            ->update();
-        } else {
-            ['shop_id'] = ;
-             = \App\Models\Product::create();
-        }
-        
-        return response()->json(['success' => true, 'menu' => ]);
-    }'''
-
-if old_saveMenu in content:
-    content = content.replace(old_saveMenu, new_saveMenu)
-    with open('app/Http/Controllers/Admin/DashboardController.php', 'w', encoding='utf-8') as f:
-        f.write(content)
-    print("Updated saveMenu")
-else:
-    print("Could not find saveMenu")
+with open('app/Http/Controllers/Admin/DashboardController.php', 'w', encoding='utf-8') as f:
+    f.write(content)
+print("Updated saveMenu to handle image uploads")

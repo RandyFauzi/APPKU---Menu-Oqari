@@ -116,7 +116,7 @@
                         </thead>
                         <tbody>
                             <template x-for="item in filteredMenuItems" :key="item.id">
-                                <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition group" :class="item.soldOut ? 'opacity-70 grayscale-[30%]' : ''">
+                                <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition group" :class="item.is_sold_out ? 'opacity-70 grayscale-[30%]' : ''">
                                     <td class="p-4 text-center align-middle"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brewlygreen focus:ring-brewlygreen"></td>
                                     <td class="p-4 flex gap-4 items-center">
                                         <img :src="item.image || item.img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541167760496-1628856ab772?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-lg object-cover border border-gray-100">
@@ -131,8 +131,8 @@
                                     <td class="p-4 font-semibold text-sm font-mono" x-text="formatRp(item.price)"></td>
                                     <td class="p-4">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-2 h-2 rounded-full" :class="item.soldOut ? 'bg-red-500' : 'bg-brewlygreen'"></div>
-                                            <span class="text-sm font-semibold" :class="item.soldOut ? 'text-red-600' : 'text-brewlygreen'" x-text="item.soldOut ? 'Sold Out' : 'Published'"></span>
+                                            <div class="w-2 h-2 rounded-full" :class="item.is_sold_out ? 'bg-red-500' : 'bg-brewlygreen'"></div>
+                                            <span class="text-sm font-semibold" :class="item.is_sold_out ? 'text-red-600' : 'text-brewlygreen'" x-text="item.is_sold_out ? 'Sold Out' : 'Published'"></span>
                                         </div>
                                     </td>
                                     <td class="p-4">

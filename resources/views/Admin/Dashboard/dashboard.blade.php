@@ -166,7 +166,7 @@
             <!-- Modal Content -->
             <div class="relative bg-white w-[500px] rounded-lg shadow-xl flex flex-col" @keydown.escape.window="showAddMenuModal = false">
                 <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-                    <h3 class="font-heading font-extrabold text-lg text-[#2D3748]"><i class="fas fa-hamburger mr-2 text-[#1E5A7A]"></i> Tambah Menu Baru</h3>
+                    <h3 class="font-heading font-extrabold text-lg text-[#2D3748]"><i class="fas fa-hamburger mr-2 text-[#1E5A7A]"></i> <span x-text="newMenu.id ? 'Edit Menu' : 'Tambah Menu Baru'"></span></h3>
                     <button @click="showAddMenuModal = false" class="text-gray-400 hover:text-red-500 transition">
                         <i class="fas fa-times"></i>
                     </button>
@@ -195,12 +195,12 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Upload Gambar (Opsional)</label>
-                        <input type="file" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#1E5A7A]/10 file:text-[#1E5A7A] hover:file:bg-[#1E5A7A]/20">
+                        <input type="file" x-ref="menuImageInput" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#1E5A7A]/10 file:text-[#1E5A7A] hover:file:bg-[#1E5A7A]/20">
                     </div>
                 </div>
                 <div class="p-5 border-t border-gray-100 flex justify-end gap-2">
                     <button @click="showAddMenuModal = false" class="px-4 py-2 rounded text-sm font-bold text-gray-500 hover:bg-gray-50 transition">Batal</button>
-                    <button @click="saveNewMenu" class="px-4 py-2 rounded text-sm font-bold bg-[#1E5A7A] text-white shadow-sm hover:bg-[#154660] transition">Simpan Menu</button>
+                    <button @click="saveNewMenu" class="px-4 py-2 rounded text-sm font-bold bg-[#1E5A7A] text-white shadow-sm hover:bg-[#154660] transition" x-text="newMenu.id ? 'Simpan Perubahan' : 'Simpan Menu'"></button>
                 </div>
             </div>
         </div>
@@ -755,14 +755,23 @@ handleDraftImageUpload(event, index) {
                         return;
                     }
                     
+                    let formData = new FormData();
+                    if (this.newMenu.id) formData.append('id', this.newMenu.id);
+                    formData.append('name', this.newMenu.name);
+                    formData.append('price', this.newMenu.price);
+                    formData.append('categoryId', this.newMenu.categoryId);
+                    formData.append('desc', this.newMenu.desc || '');
+                    if (this.$refs.menuImageInput && this.$refs.menuImageInput.files[0]) {
+                        formData.append('image', this.$refs.menuImageInput.files[0]);
+                    }
+                    
                     fetch('/admin/api/menu', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        body: JSON.stringify(this.newMenu)
+                        body: formData
                     }).then(res => res.json()).then(data => {
                         if (data.success) {
                             if (this.newMenu.id) {
@@ -772,6 +781,9 @@ handleDraftImageUpload(event, index) {
                                     item.price = parseInt(this.newMenu.price);
                                     item.desc = this.newMenu.desc;
                                     item.categoryId = this.newMenu.categoryId;
+                                    if (data.menu.image_url) {
+                                        item.image = '/storage/' + data.menu.image_url + '?v=' + Date.now();
+                                    }
                                 }
                             } else {
                                 data.menu.categoryId = data.menu.category_name;
@@ -779,6 +791,7 @@ handleDraftImageUpload(event, index) {
                                 this.menuItems.unshift(data.menu);
                             }
                             this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '' };
+                            if (this.$refs.menuImageInput) this.$refs.menuImageInput.value = '';
                             this.showAddMenuModal = false;
                         }
                     });
