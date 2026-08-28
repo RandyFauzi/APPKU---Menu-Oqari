@@ -655,7 +655,7 @@ handleDraftImageUpload(event, index) {
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
                         this.settings.primary_color = window.INITIAL_DATA.shop.primary_color || '#1E5A7A';
                         if (window.INITIAL_DATA.shop.logo_url) {
-                            this.settings.logoPreview = '/storage/' + window.INITIAL_DATA.shop.logo_url;
+                            this.settings.logoPreview = '/storage/' + window.INITIAL_DATA.shop.logo_url + '?v=' + new Date(window.INITIAL_DATA.shop.updated_at).getTime();
                         }
                     }
                     
@@ -680,6 +680,7 @@ handleDraftImageUpload(event, index) {
                         ...m,
                         categoryId: m.category_name,
                         desc: m.description,
+                        image: m.image_url ? ('/storage/' + m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
                         tags: m.tags || []
                     }));
                 },
