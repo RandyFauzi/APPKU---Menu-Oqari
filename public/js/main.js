@@ -450,7 +450,7 @@ function processSimulatedPayment() {
     localStorage.setItem('gw_last_order_type', orderType);
     localStorage.setItem('gw_last_order_total', total);
     
-    setTimeout(() => { CartStore.clear(); window.location.href = 'tracking.html'; }, 1500);
+    setTimeout(() => { CartStore.clear(); window.location.href = window.SHOP_TRACKING_URL; }, 1500);
 }
 
 function initTrackingPage() {
@@ -475,9 +475,10 @@ function goBackHome(event) {
     if (event) event.preventDefault();
     let qrTable = localStorage.getItem('bitten_table_qr');
     if (qrTable) {
-        window.location.href = 'index.html?table=' + qrTable;
+        window.location.href = window.SHOP_HOME_URL + '?table=' + qrTable;
     } else {
-        window.location.href = 'index.html';
+        window.location.href = window.SHOP_HOME_URL;
     }
 }
 function setRating(stars) { /* Same implementation as previous */ }
+

@@ -24,3 +24,9 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+use App\Http\Controllers\ShopController;
+Route::get('/{slug}', [ShopController::class, 'show'])->name('shop.menu');
+Route::get('/{slug}/cart', [ShopController::class, 'cart'])->name('shop.cart');
+Route::get('/{slug}/tracking', [ShopController::class, 'tracking'])->name('shop.tracking');
+Route::post('/{slug}/order', [ShopController::class, 'submitOrder'])->name('shop.order.submit');
