@@ -1,131 +1,77 @@
-import re
+﻿import re
 
-with open('resources/views/Admin/Dashboard/tabs/menu.blade.php', 'r', encoding='utf-8') as f:
+with open('resources/views/Admin/Dashboard/dashboard.blade.php', 'r', encoding='utf-8') as f:
     content = f.read()
 
-start_index = content.find('<!-- MODAL: BULK UPLOAD MENU -->')
-if start_index != -1:
-    content = content[:start_index] + '''<!-- MODAL: BULK UPLOAD MENU -->
-<div x-show="showBulkUpload" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 font-sans">
-    <!-- Backdrop -->
-    <div @click="showBulkUpload = false" class="absolute inset-0 bg-[#202522]/30 backdrop-blur-sm transition-opacity"></div>
-    
-    <!-- Modal Content -->
-    <div class="relative w-full max-w-5xl mx-auto bg-[#FFFFFF] rounded-[28px] p-10 shadow-[0_10px_35px_rgba(0,0,0,0.05)] flex flex-col max-h-[90vh] overflow-hidden border border-[#E3E1DC]">
-        
-        <!-- Header -->
-        <div class="flex justify-between items-start mb-6 pb-6 border-b border-dashed border-[#E3E1DC] shrink-0">
-            <div class="flex gap-5">
-                <div class="w-20 h-20 rounded-[18px] bg-[#164A35] text-white flex items-center justify-center shadow-sm">
-                    <i class="fas fa-cloud-upload-alt text-3xl"></i>
+old_modal = r"""        <div x-show="showAddTableModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+            <!-- Backdrop -->
+            <div @click="showAddTableModal = false" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+            <!-- Modal Content -->
+            <div class="relative bg-white w-[400px] rounded-2xl shadow-xl flex flex-col overflow-hidden" @keydown.escape.window="showAddTableModal = false">
+                <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <h3 class="font-sans font-bold text-lg text-primary flex items-center gap-2"><i class="fas fa-qrcode text-accent"></i> Tambah Meja Baru</h3>
+                    <button @click="showAddTableModal = false" class="text-gray-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <div class="flex flex-col justify-center">
-                    <h2 class="text-[32px] text-[#164A35] leading-tight mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700;">Upload Menu</h2>
-                    <p class="text-[#777873] text-[16px]">Add your coffee and pastry items with images, prices, and categories.</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <button class="bg-transparent border border-[#164A35] text-[#164A35] px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#DDEBDD] transition-colors flex items-center gap-2">
-                    <i class="fas fa-cloud-upload-alt"></i> Bulk upload CSV
-                </button>
-            </div>
-        </div>
-
-        <!-- Scrollable Body -->
-        <div class="flex-grow overflow-y-auto hide-scroll py-2">
-            <div class="flex flex-col gap-3">
-                <template x-for="(draft, index) in draftMenus" :key="index">
-                    <!-- Row -->
-                    <div class="flex items-center gap-5 p-4 bg-white rounded-[16px] border border-[#E3E1DC] shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-                        <!-- Image Box -->
-                        <div class="w-[218px] h-[130px] shrink-0 relative rounded-xl overflow-hidden flex items-center justify-center group cursor-pointer transition-colors"
-                             :class="!draft.imagePreview ? 'border-2 border-dashed border-[#E3E1DC] bg-[#F8F7F3] hover:border-[#164A35]' : 'bg-gray-100'">
-                            <input type="file" @change="handleDraftImageUpload($event, index)" accept="image/jpeg, image/png, image/webp" class="absolute inset-0 opacity-0 cursor-pointer z-20">
-                            
-                            <template x-if="draft.imagePreview">
-                                <img :src="draft.imagePreview" class="w-full h-full object-cover">
-                            </template>
-                            
-                            <template x-if="!draft.imagePreview">
-                                <div class="text-center flex flex-col items-center justify-center gap-2">
-                                    <i class="fas fa-cloud-upload-alt text-[#777873] text-2xl group-hover:text-[#164A35] transition-colors"></i>
-                                    <p class="text-[12px] text-[#777873] font-medium leading-snug">Upload image<br>JPG, PNG or WEBP</p>
-                                </div>
-                            </template>
-                        </div>
-                        
-                        <!-- Inputs -->
-                        <div class="flex-grow grid grid-cols-3 gap-5">
-                            <div>
-                                <label class="block text-[12px] font-semibold text-[#777873] mb-1.5">Item name</label>
-                                <input type="text" x-model="draftMenus[index].name" placeholder="e.g. Blueberry Muffin" class="w-full bg-white border border-[#E3E1DC] rounded-[11px] px-4 py-3 text-[16px] text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none placeholder-[#C4C4C4]">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-[12px] font-semibold text-[#777873] mb-1.5">Category</label>
-                                <div class="relative">
-                                    <select x-model="draftMenus[index].categoryId" class="w-full bg-[#F8F7F3] border border-transparent rounded-[11px] px-4 py-3 text-[16px] text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none appearance-none font-medium cursor-pointer">
-                                        <option value="Coffee">? Coffee</option>
-                                        <option value="Pastry">?? Pastry</option>
-                                        <option value="Beverages">?? Beverages</option>
-                                        <option value="Foods">?? Foods</option>
-                                        <option value="Snacks">?? Snacks</option>
-                                        <option value="Sweets">?? Sweets</option>
-                                    </select>
-                                    <i class="fas fa-chevron-down absolute right-4 top-4 text-xs text-[#777873] pointer-events-none"></i>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-[12px] font-semibold text-[#777873] mb-1.5">Price</label>
-                                <div class="relative">
-                                    <span class="absolute left-4 top-3 text-[16px] text-[#202522] font-medium">Rp</span>
-                                    <input type="number" x-model="draftMenus[index].price" placeholder="0" class="w-full bg-white border border-[#E3E1DC] rounded-[11px] pl-11 pr-4 py-3 text-[16px] text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Button -->
-                        <div class="shrink-0 w-12 flex justify-center ml-2">
-                            <template x-if="index === draftMenus.length - 1">
-                                <button @click="addDraftRow()" class="w-11 h-11 rounded-[10px] bg-transparent border border-[#DDEBDD] text-[#164A35] hover:bg-[#DDEBDD] flex items-center justify-center transition-colors">
-                                    <i class="fas fa-plus text-lg"></i>
-                                </button>
-                            </template>
-                            <template x-if="index !== draftMenus.length - 1">
-                                <button @click="removeDraftRow(index)" class="w-11 h-11 rounded-[10px] bg-white border border-[#F7E5D2] text-[#D97A32] hover:bg-[#F7E5D2] flex items-center justify-center transition-colors">
-                                    <i class="fas fa-trash-alt text-lg"></i>
-                                </button>
-                            </template>
-                        </div>
+                <div class="p-5 flex flex-col gap-4 font-mono">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Nama / Nomor Meja</label>
+                        <input x-ref="tableInput" type="text" x-model="newTableId" @keydown.enter="addTableFromModal" placeholder="Misal: Meja 07" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-primary focus:outline-none">
                     </div>
-                </template>
+                </div>
+                <div class="p-5 border-t border-gray-100 flex justify-end gap-2 bg-gray-50/50">
+                    <button @click="showAddTableModal = false" class="px-4 py-2 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-100 transition">Batal</button>
+                    <button @click="addTableFromModal" class="px-4 py-2 rounded-lg text-sm font-bold bg-primary text-white shadow-sm hover:bg-[#154660] transition flex items-center gap-2">Generate QR <i class="fas fa-arrow-right text-xs"></i></button>
+                </div>
             </div>
-        </div> <!-- End Scrollable Body -->
+        </div>"""
 
-        <!-- Footer -->
-        <div class="flex justify-between items-center pt-6 mt-2 shrink-0">
-            <div class="text-[15px] text-[#777873] font-medium"><span class="text-[#164A35] font-bold text-lg mr-1" x-text="draftMenus.length"></span> items added</div>
-            <div class="flex gap-4">
-                <button @click="showBulkUpload = false" class="px-6 py-3.5 rounded-[12px] font-semibold text-[15px] bg-white border border-[#E3E1DC] text-[#202522] hover:bg-[#F8F7F3] transition-colors shadow-sm">Save draft</button>
-                <button @click="saveBulkMenu" class="px-7 py-3.5 rounded-[12px] font-semibold text-[15px] bg-[#D97A32] text-white hover:bg-[#c26d2d] transition-colors shadow-md flex items-center gap-2">
-                    <i class="fas fa-cloud-upload-alt"></i> Publish menu
-                </button>
+new_modal = r"""        <!-- MODAL: ADD TABLE -->
+        <div x-show="showAddTableModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-[#164A35]/40 backdrop-blur-sm" x-transition.opacity>
+            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(22,74,53,0.15)] relative overflow-hidden" @click.away="showAddTableModal = false" x-transition>
+                
+                <!-- Decorative Circle -->
+                <div class="absolute -top-16 -right-16 w-32 h-32 bg-[#F8F7F3] rounded-full pointer-events-none"></div>
+                <div class="absolute top-4 right-4 z-10">
+                    <button @click="showAddTableModal = false" class="text-[#777873] hover:text-[#202522] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors w-8 h-8 flex items-center justify-center rounded-full">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-4 mb-6 relative z-10">
+                    <div class="w-12 h-12 rounded-full bg-[#DDEBDD] text-[#164A35] flex items-center justify-center text-xl shrink-0">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[24px] font-bold text-[#164A35] leading-tight" style="font-family: 'Playfair Display', serif;">Tambah Meja Baru</h3>
+                        <p class="text-[13px] text-[#777873]">Buat QR code instan untuk meja baru.</p>
+                    </div>
+                </div>
+
+                <div class="mb-8 relative z-10">
+                    <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Nama / Nomor Meja</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-hashtag text-[#C5DBC5]"></i>
+                        </div>
+                        <input x-ref="tableInput" type="text" x-model="newTableId" @keydown.enter="addTableFromModal" placeholder="Misal: Meja 07" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[16px] pl-10 pr-4 py-3.5 text-[15px] font-bold text-[#202522] placeholder:font-medium placeholder:text-[#C5DBC5] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 relative z-10">
+                    <button @click="showAddTableModal = false" class="w-1/3 py-3.5 rounded-[14px] text-[14px] font-bold text-[#777873] bg-white border border-[#E3E1DC] hover:bg-[#F8F7F3] transition-colors text-center">Batal</button>
+                    <button @click="addTableFromModal" class="flex-grow py-3.5 rounded-[14px] text-[14px] font-bold bg-[#164A35] text-white shadow-[0_4px_12px_rgba(22,74,53,0.2)] hover:bg-[#0f3526] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                        Generate QR <i class="fas fa-arrow-right text-[12px]"></i>
+                    </button>
+                </div>
             </div>
-        </div>
-        
-        <div class="text-center mt-5 shrink-0">
-            <p class="text-[14px] text-[#777873] font-medium flex items-center justify-center gap-2">
-                <i class="fas fa-shield-check text-[#DDEBDD] text-lg"></i> 
-                Customers will see your updated menu immediately after publishing.
-            </p>
-        </div>
-    </div>
-</div>
-</div>
-'''
-    with open('resources/views/Admin/Dashboard/tabs/menu.blade.php', 'w', encoding='utf-8') as f:
+        </div>"""
+
+if old_modal in content:
+    content = content.replace(old_modal, new_modal)
+    with open('resources/views/Admin/Dashboard/dashboard.blade.php', 'w', encoding='utf-8') as f:
         f.write(content)
-    print('Updated menu.blade.php with new modal design.')
+    print("Redesigned the Add Table Modal")
 else:
-    print('Could not find MODAL: BULK UPLOAD MENU')
+    print("Could not find old modal")

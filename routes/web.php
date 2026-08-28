@@ -16,6 +16,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/api/menu/bulk', [DashboardController::class, 'saveMenuBulk']);
     Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
     Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
+    Route::post('/admin/api/crew', [DashboardController::class, 'saveCrew']);
+    Route::delete('/admin/api/crew/{id}', [DashboardController::class, 'deleteCrew']);
 });
 
 Route::middleware('auth')->group(function () {
