@@ -895,6 +895,17 @@
                 activeOrderFilter: 'process',
                 searchQuery: '',
                 newMenu: { id: null, name: '', price: '', desc: '', categoryId: '' },
+                toasts: [],
+                addToast(message, type = 'success') {
+                    const id = Date.now();
+                    this.toasts.push({ id, message, type });
+                    setTimeout(() => {
+                        this.removeToast(id);
+                    }, 3000);
+                },
+                removeToast(id) {
+                    this.toasts = this.toasts.filter(t => t.id !== id);
+                },
                 settings: {
                     name: '',
                     slug: '',
@@ -1112,7 +1123,7 @@
                 },
                 saveNewMenu() {
                     if(!this.newMenu.name || !this.newMenu.price || !this.newMenu.categoryId) {
-                        alert("Nama, Harga, dan Kategori wajib diisi!");
+                        this.addToast('Nama, Harga, dan Kategori wajib diisi!', 'error');
                         return;
                     }
                     
@@ -1204,7 +1215,7 @@
                 },
                 addTableFromModal() {
                     if (!this.newTableId.trim()) {
-                        alert('Silakan masukkan nama/nomor meja!');
+                        this.addToast('Silakan masukkan nama/nomor meja!', 'error');
                         return;
                     }
                     
@@ -1232,7 +1243,7 @@
                     if (!file) return;
                     
                     if (file.size > 2 * 1024 * 1024) {
-                        alert('Ukuran file maksimal 2MB');
+                        this.addToast('Ukuran file maksimal 2MB', 'error');
                         return;
                     }
                     
@@ -1246,7 +1257,7 @@
                 },
                 saveSettings() {
                     if (!this.settings.name || !this.settings.slug) {
-                        alert('Nama dan Slug toko wajib diisi!');
+                        this.addToast('Nama dan Slug toko wajib diisi!', 'error');
                         return;
                     }
                     
@@ -1271,24 +1282,47 @@
                     .then(data => {
                         this.isSavingSettings = false;
                         if (data.success) {
-                            alert('Pengaturan berhasil disimpan!');
+                            this.addToast('Pengaturan berhasil disimpan!', 'success');
                             if (data.logo_url) {
                                 this.settings.logoPreview = '/storage/' + data.logo_url;
                                 this.settings.logoFile = null;
                             }
                         } else {
-                            alert('Gagal menyimpan pengaturan: ' + (data.message || 'Error tidak diketahui'));
+                            this.addToast('Gagal menyimpan pengaturan: ' + (data.message || 'Error tidak diketahui'), 'error');
                         }
                     })
                     .catch(err => {
                         this.isSavingSettings = false;
-                        alert('Terjadi kesalahan jaringan.');
+                        this.addToast('Terjadi kesalahan jaringan.', 'error');
                         console.error(err);
                     });
                 }
             }))
         });
     </script>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div class="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col gap-3 pointer-events-none">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-show="true" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-8 scale-95"
+                 class="px-5 py-3.5 rounded-2xl shadow-xl font-bold text-sm flex items-center gap-3 pointer-events-auto border min-w-[300px] justify-between"
+                 :class="toast.type === 'error' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-gray-900 text-white border-gray-800'">
+                <div class="flex items-center gap-3">
+                    <i class="fas text-lg" :class="toast.type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'"></i>
+                    <span x-text="toast.message"></span>
+                </div>
+                <button @click="removeToast(toast.id)" class="opacity-50 hover:opacity-100 transition-opacity">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </template>
+    </div>
 
     <!-- Floating Action Button to Customer Menu -->
     <a href="index.html" target="_blank" class="fixed bottom-10 right-10 bg-[#1E5A7A] text-white p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:bg-[#154660] transition-all z-[100] group border-4 border-white">
