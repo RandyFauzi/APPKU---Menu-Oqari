@@ -1,18 +1,26 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Models\Shop;
+
+use App\Http\Controllers\Admin\DashboardController;
 
 Route::get('/', function () {
-    return view('welcome_saas');
+    return redirect()->route('admin.dashboard');
 });
 
-Route::get('/admin/dashboard', function () {
-    return view('Admin.Dashboard.dashboard');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::post('/admin/api/orders/{order}/status', [DashboardController::class, 'updateOrderStatus']);
+    Route::post('/admin/api/menu/{menu}/toggle', [DashboardController::class, 'toggleMenuStatus']);
+    Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
+    Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
 });
 
-Route::get('/{shop_slug}/menu', function ($shop_slug) {
-    $shop = Shop::where('slug', $shop_slug)->firstOrFail();
-    $products = App\Models\Product::where('shop_id', $shop->id)->get();
-    return view('Customer.Menu.catalog_menu', compact('shop', 'products'));
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+require __DIR__.'/auth.php';

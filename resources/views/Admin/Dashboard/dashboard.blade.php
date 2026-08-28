@@ -3,22 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Bitten Coffee</title>
+    <title>Dashboard - {{ config('app.name', 'Appku') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="icon" type="image/webp" href="Pavico.webp">
+    
+    <!-- View Transitions API -->
+    <meta name="view-transition" content="same-origin" />
+    <style>
+        body { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+    
     <!-- Alpine JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Auth Guard -->
-    <script>
-        if (localStorage.getItem('bitten_admin_logged_in') !== 'true') {
-            window.location.href = 'login.html';
-        }
-    </script>
+    <!-- Auth Guard removed, using Laravel middleware instead -->
     
     <!-- Data -->
     <script src="js/data.js"></script>
@@ -605,6 +608,69 @@
             </div>
         </div>
 
+        <!-- VIEW: SETTINGS & BRANDING -->
+        <div x-show="currentTab === 'settings'" x-cloak class="flex-grow p-8 overflow-auto hide-scroll">
+            <div class="mb-8">
+                <p class="text-gray-500 font-medium">Kelola informasi toko dan branding Anda.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-3xl">
+                <form @submit.prevent="saveSettings" class="flex flex-col gap-6">
+                    <!-- Shop Name -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Nama Toko</label>
+                        <input type="text" x-model="settings.name" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" placeholder="Contoh: Bitten Coffee" required>
+                    </div>
+
+                    <!-- URL Slug -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">URL Slug Toko</label>
+                        <div class="flex items-center">
+                            <span class="bg-gray-50 border border-gray-200 border-r-0 rounded-l-xl px-4 py-3 text-sm text-gray-500 font-mono flex-shrink-0" x-text="window.location.host + '/'"></span>
+                            <input type="text" x-model="settings.slug" class="w-full border border-gray-200 rounded-r-xl px-4 py-3 text-sm font-mono focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" placeholder="bitten-coffee" required>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">Ini akan menjadi alamat web unik untuk menu pelanggan Anda.</p>
+                    </div>
+
+                    <!-- Logo Upload -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Logo Toko (Opsional)</label>
+                        <div class="flex items-center gap-6">
+                            <div class="w-24 h-24 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden relative group">
+                                <img x-show="settings.logoPreview" :src="settings.logoPreview" class="w-full h-full object-cover">
+                                <i x-show="!settings.logoPreview" class="fas fa-image text-3xl text-gray-300"></i>
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" @click="$refs.logoInput.click()">
+                                    <i class="fas fa-camera text-white"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <input type="file" x-ref="logoInput" @change="handleLogoUpload" class="hidden" accept="image/*">
+                                <button type="button" @click="$refs.logoInput.click()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-200 transition-colors">Pilih Gambar</button>
+                                <p class="text-xs text-gray-400 mt-2">Format: JPG, PNG. Maksimal 2MB.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Primary Color -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Warna Utama (Opsional)</label>
+                        <div class="flex items-center gap-3">
+                            <input type="color" x-model="settings.primary_color" class="w-12 h-12 rounded cursor-pointer border-0 p-0 bg-transparent">
+                            <input type="text" x-model="settings.primary_color" class="w-32 border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none uppercase" placeholder="#1E5A7A">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">Warna ini akan digunakan sebagai warna tombol dan aksen di halaman menu pelanggan.</p>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-100 flex justify-end">
+                        <button type="submit" class="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-[#154660] transition-colors flex items-center gap-2" :disabled="isSavingSettings">
+                            <i class="fas fa-spinner fa-spin" x-show="isSavingSettings"></i>
+                            <span x-text="isSavingSettings ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- MODAL: ADD MENU -->
         <div x-show="showAddMenuModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
             <!-- Backdrop -->
@@ -807,8 +873,14 @@
     </main>
 
     <script>
-        // Simulasi fungsi format Rupiah
-        const formatRp = (num) => 'Rp ' + num.toLocaleString('id-ID');
+        window.INITIAL_DATA = {
+            menu: @json($menuItems ?? []),
+            orders: @json($orders ?? []),
+            tables: @json($tables ?? []),
+            shop: @json($shop ?? null)
+        };
+
+        const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
@@ -823,6 +895,14 @@
                 activeOrderFilter: 'process',
                 searchQuery: '',
                 newMenu: { id: null, name: '', price: '', desc: '', categoryId: '' },
+                settings: {
+                    name: '',
+                    slug: '',
+                    primary_color: '#1E5A7A',
+                    logoPreview: '',
+                    logoFile: null
+                },
+                isSavingSettings: false,
                 get filteredMenuItems() {
                     let items = this.menuItems;
                     if (this.activeMenuFilter !== 'all') {
@@ -857,6 +937,7 @@
                     { id: 'orders', name: 'Live Orders', icon: 'fas fa-receipt' },
                     { id: 'menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
                     { id: 'qr', name: 'Table & QR', icon: 'fas fa-qrcode' },
+                    { id: 'settings', name: 'Profile & Branding', icon: 'fas fa-store' },
                 ],
                 tables: [],
                 baseUrl: window.location.origin + window.location.pathname.replace('dashboard.html', 'index.html'),
@@ -982,25 +1063,27 @@
                 init() {
                     this.loadMenu();
                     
-                    // Inject dummy orders agar dashboard tampil menarik
-                    if (typeof DB !== 'undefined') {
-                        DB.initDummyOrders();
+                    this.tables = window.INITIAL_DATA.tables.map(t => ({
+                        id: t.name,
+                        qr: t.qr_code_url || this.getQRUrl(t.name)
+                    }));
+                    
+                    if (window.INITIAL_DATA.shop) {
+                        this.settings.name = window.INITIAL_DATA.shop.name || '';
+                        this.settings.slug = window.INITIAL_DATA.shop.slug || '';
+                        this.settings.primary_color = window.INITIAL_DATA.shop.primary_color || '#1E5A7A';
+                        if (window.INITIAL_DATA.shop.logo_url) {
+                            this.settings.logoPreview = '/storage/' + window.INITIAL_DATA.shop.logo_url;
+                        }
                     }
-
-                    this.tables = [
-                        { id: 'Meja 01', qr: this.getQRUrl('01') },
-                        { id: 'Meja 02', qr: this.getQRUrl('02') },
-                        { id: 'Meja 03', qr: this.getQRUrl('03') },
-                        { id: 'Meja 04', qr: this.getQRUrl('04') },
-                        { id: 'Meja 05', qr: this.getQRUrl('05') },
-                        { id: 'Meja 06', qr: this.getQRUrl('06') },
-                    ];
+                    
                     this.fetchLiveOrders(true);
                     
                     window.addEventListener('storage', (e) => {
                         if (e.key === 'bitten_orders' || e.key === 'bitten_menu') {
-                            this.fetchLiveOrders();
-                            this.loadMenu();
+                            // Can't really sync across tabs without websockets in Laravel, 
+                            // but we can leave this or reload page.
+                            window.location.reload();
                         }
                     });
 
@@ -1011,8 +1094,10 @@
                     });
                 },
                 loadMenu() {
-                    this.menuItems = DB.get('bitten_menu').map(m => ({
+                    this.menuItems = window.INITIAL_DATA.menu.map(m => ({
                         ...m,
+                        categoryId: m.category_name,
+                        desc: m.description,
                         tags: m.tags || []
                     }));
                 },
@@ -1021,7 +1106,7 @@
                     this.showAddMenuModal = true;
                 },
                 deleteMenu(id) {
-                    if (confirm("Yakin ingin menghapus menu ini?")) {
+                    if (confirm("Yakin ingin menghapus menu ini? (Belum diimplementasikan API-nya)")) {
                         this.menuItems = this.menuItems.filter(m => m.id !== id);
                     }
                 },
@@ -1030,50 +1115,66 @@
                         alert("Nama, Harga, dan Kategori wajib diisi!");
                         return;
                     }
-                    if (this.newMenu.id) {
-                        const item = this.menuItems.find(m => m.id === this.newMenu.id);
-                        if (item) {
-                            item.name = this.newMenu.name;
-                            item.price = parseInt(this.newMenu.price);
-                            item.desc = this.newMenu.desc;
-                            item.categoryId = this.newMenu.categoryId;
-                        }
-                    } else {
-                        const newId = 'custom-' + Date.now();
-                        const newItem = {
-                            id: newId,
-                            categoryId: this.newMenu.categoryId,
-                            name: this.newMenu.name,
-                            price: parseInt(this.newMenu.price),
-                            desc: this.newMenu.desc,
-                            img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=300&fit=crop',
-                            tags: [],
-                            soldOut: false
-                        };
-                        this.menuItems.unshift(newItem);
-                    }
                     
-                    // Reset modal
-                    this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '' };
-                    this.showAddMenuModal = false;
+                    fetch('/admin/api/menu', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(this.newMenu)
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            if (this.newMenu.id) {
+                                const item = this.menuItems.find(m => m.id === this.newMenu.id);
+                                if (item) {
+                                    item.name = this.newMenu.name;
+                                    item.price = parseInt(this.newMenu.price);
+                                    item.desc = this.newMenu.desc;
+                                    item.categoryId = this.newMenu.categoryId;
+                                }
+                            } else {
+                                data.menu.categoryId = data.menu.category_name;
+                                data.menu.desc = data.menu.description;
+                                this.menuItems.unshift(data.menu);
+                            }
+                            this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '' };
+                            this.showAddMenuModal = false;
+                        }
+                    });
                 },
                 viewOrderDetails(order) {
                     this.selectedOrder = order;
                     this.showOrderDetailModal = true;
                 },
                 updateStatus(id, newStatus) {
-                    // Update in DB (LocalStorage)
-                    DB.updateOrderStatus(id, newStatus);
-                    // Sync locally so UI updates immediately
-                    this.fetchLiveOrders();
+                    fetch(`/admin/api/orders/${id}/status`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    }).then(() => {
+                        const order = this.orders.find(o => o.id === id);
+                        if (order) order.status = newStatus;
+                    });
                 },
                 logout() {
-                    localStorage.removeItem('bitten_admin_logged_in');
-                    window.location.href = 'login.html';
+                    // Redirect to actual laravel logout
+                    fetch('{{ route("logout") }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                    }).then(() => window.location.href = '/');
                 },
                 toggleSoldOut(id) {
-                    DB.toggleSoldOut(id);
-                    this.loadMenu();
+                    fetch(`/admin/api/menu/${id}/toggle`, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                    }).then(res => res.json()).then(data => {
+                        const item = this.menuItems.find(m => m.id === id);
+                        if (item) item.is_sold_out = data.is_sold_out;
+                    });
                 },
                 acceptIncomingOrder() {
                     if (this.incomingOrder) {
@@ -1082,9 +1183,15 @@
                     }
                 },
                 fetchLiveOrders(isInit = false) {
-                    const dbOrders = DB.get('bitten_orders');
+                    const dbOrders = window.INITIAL_DATA.orders.map(o => ({
+                        id: o.id,
+                        customer: o.customer_name || ('Meja ' + (o.table ? o.table.name : '-')),
+                        status: o.status,
+                        total: o.total_price,
+                        time: o.created_at,
+                        items: o.items.map(i => ({ name: i.product.name, qty: i.quantity, price: i.price }))
+                    }));
                     
-                    // Cek order baru untuk notifikasi (hanya jika bukan inisialisasi awal)
                     if (!isInit && dbOrders.length > 0 && dbOrders[0].status === 'Masuk' && (!this.orders.length || dbOrders[0].id !== this.orders[0].id)) {
                         const chime = document.getElementById('chime-sound');
                         if (chime) {
@@ -1093,8 +1200,6 @@
                         }
                         this.incomingOrder = dbOrders[0];
                     }
-
-                    // Sinkronisasi penuh array orders dengan DB
                     this.orders = dbOrders;
                 },
                 addTableFromModal() {
@@ -1113,21 +1218,7 @@
                     this.showAddTableModal = false;
                 },
                 printQR(table) {
-                    const printWindow = window.open('', '', 'width=400,height=500');
-                    printWindow.document.write(`
-                        <html>
-                        <head><title>Print QR - ${table.id}</title></head>
-                        <body style="text-align:center; font-family:Arial, sans-serif; margin-top:50px;">
-                            <h2 style="font-size:24px; margin-bottom: 20px;">${table.id}</h2>
-                            <img src="${table.qr}" style="width:250px; height:250px; display:block; margin: 0 auto;" />
-                            <p style="font-size:14px; color:#555; margin-top: 20px;">Bitten Coffee - Scan to Order</p>
-                            <' + 'script>
-                                window.onload = () => { window.print(); setTimeout(()=>window.close(), 500); }
-                            </' + 'script>
-                        </body>
-                        </html>
-                    `);
-                    printWindow.document.close();
+                    if(window.printQRWindow) window.printQRWindow(table);
                 },
                 resetQR(table) {
                     if(confirm(`Yakin ingin mereset/mengganti URL QR Code untuk ${table.id}? URL lama tidak akan bisa diakses lagi.`)) {
@@ -1135,6 +1226,65 @@
                         const tableNum = table.id.replace('Meja ', '');
                         table.qr = this.getQRUrl(tableNum, randomToken);
                     }
+                },
+                handleLogoUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('Ukuran file maksimal 2MB');
+                        return;
+                    }
+                    
+                    this.settings.logoFile = file;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.settings.logoPreview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+                saveSettings() {
+                    if (!this.settings.name || !this.settings.slug) {
+                        alert('Nama dan Slug toko wajib diisi!');
+                        return;
+                    }
+                    
+                    this.isSavingSettings = true;
+                    
+                    const formData = new FormData();
+                    formData.append('name', this.settings.name);
+                    formData.append('slug', this.settings.slug);
+                    formData.append('primary_color', this.settings.primary_color);
+                    if (this.settings.logoFile) {
+                        formData.append('logo', this.settings.logoFile);
+                    }
+                    
+                    fetch('/admin/api/settings', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isSavingSettings = false;
+                        if (data.success) {
+                            alert('Pengaturan berhasil disimpan!');
+                            if (data.logo_url) {
+                                this.settings.logoPreview = '/storage/' + data.logo_url;
+                                this.settings.logoFile = null;
+                            }
+                        } else {
+                            alert('Gagal menyimpan pengaturan: ' + (data.message || 'Error tidak diketahui'));
+                        }
+                    })
+                    .catch(err => {
+                        this.isSavingSettings = false;
+                        alert('Terjadi kesalahan jaringan.');
+                        console.error(err);
+                    });
                 }
             }))
         });

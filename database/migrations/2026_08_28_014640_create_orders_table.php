@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
+            $table->foreignId('table_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('customer_name')->nullable();
+            $table->string('status')->default('Masuk');
+            $table->decimal('total_price', 12, 2)->default(0);
             $table->timestamps();
         });
     }

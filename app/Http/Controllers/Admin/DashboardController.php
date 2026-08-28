@@ -7,5 +7,84 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    //
+    public function index()
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        if (!$user->shop_id) $user->update(['shop_id' => $shopId]);
+        $shop = \App\Models\Shop::find($shopId);
+
+        $menuItems = \App\Models\Product::where('shop_id', $shop->id)->get();
+        $orders = \App\Models\Order::where('shop_id', $shop->id)->with('items.product', 'table')->orderBy('created_at', 'desc')->get();
+        $tables = \App\Models\Table::where('shop_id', $shop->id)->get();
+
+        return view('Admin.Dashboard.dashboard', compact('shop', 'menuItems', 'orders', 'tables'));
+    }
+
+    public function updateOrderStatus(Request $request, $orderId)
+    {
+        $order = \App\Models\Order::findOrFail($orderId);
+        $order->status = $request->status;
+        $order->save();
+        return response()->json(['success' => true]);
+    }
+
+    public function toggleMenuStatus(Request $request, $menuId)
+    {
+        $menu = \App\Models\Product::findOrFail($menuId);
+        $menu->is_sold_out = !$menu->is_sold_out;
+        $menu->save();
+        return response()->json(['success' => true, 'is_sold_out' => $menu->is_sold_out]);
+    }
+
+    public function saveMenu(Request $request)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        
+        $menu = \App\Models\Product::updateOrCreate(
+            ['id' => $request->id, 'shop_id' => $shopId],
+            [
+                'name' => $request->name,
+                'price' => $request->price,
+                'category_name' => $request->categoryId,
+                'description' => $request->desc,
+            ]
+        );
+        return response()->json(['success' => true, 'menu' => $menu]);
+    }
+
+    public function saveSettings(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255',
+            'primary_color' => 'nullable|string|max:20',
+            'logo' => 'nullable|image|max:2048'
+        ]);
+
+        $shop = \App\Models\Shop::find(\Illuminate\Support\Facades\Auth::user()->shop_id);
+        if (!$shop) {
+            return response()->json(['success' => false, 'message' => 'Shop not found.']);
+        }
+
+        $shop->name = $request->name;
+        $shop->slug = \Illuminate\Support\Str::slug($request->slug);
+        
+        if ($request->filled('primary_color')) {
+            $shop->primary_color = $request->primary_color;
+        }
+
+        if ($request->hasFile('logo')) {
+            $path = $request->file('logo')->store('logos', 'public');
+            $shop->logo_url = $path;
+        }
+
+        $shop->save();
+
+        return response()->json([
+            'success' => true,
+            'logo_url' => $shop->logo_url
+        ]);
+    }
 }

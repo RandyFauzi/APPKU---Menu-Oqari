@@ -9,6 +9,7 @@ return new class extends Migration {
             $table->foreignId('shop_id')->constrained()->onDelete('cascade');
             $table->string('category_name');
             $table->string('name');
+            $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->string('image_url')->nullable();
             $table->boolean('is_sold_out')->default(false);
