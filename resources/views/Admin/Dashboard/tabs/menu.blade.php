@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-10 pt-6 overflow-y-auto hide-scroll bg-brewlybg">
+﻿<div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-10 pt-6 overflow-y-auto hide-scroll bg-brewlybg">
             <!-- Main Menu UI -->
             <div class="flex flex-col gap-8">
                 <p class="text-brewlymuted text-sm">Add your coffee, food, and drinks to create a beautiful menu for your shop.</p>
@@ -169,9 +169,10 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <button class="bg-transparent border border-[#164A35] text-[#164A35] px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#DDEBDD] transition-colors flex items-center gap-2">
-                    <i class="fas fa-cloud-upload-alt"></i> Bulk upload CSV
+                <button @click="$refs.csvInput.click()" class="bg-transparent border border-[#164A35] text-[#164A35] px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#DDEBDD] transition-colors flex items-center gap-2">
+                    <i class="fas fa-file-csv"></i> Bulk upload CSV
                 </button>
+                <input type="file" x-ref="csvInput" @change="handleCSVUpload" accept=".csv" class="hidden">
             </div>
         </div>
 
@@ -209,12 +210,12 @@
                                 <label class="block text-[12px] font-semibold text-[#777873] mb-1.5">Category</label>
                                 <div class="relative">
                                     <select x-model="draftMenus[index].categoryId" class="w-full bg-[#F8F7F3] border border-transparent rounded-[11px] px-4 py-3 text-[16px] text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none appearance-none font-medium cursor-pointer">
-                                        <option value="Coffee">? Coffee</option>
-                                        <option value="Pastry">?? Pastry</option>
-                                        <option value="Beverages">?? Beverages</option>
-                                        <option value="Foods">?? Foods</option>
-                                        <option value="Snacks">?? Snacks</option>
-                                        <option value="Sweets">?? Sweets</option>
+                                        <option value="Coffee">Coffee</option>
+                                        <option value="Pastry">Pastry</option>
+                                        <option value="Beverages">Beverages</option>
+                                        <option value="Foods">Foods</option>
+                                        <option value="Snacks">Snacks</option>
+                                        <option value="Sweets">Sweets</option>
                                     </select>
                                     <i class="fas fa-chevron-down absolute right-4 top-4 text-xs text-[#777873] pointer-events-none"></i>
                                 </div>
@@ -268,3 +269,4 @@
 </div>
 </div>
 </div>
+
