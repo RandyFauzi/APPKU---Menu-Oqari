@@ -778,8 +778,20 @@ handleDraftImageUpload(event, index) {
                     this.showAddMenuModal = true;
                 },
                 deleteMenu(id) {
-                    if (confirm("Yakin ingin menghapus menu ini? (Belum diimplementasikan API-nya)")) {
-                        this.menuItems = this.menuItems.filter(m => m.id !== id);
+                    if (confirm("Yakin ingin menghapus menu ini?")) {
+                        fetch('/admin/api/menu/' + id, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+                        }).then(res => res.json()).then(data => {
+                            if (data.success) {
+                                this.menuItems = this.menuItems.filter(m => m.id !== id);
+                                this.addToast('Menu berhasil dihapus', 'success');
+                            } else {
+                                this.addToast(data.message || 'Gagal menghapus menu', 'error');
+                            }
+                        }).catch(err => {
+                            this.addToast('Terjadi kesalahan jaringan', 'error');
+                        });
                     }
                 },
                 saveNewMenu() {
@@ -860,7 +872,12 @@ handleDraftImageUpload(event, index) {
                         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                     }).then(res => res.json()).then(data => {
                         const item = this.menuItems.find(m => m.id === id);
-                        if (item) item.is_sold_out = data.is_sold_out;
+                        if (item) {
+                            item.is_sold_out = data.is_sold_out;
+                            this.addToast(data.is_sold_out ? 'Menu ditandai Sold Out' : 'Menu tersedia kembali', 'success');
+                        }
+                    }).catch(err => {
+                        this.addToast('Gagal mengubah status menu', 'error');
                     });
                 },
                 acceptIncomingOrder() {

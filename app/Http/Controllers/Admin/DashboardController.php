@@ -30,6 +30,17 @@ class DashboardController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function deleteMenu($id)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $menu = \App\Models\Product::where('shop_id', $user->shop_id)->where('id', $id)->first();
+        if ($menu) {
+            $menu->delete();
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false, 'message' => 'Menu not found'], 404);
+    }
+
     public function toggleMenuStatus(Request $request, $menuId)
     {
         $menu = \App\Models\Product::findOrFail($menuId);
