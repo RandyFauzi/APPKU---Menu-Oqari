@@ -178,7 +178,7 @@
 
         <!-- Scrollable Body -->
         <div class="flex-grow overflow-y-auto hide-scroll py-2">
-            <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-3 pb-[240px]">
                 <template x-for="(draft, index) in draftMenus" :key="index">
                     <!-- Row -->
                     <div class="flex items-center gap-5 p-4 bg-white rounded-[16px] border border-[#E3E1DC] shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
@@ -209,7 +209,7 @@
                             <div>
                                 <label class="block text-[12px] font-semibold text-[#777873] mb-1.5">Category</label>
                                 <div class="relative">
-                                    <div x-data="{ 
+                                    <div :class="open ? 'relative z-50' : 'relative'" x-data="{ 
                                         open: false,
                                         options: [
                                             { id: 'Coffee', icon: 'fas fa-mug-hot', bg: 'bg-[#DDEBDD]', text: 'text-[#164A35]' },
