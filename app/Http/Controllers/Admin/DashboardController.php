@@ -63,7 +63,14 @@ class DashboardController extends Controller
             'logo' => 'nullable|image|max:2048'
         ]);
 
-        $shop = \App\Models\Shop::find(\Illuminate\Support\Facades\Auth::user()->shop_id);
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        
+        if (!$user->shop_id) {
+            $user->update(['shop_id' => $shopId]);
+        }
+
+        $shop = \App\Models\Shop::find($shopId);
         if (!$shop) {
             return response()->json(['success' => false, 'message' => 'Shop not found.']);
         }
