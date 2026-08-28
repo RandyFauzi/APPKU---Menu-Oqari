@@ -13,6 +13,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::post('/admin/api/orders/{order}/status', [DashboardController::class, 'updateOrderStatus']);
     Route::post('/admin/api/menu/{menu}/toggle', [DashboardController::class, 'toggleMenuStatus']);
+    Route::post('/admin/api/menu/bulk', [DashboardController::class, 'saveMenuBulk']);
     Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
     Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
 });

@@ -54,6 +54,54 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'menu' => $menu]);
     }
 
+    public function saveMenuBulk(Request $request)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+
+        $items = $request->input('items', []);
+        $savedMenus = [];
+
+        foreach ($items as $index => $itemData) {
+            // Check if there's an image file for this specific index
+            $imagePath = null;
+            if ($request->hasFile("images.{$index}")) {
+                $imagePath = $request->file("images.{$index}")->store('menus', 'public');
+            }
+
+            // Validasi sederhana
+            if (empty($itemData['name']) || empty($itemData['price'])) {
+                continue; // Lewati item yang kosong
+            }
+
+            $productData = [
+                'name' => $itemData['name'],
+                'price' => $itemData['price'],
+                'category_name' => $itemData['category_name'] ?? 'Uncategorized',
+                'description' => $itemData['description'] ?? null,
+            ];
+
+            if ($imagePath) {
+                $productData['image_url'] = $imagePath;
+            }
+
+            // Jika ada id, berarti update, jika tidak, create
+            if (!empty($itemData['id'])) {
+                $menu = \App\Models\Product::where('id', $itemData['id'])->where('shop_id', $shopId)->first();
+                if ($menu) {
+                    $menu->update($productData);
+                    $savedMenus[] = $menu;
+                }
+            } else {
+                $productData['shop_id'] = $shopId;
+                $menu = \App\Models\Product::create($productData);
+                $savedMenus[] = $menu;
+            }
+        }
+
+        return response()->json(['success' => true, 'menus' => $savedMenus]);
+    }
+
     public function saveSettings(Request $request)
     {
         $request->validate([

@@ -240,8 +240,10 @@
         </div>
 
         <!-- VIEW: MENU CMS (OWNER) -->
-        <div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-10 pt-6 overflow-y-auto hide-scroll flex flex-col gap-8 bg-brewlybg">
-            <p class="text-brewlymuted text-sm">Add your coffee, food, and drinks to create a beautiful menu for your shop.</p>
+        <div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-10 pt-6 overflow-y-auto hide-scroll bg-brewlybg">
+            <!-- Main Menu UI -->
+            <div x-show="!showBulkUpload" class="flex flex-col gap-8">
+                <p class="text-brewlymuted text-sm">Add your coffee, food, and drinks to create a beautiful menu for your shop.</p>
             
             <!-- Cards Section -->
             <div class="grid grid-cols-2 gap-6">
@@ -252,7 +254,7 @@
                     </div>
                     <h3 class="font-bold text-lg mb-1 text-brewlytext">Upload Menu Items</h3>
                     <p class="text-sm text-brewlymuted mb-6">Drag and drop images, or click to upload<br>JPG, PNG up to 10MB</p>
-                    <button @click="newMenu = { id: null, name: '', price: '', desc: '', categoryId: 'beverages' }; showAddMenuModal = true" class="bg-brewlygreen text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-sm hover:bg-[#2A5E3E] transition">
+                    <button @click="initBulkUpload()" class="bg-brewlygreen text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-sm hover:bg-[#2A5E3E] transition">
                         Upload Files
                     </button>
                 </div>
@@ -387,10 +389,100 @@
                         </tbody>
                     </table>
                 </div>
+            </div> <!-- End of !showBulkUpload -->
+
+            <!-- Bulk Upload Container -->
+            <div x-show="showBulkUpload" x-cloak class="w-full max-w-4xl mx-auto bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+                <div class="flex justify-between items-start mb-6 border-b border-gray-200 pb-6 border-dashed">
+                    <div class="flex gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-brewlygreen text-white flex items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-heading font-extrabold text-2xl text-brewlytext mb-1">Upload Menu</h2>
+                            <p class="text-brewlymuted text-sm">Add your coffee and pastry items with images, prices, and categories.</p>
+                        </div>
+                    </div>
+                    <button class="border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-50 flex items-center gap-2">
+                        <i class="fas fa-cloud-upload-alt"></i> Bulk upload CSV
+                    </button>
+                </div>
+
+                <div class="flex flex-col gap-4 mb-8">
+                    <template x-for="(draft, index) in draftMenus" :key="index">
+                        <div class="flex items-center gap-4">
+                            <!-- Image Box -->
+                            <div class="w-[120px] h-[80px] shrink-0 relative rounded-xl border-2 border-dashed border-gray-300 overflow-hidden bg-gray-50 flex items-center justify-center group cursor-pointer hover:border-brewlygreen">
+                                <input type="file" @change="handleDraftImageUpload($event, index)" accept="image/jpeg, image/png, image/webp" class="absolute inset-0 opacity-0 cursor-pointer z-20">
+                                <template x-if="draft.imagePreview">
+                                    <img :src="draft.imagePreview" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!draft.imagePreview">
+                                    <div class="text-center">
+                                        <i class="fas fa-cloud-upload-alt text-gray-400 text-lg mb-1 group-hover:text-brewlygreen transition-colors"></i>
+                                        <p class="text-[10px] text-gray-500 font-medium leading-tight">Upload image<br>JPG, PNG or WEBP</p>
+                                    </div>
+                                </template>
+                            </div>
+                            
+                            <!-- Inputs -->
+                            <div class="flex-grow grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-500 mb-1">Item name</label>
+                                    <input type="text" x-model="draft.name" placeholder="e.g. Blueberry Muffin" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-500 mb-1">Category</label>
+                                    <div class="relative">
+                                        <select x-model="draft.categoryId" class="w-full bg-gray-100 border border-transparent rounded-xl px-3 py-2 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none appearance-none font-medium">
+                                            <template x-for="cat in categories">
+                                                <option :value="cat" x-text="cat"></option>
+                                            </template>
+                                        </select>
+                                        <i class="fas fa-chevron-down absolute right-3 top-3 text-xs text-gray-500 pointer-events-none"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-gray-500 mb-1">Price</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2 text-sm text-gray-500">Rp</span>
+                                        <input type="number" x-model="draft.price" placeholder="0" class="w-full bg-white border border-gray-300 rounded-xl pl-9 pr-3 py-2 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Button -->
+                            <div class="shrink-0 mt-5 w-10 flex justify-center">
+                                <template x-if="index === draftMenus.length - 1">
+                                    <button @click="addDraftRow()" class="w-8 h-8 rounded-lg bg-green-50 text-green-600 border border-green-100 hover:bg-green-100 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-plus text-sm"></i>
+                                    </button>
+                                </template>
+                                <template x-if="index !== draftMenus.length - 1">
+                                    <button @click="removeDraftRow(index)" class="w-8 h-8 rounded-lg bg-red-50 text-red-400 border border-red-100 hover:bg-red-100 hover:text-red-500 flex items-center justify-center transition-colors">
+                                        <i class="fas fa-trash-alt text-sm"></i>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Footer -->
+                <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+                    <div class="text-sm text-gray-500 font-bold"><span class="text-brewlygreen font-extrabold text-lg" x-text="draftMenus.length"></span> items added</div>
+                    <div class="flex gap-3">
+                        <button @click="showBulkUpload = false" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors">Save draft</button>
+                        <button @click="saveBulkMenu" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-[#D9652A] text-white hover:bg-[#c25a25] transition-colors shadow-md flex items-center gap-2">
+                            <i class="fas fa-cloud-upload-alt"></i> Publish menu
+                        </button>
+                    </div>
+                </div>
+                <div class="text-center mt-6">
+                    <p class="text-xs text-gray-400 font-medium flex items-center justify-center gap-2"><i class="fas fa-shield-check text-brewlygreen text-sm"></i> Customers will see your updated menu immediately after publishing.</p>
+                </div>
             </div>
         </div>
-
-        <!-- VIEW: ANALYTICS (OWNER) -->
         <div x-show="currentTab === 'analytics'" x-cloak class="flex-grow p-10 pt-4 overflow-auto hide-scroll bg-[#FAFAFA]">
             
             <div class="flex justify-end mb-6">
@@ -905,6 +997,61 @@
                 activeOrderFilter: 'process',
                 searchQuery: '',
                 newMenu: { id: null, name: '', price: '', desc: '', categoryId: '' },
+                showBulkUpload: false,
+                draftMenus: [],
+                categories: ['Coffee', 'Pastry', 'Beverages', 'Foods', 'Snacks', 'Sweets'],
+                initBulkUpload() {
+                    this.showBulkUpload = true;
+                    if (this.draftMenus.length === 0) {
+                        this.addDraftRow();
+                    }
+                },
+                addDraftRow() {
+                    this.draftMenus.push({ id: null, name: '', price: '', categoryId: this.categories[0], imagePreview: null, imageFile: null });
+                },
+                removeDraftRow(index) {
+                    this.draftMenus.splice(index, 1);
+                    if (this.draftMenus.length === 0) this.addDraftRow();
+                },
+                handleDraftImageUpload(event, index) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (file.size > 2 * 1024 * 1024) {
+                        this.addToast('Image max 2MB', 'error');
+                        return;
+                    }
+                    this.draftMenus[index].imageFile = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => { this.draftMenus[index].imagePreview = e.target.result; };
+                    reader.readAsDataURL(file);
+                },
+                saveBulkMenu() {
+                    const validItems = this.draftMenus.filter(m => m.name && m.price);
+                    if (validItems.length === 0) {
+                        this.addToast('Minimal isi Nama dan Harga', 'error');
+                        return;
+                    }
+                    let formData = new FormData();
+                    validItems.forEach((item, index) => {
+                        if (item.id) formData.append(`items[${index}][id]`, item.id);
+                        formData.append(`items[${index}][name]`, item.name);
+                        formData.append(`items[${index}][price]`, item.price);
+                        formData.append(`items[${index}][category_name]`, item.categoryId);
+                        if (item.imageFile) formData.append(`images[${index}]`, item.imageFile);
+                    });
+                    fetch('/admin/api/menu/bulk', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            this.addToast('Berhasil upload menu!', 'success');
+                            setTimeout(() => window.location.reload(), 1000);
+                        }
+                    }).catch(err => this.addToast('Error saving bulk menu', 'error'));
+                },
                 toasts: [],
                 addToast(message, type = 'success') {
                     const id = Date.now();
@@ -1335,7 +1482,7 @@
     </div>
 
     <!-- Floating Action Button to Customer Menu -->
-    <a href="index.html" target="_blank" class="fixed bottom-10 right-10 bg-[#1E5A7A] text-white p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:bg-[#154660] transition-all z-[100] group border-4 border-white">
+    <a :href="'/' + settings.slug" target="_blank" class="fixed bottom-10 right-10 bg-[#1E5A7A] text-white p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:bg-[#154660] transition-all z-[100] group border-4 border-white">
         <i class="fas fa-store text-xl"></i>
         <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[200px] transition-all duration-500 ease-in-out pl-0 group-hover:pl-3 font-bold text-sm">Lihat Web Pelanggan</span>
     </a>
