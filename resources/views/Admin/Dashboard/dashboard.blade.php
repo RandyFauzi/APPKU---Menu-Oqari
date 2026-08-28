@@ -396,6 +396,8 @@
                 showAddCrewModal: false,
                 users: window.INITIAL_DATA.users || [],
                 newCrew: { name: '', email: '', password: '', role: 'barista' },
+                showEditCrewModal: false,
+                editCrewData: { id: null, name: '', email: '', password: '', role: 'barista' },
                 isSaving: false,
                 showOrderDetailModal: false,
                 selectedOrder: null,
@@ -951,6 +953,53 @@ handleDraftImageUpload(event, index) {
                             this.addToast('Crew berhasil ditambahkan', 'success');
                         } else {
                             this.addToast(data.message || 'Error menambahkan crew', 'error');
+                        }
+                    })
+                    .catch((err) => {
+                        this.isSaving = false;
+                        if (err.errors) {
+                            const firstError = Object.values(err.errors)[0][0];
+                            this.addToast(firstError, 'error');
+                        } else {
+                            this.addToast(err.message || 'Network error', 'error');
+                        }
+                    });
+                },
+                openEditCrew(user) {
+                    this.editCrewData = { 
+                        id: user.id, 
+                        name: user.name, 
+                        email: user.email, 
+                        password: '', 
+                        role: user.role 
+                    };
+                    this.showEditCrewModal = true;
+                },
+                updateCrew() {
+                    this.isSaving = true;
+                    fetch('/admin/api/crew/' + this.editCrewData.id, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ ...this.editCrewData, _method: 'PUT' })
+                    })
+                    .then(async res => {
+                        const data = await res.json();
+                        if (!res.ok) throw data;
+                        return data;
+                    })
+                    .then(data => {
+                        this.isSaving = false;
+                        if(data.success) {
+                            const idx = this.users.findIndex(u => u.id === data.user.id);
+                            if(idx !== -1) this.users[idx] = data.user;
+                            this.showEditCrewModal = false;
+                            this.addToast('Crew berhasil diupdate', 'success');
+                        } else {
+                            this.addToast(data.message || 'Error update crew', 'error');
                         }
                     })
                     .catch((err) => {
