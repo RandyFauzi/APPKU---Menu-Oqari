@@ -154,13 +154,13 @@ class DashboardController extends Controller
 
         $user = \Illuminate\Support\Facades\Auth::user();
         
-        $newCrew = \App\Models\User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-            'shop_id' => $user->shop_id,
-            'role' => $request->role
-        ]);
+        $newCrew = new \App\Models\User();
+        $newCrew->name = $request->name;
+        $newCrew->email = $request->email;
+        $newCrew->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $newCrew->shop_id = $user->shop_id;
+        $newCrew->role = $request->role;
+        $newCrew->save();
 
         return response()->json(['success' => true, 'user' => $newCrew]);
     }
@@ -186,11 +186,11 @@ class DashboardController extends Controller
 
         $user = \Illuminate\Support\Facades\Auth::user();
         
-        $table = \App\Models\Table::create([
-            'shop_id' => $user->shop_id,
-            'name' => $request->name,
-            'qr_code_url' => $request->qr_code_url
-        ]);
+        $table = new \App\Models\Table();
+        $table->shop_id = $user->shop_id;
+        $table->name = $request->name;
+        $table->qr_code_url = $request->qr_code_url;
+        $table->save();
 
         return response()->json(['success' => true, 'table' => $table]);
     }

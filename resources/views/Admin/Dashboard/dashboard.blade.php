@@ -501,7 +501,7 @@ handleDraftImageUpload(event, index) {
                     });
                     fetch('/admin/api/menu/bulk', {
                         method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         body: formData
                     })
                     .then(res => res.json())
@@ -856,7 +856,7 @@ handleDraftImageUpload(event, index) {
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({ name: tableName, qr_code_url: qrUrl })
                     })
@@ -894,7 +894,7 @@ handleDraftImageUpload(event, index) {
                             headers: {
                                 'Content-Type': 'application/json',
                             'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
                             body: JSON.stringify({ name: table.id, qr_code_url: newQrUrl })
                         })
@@ -931,7 +931,7 @@ handleDraftImageUpload(event, index) {
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify(this.newCrew)
                     })
@@ -968,7 +968,7 @@ handleDraftImageUpload(event, index) {
                     fetch('/admin/api/crew/' + id, {
                         method: 'DELETE',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         }
                     })
                     .then(res => res.json())
