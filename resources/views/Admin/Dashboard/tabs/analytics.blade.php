@@ -248,7 +248,7 @@
                 }, 200);
 
                 // Watch for tab changes to re-render if needed
-                this.('currentTab', (val) => {
+                this.$watch('currentTab', (val) => {
                     if (val === 'analytics') {
                         setTimeout(() => {
                             this.initTrendChart();
