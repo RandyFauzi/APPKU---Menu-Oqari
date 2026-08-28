@@ -13,7 +13,7 @@
                     <h3 class="font-bold text-lg mb-1 text-brewlytext">Upload Menu Items</h3>
                     <p class="text-sm text-brewlymuted mb-6">Drag and drop images, or click to upload<br>JPG, PNG up to 10MB</p>
                     <button @click="initBulkUpload()" class="bg-brewlygreen text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-sm hover:bg-[#2A5E3E] transition">
-                        Upload Files
+                        Tambah Menu
                     </button>
                 </div>
                 <!-- Tips Card -->
@@ -187,15 +187,18 @@
                             <div class="flex-grow grid grid-cols-3 gap-4">
                                 <div>
                                     <label class="block text-[11px] font-bold text-gray-500 mb-1">Item name</label>
-                                    <input type="text" x-model="draft.name" placeholder="e.g. Blueberry Muffin" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none">
+                                    <input type="text" x-model="draftMenus[index].name" placeholder="e.g. Blueberry Muffin" class="w-full bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-[11px] font-bold text-gray-500 mb-1">Category</label>
                                     <div class="relative">
-                                        <select x-model="draft.categoryId" class="w-full bg-gray-100 border border-transparent rounded-xl px-3 py-2 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none appearance-none font-medium">
-                                            <template x-for="cat in categories">
-                                                <option :value="cat" x-text="cat"></option>
-                                            </template>
+                                        <select x-model="draftMenus[index].categoryId" class="w-full bg-gray-100 border border-transparent rounded-xl px-3 py-2 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none appearance-none font-medium">
+                                            <option value="Coffee">Coffee</option>
+                                            <option value="Pastry">Pastry</option>
+                                            <option value="Beverages">Beverages</option>
+                                            <option value="Foods">Foods</option>
+                                            <option value="Snacks">Snacks</option>
+                                            <option value="Sweets">Sweets</option>
                                         </select>
                                         <i class="fas fa-chevron-down absolute right-3 top-3 text-xs text-gray-500 pointer-events-none"></i>
                                     </div>
@@ -204,7 +207,7 @@
                                     <label class="block text-[11px] font-bold text-gray-500 mb-1">Price</label>
                                     <div class="relative">
                                         <span class="absolute left-3 top-2 text-sm text-gray-500">Rp</span>
-                                        <input type="number" x-model="draft.price" placeholder="0" class="w-full bg-white border border-gray-300 rounded-xl pl-9 pr-3 py-2 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none">
+                                        <input type="number" x-model="draftMenus[index].price" placeholder="0" class="w-full bg-white border border-gray-300 rounded-xl pl-9 pr-3 py-2 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none">
                                     </div>
                                 </div>
                             </div>
