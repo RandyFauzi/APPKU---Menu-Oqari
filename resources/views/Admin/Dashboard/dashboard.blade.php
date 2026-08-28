@@ -159,48 +159,81 @@
         @include('Admin.Dashboard.tabs.settings')
 
 
-        <!-- MODAL: ADD MENU -->
-        <div x-show="showAddMenuModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+        <!-- MODAL: ADD/EDIT MENU -->
+        <div x-show="showAddMenuModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans">
             <!-- Backdrop -->
-            <div @click="showAddMenuModal = false" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+            <div @click="showAddMenuModal = false" class="absolute inset-0 bg-[#202522]/30 backdrop-blur-sm transition-opacity"></div>
+            
             <!-- Modal Content -->
-            <div class="relative bg-white w-[500px] rounded-lg shadow-xl flex flex-col" @keydown.escape.window="showAddMenuModal = false">
-                <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-                    <h3 class="font-heading font-extrabold text-lg text-[#2D3748]"><i class="fas fa-hamburger mr-2 text-[#1E5A7A]"></i> <span x-text="newMenu.id ? 'Edit Menu' : 'Tambah Menu Baru'"></span></h3>
-                    <button @click="showAddMenuModal = false" class="text-gray-400 hover:text-red-500 transition">
+            <div class="relative bg-[#FFFFFF] w-full max-w-2xl rounded-[28px] p-8 shadow-[0_10px_35px_rgba(0,0,0,0.05)] flex flex-col border border-[#E3E1DC]" @keydown.escape.window="showAddMenuModal = false" x-transition>
+                
+                <!-- Header -->
+                <div class="flex justify-between items-start mb-6 pb-6 border-b border-dashed border-[#E3E1DC]">
+                    <div class="flex gap-5">
+                        <div class="w-16 h-16 rounded-[16px] bg-[#164A35] text-white flex items-center justify-center shadow-sm">
+                            <i class="fas fa-pen text-2xl" x-show="newMenu.id"></i>
+                            <i class="fas fa-hamburger text-2xl" x-show="!newMenu.id"></i>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <h2 class="text-[28px] text-[#164A35] leading-tight mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700;" x-text="newMenu.id ? 'Edit Menu' : 'Tambah Menu Baru'"></h2>
+                            <p class="text-[#777873] text-[15px]" x-text="newMenu.id ? 'Perbarui detail, harga, dan gambar menu ini.' : 'Tambahkan menu baru ke dalam daftar toko Anda.'"></p>
+                        </div>
+                    </div>
+                    <button @click="showAddMenuModal = false" class="text-[#777873] hover:text-[#202522] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors w-8 h-8 flex items-center justify-center rounded-full mt-1">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="p-5 flex flex-col gap-4 font-mono">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Kategori Menu</label>
-                        <select x-model="newMenu.categoryId" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-[#1E5A7A] focus:outline-none bg-white">
-                            <option value="beverages">Beverages</option>
-                            <option value="foods">Foods</option>
-                            <option value="snacks">Snacks</option>
-                            <option value="sweets">Sweets</option>
-                        </select>
+
+                <!-- Body -->
+                <div class="flex flex-col gap-5">
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Kategori</label>
+                            <select x-model="newMenu.categoryId" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none appearance-none">
+                                <option value="beverages">Beverages</option>
+                                <option value="foods">Foods</option>
+                                <option value="snacks">Snacks</option>
+                                <option value="sweets">Sweets</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Harga (Rp)</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3.5 text-[15px] text-[#202522] font-medium">Rp</span>
+                                <input type="number" x-model="newMenu.price" placeholder="0" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] pl-11 pr-4 py-3.5 text-[15px] font-bold text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
+                            </div>
+                        </div>
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Nama Menu</label>
-                        <input type="text" x-model="newMenu.name" placeholder="Misal: Matcha Latte" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-[#1E5A7A] focus:outline-none">
+                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Nama Menu</label>
+                        <input type="text" x-model="newMenu.name" placeholder="Misal: Iced Matcha Latte" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-[#202522] placeholder:font-medium placeholder:text-[#C5DBC5] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Harga (Rp)</label>
-                        <input type="number" x-model="newMenu.price" placeholder="Misal: 25000" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-[#1E5A7A] focus:outline-none">
+                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Deskripsi Singkat</label>
+                        <textarea x-model="newMenu.desc" placeholder="Penjelasan menarik tentang menu ini..." rows="2" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-medium text-[#202522] placeholder:text-[#C5DBC5] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none"></textarea>
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Deskripsi Singkat</label>
-                        <textarea x-model="newMenu.desc" placeholder="Penjelasan singkat tentang menu ini..." rows="2" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-[#1E5A7A] focus:outline-none"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Upload Gambar (Opsional)</label>
-                        <input type="file" x-ref="menuImageInput" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#1E5A7A]/10 file:text-[#1E5A7A] hover:file:bg-[#1E5A7A]/20">
+                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Upload Gambar (Opsional)</label>
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-[14px] bg-[#F8F7F3] border border-dashed border-[#C5DBC5] flex items-center justify-center shrink-0">
+                                <i class="fas fa-image text-[#C5DBC5] text-xl"></i>
+                            </div>
+                            <input type="file" x-ref="menuImageInput" class="w-full text-sm text-[#777873] file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-[#DDEBDD] file:text-[#164A35] hover:file:bg-[#C5DBC5] cursor-pointer outline-none">
+                        </div>
                     </div>
                 </div>
-                <div class="p-5 border-t border-gray-100 flex justify-end gap-2">
-                    <button @click="showAddMenuModal = false" class="px-4 py-2 rounded text-sm font-bold text-gray-500 hover:bg-gray-50 transition">Batal</button>
-                    <button @click="saveNewMenu" class="px-4 py-2 rounded text-sm font-bold bg-[#1E5A7A] text-white shadow-sm hover:bg-[#154660] transition" x-text="newMenu.id ? 'Simpan Perubahan' : 'Simpan Menu'"></button>
+
+                <!-- Footer -->
+                <div class="mt-8 flex justify-end gap-3 pt-6 border-t border-[#E3E1DC]">
+                    <button @click="showAddMenuModal = false" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-white border border-[#E3E1DC] text-[#777873] hover:bg-[#F8F7F3] transition-colors">Batal</button>
+                    <button @click="saveNewMenu" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-[#164A35] text-white hover:bg-[#0f3526] transition-colors shadow-sm flex items-center gap-2">
+                        <i class="fas fa-check" x-show="!newMenu.id"></i>
+                        <i class="fas fa-save" x-show="newMenu.id"></i>
+                        <span x-text="newMenu.id ? 'Simpan Perubahan' : 'Simpan Menu'"></span>
+                    </button>
                 </div>
             </div>
         </div>
