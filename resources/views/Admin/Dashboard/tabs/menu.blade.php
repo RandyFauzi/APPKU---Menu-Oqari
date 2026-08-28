@@ -1,6 +1,6 @@
 <div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-10 pt-6 overflow-y-auto hide-scroll bg-brewlybg">
             <!-- Main Menu UI -->
-            <div x-show="!showBulkUpload" class="flex flex-col gap-8">
+            <div class="flex flex-col gap-8">
                 <p class="text-brewlymuted text-sm">Add your coffee, food, and drinks to create a beautiful menu for your shop.</p>
             
             <!-- Cards Section -->
@@ -147,24 +147,39 @@
                         </tbody>
                     </table>
                 </div>
-            </div> <!-- End of !showBulkUpload -->
+            </div>
 
-            <!-- Bulk Upload Container -->
-            <div x-show="showBulkUpload" x-cloak class="w-full max-w-4xl mx-auto bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-                <div class="flex justify-between items-start mb-6 border-b border-gray-200 pb-6 border-dashed">
-                    <div class="flex gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-brewlygreen text-white flex items-center justify-center">
-                            <i class="fas fa-cloud-upload-alt text-2xl"></i>
+            <!-- MODAL: BULK UPLOAD MENU -->
+            <div x-show="showBulkUpload" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10">
+                <!-- Backdrop -->
+                <div @click="showBulkUpload = false" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+                
+                <!-- Modal Content -->
+                <div class="relative w-full max-w-5xl mx-auto bg-white rounded-3xl p-8 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+                    
+                    <!-- Header -->
+                    <div class="flex justify-between items-start mb-4 border-b border-gray-200 pb-4 border-dashed shrink-0">
+                        <div class="flex gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-brewlygreen text-white flex items-center justify-center">
+                                <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-heading font-extrabold text-2xl text-brewlytext mb-1">Tambah Menu Massal</h2>
+                                <p class="text-brewlymuted text-sm">Tambahkan menu secara langsung atau upload file CSV.</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 class="font-heading font-extrabold text-2xl text-brewlytext mb-1">Upload Menu</h2>
-                            <p class="text-brewlymuted text-sm">Add your coffee and pastry items with images, prices, and categories.</p>
+                        <div class="flex items-center gap-3">
+                            <button class="border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-50 flex items-center gap-2">
+                                <i class="fas fa-cloud-upload-alt"></i> Bulk upload CSV
+                            </button>
+                            <button @click="showBulkUpload = false" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                     </div>
-                    <button class="border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-50 flex items-center gap-2">
-                        <i class="fas fa-cloud-upload-alt"></i> Bulk upload CSV
-                    </button>
-                </div>
+
+                    <!-- Scrollable Body -->
+                    <div class="flex-grow overflow-y-auto hide-scroll py-2">
 
                 <div class="flex flex-col gap-4 mb-8">
                     <template x-for="(draft, index) in draftMenus" :key="index">
@@ -227,21 +242,20 @@
                             </div>
                         </div>
                     </template>
-                </div>
+                    </div>
+                </div> <!-- End Scrollable Body -->
 
                 <!-- Footer -->
-                <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+                <div class="flex justify-between items-center pt-4 border-t border-gray-200 shrink-0">
                     <div class="text-sm text-gray-500 font-bold"><span class="text-brewlygreen font-extrabold text-lg" x-text="draftMenus.length"></span> items added</div>
                     <div class="flex gap-3">
-                        <button @click="showBulkUpload = false" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors">Save draft</button>
+                        <button @click="showBulkUpload = false" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors">Tutup</button>
                         <button @click="saveBulkMenu" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-[#D9652A] text-white hover:bg-[#c25a25] transition-colors shadow-md flex items-center gap-2">
-                            <i class="fas fa-cloud-upload-alt"></i> Publish menu
+                            <i class="fas fa-cloud-upload-alt"></i> Publish Menu
                         </button>
                     </div>
                 </div>
-                <div class="text-center mt-6">
-                    <p class="text-xs text-gray-400 font-medium flex items-center justify-center gap-2"><i class="fas fa-shield-check text-brewlygreen text-sm"></i> Customers will see your updated menu immediately after publishing.</p>
-                </div>
             </div>
         </div>
+</div>
 </div>
