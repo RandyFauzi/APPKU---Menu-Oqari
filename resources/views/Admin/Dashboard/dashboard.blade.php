@@ -396,6 +396,7 @@
                 showAddCrewModal: false,
                 users: window.INITIAL_DATA.users || [],
                 newCrew: { name: '', email: '', password: '', role: 'barista' },
+                isSaving: false,
                 showOrderDetailModal: false,
                 selectedOrder: null,
                 incomingOrder: null,
@@ -756,6 +757,7 @@ handleDraftImageUpload(event, index) {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify(this.newMenu)
@@ -788,6 +790,7 @@ handleDraftImageUpload(event, index) {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({ status: newStatus })
@@ -852,11 +855,16 @@ handleDraftImageUpload(event, index) {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify({ name: tableName, qr_code_url: qrUrl })
                     })
-                    .then(res => res.json())
+                    .then(async res => {
+                        const data = await res.json();
+                        if (!res.ok) throw data;
+                        return data;
+                    })
                     .then(data => {
                         if(data.success) {
                             this.tables.push({
@@ -867,6 +875,9 @@ handleDraftImageUpload(event, index) {
                             this.showAddTableModal = false;
                             this.addToast('Meja berhasil ditambahkan', 'success');
                         }
+                    })
+                    .catch(err => {
+                        this.addToast(err.message || 'Gagal menyimpan meja', 'error');
                     });
                 },
                 printQR(table) {
@@ -882,6 +893,7 @@ handleDraftImageUpload(event, index) {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                             },
                             body: JSON.stringify({ name: table.id, qr_code_url: newQrUrl })
@@ -918,11 +930,18 @@ handleDraftImageUpload(event, index) {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify(this.newCrew)
                     })
-                    .then(res => res.json())
+                    .then(async res => {
+                        const data = await res.json();
+                        if (!res.ok) {
+                            throw data;
+                        }
+                        return data;
+                    })
                     .then(data => {
                         this.isSaving = false;
                         if(data.success) {
@@ -934,9 +953,14 @@ handleDraftImageUpload(event, index) {
                             this.addToast(data.message || 'Error menambahkan crew', 'error');
                         }
                     })
-                    .catch(() => {
+                    .catch((err) => {
                         this.isSaving = false;
-                        this.addToast('Network error', 'error');
+                        if (err.errors) {
+                            const firstError = Object.values(err.errors)[0][0];
+                            this.addToast(firstError, 'error');
+                        } else {
+                            this.addToast(err.message || 'Network error', 'error');
+                        }
                     });
                 },
                 deleteCrew(id) {
