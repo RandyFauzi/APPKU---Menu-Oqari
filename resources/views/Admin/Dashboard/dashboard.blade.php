@@ -367,43 +367,146 @@
         </div>
 
         <!-- MODAL: INCOMING ORDER ALERT -->
-        <div x-show="incomingOrder" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center">
+        <div x-show="activeIncomingOrder" x-cloak class="fixed inset-0 z-[200] flex items-center justify-center p-4 font-sans sm:items-center sm:p-0">
             <!-- Backdrop -->
-            <div class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
+            <div class="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity"></div>
+            
             <!-- Modal Content -->
-            <div class="relative bg-white w-[500px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-bounce" style="animation-iteration-count: 3; animation-duration: 0.5s;">
+            <div class="relative bg-[#F8F7F3] w-full sm:w-[520px] rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col border border-[#E3E1DC] overflow-hidden" 
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-200 transform"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 scale-95">
+
                 <!-- Header -->
-                <div class="bg-yellow-400 p-6 flex flex-col items-center justify-center border-b-4 border-yellow-500">
-                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg mb-3">
-                        <i class="fas fa-bell text-3xl text-yellow-500 animate-pulse"></i>
+                <div class="p-6 bg-[#F8F7F3] border-b border-[#E3E1DC] flex justify-between items-start">
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-[14px] bg-[#D97A32] text-white flex items-center justify-center shadow-sm shrink-0">
+                            <i class="fas fa-bell text-xl animate-pulse"></i>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <h2 class="text-[18px] font-bold text-[#D97A32] leading-tight mb-1">Pesanan Baru Masuk!</h2>
+                            <p class="text-[13px] text-[#777873]">Baru saja</p>
+                        </div>
                     </div>
-                    <h2 class="font-heading font-extrabold text-2xl text-yellow-900 tracking-wide uppercase">Pesanan Baru Masuk!</h2>
+                    
+                    <!-- Timer Badge -->
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[15px] font-mono font-bold shrink-0 transition-colors"
+                         :class="{
+                            'bg-[#D97A32] text-white': incomingTimer > 15,
+                            'bg-red-500 text-white animate-pulse': incomingTimer <= 15
+                         }">
+                        <i class="fas fa-stopwatch text-sm"></i>
+                        <span x-text="formatTime(incomingTimer)"></span>
+                    </div>
                 </div>
-                
+
                 <!-- Body -->
-                <div class="p-8 text-center font-mono">
-                    <template x-if="incomingOrder">
+                <div class="px-6 py-5 bg-white relative">
+                    <!-- Queue info -->
+                    <div x-show="incomingOrderQueue.length > 0" class="absolute top-0 inset-x-0 bg-[#F7E5D2] text-[#D97A32] text-[12px] font-bold py-1 text-center">
+                        <span x-text="incomingOrderQueue.length"></span> pesanan menunggu antrean
+                    </div>
+
+                    <!-- Order Number & Type -->
+                    <div class="flex gap-4 items-center mt-2 mb-6">
+                        <div class="w-12 h-12 rounded-[14px] bg-[#F8F7F3] border border-[#E3E1DC] text-[#202522] flex items-center justify-center shrink-0">
+                            <i class="fas fa-shopping-bag text-lg"></i>
+                        </div>
                         <div>
-                            <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">Meja</p>
-                            <p class="text-5xl font-sans font-extrabold text-primary mb-6" x-text="incomingOrder.table"></p>
-                            
-                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6">
-                                <p class="text-base font-bold text-textdark mb-1"><i class="fas fa-user-circle text-gray-400 mr-2"></i> <span x-text="incomingOrder.customer"></span></p>
-                                <p class="text-xs text-gray-500" x-text="incomingOrder.items.length + ' Item â€¢ ' + formatRp(incomingOrder.total)"></p>
+                            <h3 class="text-[18px] font-bold text-[#202522] mb-1">Pesanan #<span x-text="activeIncomingOrder?.id"></span></h3>
+                            <p class="text-[13px] text-[#777873]">Takeaway • <span x-text="activeIncomingOrder?.customer"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+
+                    <!-- Items -->
+                    <div class="flex flex-col gap-4 max-h-[30vh] overflow-y-auto hide-scroll py-2">
+                        <template x-for="(item, idx) in activeIncomingOrder?.items" :key="idx">
+                            <div class="flex items-center gap-4">
+                                <img :src="item.image || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-[12px] object-cover bg-gray-100 shrink-0">
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="text-[14px] font-bold text-[#202522] truncate" x-text="item.name"></h4>
+                                </div>
+                                <div class="text-[13px] font-bold text-[#777873] w-8 text-center shrink-0" x-text="item.qty + 'x'"></div>
+                                <div class="text-[14px] font-bold text-[#202522] w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+
+                    <!-- Total & Payment -->
+                    <div class="flex justify-between items-end mb-2 mt-4">
+                        <div>
+                            <p class="text-[13px] font-bold text-[#202522] mb-1">Total Pesanan</p>
+                            <p class="text-[26px] font-bold text-[#164A35]" x-text="activeIncomingOrder ? formatRp(activeIncomingOrder.total) : '0'"></p>
+                        </div>
+                        
+                        <!-- Payment Badge -->
+                        <div class="bg-[#DDEBDD] rounded-[12px] px-4 py-2.5 flex items-start gap-2.5">
+                            <i class="fas fa-check-circle text-[#164A35] mt-0.5"></i>
+                            <div>
+                                <p class="text-[13px] font-bold text-[#164A35] leading-none mb-1.5">Pembayaran Lunas</p>
+                                <p class="text-[11px] font-medium text-[#164A35]/80 leading-none">Dibayar via QRIS</p>
                             </div>
                         </div>
-                    </template>
-                    <p class="text-sm text-gray-500 italic">Pesanan ini sudah dibayar (QRIS) dan menunggu untuk diproses.</p>
+                    </div>
                 </div>
-                
+
                 <!-- Footer Actions -->
-                <div class="p-6 border-t border-gray-100 bg-gray-50 flex gap-3">
-                    <button @click="incomingOrder = null" class="w-1/3 py-4 rounded-xl text-sm font-bold text-gray-500 bg-white border border-gray-200 hover:bg-gray-100 transition">
-                        Nanti Saja
-                    </button>
-                    <button @click="acceptIncomingOrder()" class="w-2/3 py-4 rounded-xl text-base font-bold bg-[#1E5A7A] text-white shadow-lg hover:bg-[#154660] hover:scale-[1.02] transition transform active:scale-95 flex justify-center items-center gap-2">
-                        <i class="fas fa-fire"></i> Terima & Proses
-                    </button>
+                <div class="p-6 bg-[#F8F7F3] border-t border-[#E3E1DC]">
+                    <!-- State: Confirm Reject -->
+                    <div x-show="incomingOrderState === 'reject_confirm'" class="flex flex-col gap-4">
+                        <p class="text-center text-[15px] font-bold text-[#202522]">Tolak pesanan #<span x-text="activeIncomingOrder?.id"></span>?</p>
+                        <div class="flex gap-3">
+                            <button @click="incomingOrderState = 'new'" class="flex-1 py-3.5 rounded-[14px] font-bold text-[14px] bg-white border border-[#E3E1DC] text-[#777873] hover:bg-gray-50 transition-colors">Batal</button>
+                            <button @click="confirmRejectOrder(false)" class="flex-1 py-3.5 rounded-[14px] font-bold text-[14px] bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors">Ya, Tolak Pesanan</button>
+                        </div>
+                    </div>
+
+                    <!-- State: New/Normal -->
+                    <div x-show="incomingOrderState === 'new'" class="flex gap-4">
+                        <button @click="incomingOrderState = 'reject_confirm'" class="w-[140px] shrink-0 py-4 rounded-[14px] font-bold text-[14px] bg-transparent border border-[#E3E1DC] text-[#777873] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors">
+                            Tolak Pesanan
+                        </button>
+                        <button @click="acceptOrder()" class="flex-1 py-4 rounded-[14px] font-bold text-[15px] bg-[#164A35] text-white hover:bg-[#0f3526] transition-colors shadow-[0_4px_12px_rgba(22,74,53,0.2)] flex items-center justify-center gap-2">
+                            <i class="fas fa-coffee"></i> Terima & Siapkan
+                        </button>
+                    </div>
+
+                    <!-- State: Accepting -->
+                    <div x-show="incomingOrderState === 'accepting'" class="flex justify-center items-center py-4">
+                        <i class="fas fa-spinner fa-spin text-[#164A35] text-2xl"></i>
+                        <span class="ml-3 font-bold text-[#164A35]">Menerima pesanan...</span>
+                    </div>
+
+                    <!-- State: Accepted -->
+                    <div x-show="incomingOrderState === 'accepted'" class="flex flex-col justify-center items-center py-2">
+                        <div class="w-10 h-10 bg-[#DDEBDD] text-[#164A35] rounded-full flex items-center justify-center mb-2">
+                            <i class="fas fa-check text-xl"></i>
+                        </div>
+                        <span class="font-bold text-[#164A35]">Pesanan Diterima!</span>
+                        <span class="text-[13px] text-[#777873]">Sedang disiapkan...</span>
+                    </div>
+                    
+                    <!-- State: Rejected -->
+                    <div x-show="incomingOrderState === 'rejected'" class="flex flex-col justify-center items-center py-2">
+                        <div class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-2">
+                            <i class="fas fa-times text-xl"></i>
+                        </div>
+                        <span class="font-bold text-red-600">Pesanan Ditolak</span>
+                    </div>
+
+                    <!-- Timeout Notice -->
+                    <div class="text-center mt-5" x-show="['new', 'reject_confirm'].includes(incomingOrderState)">
+                        <p class="text-[12px] font-medium text-[#777873] flex items-center justify-center gap-1.5">
+                            <i class="far fa-clock"></i> Pesanan otomatis ditolak dalam <span x-text="incomingTimer" class="font-mono font-bold"></span> detik
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -434,7 +537,16 @@
                 isSaving: false,
                 showOrderDetailModal: false,
                 selectedOrder: null,
-                incomingOrder: null,
+                incomingOrderQueue: [],
+                activeIncomingOrder: null,
+                incomingOrderState: 'idle',
+                incomingTimer: 45,
+                incomingTimerInterval: null,
+                formatTime(seconds) {
+                    const m = Math.floor(seconds / 60);
+                    const s = seconds % 60;
+                    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+                },
                 newTableId: '',
                 activeMenuFilter: 'all',
                 activeOrderFilter: 'process',
@@ -880,11 +992,43 @@ handleDraftImageUpload(event, index) {
                         this.addToast('Gagal mengubah status menu', 'error');
                     });
                 },
-                acceptIncomingOrder() {
-                    if (this.incomingOrder) {
-                        this.updateStatus(this.incomingOrder.id, 'In Progress');
-                        this.incomingOrder = null;
+                processIncomingQueue() {
+                    if (!this.activeIncomingOrder && this.incomingOrderQueue.length > 0) {
+                        this.activeIncomingOrder = this.incomingOrderQueue.shift();
+                        this.incomingOrderState = 'new';
+                        this.incomingTimer = 45;
+                        clearInterval(this.incomingTimerInterval);
+                        
+                        this.incomingTimerInterval = setInterval(() => {
+                            if (['new', 'reject_confirm'].includes(this.incomingOrderState)) {
+                                this.incomingTimer--;
+                                if (this.incomingTimer <= 0) {
+                                    this.confirmRejectOrder(true);
+                                }
+                            }
+                        }, 1000);
                     }
+                },
+                acceptOrder() {
+                    this.incomingOrderState = 'accepting';
+                    setTimeout(() => {
+                        this.incomingOrderState = 'accepted';
+                        this.updateStatus(this.activeIncomingOrder.id, 'In Progress');
+                        setTimeout(() => this.closeActiveOrder(), 1500);
+                    }, 800);
+                },
+                confirmRejectOrder(isAuto = false) {
+                    this.incomingOrderState = 'rejected';
+                    this.updateStatus(this.activeIncomingOrder.id, 'Dibatalkan');
+                    if (isAuto) {
+                        this.addToast(`Pesanan #${this.activeIncomingOrder.id} telah kedaluwarsa.`, 'error');
+                    }
+                    setTimeout(() => this.closeActiveOrder(), 1500);
+                },
+                closeActiveOrder() {
+                    this.activeIncomingOrder = null;
+                    clearInterval(this.incomingTimerInterval);
+                    setTimeout(() => this.processIncomingQueue(), 400);
                 },
                 fetchLiveOrders(isInit = false) {
                     const dbOrders = window.INITIAL_DATA.orders.map(o => ({
@@ -893,17 +1037,28 @@ handleDraftImageUpload(event, index) {
                         status: o.status,
                         total: o.total_price,
                         time: o.created_at,
-                        items: o.items.map(i => ({ name: i.product.name, qty: i.quantity, price: i.price }))
+                        items: o.items.map(i => ({ 
+                            name: i.product.name, 
+                            qty: i.quantity, 
+                            price: i.price, 
+                            image: i.product.image_url ? ('/storage/' + i.product.image_url) : null,
+                            desc: i.product.description
+                        }))
                     }));
                     
-                    if (!isInit && dbOrders.length > 0 && dbOrders[0].status === 'Masuk' && (!this.orders.length || dbOrders[0].id !== this.orders[0].id)) {
+                    const newIncomingOrders = dbOrders.filter(o => o.status === 'Masuk' && !this.orders.find(old => old.id === o.id));
+                    
+                    if (!isInit && newIncomingOrders.length > 0) {
                         const chime = document.getElementById('chime-sound');
                         if (chime) {
                             chime.currentTime = 0;
                             chime.play().catch(e => console.log('Audio autoplay blocked', e));
                         }
-                        this.incomingOrder = dbOrders[0];
+                        
+                        newIncomingOrders.forEach(o => this.incomingOrderQueue.push(o));
+                        this.processIncomingQueue();
                     }
+                    
                     this.orders = dbOrders;
                 },
                 addTableFromModal() {

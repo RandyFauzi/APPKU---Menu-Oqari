@@ -197,7 +197,7 @@ function renderMenuItem(item) {
 function quickAddToCart(itemId, event) {
     event.stopPropagation();
     const menuData = typeof DB !== 'undefined' ? DB.get('bitten_menu') : apiData.menu;
-    currentSelectedItem = menuData.find(m => m.id === itemId);
+    currentSelectedItem = menuData.find(m => m.id == itemId);
     if(currentSelectedItem) {
         confirmAddToCart(); // Adds defaults
     }
@@ -206,7 +206,7 @@ function quickAddToCart(itemId, event) {
 // Fitur Detail Produk & Customization
 function openItemDetail(itemId) {
     const menuData = typeof DB !== 'undefined' ? DB.get('bitten_menu') : apiData.menu;
-    currentSelectedItem = menuData.find(m => m.id === itemId);
+    currentSelectedItem = menuData.find(m => m.id == itemId);
     if(!currentSelectedItem) return;
 
     document.getElementById('detail-img').src = currentSelectedItem.image || currentSelectedItem.img || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&h=500&fit=crop';
@@ -401,23 +401,27 @@ function triggerPaymentGateway() {
     const name = document.getElementById('customer-name')?.value.trim();
     const email = document.getElementById('customer-email')?.value.trim();
     
+    const isTakeaway = document.querySelector('input[name="orderType"]:checked')?.value === 'Takeaway';
     let table = localStorage.getItem('bitten_table_qr');
-    if (!table) {
+    
+    if (isTakeaway) {
+        table = 'TA';
+    } else if (!table) {
         table = document.getElementById('customer-table')?.value.trim();
     }
     
     if(!name || !email) { 
-        showToast("⚠️ Mohon isi Nama & Email Anda!"); 
+        showToast("⚠️ Mohon isi Nama & Email/Kontak Anda!"); 
         return; 
     }
     
-    // Simple email validation
-    if(!email.includes('@') || !email.includes('.')) {
-        showToast("⚠️ Format email tidak valid!");
+    // Validasi sederhana (bisa berupa no HP atau email)
+    if(email.length < 5) {
+        showToast("⚠️ Format kontak tidak valid!");
         return;
     }
     
-    if(!table) {
+    if(!table && !isTakeaway) {
         showToast("⚠️ Mohon isi / scan Nomor Meja!"); 
         return; 
     }
@@ -426,7 +430,12 @@ function triggerPaymentGateway() {
     localStorage.setItem('gw_customer_table', table);
     localStorage.setItem('gw_customer_email', email);
     
-    closeCustomerInfoModal();
+    // Tidak ada modal-customer-info lagi (sudah inline)
+    const modalCustomerInfo = document.getElementById('modal-customer-info');
+    if (modalCustomerInfo) {
+        modalCustomerInfo.classList.add('hidden');
+    }
+
     document.getElementById('modal-payment').classList.remove('hidden');
     document.getElementById('pg-total').innerText = formatRp(window.currentGrandTotal);
 }

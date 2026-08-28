@@ -52,7 +52,14 @@
                             notes: item.notes
                         }))
                     })
-                }).then(res => res.json()).catch(err => console.error(err));
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.order) {
+                        localStorage.setItem('gw_last_order', JSON.stringify(data.order));
+                    }
+                })
+                .catch(err => console.error(err));
             }
         };
     </script>
