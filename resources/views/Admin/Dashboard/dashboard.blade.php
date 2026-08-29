@@ -912,13 +912,10 @@ handleDraftImageUpload(event, index) {
                     
                     this.fetchLiveOrders(true);
                     
-                    window.addEventListener('storage', (e) => {
-                        if (e.key === 'bitten_orders' || e.key === 'bitten_menu') {
-                            // Can't really sync across tabs without websockets in Laravel, 
-                            // but we can leave this or reload page.
-                            window.location.reload();
-                        }
-                    });
+                    // Poll for new orders every 5 seconds
+                    setInterval(() => {
+                        this.fetchLiveOrders(false);
+                    }, 5000);
 
 
                 },
@@ -1076,35 +1073,50 @@ handleDraftImageUpload(event, index) {
                     clearInterval(this.incomingTimerInterval);
                     setTimeout(() => this.processIncomingQueue(), 400);
                 },
-                fetchLiveOrders(isInit = false) {
-                    const dbOrders = window.INITIAL_DATA.orders.map(o => ({
+                async fetchLiveOrders(isInit = false) {
+                    let sourceOrders = window.INITIAL_DATA.orders;
+                    
+                    if (!isInit) {
+                        try {
+                            const res = await fetch('/admin/api/orders/live');
+                            if (res.ok) {
+                                sourceOrders = await res.json();
+                            } else {
+                                return;
+                            }
+                        } catch (err) {
+                            return;
+                        }
+                    }
+
+                    const dbOrders = sourceOrders.map(o => ({
                         id: o.id,
                         customer: o.customer_name || ('Meja ' + (o.table ? o.table.name : '-')),
                         status: o.status,
-                        total: o.total_price,
+                        total: parseFloat(o.total_price),
                         time: o.created_at,
-                        items: o.items.map(i => ({ 
-                            name: i.product.name, 
-                            qty: i.quantity, 
-                            price: i.price, 
+                        items: (o.items || []).map(i => ({
+                            name: i.product.name,
+                            qty: i.quantity,
+                            price: parseFloat(i.price),
                             image: i.product.image_url ? ('/storage/' + i.product.image_url) : null,
                             desc: i.product.description
                         }))
                     }));
-                    
+
                     const newIncomingOrders = dbOrders.filter(o => o.status === 'Masuk' && !this.orders.find(old => old.id === o.id));
-                    
+
                     if (!isInit && newIncomingOrders.length > 0) {
                         const chime = document.getElementById('chime-sound');
                         if (chime) {
                             chime.currentTime = 0;
                             chime.play().catch(e => console.log('Audio autoplay blocked', e));
                         }
-                        
+
                         newIncomingOrders.forEach(o => this.incomingOrderQueue.push(o));
                         this.processIncomingQueue();
                     }
-                    
+
                     this.orders = dbOrders;
                 },
                 addTableFromModal() {

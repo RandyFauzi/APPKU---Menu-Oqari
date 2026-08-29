@@ -83,7 +83,7 @@ class ShopController extends Controller
             'customer_phone' => $request->customer_phone,
             'payment_method' => $request->payment_method,
             'total_price' => $total,
-            'status' => 'process'
+            'status' => 'Masuk'
         ]);
 
         // Simpan Items

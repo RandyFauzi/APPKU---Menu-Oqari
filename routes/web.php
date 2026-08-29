@@ -11,6 +11,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/api/orders/live', [DashboardController::class, 'getLiveOrders']);
     Route::post('/admin/api/orders/{order}/status', [DashboardController::class, 'updateOrderStatus']);
     Route::post('/admin/api/menu/{menu}/toggle', [DashboardController::class, 'toggleMenuStatus']);
     Route::post('/admin/api/menu/bulk', [DashboardController::class, 'saveMenuBulk']);

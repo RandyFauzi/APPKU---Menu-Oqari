@@ -82,8 +82,8 @@
                     <input type="email" id="customer-email" placeholder="contoh@email.com" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">No. WhatsApp <span class="text-red-500">*</span></label>
-                    <input type="tel" id="customer-phone" placeholder="08123456789" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">No. WhatsApp <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                    <input type="tel" id="customer-phone" placeholder="08123456789" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
                 </div>
             </div>
 

@@ -402,8 +402,8 @@ function triggerPaymentGateway() {
         table = document.getElementById('customer-table')?.value.trim();
     }
     
-    if(!name || !email || !phone) { 
-        showToast("⚠️ Mohon isi Nama, Email & No. WhatsApp!"); 
+    if(!name || !email) { 
+        showToast("⚠️ Mohon isi Nama & Email Anda!"); 
         return; 
     }
     
@@ -412,7 +412,7 @@ function triggerPaymentGateway() {
         return;
     }
 
-    if(phone.length < 9) {
+    if(phone && phone.length < 9) {
         showToast("⚠️ Format nomor WhatsApp tidak valid!");
         return;
     }

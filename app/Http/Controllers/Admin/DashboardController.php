@@ -19,7 +19,20 @@ class DashboardController extends Controller
         $tables = \App\Models\Table::where('shop_id', $shop->id)->get();
         $users = \App\Models\User::where('shop_id', $shop->id)->get();
 
-        return view('Admin.Dashboard.dashboard', compact('shop', 'menuItems', 'orders', 'tables', 'users'));
+        return view('Admin.Dashboard.dashboard', compact('shop', 'orders', 'menuItems', 'tables', 'users'));
+    }
+
+    public function getLiveOrders()
+    {
+        $shop = auth()->user()->shop;
+        if (!$shop) return response()->json([]);
+
+        $orders = \App\Models\Order::where('shop_id', $shop->id)
+            ->with(['items.product', 'table'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($orders);
     }
 
     public function updateOrderStatus(Request $request, $orderId)
