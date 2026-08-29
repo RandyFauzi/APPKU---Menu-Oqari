@@ -1147,7 +1147,46 @@ handleDraftImageUpload(event, index) {
                     });
                 },
                 printQR(table) {
-                    if(window.printQRWindow) window.printQRWindow(table);
+                    const shopName = this.settings.name || 'Bitten Coffee';
+                    const printWindow = window.open('', '_blank', 'width=800,height=600');
+                    if (!printWindow) {
+                        this.addToast('Mohon izinkan popup browser untuk mencetak QR.', 'error');
+                        return;
+                    }
+                    
+                    const html = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Print QR - ${table.id}</title>
+                        <style>
+                            @page { margin: 0; size: auto; }
+                            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #fff; text-align: center; }
+                            .card { border: 2px dashed #ccc; padding: 40px; border-radius: 20px; max-width: 300px; margin: 20px auto; }
+                            h1 { color: #164A35; margin-bottom: 10px; font-size: 28px; font-weight: 800; }
+                            h2 { color: #202522; font-size: 44px; margin: 0 0 20px 0; font-weight: 900; }
+                            img { width: 220px; height: 220px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; mix-blend-mode: multiply; }
+                            p { color: #777873; font-size: 15px; margin: 0; font-weight: 500; }
+                            @media print {
+                                body { display: block; height: auto; align-items: flex-start; margin-top: 2cm; }
+                                .card { border: none; padding: 20px; max-width: 100%; margin: 0 auto; border-radius: 0; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="card">
+                            <h1>${shopName}</h1>
+                            <h2>${table.id.toUpperCase()}</h2>
+                            <img src="${table.qr}" alt="QR Code" onload="setTimeout(() => { window.print(); }, 500)" onafterprint="window.close()">
+                            <p>Scan untuk melihat menu<br>dan memesan langsung dari mejamu!</p>
+                        </div>
+                    </body>
+                    </html>
+                    `;
+                    
+                    printWindow.document.open();
+                    printWindow.document.write(html);
+                    printWindow.document.close();
                 },
                 resetQR(table) {
                     this.qrTableToReset = table;
