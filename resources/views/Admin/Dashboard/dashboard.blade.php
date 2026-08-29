@@ -281,6 +281,30 @@
             </div>
         </div>
 
+        <!-- MODAL: RESET QR CONFIRM -->
+        <div x-show="showResetQRModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-[#164A35]/40 backdrop-blur-sm" x-transition.opacity>
+            <div class="bg-white rounded-[24px] w-full max-w-[400px] p-8 shadow-[0_20px_60px_rgba(22,74,53,0.15)] relative overflow-hidden" @click.away="showResetQRModal = false" x-transition>
+                <div class="absolute -top-16 -right-16 w-32 h-32 bg-[#D97A32]/10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-[#164A35]/5 rounded-full blur-2xl"></div>
+                
+                <div class="relative z-10 flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-[#D97A32]/10 text-[#D97A32] rounded-full flex items-center justify-center text-2xl mb-4 border-4 border-white shadow-sm">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="text-[22px] font-bold text-[#164A35] mb-2" style="font-family: 'Playfair Display', serif;">Reset QR Code?</h3>
+                    <p class="text-[14px] text-[#777873] leading-relaxed mb-6">Yakin ingin mereset/mengganti URL QR Code untuk <strong class="text-[#202522]" x-text="qrTableToReset?.id"></strong>? <br> <span class="text-red-500 font-medium">URL lama tidak akan bisa diakses lagi.</span></p>
+                    
+                    <div class="flex gap-3 w-full">
+                        <button @click="showResetQRModal = false" class="w-1/2 py-3 rounded-[14px] text-[14px] font-bold text-[#777873] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors">Batal</button>
+                        <button @click="confirmResetQR" :disabled="isResettingQR" class="w-1/2 py-3 rounded-[14px] text-[14px] font-bold bg-[#D97A32] text-white shadow-sm hover:bg-[#b8662a] transition-all flex items-center justify-center gap-2 disabled:opacity-70">
+                            <i class="fas fa-spinner fa-spin" x-show="isResettingQR" x-cloak></i>
+                            <span x-show="!isResettingQR">Ya, Reset</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- MODAL: ORDER DETAIL -->
         <div x-show="showOrderDetailModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
             <!-- Backdrop -->
@@ -531,6 +555,9 @@
                 currentTab: localStorage.getItem('activeDashboardTab') || 'orders',
                 showAddMenuModal: false,
                 showAddTableModal: false,
+                showResetQRModal: false,
+                qrTableToReset: null,
+                isResettingQR: false,
                 showAddCrewModal: false,
                 users: window.INITIAL_DATA.users || [],
                 newCrew: { name: '', email: '', password: '', role: 'barista' },
@@ -1123,28 +1150,43 @@ handleDraftImageUpload(event, index) {
                     if(window.printQRWindow) window.printQRWindow(table);
                 },
                 resetQR(table) {
-                    if(confirm(`Yakin ingin mereset/mengganti URL QR Code untuk ${table.id}? URL lama tidak akan bisa diakses lagi.`)) {
-                        const randomToken = Math.random().toString(36).substring(2, 8);
-                        const tableNum = table.id.replace('Meja ', '');
-                        const newQrUrl = this.getQRUrl(tableNum, randomToken);
-                        
-                        fetch('/admin/api/table', {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
+                    this.qrTableToReset = table;
+                    this.showResetQRModal = true;
+                },
+                confirmResetQR() {
+                    if (!this.qrTableToReset) return;
+                    
+                    this.isResettingQR = true;
+                    const table = this.qrTableToReset;
+                    const randomToken = Math.random().toString(36).substring(2, 8);
+                    const tableNum = table.id.replace('Meja ', '');
+                    const newQrUrl = this.getQRUrl(tableNum, randomToken);
+                    
+                    fetch('/admin/api/table', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
                             'Accept': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({ name: table.id, qr_code_url: newQrUrl })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if(data.success) {
-                                table.qr = newQrUrl;
-                                this.addToast('QR Code di-reset!', 'success');
-                            }
-                        });
-                    }
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ name: table.id, qr_code_url: newQrUrl })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isResettingQR = false;
+                        if(data.success) {
+                            table.qr = newQrUrl;
+                            this.showResetQRModal = false;
+                            this.qrTableToReset = null;
+                            this.addToast('QR Code berhasil di-reset!', 'success');
+                        } else {
+                            this.addToast(data.message || 'Gagal reset QR', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        this.isResettingQR = false;
+                        this.addToast('Kesalahan jaringan', 'error');
+                    });
                 },
                 handleLogoUpload(event) {
                     const file = event.target.files[0];
