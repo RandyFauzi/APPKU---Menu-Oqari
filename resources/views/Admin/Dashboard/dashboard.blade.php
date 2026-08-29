@@ -62,7 +62,7 @@
 <body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()">
 
     <!-- Audio untuk notifikasi pesanan masuk -->
-    <audio id="chime-sound" src="Assest/Notif%20Orderan%20Masuk.mp3" preload="auto"></audio>
+    <audio id="chime-sound" src="{{ asset('Assest/Notif Orderan Masuk.mp3') }}" preload="auto"></audio>
 
     <!-- Sidebar -->
     <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg">
@@ -1085,7 +1085,12 @@ handleDraftImageUpload(event, index) {
                     
                     if (!isInit) {
                         try {
-                            const res = await fetch('/admin/api/orders/live');
+                            const res = await fetch('/admin/api/orders/live?t=' + new Date().getTime(), {
+                                headers: {
+                                    'Cache-Control': 'no-cache',
+                                    'Pragma': 'no-cache'
+                                }
+                            });
                             if (res.ok) {
                                 sourceOrders = await res.json();
                             } else {
@@ -1111,7 +1116,7 @@ handleDraftImageUpload(event, index) {
                         }))
                     }));
 
-                    const newIncomingOrders = dbOrders.filter(o => o.status === 'Masuk' && !this.orders.find(old => old.id === o.id));
+                    const newIncomingOrders = dbOrders.filter(o => o.status === 'Masuk' && !this.orders.find(old => old.id == o.id));
 
                     if (!isInit && newIncomingOrders.length > 0) {
                         const chime = document.getElementById('chime-sound');

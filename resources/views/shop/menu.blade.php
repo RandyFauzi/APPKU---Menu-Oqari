@@ -12,32 +12,22 @@
         <link rel="icon" type="image/webp" href="{{ asset('Pavico.webp') }}">
     @endif
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Styles & Scripts (Vite) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     
-    <script>
-        tailwind.config = { 
-            theme: { 
-                extend: { 
-                    colors: { 
-                        primary: '{{ $shop->primary_color ?? "#1c4532" }}', 
-                        secondary: '{{ $shop->primary_color ?? "#2d6a4f" }}', 
-                        accent: '#f59e0b',
-                        bgbase: '#F9FAFB', 
-                        textdark: '#1A202C' 
-                    }, 
-                    fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Inter', 'sans-serif'] } 
-                } 
-            } 
-        }
-    </script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
+        :root {
+            --color-primary: {{ $shop->primary_color ?? '#1c4532' }};
+            --color-secondary: {{ $shop->primary_color ?? '#2d6a4f' }};
+        }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .page-transition { transition: all 0.3s ease; }
     </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body data-page="home" class="antialiased max-w-md mx-auto bg-gray-50 min-h-screen relative shadow-xl overflow-x-hidden pb-24 page-transition">
 

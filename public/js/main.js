@@ -47,9 +47,13 @@ function initHomePage() {
 
     const searchInput = document.getElementById('search-menu');
     if (searchInput) {
+        let debounceTimer;
         searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value.toLowerCase();
-            renderMenu();
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchQuery = e.target.value.toLowerCase();
+                renderMenu();
+            }, 300);
         });
     }
 }
@@ -178,7 +182,7 @@ function renderMenuItem(item) {
     return `
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative">
             <div class="p-2 relative cursor-pointer" onclick="openItemDetail('${item.id}')">
-                <img src="${item.image || item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${item.name}" class="h-32 w-full object-cover rounded-xl">
+                <img src="${item.image || item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${item.name}" loading="lazy" class="h-32 w-full object-cover rounded-xl">
                 ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
             </div>
             <div class="px-3 pb-3 pt-1 flex flex-col flex-grow relative cursor-pointer" onclick="openItemDetail('${item.id}')">
@@ -342,7 +346,7 @@ function renderCartDetail() {
         let notesText = item.notes ? `<p class="text-[10px] mt-1 p-1 bg-bgbase rounded text-primary">📝 ${item.notes}</p>` : '';
         return `
         <div class="flex items-center gap-4 bg-white p-3 rounded-xl border-2 border-primary/10 mb-3 relative">
-            <img src="${item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" class="w-16 h-16 rounded-lg object-cover">
+            <img src="${item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" loading="lazy" class="w-16 h-16 rounded-lg object-cover">
             <div class="flex-grow">
                 <h4 class="font-bold text-sm text-textdark leading-tight font-heading">${item.name}</h4>
                 <p class="text-primary font-bold text-sm mt-1">${formatRp(item.price)}</p>

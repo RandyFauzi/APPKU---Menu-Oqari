@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pesanan Berhasil - {{ $shop->name }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     @if(isset($shop) && $shop->logo_url)
@@ -13,9 +13,12 @@
         <link rel="icon" type="image/webp" href="{{ asset('Pavico.webp') }}">
     @endif
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <script>
-        tailwind.config = { theme: { extend: { colors: { primary: '{{ $shop->primary_color ?? "#1c4532" }}', secondary: '{{ $shop->primary_color ?? "#2d6a4f" }}', accent: '#f59e0b', bgbase: '#F9FAFB', textdark: '#1A202C' } } } }
-    </script>
+    <style>
+        :root {
+            --color-primary: {{ $shop->primary_color ?? '#1c4532' }};
+            --color-secondary: {{ $shop->primary_color ?? '#2d6a4f' }};
+        }
+    </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body data-page="tracking" class="antialiased max-w-md mx-auto bg-white min-h-screen relative flex flex-col justify-center items-center p-6 text-center shadow-xl">
