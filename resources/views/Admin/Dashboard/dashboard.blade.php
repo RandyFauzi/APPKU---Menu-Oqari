@@ -819,29 +819,7 @@ handleDraftImageUpload(event, index) {
                     if (num >= 1000) return 'Rp ' + (num / 1000).toFixed(1) + 'K';
                     return 'Rp ' + num;
                 },
-                init() {
-                    this.tables = [
-                        { id: 'Meja 01', qr: this.getQRUrl('01') },
-                        { id: 'Meja 02', qr: this.getQRUrl('02') },
-                        { id: 'Meja 03', qr: this.getQRUrl('03') },
-                        { id: 'Meja 04', qr: this.getQRUrl('04') },
-                        { id: 'Meja 05', qr: this.getQRUrl('05') },
-                        { id: 'Meja 06', qr: this.getQRUrl('06') },
-                    ];
-                    this.fetchLiveOrders(true);
-                    
-                    window.addEventListener('storage', (e) => {
-                        if (e.key === 'bitten_orders') {
-                            this.fetchLiveOrders();
-                        }
-                    });
 
-                    this.$watch('currentTab', (val) => {
-                        if (val === 'analytics') {
-                            setTimeout(() => this.initChart(), 50);
-                        }
-                    });
-                },
                 initChart() {
                     const ctx = document.getElementById('salesChart');
                     if (ctx && !this.chartInstance) {
@@ -915,11 +893,7 @@ handleDraftImageUpload(event, index) {
                         }
                     });
 
-                    this.$watch('currentTab', (val) => {
-                        if (val === 'analytics') {
-                            setTimeout(() => this.initChart(), 50);
-                        }
-                    });
+
                 },
                 loadMenu() {
                     this.menuItems = window.INITIAL_DATA.menu.map(m => ({

@@ -1,4 +1,4 @@
-﻿<div x-show="currentTab === 'analytics'" x-cloak class="flex-grow p-8 lg:p-10 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans" x-data="analyticsApp()">
+<div x-show="currentTab === 'analytics'" x-cloak class="flex-grow p-8 lg:p-10 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans" x-data="analyticsApp()">
     
     <!-- Greeting & Controls -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
@@ -197,6 +197,8 @@
 
     <!-- Notification Bar -->
     
+
+</div>
 
 <!-- Load Chart.js globally if not already loaded -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
