@@ -760,9 +760,10 @@ handleDraftImageUpload(event, index) {
                     { id: 'settings', name: 'Toko & Branding', icon: 'fas fa-store' },
                 ],
                 tables: [],
-                baseUrl: window.location.origin + window.location.pathname.replace('dashboard.html', 'index.html'),
                 getQRUrl(tableCode, token = '') {
-                    const url = `${this.baseUrl}?table=${tableCode}${token ? '&token='+token : ''}`;
+                    const slug = window.INITIAL_DATA.shop?.slug || 'menu';
+                    const baseUrl = window.location.origin + '/' + slug;
+                    const url = `${baseUrl}?table=${tableCode}${token ? '&token='+token : ''}`;
                     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
                 },
                 chartInstance: null,

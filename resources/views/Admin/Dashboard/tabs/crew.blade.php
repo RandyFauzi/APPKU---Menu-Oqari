@@ -1,10 +1,7 @@
 ﻿<div x-show="currentTab === 'crew'" x-cloak class="flex-grow p-8 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans">
     <div class="max-w-5xl mx-auto">
-        <div class="flex justify-between items-end mb-8">
-            <div>
-                <h2 class="text-[32px] text-[#164A35] leading-tight mb-2" style="font-family: 'Playfair Display', serif; font-weight: 700;">Crew Management</h2>
-                <p class="text-[#777873] text-[16px]">Manage your team members and roles.</p>
-            </div>
+        <div class="flex justify-between items-center mb-8">
+            <p class="text-[#777873] text-[16px]">Manage your team members and roles.</p>
             <button @click="showAddCrewModal = true" class="bg-[#164A35] text-white px-5 py-2.5 rounded-[12px] font-bold text-[14px] hover:bg-[#0f3526] transition-colors shadow-sm flex items-center gap-2">
                 <i class="fas fa-plus"></i> Add Crew
             </button>

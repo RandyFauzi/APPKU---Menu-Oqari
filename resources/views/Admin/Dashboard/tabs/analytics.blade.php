@@ -126,12 +126,9 @@
         <!-- Right 38% -->
         <div class="lg:w-[38%] flex flex-col gap-6">
             <!-- Best Selling Menu -->
-            <div class="bg-white rounded-[28px] p-8 border border-[#E3E1DC] shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative group cursor-pointer hover:border-[#F7E5D2] transition-colors">
+            <div class="bg-white rounded-[28px] p-8 border border-[#E3E1DC] shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative">
                 <div class="flex justify-between items-start mb-6">
                     <h3 class="text-[18px] font-bold text-[#202522]">Menu Terlaris Hari Ini</h3>
-                    <div class="w-8 h-8 rounded-full bg-[#F8F7F3] flex items-center justify-center text-[#777873] group-hover:bg-[#D97A32] group-hover:text-white transition-colors">
-                        <i class="fas fa-arrow-right text-[12px] -rotate-45"></i>
-                    </div>
                 </div>
                 
                 <div class="flex gap-5 items-center">
@@ -139,12 +136,12 @@
                         <div class="inline-flex px-2 py-1 rounded-md bg-[#F7E5D2] text-[#D97A32] text-[11px] font-bold uppercase tracking-wider mb-3">
                             <i class="fas fa-star mr-1"></i> #1 Terlaris
                         </div>
-                        <h4 class="text-[22px] font-bold text-[#164A35] mb-2 leading-tight" x-text="data.topProduct.name">Es Kopi Aren</h4>
-                        <p class="text-[13px] text-[#777873] font-medium leading-relaxed mb-4" x-text="data.topProduct.desc">Perpaduan espresso, gula aren, dan susu segar.</p>
+                        <h4 class="text-[22px] font-bold text-[#164A35] mb-2 leading-tight">Es Kopi Aren</h4>
+                        <p class="text-[13px] text-[#777873] font-medium leading-relaxed mb-4">Perpaduan espresso, gula aren, dan susu segar.</p>
                         
                         <div class="flex items-center gap-3">
-                            <span class="font-bold text-[#202522] text-[15px]" x-text="data.topProduct.sold + ' porsi'">132 porsi</span>
-                            <span class="text-green-600 text-[13px] font-bold flex items-center gap-1"><i class="fas fa-arrow-up text-[10px]"></i> <span x-text="data.topProduct.change + '%'">22%</span></span>
+                            <span class="font-bold text-[#202522] text-[15px]">132 porsi</span>
+                            <span class="text-green-600 text-[13px] font-bold flex items-center gap-1"><i class="fas fa-arrow-up text-[10px]"></i> <span>22%</span></span>
                         </div>
                     </div>
                     <div class="w-[110px] h-[130px] rounded-[16px] overflow-hidden shrink-0 shadow-sm border border-[#E3E1DC]">
@@ -199,18 +196,7 @@
     </div>
 
     <!-- Notification Bar -->
-    <div class="bg-[#DDEBDD] border border-[#C5DBC5] rounded-[20px] p-5 flex items-center justify-between shrink-0 shadow-sm mt-auto">
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-full bg-white text-[#164A35] flex items-center justify-center shadow-sm shrink-0">
-                <i class="fas fa-shield-check text-lg"></i>
-            </div>
-            <p class="text-[15px] font-semibold text-[#164A35]">Kinerja café kamu hari ini meningkat! Terus pertahankan momentum ini.</p>
-        </div>
-        <button class="bg-white px-5 py-2.5 rounded-[10px] text-[#164A35] text-[13px] font-bold shadow-[0_2px_10px_rgba(22,74,53,0.1)] hover:bg-[#F8F7F3] transition-colors shrink-0">
-            Lihat Analisis Lengkap &rarr;
-        </button>
-    </div>
-</div>
+    
 
 <!-- Load Chart.js globally if not already loaded -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
