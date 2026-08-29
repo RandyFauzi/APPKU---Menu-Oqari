@@ -306,85 +306,92 @@
         </div>
 
         <!-- MODAL: ORDER DETAIL -->
-        <div x-show="showOrderDetailModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+        <div x-show="showOrderDetailModal" x-cloak class="fixed inset-0 z-[200] flex items-center justify-center p-4 font-sans sm:items-center sm:p-0">
             <!-- Backdrop -->
-            <div @click="showOrderDetailModal = false" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+            <div @click="showOrderDetailModal = false" class="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity"></div>
+            
             <!-- Modal Content -->
-            <div class="relative bg-white w-[500px] max-h-[90vh] rounded-2xl shadow-xl flex flex-col overflow-hidden" @keydown.escape.window="showOrderDetailModal = false" x-show="selectedOrder">
+            <div class="relative bg-[#F8F7F3] w-full sm:w-[520px] rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col border border-[#E3E1DC] overflow-hidden" @keydown.escape.window="showOrderDetailModal = false" x-show="selectedOrder"
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-200 transform"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 scale-95">
+
                 <!-- Header -->
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <div>
-                        <h3 class="font-sans font-bold text-xl text-primary flex items-center gap-2" x-text="'Struk Pesanan #' + (selectedOrder ? selectedOrder.id : '')"></h3>
-                        <p class="text-xs text-gray-500 font-mono mt-1" x-text="selectedOrder ? selectedOrder.time : ''"></p>
+                <div class="p-6 bg-[#F8F7F3] border-b border-[#E3E1DC] flex justify-between items-start">
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-[14px] bg-[#164A35] text-white flex items-center justify-center shadow-sm shrink-0">
+                            <i class="fas fa-receipt text-xl"></i>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <h2 class="text-[18px] font-bold text-[#164A35] leading-tight mb-1" x-text="'Struk Pesanan #' + (selectedOrder ? selectedOrder.id : '')"></h2>
+                            <p class="text-[13px] font-mono text-[#777873]" x-text="selectedOrder ? selectedOrder.time : ''"></p>
+                        </div>
                     </div>
-                    <button @click="showOrderDetailModal = false" class="text-gray-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white border border-transparent hover:border-gray-200">
-                        <i class="fas fa-times"></i>
+
+                    <button @click="showOrderDetailModal = false" class="w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-[#E3E1DC] text-[#777873] hover:text-[#202522] hover:bg-gray-50 transition-colors shrink-0">
+                        <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
-                
-                <!-- Body (Scrollable) -->
-                <div class="p-6 flex-grow overflow-y-auto font-mono">
-                    <template x-if="selectedOrder">
+
+                <!-- Body -->
+                <div class="px-6 py-5 bg-white relative">
+                    <!-- Order Number & Type -->
+                    <div class="flex gap-4 items-center mt-2 mb-6">
+                        <div class="w-12 h-12 rounded-[14px] bg-[#F8F7F3] border border-[#E3E1DC] text-[#202522] flex items-center justify-center shrink-0">
+                            <i class="fas fa-user text-lg"></i>
+                        </div>
                         <div>
-                            <!-- Customer Info -->
-                            <div class="flex justify-between items-start mb-6 pb-6 border-b border-dashed border-gray-200">
-                                <div>
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Pelanggan</p>
-                                    <p class="text-base font-bold text-textdark flex items-center gap-2"><i class="fas fa-user-circle text-primary"></i> <span x-text="selectedOrder.customer"></span></p>
+                            <h3 class="text-[18px] font-bold text-[#202522] mb-1" x-text="selectedOrder?.customer"></h3>
+                            <p class="text-[13px] text-[#777873]" x-text="(selectedOrder?.type || 'Takeaway') + ((selectedOrder?.type === 'Dine-in' || selectedOrder?.type === 'Dine In') && selectedOrder?.table ? ' (' + selectedOrder.table + ')' : '')"></p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+
+                    <!-- Items -->
+                    <div class="flex flex-col gap-4 max-h-[40vh] overflow-y-auto hide-scroll py-2">
+                        <template x-for="(item, idx) in selectedOrder?.items" :key="idx">
+                            <div class="flex items-center gap-4">
+                                <img :src="item.image || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-[12px] object-cover bg-gray-100 shrink-0">
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="text-[14px] font-bold text-[#202522] truncate" x-text="item.name"></h4>
+                                    <p x-show="item.notes" class="text-[11px] text-[#D97A32] mt-0.5"><i class="fas fa-comment-dots mr-1"></i> <span x-text="item.notes"></span></p>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tipe Pesanan</p>
-                                    <p class="text-base font-bold text-textdark" x-text="selectedOrder.type + (selectedOrder.type === 'Dine-in' || selectedOrder.type === 'Dine In' ? ' (' + selectedOrder.table + ')' : '')"></p>
-                                </div>
+                                <div class="text-[13px] font-bold text-[#777873] w-8 text-center shrink-0" x-text="item.qty + 'x'"></div>
+                                <div class="text-[14px] font-bold text-[#202522] w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
                             </div>
-                            
-                            <!-- Order Items -->
-                            <div class="mb-4">
-                                <div class="flex justify-between text-[10px] text-gray-400 font-bold uppercase mb-3 px-1">
-                                    <span>Item</span>
-                                    <div class="flex gap-4 w-32 justify-end">
-                                        <span class="w-8 text-center">Qty</span>
-                                        <span class="w-20 text-right">Subtotal</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="space-y-4">
-                                    <template x-for="item in selectedOrder.items">
-                                        <div class="flex justify-between text-sm items-center bg-gray-50/50 p-2 rounded-lg border border-gray-100">
-                                            <div class="flex flex-col pr-2 flex-grow">
-                                                <span x-text="item.name" class="font-bold text-gray-700"></span>
-                                                <span x-show="item.notes" class="text-[11px] text-red-500 italic mt-0.5"><i class="fas fa-comment-dots text-[10px] mr-1"></i><span x-text="item.notes"></span></span>
-                                            </div>
-                                            <div class="flex gap-4 w-32 justify-end flex-shrink-0 items-center">
-                                                <span class="w-8 text-center font-bold text-gray-600 bg-white border border-gray-200 rounded px-1 py-0.5" x-text="item.qty + 'x'"></span>
-                                                <span class="w-20 text-right font-bold text-primary" x-text="formatRp(item.price * item.qty)"></span>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                            
-                            <!-- Payment Info -->
-                            <div class="mt-6 pt-4 border-t border-gray-200">
-                                <div class="flex justify-between items-center text-sm mb-2 text-gray-500">
-                                    <span>Metode Pembayaran</span>
-                                    <span class="font-bold text-textdark bg-[#00569c]/10 text-[#00569c] px-2 py-0.5 rounded text-xs"><i class="fas fa-qrcode mr-1"></i>QRIS</span>
-                                </div>
-                                <div class="flex justify-between items-center text-lg mt-4">
-                                    <span class="font-bold text-gray-600">Total Harga</span>
-                                    <span class="font-extrabold text-2xl text-primary" x-text="formatRp(selectedOrder.total)"></span>
-                                </div>
+                        </template>
+                    </div>
+
+                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+
+                    <!-- Total & Payment -->
+                    <div class="flex justify-between items-end mb-2 mt-4">
+                        <div>
+                            <p class="text-[13px] font-bold text-[#202522] mb-1">Total Harga</p>
+                            <p class="text-[26px] font-bold text-[#164A35]" x-text="selectedOrder ? formatRp(selectedOrder.total) : '0'"></p>
+                        </div>
+
+                        <!-- Payment Badge -->
+                        <div class="bg-[#DDEBDD] rounded-[12px] px-4 py-2.5 flex items-start gap-2.5">
+                            <i class="fas fa-check-circle text-[#164A35] mt-0.5"></i>
+                            <div>
+                                <p class="text-[13px] font-bold text-[#164A35] leading-none mb-1.5">Pembayaran</p>
+                                <p class="text-[11px] font-medium text-[#164A35]/80 leading-none">QRIS / Online</p>
                             </div>
                         </div>
-                    </template>
+                    </div>
                 </div>
-                
+
                 <!-- Footer Actions -->
-                <div class="p-6 border-t border-gray-100 bg-gray-50/50 flex gap-3">
-                    <button @click="showOrderDetailModal = false" class="flex-grow py-3 rounded-xl text-sm font-bold text-gray-500 border border-gray-200 bg-white hover:bg-gray-50 transition">
+                <div class="p-4 bg-[#F8F7F3] border-t border-[#E3E1DC] flex gap-3">
+                    <button @click="showOrderDetailModal = false" class="w-1/3 py-3.5 rounded-[16px] text-[15px] font-bold text-[#777873] bg-white border border-[#E3E1DC] hover:text-[#202522] hover:bg-gray-50 transition-all flex justify-center items-center">
                         Tutup
                     </button>
-                    <button @click="window.print()" class="flex-grow py-3 rounded-xl text-sm font-bold bg-primary text-white shadow hover:bg-[#154660] transition flex justify-center items-center gap-2">
+                    <button @click="window.print()" class="w-2/3 py-3.5 rounded-[16px] text-[15px] font-bold bg-[#164A35] text-white shadow-sm hover:bg-[#123A2A] hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
                         <i class="fas fa-print"></i> Cetak Struk
                     </button>
                 </div>
