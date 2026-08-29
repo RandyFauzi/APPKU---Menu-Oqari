@@ -7,7 +7,16 @@
             </div>
 
             <!-- Kanban Grid -->
-            <div class="grid grid-cols-3 gap-6 overflow-y-auto hide-scroll pb-20 items-start">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto hide-scroll pb-20 items-start">
+                <!-- Empty State -->
+                <div x-show="filteredOrders.length === 0" class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-24 text-center">
+                    <div class="w-24 h-24 bg-white border border-[#E3E1DC] rounded-full flex items-center justify-center mb-5 text-[#C5DBC5] shadow-sm">
+                        <i class="fas fa-receipt text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-[#164A35] mb-2" style="font-family: 'Playfair Display', serif;">Belum ada pesanan masuk</h3>
+                    <p class="text-[14px] text-[#777873]">Tidak ada orderan pada tab status ini.</p>
+                </div>
+
                 <template x-for="order in filteredOrders" :key="order.id">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col transition-all hover:shadow-md">
                         <!-- Card Header (Table Number Dominant) -->
