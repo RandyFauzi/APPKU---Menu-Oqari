@@ -4,10 +4,10 @@ with open('resources/views/Admin/Dashboard/dashboard.blade.php', 'r', encoding='
     content = f.read()
 
 content = content.replace(
-    "shop: @json($shop ?? null),",
-    "shop: @json($shop ?? null),\n            user: @json(auth()->user()),"
+    "{ id: 'settings', name: 'Profile & Branding', icon: 'fas fa-store' },",
+    "{ id: 'settings', name: 'Toko & Branding', icon: 'fas fa-store' },"
 )
 
 with open('resources/views/Admin/Dashboard/dashboard.blade.php', 'w', encoding='utf-8') as f:
     f.write(content)
-print("Injected user to INITIAL_DATA")
+print("Updated settings tab name")

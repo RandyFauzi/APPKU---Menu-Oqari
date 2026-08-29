@@ -28,39 +28,7 @@
     
     <div class="p-4">
         
-        <!-- Data Pemesan -->
-        <div id="customer-info-section" class="bg-white p-5 rounded-2xl border border-gray-100 mb-6 shadow-sm">
-            <h3 class="font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">Informasi Meja & Pemesan</h3>
-            
-            <div class="mb-3 flex gap-4" id="order-type-container">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="orderType" value="Dine-in" class="accent-primary w-4 h-4" checked>
-                    <span class="text-sm font-bold text-gray-700">Dine In</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="orderType" value="Takeaway" class="accent-primary w-4 h-4">
-                    <span class="text-sm font-bold text-gray-700">Takeaway</span>
-                </label>
-            </div>
-
-            <div class="mb-3" id="table-input-container">
-                <label class="block text-xs font-bold text-gray-500 mb-1">Nomor Meja <span class="text-red-500">*</span></label>
-                <!-- the id is customer-table so triggerPaymentGateway in public/js/main.js reads it correctly if customer_table doesn't exist -->
-                <input type="text" id="customer-table" placeholder="Ketik nomor meja" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-600 font-bold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
-            </div>
-            
-            <div class="mb-3">
-                <label class="block text-xs font-bold text-gray-500 mb-1">Nama Pemesan <span class="text-red-500">*</span></label>
-                <input type="text" id="customer-name" placeholder="Masukkan nama Anda" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-500 mb-1">Alamat Email / No. WA <span class="text-red-500">*</span></label>
-                <!-- Retained ID as customer-email for main.js compatibility -->
-                <input type="text" id="customer-email" placeholder="Untuk pengiriman struk/notifikasi" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
-            </div>
-        </div>
-
-        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Daftar Pesanan</h3>
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 mt-2">Daftar Pesanan</h3>
         <div id="cart-items-container"></div>
 
         <!-- Rincian Biaya -->
@@ -74,10 +42,6 @@
                 <span>Pajak Restoran (PB1 10%)</span>
                 <span id="summary-tax" class="font-semibold text-gray-800">Rp 0</span>
             </div>
-            <div id="packaging-row" class="flex justify-between text-sm text-gray-600 mb-3" style="display:none;">
-                <span>Biaya Kemasan (Takeaway)</span>
-                <span id="summary-packaging" class="font-semibold text-gray-800">Rp 0</span>
-            </div>
             <div class="flex justify-between items-center mt-3 pt-3 border-t border-dashed border-gray-200">
                 <span class="font-bold text-gray-800">Total Tagihan</span>
                 <span class="text-2xl font-extrabold text-primary" id="cart-detail-total">Rp 0</span>
@@ -87,15 +51,48 @@
 
     <!-- Fix Bottom Bar -->
     <div class="fixed bottom-0 max-w-md w-full bg-white border-t border-gray-100 p-4 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.05)] z-40 mx-auto left-0 right-0">
-        <button id="btn-trigger-pay" onclick="triggerPaymentGateway()" class="w-full bg-primary text-white py-3.5 rounded-xl font-bold text-base shadow-lg hover:shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+        <button id="btn-trigger-pay" onclick="openCustomerInfoModal()" class="w-full bg-primary text-white py-3.5 rounded-xl font-bold text-base shadow-lg hover:shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
             <span id="btn-pay-text">Lanjut Pembayaran</span> <i class="fas fa-chevron-right text-xs opacity-80"></i>
         </button>
     </div>
 
+    <!-- CUSTOMER INFO MODAL -->
+    <div id="modal-customer-info" class="fixed inset-0 z-50 hidden flex flex-col justify-end max-w-md mx-auto">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeCustomerInfoModal()"></div>
+        <div class="relative bg-gray-100 w-full rounded-t-3xl p-6 flex flex-col shadow-2xl max-h-[85vh] overflow-y-auto border-t border-gray-200">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-5"></div>
+            
+            <h3 class="font-bold text-xl text-gray-800 mb-6">Informasi Meja & Pemesan</h3>
+            
+            <!-- Default Dine In hidden input since we removed Takeaway -->
+            <input type="hidden" name="orderType" value="Dine-in">
+            
+            <div class="space-y-4">
+                <div id="table-input-container">
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Nomor Meja <span class="text-red-500">*</span></label>
+                    <input type="text" id="customer-table" placeholder="Ketik nomor meja" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-600 font-bold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Nama Pemesan <span class="text-red-500">*</span></label>
+                    <input type="text" id="customer-name" placeholder="Masukkan nama Anda" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Alamat Email / No. WA <span class="text-red-500">*</span></label>
+                    <input type="text" id="customer-email" placeholder="Untuk pengiriman struk/notifikasi" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
+                </div>
+            </div>
+
+            <button onclick="triggerPaymentGateway()" class="w-full bg-primary text-white py-4 rounded-xl font-bold text-lg mt-8 shadow-lg hover:shadow-xl active:scale-95 transition-all flex justify-center items-center gap-2">
+                Lanjut ke Pembayaran <i class="fas fa-chevron-right text-xs opacity-80"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- PAYMENT GATEWAY MODAL -->
     <div id="modal-payment" class="fixed inset-0 z-50 hidden flex flex-col justify-end max-w-md mx-auto">
-        <div class="absolute inset-0 modal-overlay bg-black/50" onclick="cancelPayment()"></div>
-        <div class="relative bg-white w-full rounded-t-3xl modal-content p-6 flex flex-col shadow-2xl">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="cancelPayment()"></div>
+        <div class="relative bg-white w-full rounded-t-3xl p-6 flex flex-col shadow-2xl">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-5"></div>
             
             <div class="flex justify-between items-center mb-6">
@@ -128,32 +125,5 @@
 
     @include('shop.scripts')
     
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let qrTable = localStorage.getItem('bitten_table_qr');
-            const tableInput = document.getElementById('customer-table');
-            if (qrTable && tableInput) {
-                tableInput.value = qrTable;
-                tableInput.readOnly = true;
-                tableInput.classList.add('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
-                tableInput.classList.remove('bg-gray-50');
-            }
-            
-            const orderTypes = document.querySelectorAll('input[name="orderType"]');
-            const tableContainer = document.getElementById('table-input-container');
-            
-            orderTypes.forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    if(e.target.value === 'Takeaway') {
-                        tableContainer.style.display = 'none';
-                        tableInput.value = 'TA';
-                    } else {
-                        tableContainer.style.display = 'block';
-                        tableInput.value = localStorage.getItem('bitten_table_qr') || '';
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>

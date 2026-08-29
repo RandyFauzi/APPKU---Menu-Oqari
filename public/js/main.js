@@ -178,7 +178,7 @@ function renderMenuItem(item) {
     return `
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative">
             <div class="p-2 relative cursor-pointer" onclick="openItemDetail('${item.id}')">
-                <img src="${item.image || item.img}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&h=500&fit=crop'" alt="${item.name}" class="h-32 w-full object-cover rounded-xl">
+                <img src="${item.image || item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${item.name}" class="h-32 w-full object-cover rounded-xl">
                 ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
             </div>
             <div class="px-3 pb-3 pt-1 flex flex-col flex-grow relative cursor-pointer" onclick="openItemDetail('${item.id}')">
@@ -209,7 +209,7 @@ function openItemDetail(itemId) {
     currentSelectedItem = menuData.find(m => m.id == itemId);
     if(!currentSelectedItem) return;
 
-    document.getElementById('detail-img').src = currentSelectedItem.image || currentSelectedItem.img || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&h=500&fit=crop';
+    document.getElementById('detail-img').src = currentSelectedItem.image || currentSelectedItem.img || '/Assests/null%20image.webp';
     document.getElementById('detail-name').innerText = currentSelectedItem.name;
     document.getElementById('detail-desc').innerText = currentSelectedItem.desc;
     document.getElementById('detail-price').innerText = formatRp(currentSelectedItem.price);
@@ -342,7 +342,7 @@ function renderCartDetail() {
         let notesText = item.notes ? `<p class="text-[10px] mt-1 p-1 bg-bgbase rounded text-primary">📝 ${item.notes}</p>` : '';
         return `
         <div class="flex items-center gap-4 bg-white p-3 rounded-xl border-2 border-primary/10 mb-3 relative">
-            <img src="${item.img}" class="w-16 h-16 rounded-lg object-cover">
+            <img src="${item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" class="w-16 h-16 rounded-lg object-cover">
             <div class="flex-grow">
                 <h4 class="font-bold text-sm text-textdark leading-tight font-heading">${item.name}</h4>
                 <p class="text-primary font-bold text-sm mt-1">${formatRp(item.price)}</p>
@@ -359,17 +359,12 @@ function renderCartDetail() {
 
     const subtotal = CartStore.getSubtotal();
     const tax = Math.floor(subtotal * 0.10); 
-    const isTakeaway = document.querySelector('input[name="orderType"]:checked')?.value === 'Takeaway';
-    const packagingFee = isTakeaway ? 3000 : 0; 
-    
-    const grandTotal = subtotal + tax + packagingFee;
+    const grandTotal = subtotal + tax;
 
     document.getElementById('summary-subtotal').innerText = formatRp(subtotal);
     document.getElementById('summary-tax').innerText = formatRp(tax);
-    document.getElementById('summary-packaging').innerText = formatRp(packagingFee);
-    document.getElementById('packaging-row').style.display = isTakeaway ? 'flex' : 'none';
     document.getElementById('cart-detail-total').innerText = formatRp(grandTotal);
-    document.getElementById('btn-pay-text').innerText = 'Bayar ' + formatRp(grandTotal);
+    document.getElementById('btn-pay-text').innerText = 'Lanjut Pembayaran - ' + formatRp(grandTotal);
     
     window.currentGrandTotal = grandTotal;
 }
@@ -401,12 +396,8 @@ function triggerPaymentGateway() {
     const name = document.getElementById('customer-name')?.value.trim();
     const email = document.getElementById('customer-email')?.value.trim();
     
-    const isTakeaway = document.querySelector('input[name="orderType"]:checked')?.value === 'Takeaway';
     let table = localStorage.getItem('bitten_table_qr');
-    
-    if (isTakeaway) {
-        table = 'TA';
-    } else if (!table) {
+    if (!table) {
         table = document.getElementById('customer-table')?.value.trim();
     }
     
@@ -421,7 +412,7 @@ function triggerPaymentGateway() {
         return;
     }
     
-    if(!table && !isTakeaway) {
+    if(!table) {
         showToast("⚠️ Mohon isi / scan Nomor Meja!"); 
         return; 
     }
@@ -430,12 +421,8 @@ function triggerPaymentGateway() {
     localStorage.setItem('gw_customer_table', table);
     localStorage.setItem('gw_customer_email', email);
     
-    // Tidak ada modal-customer-info lagi (sudah inline)
-    const modalCustomerInfo = document.getElementById('modal-customer-info');
-    if (modalCustomerInfo) {
-        modalCustomerInfo.classList.add('hidden');
-    }
-
+    // Tutup modal customer info dan buka payment modal
+    closeCustomerInfoModal();
     document.getElementById('modal-payment').classList.remove('hidden');
     document.getElementById('pg-total').innerText = formatRp(window.currentGrandTotal);
 }

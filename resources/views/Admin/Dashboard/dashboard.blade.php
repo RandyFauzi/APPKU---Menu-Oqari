@@ -136,7 +136,7 @@
                     <div x-show="open" x-cloak x-transition.opacity class="absolute right-0 mt-3 w-48 bg-white rounded-[16px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-[#E3E1DC] overflow-hidden z-50">
                         <div class="p-2">
                             <button @click="currentTab = 'profile'; open = false" class="w-full text-left px-4 py-2.5 rounded-[10px] text-sm font-semibold text-[#202522] hover:bg-[#F8F7F3] hover:text-[#164A35] transition-colors flex items-center gap-3">
-                                <i class="fas fa-cog w-4"></i> Settings
+                                <i class="fas fa-user w-4"></i> Profile
                             </button>
                             <div class="h-px bg-gray-100 my-1 mx-2"></div>
                             <button @click="logout()" class="w-full text-left px-4 py-2.5 rounded-[10px] text-sm font-bold text-red-500 hover:bg-red-50 transition-colors flex items-center gap-3">
@@ -157,6 +157,7 @@
         @include('Admin.Dashboard.tabs.qr')
         @include('Admin.Dashboard.tabs.crew')
         @include('Admin.Dashboard.tabs.settings')
+        @include('Admin.Dashboard.tabs.profile')
 
 
         <!-- MODAL: ADD/EDIT MENU -->
@@ -519,6 +520,7 @@
             orders: @json($orders ?? []),
             tables: @json($tables ?? []),
             shop: @json($shop ?? null),
+            user: @json(auth()->user()),
             users: @json($users ?? [])
         };
 
@@ -678,6 +680,48 @@ handleDraftImageUpload(event, index) {
                     logoFile: null
                 },
                 isSavingSettings: false,
+                profile: {
+                    name: window.INITIAL_DATA.user?.name || '',
+                    email: window.INITIAL_DATA.user?.email || '',
+                    password: '',
+                    password_confirmation: ''
+                },
+                isSavingProfile: false,
+                saveProfile() {
+                    this.isSavingProfile = true;
+                    fetch('/admin/api/profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(this.profile)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isSavingProfile = false;
+                        if(data.success) {
+                            this.addToast('Profil berhasil diperbarui!', 'success');
+                            this.profile.password = '';
+                            this.profile.password_confirmation = '';
+                            if(data.user) {
+                                this.profile.name = data.user.name;
+                                this.profile.email = data.user.email;
+                                window.INITIAL_DATA.user = data.user;
+                            }
+                        } else if (data.errors) {
+                            const firstError = Object.values(data.errors)[0][0];
+                            this.addToast(firstError, 'error');
+                        } else {
+                            this.addToast(data.message || 'Gagal menyimpan profil', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        this.isSavingProfile = false;
+                        this.addToast('Terjadi kesalahan jaringan', 'error');
+                    });
+                },
                 get filteredMenuItems() {
                     let items = this.menuItems;
                     if (this.activeMenuFilter !== 'all') {
@@ -713,7 +757,7 @@ handleDraftImageUpload(event, index) {
                     { id: 'menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
                     { id: 'qr', name: 'Table & QR', icon: 'fas fa-qrcode' },
                     { id: 'crew', name: 'Crew Management', icon: 'fas fa-users' },
-                    { id: 'settings', name: 'Profile & Branding', icon: 'fas fa-store' },
+                    { id: 'settings', name: 'Toko & Branding', icon: 'fas fa-store' },
                 ],
                 tables: [],
                 baseUrl: window.location.origin + window.location.pathname.replace('dashboard.html', 'index.html'),

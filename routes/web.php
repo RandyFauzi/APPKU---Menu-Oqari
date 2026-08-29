@@ -17,6 +17,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
     Route::delete('/admin/api/menu/{id}', [DashboardController::class, 'deleteMenu']);
     Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
+    Route::post('/admin/api/profile', [DashboardController::class, 'updateProfile']);
     Route::post('/admin/api/crew', [DashboardController::class, 'saveCrew']);
     Route::delete('/admin/api/crew/{id}', [DashboardController::class, 'deleteCrew']);
     Route::put('/admin/api/crew/{id}', [DashboardController::class, 'updateCrew']);
