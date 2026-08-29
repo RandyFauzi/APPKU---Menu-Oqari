@@ -78,8 +78,12 @@
                     <input type="text" id="customer-name" placeholder="Masukkan nama Anda" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Alamat Email / No. WA <span class="text-red-500">*</span></label>
-                    <input type="text" id="customer-email" placeholder="Untuk pengiriman struk/notifikasi" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Alamat Email <span class="text-red-500">*</span></label>
+                    <input type="email" id="customer-email" placeholder="contoh@email.com" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">No. WhatsApp <span class="text-red-500">*</span></label>
+                    <input type="tel" id="customer-phone" placeholder="08123456789" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
                 </div>
             </div>
 
@@ -103,16 +107,10 @@
                 <div class="bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-sm font-bold border border-primary/20" id="pg-total">Rp 0</div>
             </div>
             
-            <label class="flex items-center gap-4 p-4 border-2 border-primary bg-primary/5 rounded-2xl mb-3 cursor-pointer">
-                <input type="radio" name="payment" checked class="accent-primary w-5 h-5">
+            <label class="flex items-center gap-4 p-4 border-2 border-primary bg-primary/5 rounded-2xl mb-8 cursor-pointer">
+                <input type="radio" name="payment" value="QRIS" checked class="accent-primary w-5 h-5">
                 <div class="bg-primary p-1 rounded-md"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" class="h-5 filter invert" alt="QRIS"></div>
                 <span class="font-bold text-sm text-primary">QRIS (GoPay, Dana, dll)</span>
-            </label>
-            
-            <label class="flex items-center gap-4 p-4 border-2 border-transparent bg-gray-50 rounded-2xl mb-8 cursor-pointer hover:bg-gray-100 transition-colors">
-                <input type="radio" name="payment" class="accent-primary w-5 h-5">
-                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm"><i class="fas fa-money-bill-wave text-gray-400"></i></div>
-                <span class="font-bold text-sm text-gray-600">Bayar di Kasir (Cash)</span>
             </label>
             
             <button id="btn-pay" onclick="processSimulatedPayment()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all flex justify-center items-center gap-2">

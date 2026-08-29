@@ -395,20 +395,25 @@ function closeCustomerInfoModal() {
 function triggerPaymentGateway() {
     const name = document.getElementById('customer-name')?.value.trim();
     const email = document.getElementById('customer-email')?.value.trim();
+    const phone = document.getElementById('customer-phone')?.value.trim();
     
     let table = localStorage.getItem('bitten_table_qr');
     if (!table) {
         table = document.getElementById('customer-table')?.value.trim();
     }
     
-    if(!name || !email) { 
-        showToast("⚠️ Mohon isi Nama & Email/Kontak Anda!"); 
+    if(!name || !email || !phone) { 
+        showToast("⚠️ Mohon isi Nama, Email & No. WhatsApp!"); 
         return; 
     }
     
-    // Validasi sederhana (bisa berupa no HP atau email)
-    if(email.length < 5) {
-        showToast("⚠️ Format kontak tidak valid!");
+    if(email.length < 5 || !email.includes('@')) {
+        showToast("⚠️ Format email tidak valid!");
+        return;
+    }
+
+    if(phone.length < 9) {
+        showToast("⚠️ Format nomor WhatsApp tidak valid!");
         return;
     }
     
@@ -420,6 +425,7 @@ function triggerPaymentGateway() {
     localStorage.setItem('gw_customer_name', name);
     localStorage.setItem('gw_customer_table', table);
     localStorage.setItem('gw_customer_email', email);
+    localStorage.setItem('gw_customer_phone', phone);
     
     // Tutup modal customer info dan buka payment modal
     closeCustomerInfoModal();
@@ -434,16 +440,18 @@ function processSimulatedPayment() {
     btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Memproses...`;
     btn.disabled = true;
 
-    const orderType = document.querySelector('input[name="orderType"]:checked')?.value || 'Dine-in';
+    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'QRIS';
     const name = localStorage.getItem('gw_customer_name') || 'Guest';
+    const email = localStorage.getItem('gw_customer_email') || '';
+    const phone = localStorage.getItem('gw_customer_phone') || '';
     const table = localStorage.getItem('gw_customer_table') || 'TA';
     const items = CartStore.get();
     const total = window.currentGrandTotal;
     
     // Create order using database.js engine
-    DB.createOrder(table, name, orderType, items, total);
+    DB.createOrder(table, name, email, phone, paymentMethod, items, total);
 
-    localStorage.setItem('gw_last_order_type', orderType);
+    localStorage.setItem('gw_last_order_type', paymentMethod);
     localStorage.setItem('gw_last_order_total', total);
     
     setTimeout(() => { CartStore.clear(); window.location.href = window.SHOP_TRACKING_URL; }, 1500);

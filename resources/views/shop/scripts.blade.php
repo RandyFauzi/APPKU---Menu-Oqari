@@ -21,13 +21,15 @@
                 }
                 return localStorage.getItem(tableName) ? JSON.parse(localStorage.getItem(tableName)) : [];
             },
-            createOrder: function(table, name, orderType, items, total) {
+            createOrder: function(table, name, email, phone, paymentMethod, items, total) {
                 let orders = this.get('bitten_orders') || [];
                 const newOrder = {
                     id: 'ORD-' + Date.now(),
                     table: table,
                     customer: name,
-                    type: orderType,
+                    email: email,
+                    phone: phone,
+                    payment_method: paymentMethod,
                     items: items,
                     total: total,
                     status: 'process',
@@ -45,7 +47,9 @@
                     body: JSON.stringify({
                         table_id: table,
                         customer_name: name,
-                        payment_method: orderType,
+                        customer_email: email,
+                        customer_phone: phone,
+                        payment_method: paymentMethod,
                         items: items.map(item => ({
                             id: item.id,
                             qty: item.qty,

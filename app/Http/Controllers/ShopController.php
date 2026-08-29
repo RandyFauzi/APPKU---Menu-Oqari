@@ -33,6 +33,8 @@ class ShopController extends Controller
         $request->validate([
             'table_id' => 'required|string',
             'customer_name' => 'required|string|max:255',
+            'customer_email' => 'nullable|string|max:255',
+            'customer_phone' => 'nullable|string|max:255',
             'payment_method' => 'required|string',
             'items' => 'required|array|min:1',
             'items.*.id' => 'required|exists:products,id',
@@ -72,13 +74,14 @@ class ShopController extends Controller
             $tableModel = \App\Models\Table::create(['shop_id' => $shop->id, 'name' => $request->table_id]);
         }
 
-        // Generate Order Number (if you want to save it, but there's no order_number column in your schema. I will put it in customer_name or skip it)
-
         // Create Order
         $order = \App\Models\Order::create([
             'shop_id' => $shop->id,
             'table_id' => $tableModel->id,
             'customer_name' => $request->customer_name,
+            'customer_email' => $request->customer_email,
+            'customer_phone' => $request->customer_phone,
+            'payment_method' => $request->payment_method,
             'total_price' => $total,
             'status' => 'process'
         ]);
