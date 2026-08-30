@@ -47,9 +47,13 @@ function initHomePage() {
 
     const searchInput = document.getElementById('search-menu');
     if (searchInput) {
+        let debounceTimer;
         searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value.toLowerCase();
-            renderMenu();
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchQuery = e.target.value.toLowerCase();
+                renderMenu();
+            }, 300);
         });
     }
 }
@@ -178,7 +182,7 @@ function renderMenuItem(item) {
     return `
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative">
             <div class="p-2 relative cursor-pointer" onclick="openItemDetail('${item.id}')">
-                <img src="${item.image || item.img}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&h=500&fit=crop'" alt="${item.name}" class="h-32 w-full object-cover rounded-xl">
+                <img src="${item.image || item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${item.name}" loading="lazy" class="h-32 w-full object-cover rounded-xl">
                 ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
             </div>
             <div class="px-3 pb-3 pt-1 flex flex-col flex-grow relative cursor-pointer" onclick="openItemDetail('${item.id}')">
@@ -197,7 +201,7 @@ function renderMenuItem(item) {
 function quickAddToCart(itemId, event) {
     event.stopPropagation();
     const menuData = typeof DB !== 'undefined' ? DB.get('bitten_menu') : apiData.menu;
-    currentSelectedItem = menuData.find(m => m.id === itemId);
+    currentSelectedItem = menuData.find(m => m.id == itemId);
     if(currentSelectedItem) {
         confirmAddToCart(); // Adds defaults
     }
@@ -206,10 +210,10 @@ function quickAddToCart(itemId, event) {
 // Fitur Detail Produk & Customization
 function openItemDetail(itemId) {
     const menuData = typeof DB !== 'undefined' ? DB.get('bitten_menu') : apiData.menu;
-    currentSelectedItem = menuData.find(m => m.id === itemId);
+    currentSelectedItem = menuData.find(m => m.id == itemId);
     if(!currentSelectedItem) return;
 
-    document.getElementById('detail-img').src = currentSelectedItem.image || currentSelectedItem.img || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=500&h=500&fit=crop';
+    document.getElementById('detail-img').src = currentSelectedItem.image || currentSelectedItem.img || '/Assests/null%20image.webp';
     document.getElementById('detail-name').innerText = currentSelectedItem.name;
     document.getElementById('detail-desc').innerText = currentSelectedItem.desc;
     document.getElementById('detail-price').innerText = formatRp(currentSelectedItem.price);
@@ -342,7 +346,7 @@ function renderCartDetail() {
         let notesText = item.notes ? `<p class="text-[10px] mt-1 p-1 bg-bgbase rounded text-primary">📝 ${item.notes}</p>` : '';
         return `
         <div class="flex items-center gap-4 bg-white p-3 rounded-xl border-2 border-primary/10 mb-3 relative">
-            <img src="${item.img}" class="w-16 h-16 rounded-lg object-cover">
+            <img src="${item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" loading="lazy" class="w-16 h-16 rounded-lg object-cover">
             <div class="flex-grow">
                 <h4 class="font-bold text-sm text-textdark leading-tight font-heading">${item.name}</h4>
                 <p class="text-primary font-bold text-sm mt-1">${formatRp(item.price)}</p>
@@ -359,17 +363,12 @@ function renderCartDetail() {
 
     const subtotal = CartStore.getSubtotal();
     const tax = Math.floor(subtotal * 0.10); 
-    const isTakeaway = document.querySelector('input[name="orderType"]:checked')?.value === 'Takeaway';
-    const packagingFee = isTakeaway ? 3000 : 0; 
-    
-    const grandTotal = subtotal + tax + packagingFee;
+    const grandTotal = subtotal + tax;
 
     document.getElementById('summary-subtotal').innerText = formatRp(subtotal);
     document.getElementById('summary-tax').innerText = formatRp(tax);
-    document.getElementById('summary-packaging').innerText = formatRp(packagingFee);
-    document.getElementById('packaging-row').style.display = isTakeaway ? 'flex' : 'none';
     document.getElementById('cart-detail-total').innerText = formatRp(grandTotal);
-    document.getElementById('btn-pay-text').innerText = 'Bayar ' + formatRp(grandTotal);
+    document.getElementById('btn-pay-text').innerText = 'Lanjut Pembayaran - ' + formatRp(grandTotal);
     
     window.currentGrandTotal = grandTotal;
 }
@@ -400,6 +399,7 @@ function closeCustomerInfoModal() {
 function triggerPaymentGateway() {
     const name = document.getElementById('customer-name')?.value.trim();
     const email = document.getElementById('customer-email')?.value.trim();
+    const phone = document.getElementById('customer-phone')?.value.trim();
     
     let table = localStorage.getItem('bitten_table_qr');
     if (!table) {
@@ -411,9 +411,13 @@ function triggerPaymentGateway() {
         return; 
     }
     
-    // Simple email validation
-    if(!email.includes('@') || !email.includes('.')) {
+    if(email.length < 5 || !email.includes('@')) {
         showToast("⚠️ Format email tidak valid!");
+        return;
+    }
+
+    if(phone && phone.length < 9) {
+        showToast("⚠️ Format nomor WhatsApp tidak valid!");
         return;
     }
     
@@ -425,7 +429,9 @@ function triggerPaymentGateway() {
     localStorage.setItem('gw_customer_name', name);
     localStorage.setItem('gw_customer_table', table);
     localStorage.setItem('gw_customer_email', email);
+    localStorage.setItem('gw_customer_phone', phone);
     
+    // Tutup modal customer info dan buka payment modal
     closeCustomerInfoModal();
     document.getElementById('modal-payment').classList.remove('hidden');
     document.getElementById('pg-total').innerText = formatRp(window.currentGrandTotal);
@@ -438,16 +444,18 @@ function processSimulatedPayment() {
     btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Memproses...`;
     btn.disabled = true;
 
-    const orderType = document.querySelector('input[name="orderType"]:checked')?.value || 'Dine-in';
+    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'QRIS';
     const name = localStorage.getItem('gw_customer_name') || 'Guest';
+    const email = localStorage.getItem('gw_customer_email') || '';
+    const phone = localStorage.getItem('gw_customer_phone') || '';
     const table = localStorage.getItem('gw_customer_table') || 'TA';
     const items = CartStore.get();
     const total = window.currentGrandTotal;
     
     // Create order using database.js engine
-    DB.createOrder(table, name, orderType, items, total);
+    DB.createOrder(table, name, email, phone, paymentMethod, items, total);
 
-    localStorage.setItem('gw_last_order_type', orderType);
+    localStorage.setItem('gw_last_order_type', paymentMethod);
     localStorage.setItem('gw_last_order_total', total);
     
     setTimeout(() => { CartStore.clear(); window.location.href = window.SHOP_TRACKING_URL; }, 1500);

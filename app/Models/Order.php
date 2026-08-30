@@ -10,7 +10,10 @@ class Order extends Model
         'shop_id',
         'table_id',
         'customer_name',
+        'customer_email',
+        'customer_phone',
         'status',
+        'payment_method',
         'total_price'
     ];
 

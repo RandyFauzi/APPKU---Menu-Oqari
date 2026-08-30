@@ -11,10 +11,19 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/api/orders/live', [DashboardController::class, 'getLiveOrders']);
     Route::post('/admin/api/orders/{order}/status', [DashboardController::class, 'updateOrderStatus']);
     Route::post('/admin/api/menu/{menu}/toggle', [DashboardController::class, 'toggleMenuStatus']);
+    Route::post('/admin/api/menu/bulk', [DashboardController::class, 'saveMenuBulk']);
     Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
+    Route::delete('/admin/api/menu/{id}', [DashboardController::class, 'deleteMenu']);
     Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
+    Route::post('/admin/api/profile', [DashboardController::class, 'updateProfile']);
+    Route::post('/admin/api/crew', [DashboardController::class, 'saveCrew']);
+    Route::delete('/admin/api/crew/{id}', [DashboardController::class, 'deleteCrew']);
+    Route::put('/admin/api/crew/{id}', [DashboardController::class, 'updateCrew']);
+    Route::post('/admin/api/table', [DashboardController::class, 'saveTable']);
+    Route::put('/admin/api/table', [DashboardController::class, 'updateTableQR']);
 });
 
 Route::middleware('auth')->group(function () {

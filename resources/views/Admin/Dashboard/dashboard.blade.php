@@ -25,7 +25,7 @@
     <!-- Alpine JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Auth Guard removed, using Laravel middleware instead -->
     
@@ -62,7 +62,7 @@
 <body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()">
 
     <!-- Audio untuk notifikasi pesanan masuk -->
-    <audio id="chime-sound" src="Assest/Notif%20Orderan%20Masuk.mp3" preload="auto"></audio>
+    <audio id="chime-sound" src="{{ asset('Assest/Notif Orderan Masuk.mp3') }}" preload="auto"></audio>
 
     <!-- Sidebar -->
     <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg">
@@ -82,7 +82,7 @@
             <template x-for="tab in tabs" :key="tab.id">
                 <button @click="currentTab = tab.id" 
                         class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-colors text-left"
-                        :class="currentTab === tab.id ? 'bg-brewlypeach text-brewlyorange font-bold' : 'text-brewlymuted hover:bg-gray-100 hover:text-brewlytext font-medium'">
+                        :class="currentTab === tab.id ? 'bg-[#DDEBDD] text-[#164A35] font-bold' : 'text-brewlymuted hover:bg-gray-100 hover:text-[#164A35] font-medium'">
                     <i :class="tab.icon" class="w-5 text-center"></i>
                     <span x-text="tab.name"></span>
                 </button>
@@ -90,10 +90,10 @@
         </nav>
         
         <!-- Promo Card -->
-        <div class="bg-[#F3EBE1] rounded-2xl p-5 relative overflow-hidden flex flex-col gap-4 mt-auto mb-2">
-            <h4 class="font-heading font-extrabold text-xl leading-tight z-10 w-3/4 text-brewlytext">Great coffee builds stronger communities.</h4>
-            <div class="z-10 bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm cursor-pointer hover:scale-105 transition-transform"><i class="fas fa-arrow-right text-xs"></i></div>
-            <img src="https://images.unsplash.com/photo-1551030173-122aabc4489c?w=200&fit=crop" class="absolute -bottom-6 -right-6 w-28 h-28 object-cover rounded-full opacity-80 border-4 border-[#F3EBE1]">
+        <div class="bg-[#F8F7F3] rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mt-auto mb-2 border border-[#E3E1DC]">
+            <h4 class="font-bold text-[16px] leading-tight z-10 text-[#164A35]">Brew Better Days</h4>
+            <p class="text-[12px] text-[#777873] z-10 leading-snug w-4/5">Track, analyze and grow your cafe effortlessly.</p>
+            <img src="https://images.unsplash.com/photo-1550133730-695473e544be?w=100&fit=crop" class="absolute -bottom-4 -right-4 w-20 h-20 object-cover rounded-full opacity-70 border-4 border-white shadow-sm">
         </div>
         
         <!-- Logout Button -->
@@ -106,732 +106,292 @@
     <main class="flex-grow flex flex-col h-full bg-white rounded-l-[40px] shadow-[-10px_0_30px_rgba(0,0,0,0.02)] border-l border-brewlyborder overflow-hidden">
         
         <!-- Top Header for Main Area -->
-        <header class="h-24 flex justify-between items-center px-10 shrink-0 border-b border-brewlyborder/50">
-            <div>
-                <h2 class="font-sans font-bold text-3xl text-brewlytext" x-text="tabs.find(t => t.id === currentTab)?.name"></h2>
+        <header class="h-24 flex justify-between items-center px-10 shrink-0 border-b border-brewlyborder/50 bg-white relative z-10">
+            <div x-show="currentTab !== 'analytics'">
+                <h2 class="font-sans font-bold text-3xl text-[#164A35]" x-text="tabs.find(t => t.id === currentTab)?.name"></h2>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="relative">
+            
+            <div class="flex items-center gap-6 ml-auto">
+                <div class="relative cursor-pointer group" x-show="currentTab !== 'analytics'">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" x-model="searchQuery" placeholder="Search orders or menu..." class="bg-gray-50 border border-gray-200 rounded-full pl-11 pr-4 py-2 text-sm focus:outline-none focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen w-64 transition-all">
+                    <input type="text" x-model="searchQuery" placeholder="Search..." class="bg-gray-50 border border-gray-200 rounded-full pl-11 pr-4 py-2 text-sm focus:outline-none focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen w-64 transition-all">
+                </div>
+
+                <div class="relative cursor-pointer group">
+                    <i class="fas fa-bell text-[#777873] text-xl group-hover:text-[#164A35] transition-colors"></i>
+                    <span class="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">3</span>
+                </div>
+                
+                <div class="relative pl-6 border-l border-gray-200" x-data="{ open: false }">
+                    <div @click="open = !open" @click.away="open = false" class="flex items-center gap-3 cursor-pointer group">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=164A35&color=fff" class="w-10 h-10 rounded-full object-cover">
+                        <div class="flex flex-col">
+                            <span class="text-[14px] font-bold text-[#202522] leading-tight w-24 truncate" x-text="settings.name || 'Admin'"></span>
+                            <span class="text-[12px] font-semibold text-[#777873]">Admin</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-[10px] text-[#777873] ml-1 group-hover:text-[#164A35] transition-colors"></i>
+                    </div>
+                    
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" x-cloak x-transition.opacity class="absolute right-0 mt-3 w-48 bg-white rounded-[16px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-[#E3E1DC] overflow-hidden z-50">
+                        <div class="p-2">
+                            <button @click="currentTab = 'profile'; open = false" class="w-full text-left px-4 py-2.5 rounded-[10px] text-sm font-semibold text-[#202522] hover:bg-[#F8F7F3] hover:text-[#164A35] transition-colors flex items-center gap-3">
+                                <i class="fas fa-user w-4"></i> Profile
+                            </button>
+                            <div class="h-px bg-gray-100 my-1 mx-2"></div>
+                            <button @click="logout()" class="w-full text-left px-4 py-2.5 rounded-[10px] text-sm font-bold text-red-500 hover:bg-red-50 transition-colors flex items-center gap-3">
+                                <i class="fas fa-sign-out-alt w-4"></i> Logout
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
 
         <!-- VIEW: LIVE ORDERS (KANBAN) -->
-        <div x-show="currentTab === 'orders'" x-cloak class="flex-grow p-8 pt-2 overflow-hidden flex flex-col">
-            <!-- Order Type Filters -->
-            <div class="flex gap-2 mb-6 shrink-0">
-                <button @click="activeOrderFilter = 'all'" :class="activeOrderFilter === 'all' ? 'bg-[#1E5A7A] text-white shadow-sm border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">All</button>
-                <button @click="activeOrderFilter = 'process'" :class="activeOrderFilter === 'process' ? 'bg-[#1E5A7A] text-white shadow-sm border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">On Process</button>
-                <button @click="activeOrderFilter = 'completed'" :class="activeOrderFilter === 'completed' ? 'bg-[#1E5A7A] text-white shadow-sm border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">Completed</button>
-            </div>
-
-            <!-- Kanban Grid -->
-            <div class="grid grid-cols-3 gap-6 overflow-y-auto hide-scroll pb-20 items-start">
-                <template x-for="order in filteredOrders" :key="order.id">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col transition-all hover:shadow-md">
-                        <!-- Card Header (Table Number Dominant) -->
-                        <div class="flex flex-col mb-4 border-b border-gray-100 pb-3">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest font-mono">Meja</span>
-                                    <span class="font-heading font-black text-4xl text-primary leading-none" x-text="order.table || 'TA'"></span>
-                                </div>
-                                <!-- Status Badge & Time -->
-                                <div class="flex flex-col items-end gap-1">
-                                    <!-- MASUK -->
-                                    <span x-show="order.status === 'Masuk'" class="px-2 py-1 rounded bg-yellow-100 text-yellow-800 text-[10px] font-bold border border-yellow-300 flex items-center gap-1 animate-pulse">
-                                        <i class="fas fa-bell"></i> New
-                                    </span>
-                                    <!-- IN PROGRESS -->
-                                    <span x-show="order.status === 'In Progress'" class="px-2 py-1 rounded bg-[#FDE68A] text-[#92400E] text-[10px] font-bold border border-[#FCD34D] flex items-center gap-1">
-                                        <i class="fas fa-clock"></i> In Progress
-                                    </span>
-                                    <!-- READY -->
-                                    <span x-show="order.status === 'Ready'" class="px-2 py-1 rounded bg-[#1E5A7A] text-white text-[10px] font-bold shadow-sm flex items-center gap-1">
-                                        <i class="fas fa-check"></i> Ready
-                                    </span>
-                                    <!-- COMPLETED -->
-                                    <span x-show="order.status === 'Completed'" class="px-2 py-1 rounded bg-gray-100 text-gray-500 text-[10px] font-bold border border-gray-200 flex items-center gap-1">
-                                        <i class="fas fa-check-double"></i> Completed
-                                    </span>
-                                    
-                                    <p class="text-[10px] font-bold text-gray-400 mt-1" x-text="order.time"></p>
-                                </div>
-                            </div>
-                            
-                            <!-- Customer Name -->
-                            <div class="flex flex-col">
-                                <h3 class="font-heading font-bold text-base text-gray-500 leading-tight"><i class="fas fa-user text-xs mr-1 opacity-50"></i> <span x-text="order.customer"></span></h3>
-                                <p class="text-[10px] text-gray-400 font-mono mt-0.5">Order <span x-text="'#'+order.id"></span> / <span x-text="order.type"></span></p>
-                            </div>
-                        </div>
-                            
-
-
-                        <!-- Card Body (Items) -->
-                        <div class="flex-grow font-mono">
-                            <div class="flex justify-between text-[10px] text-gray-400 font-bold uppercase mb-2">
-                                <span>Items</span>
-                                <div class="flex gap-4 w-24 justify-end">
-                                    <span class="w-6 text-center">Qty</span>
-                                    <span class="w-14 text-right">Price</span>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-2 mb-4 overflow-y-auto hide-scroll">
-                                <template x-for="item in order.items">
-                                    <div class="flex justify-between text-sm" :class="order.status === 'Completed' ? 'text-gray-400 line-through' : 'text-textdark'">
-                                        <div class="flex flex-col truncate pr-2 flex-grow">
-                                            <span x-text="item.name" class="truncate font-medium"></span>
-                                            <span x-show="item.notes" class="text-[10px] text-red-500 italic mt-0.5" x-text="item.notes"></span>
-                                        </div>
-                                        <div class="flex gap-4 w-24 justify-end flex-shrink-0">
-                                            <span class="w-6 text-center" x-text="item.qty"></span>
-                                            <span class="w-14 text-right font-bold" x-text="formatRp(item.price * item.qty)"></span>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-
-                        <!-- Card Footer -->
-                        <div class="border-t border-gray-100 pt-4 flex flex-col gap-3">
-                            <div class="flex justify-between items-center font-mono">
-                                <span class="font-bold text-gray-500 uppercase text-xs">Total</span>
-                                <span class="font-extrabold text-xl text-primary" x-text="formatRp(order.total)"></span>
-                            </div>
-                            
-                            <!-- One Tap Action Button -->
-                            <div class="flex gap-2 w-full mt-2">
-                                <button @click="viewOrderDetails(order)" class="flex-grow py-2.5 rounded text-sm font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
-                                    See Details
-                                </button>
-                                
-                                <template x-if="order.status === 'Masuk'">
-                                    <button @click="updateStatus(order.id, 'In Progress')" class="flex-grow py-2.5 rounded text-sm font-bold bg-yellow-500 text-yellow-900 shadow hover:bg-yellow-400 transition">
-                                        Terima & Proses
-                                    </button>
-                                </template>
-                                
-                                <template x-if="order.status === 'In Progress'">
-                                    <button @click="updateStatus(order.id, 'Ready')" class="flex-grow py-2.5 rounded text-sm font-bold bg-[#1E5A7A] text-white shadow hover:bg-[#154660] transition">
-                                        Mark Ready
-                                    </button>
-                                </template>
-                                
-                                <template x-if="order.status === 'Ready'">
-                                    <button @click="updateStatus(order.id, 'Completed')" class="flex-grow py-2.5 rounded text-sm font-bold bg-[#1E5A7A] text-white shadow hover:bg-[#154660] transition">
-                                        Selesaikan
-                                    </button>
-                                </template>
-
-                                <template x-if="order.status === 'Completed'">
-                                    <button disabled class="flex-grow py-2.5 rounded text-sm font-bold bg-gray-100 text-gray-400 cursor-not-allowed">
-                                        Done
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <!-- VIEW: MENU CMS (OWNER) -->
-        <div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-10 pt-6 overflow-y-auto hide-scroll flex flex-col gap-8 bg-brewlybg">
-            <p class="text-brewlymuted text-sm">Add your coffee, food, and drinks to create a beautiful menu for your shop.</p>
-            
-            <!-- Cards Section -->
-            <div class="grid grid-cols-2 gap-6">
-                <!-- Upload Card -->
-                <div class="dashed-box flex flex-col items-center justify-center p-8 text-center bg-gray-50/30">
-                    <div class="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-brewlymuted mb-3 bg-white shadow-sm">
-                        <i class="fas fa-cloud-upload-alt text-xl"></i>
-                    </div>
-                    <h3 class="font-bold text-lg mb-1 text-brewlytext">Upload Menu Items</h3>
-                    <p class="text-sm text-brewlymuted mb-6">Drag and drop images, or click to upload<br>JPG, PNG up to 10MB</p>
-                    <button @click="newMenu = { id: null, name: '', price: '', desc: '', categoryId: 'beverages' }; showAddMenuModal = true" class="bg-brewlygreen text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-sm hover:bg-[#2A5E3E] transition">
-                        Upload Files
-                    </button>
-                </div>
-                <!-- Tips Card -->
-                <div class="bg-[#FCF7F1] rounded-2xl p-6 relative flex items-stretch overflow-hidden h-[230px]">
-                    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
-                    <!-- Left Content -->
-                    <div class="z-20 w-1/2 flex flex-col justify-center pl-2">
-                        <div class="text-[#D9652A] mb-3 flex items-center gap-1">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 1L14.8 9.2L23 12L14.8 14.8L12 23L9.2 14.8L1 12L9.2 9.2L12 1Z"/>
-                            </svg>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="mt-4 -ml-1">
-                                <path d="M12 1L14.8 9.2L23 12L14.8 14.8L12 23L9.2 14.8L1 12L9.2 9.2L12 1Z"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-[22px] leading-[1.2] text-[#1A1A1A] mb-2 tracking-tight">A great menu<br>brings people in.</h3>
-                        <p class="text-[13px] text-[#666666] mb-5 leading-relaxed pr-2 font-medium">Add clear photos and organized<br>categories to make your menu<br>shine online.</p>
-                        <a href="#" class="text-[#D9652A] font-bold text-[13px] hover:underline flex items-center gap-1.5 transition-colors">
-                            Tips for a great menu 
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                        </a>
-                    </div>
-                    
-                    <!-- Right Content (Image & Decorations) -->
-                    <div class="absolute right-0 top-0 bottom-0 w-[55%] pointer-events-none">
-                        <!-- Background offset shape -->
-                        <div class="absolute left-4 top-8 w-[210px] h-[155px] bg-[#F2EAE0] rounded-[32px]"></div>
-                        
-                        <!-- Main Image -->
-                        <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=400&fit=crop" class="absolute left-10 top-12 z-10 w-[190px] h-[130px] object-cover rounded-[20px] shadow-sm">
-                        
-                        <!-- Handwritten Text (Good Food Better Days) -->
-                        <div class="absolute right-6 top-10 text-[#4A443E] leading-[1] text-3xl transform -rotate-6" style="font-family: 'Alex Brush', cursive;">
-                            Good<br>Food<br>Better<br>Days
-                        </div>
-                        
-                        <!-- Sunburst bottom right -->
-                        <div class="absolute right-6 bottom-8 text-[#D9652A]">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                                <path d="M21 9 L17 12" />
-                                <path d="M22 15 L16 15" />
-                                <path d="M21 21 L17 18" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Categories Filter -->
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <span class="font-bold text-lg text-brewlytext">Categories</span>
-                    <div class="flex gap-2">
-                        <button @click="activeMenuFilter = 'all'" :class="activeMenuFilter === 'all' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
-                            All Items <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.length"></span>
-                        </button>
-                        <button @click="activeMenuFilter = 'beverages'" :class="activeMenuFilter === 'beverages' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fas fa-coffee opacity-50"></i> Beverages <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.filter(i=>i.categoryId==='beverages').length"></span>
-                        </button>
-                        <button @click="activeMenuFilter = 'foods'" :class="activeMenuFilter === 'foods' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fas fa-utensils opacity-50"></i> Foods <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.filter(i=>i.categoryId==='foods').length"></span>
-                        </button>
-                        <button @click="activeMenuFilter = 'snacks'" :class="activeMenuFilter === 'snacks' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fas fa-cookie opacity-50"></i> Snacks <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.filter(i=>i.categoryId==='snacks').length"></span>
-                        </button>
-                        <button @click="activeMenuFilter = 'sweets'" :class="activeMenuFilter === 'sweets' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fas fa-ice-cream opacity-50"></i> Sweets <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.filter(i=>i.categoryId==='sweets').length"></span>
-                        </button>
-                    </div>
-                </div>
-                <button class="bg-white border border-gray-200 text-brewlytext px-4 py-2 rounded-full font-bold text-sm shadow-sm hover:bg-gray-50 transition flex items-center gap-2">
-                    <i class="fas fa-plus"></i> Add Category
-                </button>
-            </div>
-
-            <!-- Table Section -->
-            <div class="bg-white border border-gray-200 rounded-2xl flex flex-col shadow-sm flex-grow">
-                <div class="p-4 border-b border-gray-200 flex justify-between items-center">
-                    <h3 class="font-bold text-lg text-brewlytext">Menu Items <span class="text-brewlymuted font-normal text-sm" x-text="'(' + filteredMenuItems.length + ')'"></span></h3>
-                    <div class="flex gap-3">
-                        <select class="border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium focus:outline-none focus:border-brewlygreen bg-white text-brewlytext">
-                            <option>Sort by: Newest</option>
-                            <option>Price: Low to High</option>
-                            <option>Price: High to Low</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-brewlytext">
-                        <thead>
-                            <tr class="border-b border-gray-100 text-sm text-brewlymuted bg-gray-50/50">
-                                <th class="p-4 w-12 text-center"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brewlygreen focus:ring-brewlygreen"></th>
-                                <th class="p-4 font-semibold">Item</th>
-                                <th class="p-4 font-semibold">Category</th>
-                                <th class="p-4 font-semibold">Price</th>
-                                <th class="p-4 font-semibold">Status</th>
-                                <th class="p-4 font-semibold">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="item in filteredMenuItems" :key="item.id">
-                                <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition group" :class="item.soldOut ? 'opacity-70 grayscale-[30%]' : ''">
-                                    <td class="p-4 text-center align-middle"><input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-brewlygreen focus:ring-brewlygreen"></td>
-                                    <td class="p-4 flex gap-4 items-center">
-                                        <img :src="item.image || item.img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541167760496-1628856ab772?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-lg object-cover border border-gray-100">
-                                        <div class="flex flex-col">
-                                            <span class="font-bold text-sm" x-text="item.name"></span>
-                                            <span class="text-xs text-brewlymuted line-clamp-1" x-text="item.desc || 'No description'"></span>
-                                        </div>
-                                    </td>
-                                    <td class="p-4">
-                                        <span class="px-3 py-1 bg-brewlylightgreen text-brewlygreen text-xs font-bold rounded-full capitalize" x-text="item.categoryId"></span>
-                                    </td>
-                                    <td class="p-4 font-semibold text-sm font-mono" x-text="formatRp(item.price)"></td>
-                                    <td class="p-4">
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-2 h-2 rounded-full" :class="item.soldOut ? 'bg-red-500' : 'bg-brewlygreen'"></div>
-                                            <span class="text-sm font-semibold" :class="item.soldOut ? 'text-red-600' : 'text-brewlygreen'" x-text="item.soldOut ? 'Sold Out' : 'Published'"></span>
-                                        </div>
-                                    </td>
-                                    <td class="p-4">
-                                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button @click="editMenu(item)" class="w-8 h-8 rounded border border-gray-200 bg-white text-gray-500 hover:text-brewlygreen hover:border-brewlygreen transition flex items-center justify-center" title="Edit"><i class="fas fa-edit text-xs"></i></button>
-                                            <button @click="toggleSoldOut(item.id)" class="w-8 h-8 rounded border border-gray-200 bg-white text-gray-500 hover:text-brewlyorange hover:border-brewlyorange transition flex items-center justify-center" title="Toggle Status"><i class="fas fa-power-off text-xs"></i></button>
-                                            <button @click="deleteMenu(item.id)" class="w-8 h-8 rounded border border-gray-200 bg-white text-gray-500 hover:text-red-500 hover:border-red-500 transition flex items-center justify-center" title="Delete"><i class="fas fa-trash text-xs"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
+                @include('Admin.Dashboard.tabs.orders')
+        @include('Admin.Dashboard.tabs.menu')
+        
         <!-- VIEW: ANALYTICS (OWNER) -->
-        <div x-show="currentTab === 'analytics'" x-cloak class="flex-grow p-10 pt-4 overflow-auto hide-scroll bg-[#FAFAFA]">
-            
-            <div class="flex justify-end mb-6">
-                <button class="bg-white border border-gray-200 text-[#4A4A4A] px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm hover:bg-gray-50 transition-colors">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Export CSV
-                </button>
-            </div>
+        @include('Admin.Dashboard.tabs.analytics')
+        @include('Admin.Dashboard.tabs.qr')
+        @include('Admin.Dashboard.tabs.crew')
+        @include('Admin.Dashboard.tabs.settings')
+        @include('Admin.Dashboard.tabs.profile')
 
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-3 gap-6 mb-6">
-                <!-- Revenue (Hero Card) -->
-                <div class="bg-gradient-to-br from-[#2D1A10] to-[#1A0E08] rounded-[24px] p-6 relative overflow-hidden text-white flex flex-col justify-between h-[180px] shadow-sm">
-                    <div class="flex justify-between items-start z-10 relative">
-                        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                        </div>
-                        <button class="bg-white/10 border border-white/20 text-white/90 text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-white/20 transition-colors">
-                            Today <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </button>
-                    </div>
-                    <div class="z-10 relative">
-                        <p class="text-[11px] font-bold text-white/60 uppercase tracking-widest mb-1">Total Revenue</p>
-                        <p class="font-bold text-[32px] mb-2" x-text="formatRevenue(totalRevenue)"></p>
-                        <p class="text-[11px] font-semibold text-[#54C14B] flex items-center gap-1"><i class="fas fa-arrow-up text-[10px]"></i> 18.6% <span class="text-white/50 font-medium">from yesterday</span></p>
-                    </div>
-                    <!-- Coffee Background Image -->
-                    <img src="https://images.unsplash.com/photo-1579992357154-faf4bde95b3d?w=400&fit=crop" class="absolute -right-10 -bottom-10 w-48 h-48 object-cover rounded-full opacity-50 mix-blend-luminosity rotate-12 pointer-events-none">
-                </div>
 
-                <!-- Orders -->
-                <div class="bg-white rounded-[24px] p-6 shadow-sm border border-gray-100 flex flex-col justify-between h-[180px]">
-                    <div class="w-10 h-10 rounded-xl bg-[#FFF5EB] text-[#D9652A] flex items-center justify-center mb-4">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    </div>
-                    <div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Orders</p>
-                        <p class="font-bold text-[32px] text-[#1A1A1A] mb-4" x-text="totalOrders"></p>
-                        <!-- Progress Bar -->
-                        <div class="w-full bg-[#FCF5EB] h-2 rounded-full overflow-hidden mb-2">
-                            <div class="bg-[#D9652A] h-full rounded-full transition-all duration-500" :style="'width: ' + ((totalSuccess/totalOrders)*100 || 0) + '%'"></div>
-                        </div>
-                        <div class="flex justify-between text-[11px] text-gray-500 font-semibold">
-                            <span x-text="(totalOrders - totalSuccess) + ' Active'"></span>
-                            <span x-text="totalSuccess + ' Completed'"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Success vs Cancelled -->
-                <div class="bg-white rounded-[24px] p-6 shadow-sm border border-gray-100 flex flex-col justify-between h-[180px]">
-                    <div class="w-10 h-10 rounded-xl bg-[#E8F5E9] text-[#4CAF50] flex items-center justify-center mb-4">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
-                    <div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Success Rate</p>
-                        <p class="font-bold text-[32px] text-[#1A1A1A] mb-4">100%</p>
-                        <!-- Progress Bar -->
-                        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-2">
-                            <div class="bg-[#4CAF50] h-full rounded-full"></div>
-                        </div>
-                        <div class="flex justify-between text-[11px] font-semibold">
-                            <span class="text-[#4CAF50]" x-text="totalSuccess + ' Success'"></span>
-                            <span class="text-red-500">0 Unfinished</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom Section -->
-            <div class="flex gap-6 pb-10">
-                <!-- Left: Sales Trend -->
-                <div class="w-2/3 bg-white rounded-[24px] p-6 shadow-sm border border-gray-100 flex flex-col">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-bold text-lg text-[#1A1A1A]">Sales Trend (This Week)</h3>
-                        <button class="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-sm font-semibold hover:bg-gray-50">
-                            This Week <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </button>
-                    </div>
-                    
-                    <!-- Chart -->
-                    <div class="h-56 mb-8 relative w-full">
-                        <canvas id="salesChart"></canvas>
-                    </div>
-                    
-                    <!-- Bottom 4 mini stats -->
-                    <div class="grid grid-cols-4 gap-4 mt-auto">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-[#F6F0E6] text-[#A67C52] flex items-center justify-center shrink-0">
-                                <i class="fas fa-chart-bar"></i>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Avg. Daily Revenue</p>
-                                <p class="font-bold text-sm text-[#1A1A1A]">Rp 1.62M</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-[#E8F5E9] text-[#4CAF50] flex items-center justify-center shrink-0">
-                                <i class="fas fa-arrow-trend-up"></i>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Best Day</p>
-                                <p class="font-bold text-sm text-[#1A1A1A]">Sunday</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-[#F0F2FF] text-[#6B7AFF] flex items-center justify-center shrink-0">
-                                <i class="fas fa-bolt"></i>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Growth (vs last week)</p>
-                                <p class="font-bold text-sm text-[#4CAF50]"><i class="fas fa-arrow-up text-[10px]"></i> 24.8%</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-[#E8F4F8] text-[#03A9F4] flex items-center justify-center shrink-0">
-                                <i class="fas fa-receipt"></i>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-0.5">Avg. Order Value</p>
-                                <p class="font-bold text-sm text-[#1A1A1A]">Rp 79.9K</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: Top Menu -->
-                <div class="w-1/3 bg-[#FDFDFD] rounded-[24px] p-6 shadow-sm border border-gray-100 flex flex-col">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-bold text-lg text-[#1A1A1A]">Top Menu</h3>
-                        <button class="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1 rounded-lg shadow-sm font-semibold hover:bg-gray-50 transition-colors">View all</button>
-                    </div>
-                    
-                    <div class="flex-grow flex flex-col gap-5">
-                        <!-- Item 1 -->
-                        <div class="flex items-center gap-4">
-                            <div class="w-6 h-6 rounded-full bg-[#FFE58F] text-[#D48806] font-bold text-[10px] flex items-center justify-center shrink-0">1</div>
-                            <img src="Assest/Menu/Chicken Katsu.png" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=100&fit=crop'" class="w-14 h-14 rounded-xl object-cover shrink-0">
-                            <div class="flex-grow">
-                                <div class="flex justify-between mb-0.5">
-                                    <p class="font-bold text-sm text-[#1A1A1A]">Chicken Katsu</p>
-                                    <p class="font-bold text-sm text-[#1A1A1A]">Rp 8.1M</p>
-                                </div>
-                                <p class="text-[10px] text-gray-500 font-semibold mb-2 tracking-wider">80 ORDERS</p>
-                                <div class="w-full bg-[#FCF5EB] h-1.5 rounded-full overflow-hidden">
-                                    <div class="bg-[#8C5D3A] h-full rounded-full" style="width: 85%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Item 2 -->
-                        <div class="flex items-center gap-4">
-                            <div class="w-6 h-6 rounded-full bg-[#E8E8E8] text-[#8C8C8C] font-bold text-[10px] flex items-center justify-center shrink-0">2</div>
-                            <img src="Assest/Menu/Vanilla Latte.png" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1572442388796-11668a67efeb?w=100&fit=crop'" class="w-14 h-14 rounded-xl object-cover shrink-0">
-                            <div class="flex-grow">
-                                <div class="flex justify-between mb-0.5">
-                                    <p class="font-bold text-sm text-[#1A1A1A]">Vanilla Latte</p>
-                                    <p class="font-bold text-sm text-[#1A1A1A]">Rp 6.2M</p>
-                                </div>
-                                <p class="text-[10px] text-gray-500 font-semibold mb-2 tracking-wider">73 ORDERS</p>
-                                <div class="w-full bg-[#FCF5EB] h-1.5 rounded-full overflow-hidden">
-                                    <div class="bg-[#8C5D3A] h-full rounded-full" style="width: 65%"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Item 3 -->
-                        <div class="flex items-center gap-4">
-                            <div class="w-6 h-6 rounded-full bg-[#F4D3C5] text-[#A65E44] font-bold text-[10px] flex items-center justify-center shrink-0">3</div>
-                            <img src="Assest/Menu/Caramel Latte.png" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1585409677983-0f6c41ca9c3b?w=100&fit=crop'" class="w-14 h-14 rounded-xl object-cover shrink-0">
-                            <div class="flex-grow">
-                                <div class="flex justify-between mb-0.5">
-                                    <p class="font-bold text-sm text-[#1A1A1A]">Caramel Latte</p>
-                                    <p class="font-bold text-sm text-[#1A1A1A]">Rp 5.7M</p>
-                                </div>
-                                <p class="text-[10px] text-gray-500 font-semibold mb-2 tracking-wider">73 ORDERS</p>
-                                <div class="w-full bg-[#FCF5EB] h-1.5 rounded-full overflow-hidden">
-                                    <div class="bg-[#8C5D3A] h-full rounded-full" style="width: 55%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between text-[11px] font-semibold text-[#8C5D3A] bg-[#FCF7F1] -mx-6 -mb-6 px-6 py-4 rounded-b-[24px]">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-trophy"></i> Keep it up! Your best seller is doing great.
-                        </div>
-                        <i class="fas fa-chevron-right text-gray-400"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW: TABLE & QR (OWNER) -->
-        <div x-show="currentTab === 'qr'" x-cloak class="flex-grow p-8 overflow-auto hide-scroll">
-            <div class="flex justify-between items-center mb-8">
-                <!-- Removed redundant title since it's already in the top header -->
-                <p class="text-gray-500 font-medium">Kelola QR Code untuk setiap meja secara dinamis.</p>
-                <button @click="showAddTableModal = true; $nextTick(() => $refs.tableInput.focus())" class="bg-primary text-white px-5 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-sm hover:bg-[#154660] transition-colors">
-                    <i class="fas fa-plus"></i> Tambah Meja Baru
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-                <template x-for="table in tables" :key="table.id">
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-5 hover:shadow-md transition-shadow">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h4 class="font-sans font-bold text-2xl text-textdark mb-1" x-text="table.id"></h4>
-                                <div class="bg-green-50 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-md inline-block uppercase tracking-wider">Aktif</div>
-                            </div>
-                            <div class="p-1.5 border border-gray-100 rounded-xl bg-gray-50 shrink-0">
-                                <img :src="table.qr" alt="QR Code" class="w-20 h-20 mix-blend-multiply">
-                            </div>
-                        </div>
-                        
-                        <div class="flex gap-3">
-                            <button @click="printQR(table)" class="flex-grow py-2.5 rounded-xl text-sm font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center justify-center gap-2">
-                                <i class="fas fa-print"></i> Print QR
-                            </button>
-                            <button @click="resetQR(table)" class="w-11 h-11 shrink-0 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center shadow-sm" title="Reset URL">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <!-- VIEW: SETTINGS & BRANDING -->
-        <div x-show="currentTab === 'settings'" x-cloak class="flex-grow p-8 overflow-auto hide-scroll">
-            <div class="mb-8">
-                <p class="text-gray-500 font-medium">Kelola informasi toko dan branding Anda.</p>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-3xl">
-                <form @submit.prevent="saveSettings" class="flex flex-col gap-6">
-                    <!-- Shop Name -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Nama Toko</label>
-                        <input type="text" x-model="settings.name" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" placeholder="Contoh: Bitten Coffee" required>
-                    </div>
-
-                    <!-- URL Slug -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">URL Slug Toko</label>
-                        <div class="flex items-center">
-                            <span class="bg-gray-50 border border-gray-200 border-r-0 rounded-l-xl px-4 py-3 text-sm text-gray-500 font-mono flex-shrink-0" x-text="window.location.host + '/'"></span>
-                            <input type="text" x-model="settings.slug" class="w-full border border-gray-200 rounded-r-xl px-4 py-3 text-sm font-mono focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" placeholder="bitten-coffee" required>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-2">Ini akan menjadi alamat web unik untuk menu pelanggan Anda.</p>
-                    </div>
-
-                    <!-- Logo Upload -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Logo Toko (Opsional)</label>
-                        <div class="flex items-center gap-6">
-                            <div class="w-24 h-24 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden relative group">
-                                <img x-show="settings.logoPreview" :src="settings.logoPreview" class="w-full h-full object-cover">
-                                <i x-show="!settings.logoPreview" class="fas fa-image text-3xl text-gray-300"></i>
-                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" @click="$refs.logoInput.click()">
-                                    <i class="fas fa-camera text-white"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow">
-                                <input type="file" x-ref="logoInput" @change="handleLogoUpload" class="hidden" accept="image/*">
-                                <button type="button" @click="$refs.logoInput.click()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-200 transition-colors">Pilih Gambar</button>
-                                <p class="text-xs text-gray-400 mt-2">Format: JPG, PNG. Maksimal 2MB.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Primary Color -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Warna Utama (Opsional)</label>
-                        <div class="flex items-center gap-3">
-                            <input type="color" x-model="settings.primary_color" class="w-12 h-12 rounded cursor-pointer border-0 p-0 bg-transparent">
-                            <input type="text" x-model="settings.primary_color" class="w-32 border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none uppercase" placeholder="#1E5A7A">
-                        </div>
-                        <p class="text-xs text-gray-400 mt-2">Warna ini akan digunakan sebagai warna tombol dan aksen di halaman menu pelanggan.</p>
-                    </div>
-
-                    <div class="pt-4 border-t border-gray-100 flex justify-end">
-                        <button type="submit" class="bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-[#154660] transition-colors flex items-center gap-2" :disabled="isSavingSettings">
-                            <i class="fas fa-spinner fa-spin" x-show="isSavingSettings"></i>
-                            <span x-text="isSavingSettings ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- MODAL: ADD MENU -->
-        <div x-show="showAddMenuModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+        <!-- MODAL: ADD/EDIT MENU -->
+        <div x-show="showAddMenuModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans">
             <!-- Backdrop -->
-            <div @click="showAddMenuModal = false" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+            <div @click="showAddMenuModal = false" class="absolute inset-0 bg-[#202522]/30 backdrop-blur-sm transition-opacity"></div>
+            
             <!-- Modal Content -->
-            <div class="relative bg-white w-[500px] rounded-lg shadow-xl flex flex-col" @keydown.escape.window="showAddMenuModal = false">
-                <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-                    <h3 class="font-heading font-extrabold text-lg text-[#2D3748]"><i class="fas fa-hamburger mr-2 text-[#1E5A7A]"></i> Tambah Menu Baru</h3>
-                    <button @click="showAddMenuModal = false" class="text-gray-400 hover:text-red-500 transition">
+            <div class="relative bg-[#FFFFFF] w-full max-w-2xl rounded-[28px] p-8 shadow-[0_10px_35px_rgba(0,0,0,0.05)] flex flex-col border border-[#E3E1DC]" @keydown.escape.window="showAddMenuModal = false" x-transition>
+                
+                <!-- Header -->
+                <div class="flex justify-between items-start mb-6 pb-6 border-b border-dashed border-[#E3E1DC]">
+                    <div class="flex gap-5">
+                        <div class="w-16 h-16 rounded-[16px] bg-[#164A35] text-white flex items-center justify-center shadow-sm">
+                            <i class="fas fa-pen text-2xl" x-show="newMenu.id"></i>
+                            <i class="fas fa-hamburger text-2xl" x-show="!newMenu.id"></i>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <h2 class="text-[28px] text-[#164A35] leading-tight mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700;" x-text="newMenu.id ? 'Edit Menu' : 'Tambah Menu Baru'"></h2>
+                            <p class="text-[#777873] text-[15px]" x-text="newMenu.id ? 'Perbarui detail, harga, dan gambar menu ini.' : 'Tambahkan menu baru ke dalam daftar toko Anda.'"></p>
+                        </div>
+                    </div>
+                    <button @click="showAddMenuModal = false" class="text-[#777873] hover:text-[#202522] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors w-8 h-8 flex items-center justify-center rounded-full mt-1">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="p-5 flex flex-col gap-4 font-mono">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Kategori Menu</label>
-                        <select x-model="newMenu.categoryId" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-[#1E5A7A] focus:outline-none bg-white">
-                            <option value="beverages">Beverages</option>
-                            <option value="foods">Foods</option>
-                            <option value="snacks">Snacks</option>
-                            <option value="sweets">Sweets</option>
-                        </select>
+
+                <!-- Body -->
+                <div class="flex flex-col gap-5">
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Kategori</label>
+                            <select x-model="newMenu.categoryId" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none appearance-none">
+                                <option value="beverages">Beverages</option>
+                                <option value="foods">Foods</option>
+                                <option value="snacks">Snacks</option>
+                                <option value="sweets">Sweets</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Harga (Rp)</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3.5 text-[15px] text-[#202522] font-medium">Rp</span>
+                                <input type="number" x-model="newMenu.price" placeholder="0" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] pl-11 pr-4 py-3.5 text-[15px] font-bold text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
+                            </div>
+                        </div>
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Nama Menu</label>
-                        <input type="text" x-model="newMenu.name" placeholder="Misal: Matcha Latte" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-[#1E5A7A] focus:outline-none">
+                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Nama Menu</label>
+                        <input type="text" x-model="newMenu.name" placeholder="Misal: Iced Matcha Latte" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-[#202522] placeholder:font-medium placeholder:text-[#C5DBC5] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Harga (Rp)</label>
-                        <input type="number" x-model="newMenu.price" placeholder="Misal: 25000" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-[#1E5A7A] focus:outline-none">
+                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Deskripsi Singkat</label>
+                        <textarea x-model="newMenu.desc" placeholder="Penjelasan menarik tentang menu ini..." rows="2" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-medium text-[#202522] placeholder:text-[#C5DBC5] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none"></textarea>
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Deskripsi Singkat</label>
-                        <textarea x-model="newMenu.desc" placeholder="Penjelasan singkat tentang menu ini..." rows="2" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-[#1E5A7A] focus:outline-none"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Upload Gambar (Opsional)</label>
-                        <input type="file" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#1E5A7A]/10 file:text-[#1E5A7A] hover:file:bg-[#1E5A7A]/20">
+                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Upload Gambar (Opsional)</label>
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-[14px] bg-[#F8F7F3] border border-dashed border-[#C5DBC5] flex items-center justify-center shrink-0">
+                                <i class="fas fa-image text-[#C5DBC5] text-xl"></i>
+                            </div>
+                            <input type="file" x-ref="menuImageInput" class="w-full text-sm text-[#777873] file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-[#DDEBDD] file:text-[#164A35] hover:file:bg-[#C5DBC5] cursor-pointer outline-none">
+                        </div>
                     </div>
                 </div>
-                <div class="p-5 border-t border-gray-100 flex justify-end gap-2">
-                    <button @click="showAddMenuModal = false" class="px-4 py-2 rounded text-sm font-bold text-gray-500 hover:bg-gray-50 transition">Batal</button>
-                    <button @click="saveNewMenu" class="px-4 py-2 rounded text-sm font-bold bg-[#1E5A7A] text-white shadow-sm hover:bg-[#154660] transition">Simpan Menu</button>
+
+                <!-- Footer -->
+                <div class="mt-8 flex justify-end gap-3 pt-6 border-t border-[#E3E1DC]">
+                    <button @click="showAddMenuModal = false" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-white border border-[#E3E1DC] text-[#777873] hover:bg-[#F8F7F3] transition-colors">Batal</button>
+                    <button @click="saveNewMenu" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-[#164A35] text-white hover:bg-[#0f3526] transition-colors shadow-sm flex items-center gap-2">
+                        <i class="fas fa-check" x-show="!newMenu.id"></i>
+                        <i class="fas fa-save" x-show="newMenu.id"></i>
+                        <span x-text="newMenu.id ? 'Simpan Perubahan' : 'Simpan Menu'"></span>
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- MODAL: ADD TABLE -->
-        <div x-show="showAddTableModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
-            <!-- Backdrop -->
-            <div @click="showAddTableModal = false" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
-            <!-- Modal Content -->
-            <div class="relative bg-white w-[400px] rounded-2xl shadow-xl flex flex-col overflow-hidden" @keydown.escape.window="showAddTableModal = false">
-                <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <h3 class="font-sans font-bold text-lg text-primary flex items-center gap-2"><i class="fas fa-qrcode text-accent"></i> Tambah Meja Baru</h3>
-                    <button @click="showAddTableModal = false" class="text-gray-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white">
+        <!-- MODAL: ADD TABLE -->
+        <div x-show="showAddTableModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-[#164A35]/40 backdrop-blur-sm" x-transition.opacity>
+            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(22,74,53,0.15)] relative overflow-hidden" @click.away="showAddTableModal = false" x-transition>
+                
+                <!-- Decorative Circle -->
+                <div class="absolute -top-16 -right-16 w-32 h-32 bg-[#F8F7F3] rounded-full pointer-events-none"></div>
+                <div class="absolute top-4 right-4 z-10">
+                    <button @click="showAddTableModal = false" class="text-[#777873] hover:text-[#202522] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors w-8 h-8 flex items-center justify-center rounded-full">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="p-5 flex flex-col gap-4 font-mono">
+
+                <div class="flex items-center gap-4 mb-6 relative z-10">
+                    <div class="w-12 h-12 rounded-full bg-[#DDEBDD] text-[#164A35] flex items-center justify-center text-xl shrink-0">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Nama / Nomor Meja</label>
-                        <input x-ref="tableInput" type="text" x-model="newTableId" @keydown.enter="addTableFromModal" placeholder="Misal: Meja 07" class="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:border-primary focus:outline-none">
+                        <h3 class="text-[24px] font-bold text-[#164A35] leading-tight" style="font-family: 'Playfair Display', serif;">Tambah Meja Baru</h3>
+                        <p class="text-[13px] text-[#777873]">Buat QR code instan untuk meja baru.</p>
                     </div>
                 </div>
-                <div class="p-5 border-t border-gray-100 flex justify-end gap-2 bg-gray-50/50">
-                    <button @click="showAddTableModal = false" class="px-4 py-2 rounded-lg text-sm font-bold text-gray-500 hover:bg-gray-100 transition">Batal</button>
-                    <button @click="addTableFromModal" class="px-4 py-2 rounded-lg text-sm font-bold bg-primary text-white shadow-sm hover:bg-[#154660] transition flex items-center gap-2">Generate QR <i class="fas fa-arrow-right text-xs"></i></button>
+
+                <div class="mb-8 relative z-10">
+                    <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Nama / Nomor Meja</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-hashtag text-[#C5DBC5]"></i>
+                        </div>
+                        <input x-ref="tableInput" type="text" x-model="newTableId" @keydown.enter="addTableFromModal" placeholder="Misal: Meja 07" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[16px] pl-10 pr-4 py-3.5 text-[15px] font-bold text-[#202522] placeholder:font-medium placeholder:text-[#C5DBC5] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 relative z-10">
+                    <button @click="showAddTableModal = false" class="w-1/3 py-3.5 rounded-[14px] text-[14px] font-bold text-[#777873] bg-white border border-[#E3E1DC] hover:bg-[#F8F7F3] transition-colors text-center">Batal</button>
+                    <button @click="addTableFromModal" class="flex-grow py-3.5 rounded-[14px] text-[14px] font-bold bg-[#164A35] text-white shadow-[0_4px_12px_rgba(22,74,53,0.2)] hover:bg-[#0f3526] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                        Generate QR <i class="fas fa-arrow-right text-[12px]"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: RESET QR CONFIRM -->
+        <div x-show="showResetQRModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-[#164A35]/40 backdrop-blur-sm" x-transition.opacity>
+            <div class="bg-white rounded-[24px] w-full max-w-[400px] p-8 shadow-[0_20px_60px_rgba(22,74,53,0.15)] relative overflow-hidden" @click.away="showResetQRModal = false" x-transition>
+                <div class="absolute -top-16 -right-16 w-32 h-32 bg-[#D97A32]/10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-[#164A35]/5 rounded-full blur-2xl"></div>
+                
+                <div class="relative z-10 flex flex-col items-center text-center">
+                    <div class="w-16 h-16 bg-[#D97A32]/10 text-[#D97A32] rounded-full flex items-center justify-center text-2xl mb-4 border-4 border-white shadow-sm">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="text-[22px] font-bold text-[#164A35] mb-2" style="font-family: 'Playfair Display', serif;">Reset QR Code?</h3>
+                    <p class="text-[14px] text-[#777873] leading-relaxed mb-6">Yakin ingin mereset/mengganti URL QR Code untuk <strong class="text-[#202522]" x-text="qrTableToReset?.id"></strong>? <br> <span class="text-red-500 font-medium">URL lama tidak akan bisa diakses lagi.</span></p>
+                    
+                    <div class="flex gap-3 w-full">
+                        <button @click="showResetQRModal = false" class="w-1/2 py-3 rounded-[14px] text-[14px] font-bold text-[#777873] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors">Batal</button>
+                        <button @click="confirmResetQR" :disabled="isResettingQR" class="w-1/2 py-3 rounded-[14px] text-[14px] font-bold bg-[#D97A32] text-white shadow-sm hover:bg-[#b8662a] transition-all flex items-center justify-center gap-2 disabled:opacity-70">
+                            <i class="fas fa-spinner fa-spin" x-show="isResettingQR" x-cloak></i>
+                            <span x-show="!isResettingQR">Ya, Reset</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- MODAL: ORDER DETAIL -->
-        <div x-show="showOrderDetailModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
+        <div x-show="showOrderDetailModal" x-cloak class="fixed inset-0 z-[200] flex items-center justify-center p-4 font-sans sm:items-center sm:p-0">
             <!-- Backdrop -->
-            <div @click="showOrderDetailModal = false" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+            <div @click="showOrderDetailModal = false" class="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity"></div>
+            
             <!-- Modal Content -->
-            <div class="relative bg-white w-[500px] max-h-[90vh] rounded-2xl shadow-xl flex flex-col overflow-hidden" @keydown.escape.window="showOrderDetailModal = false" x-show="selectedOrder">
+            <div class="relative bg-[#F8F7F3] w-full sm:w-[520px] rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col border border-[#E3E1DC] overflow-hidden" @keydown.escape.window="showOrderDetailModal = false" x-show="selectedOrder"
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-200 transform"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 scale-95">
+
                 <!-- Header -->
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <div>
-                        <h3 class="font-sans font-bold text-xl text-primary flex items-center gap-2" x-text="'Struk Pesanan #' + (selectedOrder ? selectedOrder.id : '')"></h3>
-                        <p class="text-xs text-gray-500 font-mono mt-1" x-text="selectedOrder ? selectedOrder.time : ''"></p>
+                <div class="p-6 bg-[#F8F7F3] border-b border-[#E3E1DC] flex justify-between items-start">
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-[14px] bg-[#164A35] text-white flex items-center justify-center shadow-sm shrink-0">
+                            <i class="fas fa-receipt text-xl"></i>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <h2 class="text-[18px] font-bold text-[#164A35] leading-tight mb-1" x-text="'Struk Pesanan #' + (selectedOrder ? selectedOrder.id : '')"></h2>
+                            <p class="text-[13px] font-mono text-[#777873]" x-text="selectedOrder ? selectedOrder.time : ''"></p>
+                        </div>
                     </div>
-                    <button @click="showOrderDetailModal = false" class="text-gray-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white border border-transparent hover:border-gray-200">
-                        <i class="fas fa-times"></i>
+
+                    <button @click="showOrderDetailModal = false" class="w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-[#E3E1DC] text-[#777873] hover:text-[#202522] hover:bg-gray-50 transition-colors shrink-0">
+                        <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
-                
-                <!-- Body (Scrollable) -->
-                <div class="p-6 flex-grow overflow-y-auto font-mono">
-                    <template x-if="selectedOrder">
+
+                <!-- Body -->
+                <div class="px-6 py-5 bg-white relative">
+                    <!-- Order Number & Type -->
+                    <div class="flex gap-4 items-center mt-2 mb-6">
+                        <div class="w-12 h-12 rounded-[14px] bg-[#F8F7F3] border border-[#E3E1DC] text-[#202522] flex items-center justify-center shrink-0">
+                            <i class="fas fa-user text-lg"></i>
+                        </div>
                         <div>
-                            <!-- Customer Info -->
-                            <div class="flex justify-between items-start mb-6 pb-6 border-b border-dashed border-gray-200">
-                                <div>
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Pelanggan</p>
-                                    <p class="text-base font-bold text-textdark flex items-center gap-2"><i class="fas fa-user-circle text-primary"></i> <span x-text="selectedOrder.customer"></span></p>
+                            <h3 class="text-[18px] font-bold text-[#202522] mb-1" x-text="selectedOrder?.customer"></h3>
+                            <p class="text-[13px] text-[#777873]" x-text="(selectedOrder?.type || 'Takeaway') + ((selectedOrder?.type === 'Dine-in' || selectedOrder?.type === 'Dine In') && selectedOrder?.table ? ' (' + selectedOrder.table + ')' : '')"></p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+
+                    <!-- Items -->
+                    <div class="flex flex-col gap-4 max-h-[40vh] overflow-y-auto hide-scroll py-2">
+                        <template x-for="(item, idx) in selectedOrder?.items" :key="idx">
+                            <div class="flex items-center gap-4">
+                                <img :src="item.image || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-[12px] object-cover bg-gray-100 shrink-0">
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="text-[14px] font-bold text-[#202522] truncate" x-text="item.name"></h4>
+                                    <p x-show="item.notes" class="text-[11px] text-[#D97A32] mt-0.5"><i class="fas fa-comment-dots mr-1"></i> <span x-text="item.notes"></span></p>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tipe Pesanan</p>
-                                    <p class="text-base font-bold text-textdark" x-text="selectedOrder.type + (selectedOrder.type === 'Dine-in' || selectedOrder.type === 'Dine In' ? ' (' + selectedOrder.table + ')' : '')"></p>
-                                </div>
+                                <div class="text-[13px] font-bold text-[#777873] w-8 text-center shrink-0" x-text="item.qty + 'x'"></div>
+                                <div class="text-[14px] font-bold text-[#202522] w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
                             </div>
-                            
-                            <!-- Order Items -->
-                            <div class="mb-4">
-                                <div class="flex justify-between text-[10px] text-gray-400 font-bold uppercase mb-3 px-1">
-                                    <span>Item</span>
-                                    <div class="flex gap-4 w-32 justify-end">
-                                        <span class="w-8 text-center">Qty</span>
-                                        <span class="w-20 text-right">Subtotal</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="space-y-4">
-                                    <template x-for="item in selectedOrder.items">
-                                        <div class="flex justify-between text-sm items-center bg-gray-50/50 p-2 rounded-lg border border-gray-100">
-                                            <div class="flex flex-col pr-2 flex-grow">
-                                                <span x-text="item.name" class="font-bold text-gray-700"></span>
-                                                <span x-show="item.notes" class="text-[11px] text-red-500 italic mt-0.5"><i class="fas fa-comment-dots text-[10px] mr-1"></i><span x-text="item.notes"></span></span>
-                                            </div>
-                                            <div class="flex gap-4 w-32 justify-end flex-shrink-0 items-center">
-                                                <span class="w-8 text-center font-bold text-gray-600 bg-white border border-gray-200 rounded px-1 py-0.5" x-text="item.qty + 'x'"></span>
-                                                <span class="w-20 text-right font-bold text-primary" x-text="formatRp(item.price * item.qty)"></span>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                            
-                            <!-- Payment Info -->
-                            <div class="mt-6 pt-4 border-t border-gray-200">
-                                <div class="flex justify-between items-center text-sm mb-2 text-gray-500">
-                                    <span>Metode Pembayaran</span>
-                                    <span class="font-bold text-textdark bg-[#00569c]/10 text-[#00569c] px-2 py-0.5 rounded text-xs"><i class="fas fa-qrcode mr-1"></i>QRIS</span>
-                                </div>
-                                <div class="flex justify-between items-center text-lg mt-4">
-                                    <span class="font-bold text-gray-600">Total Harga</span>
-                                    <span class="font-extrabold text-2xl text-primary" x-text="formatRp(selectedOrder.total)"></span>
-                                </div>
+                        </template>
+                    </div>
+
+                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+
+                    <!-- Total & Payment -->
+                    <div class="flex justify-between items-end mb-2 mt-4">
+                        <div>
+                            <p class="text-[13px] font-bold text-[#202522] mb-1">Total Harga</p>
+                            <p class="text-[26px] font-bold text-[#164A35]" x-text="selectedOrder ? formatRp(selectedOrder.total) : '0'"></p>
+                        </div>
+
+                        <!-- Payment Badge -->
+                        <div class="bg-[#DDEBDD] rounded-[12px] px-4 py-2.5 flex items-start gap-2.5">
+                            <i class="fas fa-check-circle text-[#164A35] mt-0.5"></i>
+                            <div>
+                                <p class="text-[13px] font-bold text-[#164A35] leading-none mb-1.5">Pembayaran</p>
+                                <p class="text-[11px] font-medium text-[#164A35]/80 leading-none">QRIS / Online</p>
                             </div>
                         </div>
-                    </template>
+                    </div>
                 </div>
-                
+
                 <!-- Footer Actions -->
-                <div class="p-6 border-t border-gray-100 bg-gray-50/50 flex gap-3">
-                    <button @click="showOrderDetailModal = false" class="flex-grow py-3 rounded-xl text-sm font-bold text-gray-500 border border-gray-200 bg-white hover:bg-gray-50 transition">
+                <div class="p-4 bg-[#F8F7F3] border-t border-[#E3E1DC] flex gap-3">
+                    <button @click="showOrderDetailModal = false" class="w-1/3 py-3.5 rounded-[16px] text-[15px] font-bold text-[#777873] bg-white border border-[#E3E1DC] hover:text-[#202522] hover:bg-gray-50 transition-all flex justify-center items-center">
                         Tutup
                     </button>
-                    <button @click="window.print()" class="flex-grow py-3 rounded-xl text-sm font-bold bg-primary text-white shadow hover:bg-[#154660] transition flex justify-center items-center gap-2">
+                    <button @click="window.print()" class="w-2/3 py-3.5 rounded-[16px] text-[15px] font-bold bg-[#164A35] text-white shadow-sm hover:bg-[#123A2A] hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
                         <i class="fas fa-print"></i> Cetak Struk
                     </button>
                 </div>
@@ -839,43 +399,146 @@
         </div>
 
         <!-- MODAL: INCOMING ORDER ALERT -->
-        <div x-show="incomingOrder" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center">
+        <div x-show="activeIncomingOrder" x-cloak class="fixed inset-0 z-[200] flex items-center justify-center p-4 font-sans sm:items-center sm:p-0">
             <!-- Backdrop -->
-            <div class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
+            <div class="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity"></div>
+            
             <!-- Modal Content -->
-            <div class="relative bg-white w-[500px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-bounce" style="animation-iteration-count: 3; animation-duration: 0.5s;">
+            <div class="relative bg-[#F8F7F3] w-full sm:w-[520px] rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col border border-[#E3E1DC] overflow-hidden" 
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-200 transform"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 scale-95">
+
                 <!-- Header -->
-                <div class="bg-yellow-400 p-6 flex flex-col items-center justify-center border-b-4 border-yellow-500">
-                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg mb-3">
-                        <i class="fas fa-bell text-3xl text-yellow-500 animate-pulse"></i>
+                <div class="p-6 bg-[#F8F7F3] border-b border-[#E3E1DC] flex justify-between items-start">
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-[14px] bg-[#D97A32] text-white flex items-center justify-center shadow-sm shrink-0">
+                            <i class="fas fa-bell text-xl animate-pulse"></i>
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <h2 class="text-[18px] font-bold text-[#D97A32] leading-tight mb-1">Pesanan Baru Masuk!</h2>
+                            <p class="text-[13px] text-[#777873]">Baru saja</p>
+                        </div>
                     </div>
-                    <h2 class="font-heading font-extrabold text-2xl text-yellow-900 tracking-wide uppercase">Pesanan Baru Masuk!</h2>
+                    
+                    <!-- Timer Badge -->
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[15px] font-mono font-bold shrink-0 transition-colors"
+                         :class="{
+                            'bg-[#D97A32] text-white': incomingTimer > 15,
+                            'bg-red-500 text-white animate-pulse': incomingTimer <= 15
+                         }">
+                        <i class="fas fa-stopwatch text-sm"></i>
+                        <span x-text="formatTime(incomingTimer)"></span>
+                    </div>
                 </div>
-                
+
                 <!-- Body -->
-                <div class="p-8 text-center font-mono">
-                    <template x-if="incomingOrder">
+                <div class="px-6 py-5 bg-white relative">
+                    <!-- Queue info -->
+                    <div x-show="incomingOrderQueue.length > 0" class="absolute top-0 inset-x-0 bg-[#F7E5D2] text-[#D97A32] text-[12px] font-bold py-1 text-center">
+                        <span x-text="incomingOrderQueue.length"></span> pesanan menunggu antrean
+                    </div>
+
+                    <!-- Order Number & Type -->
+                    <div class="flex gap-4 items-center mt-2 mb-6">
+                        <div class="w-12 h-12 rounded-[14px] bg-[#F8F7F3] border border-[#E3E1DC] text-[#202522] flex items-center justify-center shrink-0">
+                            <i class="fas fa-shopping-bag text-lg"></i>
+                        </div>
                         <div>
-                            <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-1">Meja</p>
-                            <p class="text-5xl font-sans font-extrabold text-primary mb-6" x-text="incomingOrder.table"></p>
-                            
-                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6">
-                                <p class="text-base font-bold text-textdark mb-1"><i class="fas fa-user-circle text-gray-400 mr-2"></i> <span x-text="incomingOrder.customer"></span></p>
-                                <p class="text-xs text-gray-500" x-text="incomingOrder.items.length + ' Item â€¢ ' + formatRp(incomingOrder.total)"></p>
+                            <h3 class="text-[18px] font-bold text-[#202522] mb-1">Pesanan #<span x-text="activeIncomingOrder?.id"></span></h3>
+                            <p class="text-[13px] text-[#777873]">Takeaway • <span x-text="activeIncomingOrder?.customer"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+
+                    <!-- Items -->
+                    <div class="flex flex-col gap-4 max-h-[30vh] overflow-y-auto hide-scroll py-2">
+                        <template x-for="(item, idx) in activeIncomingOrder?.items" :key="idx">
+                            <div class="flex items-center gap-4">
+                                <img :src="item.image || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-[12px] object-cover bg-gray-100 shrink-0">
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="text-[14px] font-bold text-[#202522] truncate" x-text="item.name"></h4>
+                                </div>
+                                <div class="text-[13px] font-bold text-[#777873] w-8 text-center shrink-0" x-text="item.qty + 'x'"></div>
+                                <div class="text-[14px] font-bold text-[#202522] w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+
+                    <!-- Total & Payment -->
+                    <div class="flex justify-between items-end mb-2 mt-4">
+                        <div>
+                            <p class="text-[13px] font-bold text-[#202522] mb-1">Total Pesanan</p>
+                            <p class="text-[26px] font-bold text-[#164A35]" x-text="activeIncomingOrder ? formatRp(activeIncomingOrder.total) : '0'"></p>
+                        </div>
+                        
+                        <!-- Payment Badge -->
+                        <div class="bg-[#DDEBDD] rounded-[12px] px-4 py-2.5 flex items-start gap-2.5">
+                            <i class="fas fa-check-circle text-[#164A35] mt-0.5"></i>
+                            <div>
+                                <p class="text-[13px] font-bold text-[#164A35] leading-none mb-1.5">Pembayaran Lunas</p>
+                                <p class="text-[11px] font-medium text-[#164A35]/80 leading-none">Dibayar via QRIS</p>
                             </div>
                         </div>
-                    </template>
-                    <p class="text-sm text-gray-500 italic">Pesanan ini sudah dibayar (QRIS) dan menunggu untuk diproses.</p>
+                    </div>
                 </div>
-                
+
                 <!-- Footer Actions -->
-                <div class="p-6 border-t border-gray-100 bg-gray-50 flex gap-3">
-                    <button @click="incomingOrder = null" class="w-1/3 py-4 rounded-xl text-sm font-bold text-gray-500 bg-white border border-gray-200 hover:bg-gray-100 transition">
-                        Nanti Saja
-                    </button>
-                    <button @click="acceptIncomingOrder()" class="w-2/3 py-4 rounded-xl text-base font-bold bg-[#1E5A7A] text-white shadow-lg hover:bg-[#154660] hover:scale-[1.02] transition transform active:scale-95 flex justify-center items-center gap-2">
-                        <i class="fas fa-fire"></i> Terima & Proses
-                    </button>
+                <div class="p-6 bg-[#F8F7F3] border-t border-[#E3E1DC]">
+                    <!-- State: Confirm Reject -->
+                    <div x-show="incomingOrderState === 'reject_confirm'" class="flex flex-col gap-4">
+                        <p class="text-center text-[15px] font-bold text-[#202522]">Tolak pesanan #<span x-text="activeIncomingOrder?.id"></span>?</p>
+                        <div class="flex gap-3">
+                            <button @click="incomingOrderState = 'new'" class="flex-1 py-3.5 rounded-[14px] font-bold text-[14px] bg-white border border-[#E3E1DC] text-[#777873] hover:bg-gray-50 transition-colors">Batal</button>
+                            <button @click="confirmRejectOrder(false)" class="flex-1 py-3.5 rounded-[14px] font-bold text-[14px] bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors">Ya, Tolak Pesanan</button>
+                        </div>
+                    </div>
+
+                    <!-- State: New/Normal -->
+                    <div x-show="incomingOrderState === 'new'" class="flex gap-4">
+                        <button @click="incomingOrderState = 'reject_confirm'" class="w-[140px] shrink-0 py-4 rounded-[14px] font-bold text-[14px] bg-transparent border border-[#E3E1DC] text-[#777873] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors">
+                            Tolak Pesanan
+                        </button>
+                        <button @click="acceptOrder()" class="flex-1 py-4 rounded-[14px] font-bold text-[15px] bg-[#164A35] text-white hover:bg-[#0f3526] transition-colors shadow-[0_4px_12px_rgba(22,74,53,0.2)] flex items-center justify-center gap-2">
+                            <i class="fas fa-coffee"></i> Terima & Siapkan
+                        </button>
+                    </div>
+
+                    <!-- State: Accepting -->
+                    <div x-show="incomingOrderState === 'accepting'" class="flex justify-center items-center py-4">
+                        <i class="fas fa-spinner fa-spin text-[#164A35] text-2xl"></i>
+                        <span class="ml-3 font-bold text-[#164A35]">Menerima pesanan...</span>
+                    </div>
+
+                    <!-- State: Accepted -->
+                    <div x-show="incomingOrderState === 'accepted'" class="flex flex-col justify-center items-center py-2">
+                        <div class="w-10 h-10 bg-[#DDEBDD] text-[#164A35] rounded-full flex items-center justify-center mb-2">
+                            <i class="fas fa-check text-xl"></i>
+                        </div>
+                        <span class="font-bold text-[#164A35]">Pesanan Diterima!</span>
+                        <span class="text-[13px] text-[#777873]">Sedang disiapkan...</span>
+                    </div>
+                    
+                    <!-- State: Rejected -->
+                    <div x-show="incomingOrderState === 'rejected'" class="flex flex-col justify-center items-center py-2">
+                        <div class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-2">
+                            <i class="fas fa-times text-xl"></i>
+                        </div>
+                        <span class="font-bold text-red-600">Pesanan Ditolak</span>
+                    </div>
+
+                    <!-- Timeout Notice -->
+                    <div class="text-center mt-5" x-show="['new', 'reject_confirm'].includes(incomingOrderState)">
+                        <p class="text-[12px] font-medium text-[#777873] flex items-center justify-center gap-1.5">
+                            <i class="far fa-clock"></i> Pesanan otomatis ditolak dalam <span x-text="incomingTimer" class="font-mono font-bold"></span> detik
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -887,64 +550,150 @@
             menu: @json($menuItems ?? []),
             orders: @json($orders ?? []),
             tables: @json($tables ?? []),
-            shop: @json($shop ?? null)
+            shop: @json($shop ?? null),
+            user: @json(auth()->user()),
+            users: @json($users ?? [])
         };
 
         const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
-                currentTab: 'orders',
+                currentTab: localStorage.getItem('activeDashboardTab') || 'orders',
                 showAddMenuModal: false,
                 showAddTableModal: false,
+                showResetQRModal: false,
+                qrTableToReset: null,
+                isResettingQR: false,
+                showAddCrewModal: false,
+                users: window.INITIAL_DATA.users || [],
+                newCrew: { name: '', email: '', password: '', role: 'barista' },
+                showEditCrewModal: false,
+                editCrewData: { id: null, name: '', email: '', password: '', role: 'barista' },
+                isSaving: false,
                 showOrderDetailModal: false,
                 selectedOrder: null,
-                incomingOrder: null,
+                incomingOrderQueue: [],
+                activeIncomingOrder: null,
+                incomingOrderState: 'idle',
+                incomingTimer: 45,
+                incomingTimerInterval: null,
+                formatTime(seconds) {
+                    const m = Math.floor(seconds / 60);
+                    const s = seconds % 60;
+                    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+                },
                 newTableId: '',
                 activeMenuFilter: 'all',
                 activeOrderFilter: 'process',
                 searchQuery: '',
-                showAddMenuModal: false,
-                uploadItems: [{ id: Date.now(), imagePreview: null, name: '', categoryId: 'beverages', price: '' }],
-                addNewUploadRow() {
-                    this.uploadItems.push({ id: Date.now(), imagePreview: null, name: '', categoryId: 'beverages', price: '' });
-                },
-                removeUploadRow(id) {
-                    if (this.uploadItems.length > 1) {
-                        this.uploadItems = this.uploadItems.filter(item => item.id !== id);
+                newMenu: { id: null, name: '', price: '', desc: '', categoryId: '' },
+                showBulkUpload: false,
+                draftMenus: [],
+                categories: ['Coffee', 'Pastry', 'Beverages', 'Foods', 'Snacks', 'Sweets'],
+                initBulkUpload() {
+                    this.showBulkUpload = true;
+                    if (this.draftMenus.length === 0) {
+                        this.addDraftRow();
                     }
                 },
-                handleUploadImage(e, item) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = ev => item.imagePreview = ev.target.result;
-                        reader.readAsDataURL(file);
-                    }
+                addDraftRow() {
+                    this.draftMenus.push({ id: null, name: '', price: '', categoryId: this.categories[0], imagePreview: null, imageFile: null });
                 },
-                triggerBulkCSV() {
-                    this.addToast('Fitur Bulk CSV sedang dalam tahap integrasi!', 'success');
+                removeDraftRow(index) {
+                    this.draftMenus.splice(index, 1);
+                    if (this.draftMenus.length === 0) this.addDraftRow();
                 },
-                saveUploadItems() {
-                    const validItems = this.uploadItems.filter(i => i.name && i.price);
-                    if (validItems.length === 0) {
-                        this.addToast('Isi minimal 1 menu dengan nama dan harga!', 'error');
+                
+                handleCSVUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const text = e.target.result;
+                        const lines = text.split('\n');
+                        let added = 0;
+                        
+                        for (let i = 1; i < lines.length; i++) {
+                            const line = lines[i].trim();
+                            if (!line) continue;
+                            
+                            const cols = line.split(',');
+                            if (cols.length >= 3) {
+                                const name = cols[0].replace(/^"|"$/g, '').trim();
+                                const category = cols[1].replace(/^"|"$/g, '').trim();
+                                const priceStr = cols[2].replace(/[^0-9]/g, '');
+                                const price = parseInt(priceStr) || 0;
+                                
+                                let validCategory = this.categories[0];
+                                const catLower = category.toLowerCase();
+                                const matchedCat = this.categories.find(c => c.toLowerCase() === catLower);
+                                if (matchedCat) validCategory = matchedCat;
+                                
+                                this.draftMenus.unshift({
+                                    id: null,
+                                    name: name,
+                                    categoryId: validCategory,
+                                    price: price,
+                                    imagePreview: null,
+                                    imageFile: null
+                                });
+                                added++;
+                            }
+                        }
+                        
+                        if (added > 0) {
+                            this.addToast(added + ' item diimpor dari CSV', 'success');
+                            if (this.draftMenus.length > 0 && this.draftMenus[this.draftMenus.length - 1].name === '') {
+                                this.draftMenus.pop();
+                            }
+                        } else {
+                            this.addToast('Format CSV tidak valid atau kosong', 'error');
+                        }
+                        
+                        event.target.value = '';
+                    };
+                    reader.readAsText(file);
+                },
+handleDraftImageUpload(event, index) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (file.size > 2 * 1024 * 1024) {
+                        this.addToast('Image max 2MB', 'error');
                         return;
                     }
-                    // Mock save for now
-                    validItems.forEach(i => {
-                        this.menuItems.unshift({
-                            id: Math.floor(Math.random() * 10000),
-                            name: i.name,
-                            price: parseInt(i.price),
-                            categoryId: i.categoryId,
-                            image: i.imagePreview || 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=100&h=100&fit=crop',
-                            soldOut: false
-                        });
+                    this.draftMenus[index].imageFile = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => { this.draftMenus[index].imagePreview = e.target.result; };
+                    reader.readAsDataURL(file);
+                },
+                saveBulkMenu() {
+                    const validItems = this.draftMenus.filter(m => m.name && m.price);
+                    if (validItems.length === 0) {
+                        this.addToast('Minimal isi Nama dan Harga', 'error');
+                        return;
+                    }
+                    let formData = new FormData();
+                    validItems.forEach((item, index) => {
+                        if (item.id) formData.append(`items[${index}][id]`, item.id);
+                        formData.append(`items[${index}][name]`, item.name);
+                        formData.append(`items[${index}][price]`, item.price);
+                        formData.append(`items[${index}][category_name]`, item.categoryId);
+                        if (item.imageFile) formData.append(`images[${index}]`, item.imageFile);
                     });
-                    this.addToast(`${validItems.length} menu berhasil ditambahkan!`, 'success');
-                    this.showAddMenuModal = false;
-                    this.uploadItems = [{ id: Date.now(), imagePreview: null, name: '', categoryId: 'beverages', price: '' }];
+                    fetch('/admin/api/menu/bulk', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            this.addToast('Berhasil upload menu!', 'success');
+                            setTimeout(() => window.location.reload(), 1000);
+                        }
+                    }).catch(err => this.addToast('Error saving bulk menu', 'error'));
                 },
                 toasts: [],
                 addToast(message, type = 'success') {
@@ -965,6 +714,48 @@
                     logoFile: null
                 },
                 isSavingSettings: false,
+                profile: {
+                    name: window.INITIAL_DATA.user?.name || '',
+                    email: window.INITIAL_DATA.user?.email || '',
+                    password: '',
+                    password_confirmation: ''
+                },
+                isSavingProfile: false,
+                saveProfile() {
+                    this.isSavingProfile = true;
+                    fetch('/admin/api/profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(this.profile)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isSavingProfile = false;
+                        if(data.success) {
+                            this.addToast('Profil berhasil diperbarui!', 'success');
+                            this.profile.password = '';
+                            this.profile.password_confirmation = '';
+                            if(data.user) {
+                                this.profile.name = data.user.name;
+                                this.profile.email = data.user.email;
+                                window.INITIAL_DATA.user = data.user;
+                            }
+                        } else if (data.errors) {
+                            const firstError = Object.values(data.errors)[0][0];
+                            this.addToast(firstError, 'error');
+                        } else {
+                            this.addToast(data.message || 'Gagal menyimpan profil', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        this.isSavingProfile = false;
+                        this.addToast('Terjadi kesalahan jaringan', 'error');
+                    });
+                },
                 get filteredMenuItems() {
                     let items = this.menuItems;
                     if (this.activeMenuFilter !== 'all') {
@@ -999,12 +790,14 @@
                     { id: 'orders', name: 'Live Orders', icon: 'fas fa-receipt' },
                     { id: 'menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
                     { id: 'qr', name: 'Table & QR', icon: 'fas fa-qrcode' },
-                    { id: 'settings', name: 'Profile & Branding', icon: 'fas fa-store' },
+                    { id: 'crew', name: 'Crew Management', icon: 'fas fa-users' },
+                    { id: 'settings', name: 'Toko & Branding', icon: 'fas fa-store' },
                 ],
                 tables: [],
-                baseUrl: window.location.origin + window.location.pathname.replace('dashboard.html', 'index.html'),
                 getQRUrl(tableCode, token = '') {
-                    const url = `${this.baseUrl}?table=${tableCode}${token ? '&token='+token : ''}`;
+                    const slug = window.INITIAL_DATA.shop?.slug || 'menu';
+                    const baseUrl = window.location.origin + '/' + slug;
+                    const url = `${baseUrl}?table=${tableCode}${token ? '&token='+token : ''}`;
                     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
                 },
                 chartInstance: null,
@@ -1060,29 +853,7 @@
                     if (num >= 1000) return 'Rp ' + (num / 1000).toFixed(1) + 'K';
                     return 'Rp ' + num;
                 },
-                init() {
-                    this.tables = [
-                        { id: 'Meja 01', qr: this.getQRUrl('01') },
-                        { id: 'Meja 02', qr: this.getQRUrl('02') },
-                        { id: 'Meja 03', qr: this.getQRUrl('03') },
-                        { id: 'Meja 04', qr: this.getQRUrl('04') },
-                        { id: 'Meja 05', qr: this.getQRUrl('05') },
-                        { id: 'Meja 06', qr: this.getQRUrl('06') },
-                    ];
-                    this.fetchLiveOrders(true);
-                    
-                    window.addEventListener('storage', (e) => {
-                        if (e.key === 'bitten_orders') {
-                            this.fetchLiveOrders();
-                        }
-                    });
 
-                    this.$watch('currentTab', (val) => {
-                        if (val === 'analytics') {
-                            setTimeout(() => this.initChart(), 50);
-                        }
-                    });
-                },
                 initChart() {
                     const ctx = document.getElementById('salesChart');
                     if (ctx && !this.chartInstance) {
@@ -1123,6 +894,13 @@
                 orders: [],
                 menuItems: [],
                 init() {
+                    this.$watch('currentTab', (val) => {
+                        localStorage.setItem('activeDashboardTab', val);
+                        if (val === 'analytics') {
+                            setTimeout(() => this.initChart(), 50);
+                        }
+                    });
+
                     this.loadMenu();
                     
                     this.tables = window.INITIAL_DATA.tables.map(t => ({
@@ -1135,31 +913,25 @@
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
                         this.settings.primary_color = window.INITIAL_DATA.shop.primary_color || '#1E5A7A';
                         if (window.INITIAL_DATA.shop.logo_url) {
-                            this.settings.logoPreview = '/storage/' + window.INITIAL_DATA.shop.logo_url;
+                            this.settings.logoPreview = '/storage/' + window.INITIAL_DATA.shop.logo_url + '?v=' + new Date(window.INITIAL_DATA.shop.updated_at).getTime();
                         }
                     }
                     
                     this.fetchLiveOrders(true);
                     
-                    window.addEventListener('storage', (e) => {
-                        if (e.key === 'bitten_orders' || e.key === 'bitten_menu') {
-                            // Can't really sync across tabs without websockets in Laravel, 
-                            // but we can leave this or reload page.
-                            window.location.reload();
-                        }
-                    });
+                    // Poll for new orders every 5 seconds
+                    setInterval(() => {
+                        this.fetchLiveOrders(false);
+                    }, 5000);
 
-                    this.$watch('currentTab', (val) => {
-                        if (val === 'analytics') {
-                            setTimeout(() => this.initChart(), 50);
-                        }
-                    });
+
                 },
                 loadMenu() {
                     this.menuItems = window.INITIAL_DATA.menu.map(m => ({
                         ...m,
                         categoryId: m.category_name,
                         desc: m.description,
+                        image: m.image_url ? ('/storage/' + m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
                         tags: m.tags || []
                     }));
                 },
@@ -1168,8 +940,20 @@
                     this.showAddMenuModal = true;
                 },
                 deleteMenu(id) {
-                    if (confirm("Yakin ingin menghapus menu ini? (Belum diimplementasikan API-nya)")) {
-                        this.menuItems = this.menuItems.filter(m => m.id !== id);
+                    if (confirm("Yakin ingin menghapus menu ini?")) {
+                        fetch('/admin/api/menu/' + id, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+                        }).then(res => res.json()).then(data => {
+                            if (data.success) {
+                                this.menuItems = this.menuItems.filter(m => m.id !== id);
+                                this.addToast('Menu berhasil dihapus', 'success');
+                            } else {
+                                this.addToast(data.message || 'Gagal menghapus menu', 'error');
+                            }
+                        }).catch(err => {
+                            this.addToast('Terjadi kesalahan jaringan', 'error');
+                        });
                     }
                 },
                 saveNewMenu() {
@@ -1178,13 +962,23 @@
                         return;
                     }
                     
+                    let formData = new FormData();
+                    if (this.newMenu.id) formData.append('id', this.newMenu.id);
+                    formData.append('name', this.newMenu.name);
+                    formData.append('price', this.newMenu.price);
+                    formData.append('categoryId', this.newMenu.categoryId);
+                    formData.append('desc', this.newMenu.desc || '');
+                    if (this.$refs.menuImageInput && this.$refs.menuImageInput.files[0]) {
+                        formData.append('image', this.$refs.menuImageInput.files[0]);
+                    }
+                    
                     fetch('/admin/api/menu', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        body: JSON.stringify(this.newMenu)
+                        body: formData
                     }).then(res => res.json()).then(data => {
                         if (data.success) {
                             if (this.newMenu.id) {
@@ -1194,6 +988,9 @@
                                     item.price = parseInt(this.newMenu.price);
                                     item.desc = this.newMenu.desc;
                                     item.categoryId = this.newMenu.categoryId;
+                                    if (data.menu.image_url) {
+                                        item.image = '/storage/' + data.menu.image_url + '?v=' + Date.now();
+                                    }
                                 }
                             } else {
                                 data.menu.categoryId = data.menu.category_name;
@@ -1201,6 +998,7 @@
                                 this.menuItems.unshift(data.menu);
                             }
                             this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '' };
+                            if (this.$refs.menuImageInput) this.$refs.menuImageInput.value = '';
                             this.showAddMenuModal = false;
                         }
                     });
@@ -1214,6 +1012,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({ status: newStatus })
@@ -1235,33 +1034,101 @@
                         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                     }).then(res => res.json()).then(data => {
                         const item = this.menuItems.find(m => m.id === id);
-                        if (item) item.is_sold_out = data.is_sold_out;
+                        if (item) {
+                            item.is_sold_out = data.is_sold_out;
+                            this.addToast(data.is_sold_out ? 'Menu ditandai Sold Out' : 'Menu tersedia kembali', 'success');
+                        }
+                    }).catch(err => {
+                        this.addToast('Gagal mengubah status menu', 'error');
                     });
                 },
-                acceptIncomingOrder() {
-                    if (this.incomingOrder) {
-                        this.updateStatus(this.incomingOrder.id, 'In Progress');
-                        this.incomingOrder = null;
+                processIncomingQueue() {
+                    if (!this.activeIncomingOrder && this.incomingOrderQueue.length > 0) {
+                        this.activeIncomingOrder = this.incomingOrderQueue.shift();
+                        this.incomingOrderState = 'new';
+                        this.incomingTimer = 45;
+                        clearInterval(this.incomingTimerInterval);
+                        
+                        this.incomingTimerInterval = setInterval(() => {
+                            if (['new', 'reject_confirm'].includes(this.incomingOrderState)) {
+                                this.incomingTimer--;
+                                if (this.incomingTimer <= 0) {
+                                    this.confirmRejectOrder(true);
+                                }
+                            }
+                        }, 1000);
                     }
                 },
-                fetchLiveOrders(isInit = false) {
-                    const dbOrders = window.INITIAL_DATA.orders.map(o => ({
+                acceptOrder() {
+                    this.incomingOrderState = 'accepting';
+                    setTimeout(() => {
+                        this.incomingOrderState = 'accepted';
+                        this.updateStatus(this.activeIncomingOrder.id, 'In Progress');
+                        setTimeout(() => this.closeActiveOrder(), 1500);
+                    }, 800);
+                },
+                confirmRejectOrder(isAuto = false) {
+                    this.incomingOrderState = 'rejected';
+                    this.updateStatus(this.activeIncomingOrder.id, 'Dibatalkan');
+                    if (isAuto) {
+                        this.addToast(`Pesanan #${this.activeIncomingOrder.id} telah kedaluwarsa.`, 'error');
+                    }
+                    setTimeout(() => this.closeActiveOrder(), 1500);
+                },
+                closeActiveOrder() {
+                    this.activeIncomingOrder = null;
+                    clearInterval(this.incomingTimerInterval);
+                    setTimeout(() => this.processIncomingQueue(), 400);
+                },
+                async fetchLiveOrders(isInit = false) {
+                    let sourceOrders = window.INITIAL_DATA.orders;
+                    
+                    if (!isInit) {
+                        try {
+                            const res = await fetch('/admin/api/orders/live?t=' + new Date().getTime(), {
+                                headers: {
+                                    'Cache-Control': 'no-cache',
+                                    'Pragma': 'no-cache'
+                                }
+                            });
+                            if (res.ok) {
+                                sourceOrders = await res.json();
+                            } else {
+                                return;
+                            }
+                        } catch (err) {
+                            return;
+                        }
+                    }
+
+                    const dbOrders = sourceOrders.map(o => ({
                         id: o.id,
                         customer: o.customer_name || ('Meja ' + (o.table ? o.table.name : '-')),
                         status: o.status,
-                        total: o.total_price,
+                        total: parseFloat(o.total_price),
                         time: o.created_at,
-                        items: o.items.map(i => ({ name: i.product.name, qty: i.quantity, price: i.price }))
+                        items: (o.items || []).map(i => ({
+                            name: i.product.name,
+                            qty: i.quantity,
+                            price: parseFloat(i.price),
+                            image: i.product.image_url ? ('/storage/' + i.product.image_url) : null,
+                            desc: i.product.description
+                        }))
                     }));
-                    
-                    if (!isInit && dbOrders.length > 0 && dbOrders[0].status === 'Masuk' && (!this.orders.length || dbOrders[0].id !== this.orders[0].id)) {
+
+                    const newIncomingOrders = dbOrders.filter(o => o.status === 'Masuk' && !this.orders.find(old => old.id == o.id));
+
+                    if (!isInit && newIncomingOrders.length > 0) {
                         const chime = document.getElementById('chime-sound');
                         if (chime) {
                             chime.currentTime = 0;
                             chime.play().catch(e => console.log('Audio autoplay blocked', e));
                         }
-                        this.incomingOrder = dbOrders[0];
+
+                        newIncomingOrders.forEach(o => this.incomingOrderQueue.push(o));
+                        this.processIncomingQueue();
                     }
+
                     this.orders = dbOrders;
                 },
                 addTableFromModal() {
@@ -1271,23 +1138,112 @@
                     }
                     
                     const tableNumStr = this.newTableId.replace(/[^a-zA-Z0-9]/g, ''); // bersihkan untuk URL
-                    this.tables.push({
-                        id: this.newTableId.trim(),
-                        qr: this.getQRUrl(tableNumStr)
-                    });
+                    const tableName = this.newTableId.trim();
+                    const qrUrl = this.getQRUrl(tableNumStr);
                     
-                    this.newTableId = '';
-                    this.showAddTableModal = false;
+                    fetch('/admin/api/table', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ name: tableName, qr_code_url: qrUrl })
+                    })
+                    .then(async res => {
+                        const data = await res.json();
+                        if (!res.ok) throw data;
+                        return data;
+                    })
+                    .then(data => {
+                        if(data.success) {
+                            this.tables.push({
+                                id: data.table.name,
+                                qr: data.table.qr_code_url
+                            });
+                            this.newTableId = '';
+                            this.showAddTableModal = false;
+                            this.addToast('Meja berhasil ditambahkan', 'success');
+                        }
+                    })
+                    .catch(err => {
+                        this.addToast(err.message || 'Gagal menyimpan meja', 'error');
+                    });
                 },
                 printQR(table) {
-                    if(window.printQRWindow) window.printQRWindow(table);
+                    const shopName = this.settings.name || 'Bitten Coffee';
+                    const printWindow = window.open('', '_blank', 'width=800,height=600');
+                    if (!printWindow) {
+                        this.addToast('Mohon izinkan popup browser untuk mencetak QR.', 'error');
+                        return;
+                    }
+                    
+                    const html = "<!DOCTYPE html>\n<html" + ">\n<he" + "ad>\n" +
+                        "    <title>Print QR - " + table.id + "</title>\n" +
+                        "    <style>\n" +
+                        "        @page { margin: 0; size: auto; }\n" +
+                        "        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #fff; text-align: center; }\n" +
+                        "        .card { border: 2px dashed #ccc; padding: 40px; border-radius: 20px; max-width: 300px; margin: 20px auto; }\n" +
+                        "        h1 { color: #164A35; margin-bottom: 10px; font-size: 28px; font-weight: 800; }\n" +
+                        "        h2 { color: #202522; font-size: 44px; margin: 0 0 20px 0; font-weight: 900; }\n" +
+                        "        img { width: 220px; height: 220px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; mix-blend-mode: multiply; }\n" +
+                        "        p { color: #777873; font-size: 15px; margin: 0; font-weight: 500; }\n" +
+                        "        @media print {\n" +
+                        "            body { display: block; height: auto; align-items: flex-start; margin-top: 2cm; }\n" +
+                        "            .card { border: none; padding: 20px; max-width: 100%; margin: 0 auto; border-radius: 0; }\n" +
+                        "        }\n" +
+                        "    </style>\n" +
+                        "</he" + "ad>\n<bo" + "dy>\n" +
+                        "    <div class=\"card\">\n" +
+                        "        <h1>" + shopName + "</h1>\n" +
+                        "        <h2>" + table.id.toUpperCase() + "</h2>\n" +
+                        "        <img src=\"" + table.qr + "\" alt=\"QR Code\" onload=\"setTimeout(() => { window.print(); }, 500)\" onafterprint=\"window.close()\">\n" +
+                        "        <p>Scan untuk melihat menu<br>dan memesan langsung dari mejamu!</p>\n" +
+                        "    </div>\n" +
+                        "</bo" + "dy>\n</ht" + "ml>";
+                    
+                    printWindow.document.open();
+                    printWindow.document.write(html);
+                    printWindow.document.close();
                 },
                 resetQR(table) {
-                    if(confirm(`Yakin ingin mereset/mengganti URL QR Code untuk ${table.id}? URL lama tidak akan bisa diakses lagi.`)) {
-                        const randomToken = Math.random().toString(36).substring(2, 8);
-                        const tableNum = table.id.replace('Meja ', '');
-                        table.qr = this.getQRUrl(tableNum, randomToken);
-                    }
+                    this.qrTableToReset = table;
+                    this.showResetQRModal = true;
+                },
+                confirmResetQR() {
+                    if (!this.qrTableToReset) return;
+                    
+                    this.isResettingQR = true;
+                    const table = this.qrTableToReset;
+                    const randomToken = Math.random().toString(36).substring(2, 8);
+                    const tableNum = table.id.replace('Meja ', '');
+                    const newQrUrl = this.getQRUrl(tableNum, randomToken);
+                    
+                    fetch('/admin/api/table', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ name: table.id, qr_code_url: newQrUrl })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isResettingQR = false;
+                        if(data.success) {
+                            table.qr = newQrUrl;
+                            this.showResetQRModal = false;
+                            this.qrTableToReset = null;
+                            this.addToast('QR Code berhasil di-reset!', 'success');
+                        } else {
+                            this.addToast(data.message || 'Gagal reset QR', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        this.isResettingQR = false;
+                        this.addToast('Kesalahan jaringan', 'error');
+                    });
                 },
                 handleLogoUpload(event) {
                     const file = event.target.files[0];
@@ -1305,6 +1261,108 @@
                         this.settings.logoPreview = e.target.result;
                     };
                     reader.readAsDataURL(file);
+                },
+                saveCrew() {
+                    this.isSaving = true;
+                    fetch('/admin/api/crew', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(this.newCrew)
+                    })
+                    .then(async res => {
+                        const data = await res.json();
+                        if (!res.ok) {
+                            throw data;
+                        }
+                        return data;
+                    })
+                    .then(data => {
+                        this.isSaving = false;
+                        if(data.success) {
+                            this.users.push(data.user);
+                            this.showAddCrewModal = false;
+                            this.newCrew = { name: '', email: '', password: '', role: 'barista' };
+                            this.addToast('Crew berhasil ditambahkan', 'success');
+                        } else {
+                            this.addToast(data.message || 'Error menambahkan crew', 'error');
+                        }
+                    })
+                    .catch((err) => {
+                        this.isSaving = false;
+                        if (err.errors) {
+                            const firstError = Object.values(err.errors)[0][0];
+                            this.addToast(firstError, 'error');
+                        } else {
+                            this.addToast(err.message || 'Network error', 'error');
+                        }
+                    });
+                },
+                openEditCrew(user) {
+                    this.editCrewData = { 
+                        id: user.id, 
+                        name: user.name, 
+                        email: user.email, 
+                        password: '', 
+                        role: user.role 
+                    };
+                    this.showEditCrewModal = true;
+                },
+                updateCrew() {
+                    this.isSaving = true;
+                    fetch('/admin/api/crew/' + this.editCrewData.id, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ ...this.editCrewData, _method: 'PUT' })
+                    })
+                    .then(async res => {
+                        const data = await res.json();
+                        if (!res.ok) throw data;
+                        return data;
+                    })
+                    .then(data => {
+                        this.isSaving = false;
+                        if(data.success) {
+                            const idx = this.users.findIndex(u => u.id === data.user.id);
+                            if(idx !== -1) this.users[idx] = data.user;
+                            this.showEditCrewModal = false;
+                            this.addToast('Crew berhasil diupdate', 'success');
+                        } else {
+                            this.addToast(data.message || 'Error update crew', 'error');
+                        }
+                    })
+                    .catch((err) => {
+                        this.isSaving = false;
+                        if (err.errors) {
+                            const firstError = Object.values(err.errors)[0][0];
+                            this.addToast(firstError, 'error');
+                        } else {
+                            this.addToast(err.message || 'Network error', 'error');
+                        }
+                    });
+                },
+                deleteCrew(id) {
+                    if(!confirm('Hapus crew ini?')) return;
+                    fetch('/admin/api/crew/' + id, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            this.users = this.users.filter(u => u.id !== id);
+                            this.addToast('Crew dihapus', 'success');
+                        }
+                    });
                 },
                 saveSettings() {
                     if (!this.settings.name || !this.settings.slug) {
@@ -1352,138 +1410,6 @@
         });
     </script>
 
-    <!-- UPLOAD MENU MODAL -->
-    <div x-show="showAddMenuModal" x-cloak class="fixed inset-0 z-[9000] flex items-center justify-center p-4">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showAddMenuModal = false"
-             x-show="showAddMenuModal"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"></div>
-        
-        <!-- Modal Content -->
-        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden"
-             x-show="showAddMenuModal"
-             x-transition:enter="transition ease-out duration-300 transform"
-             x-transition:enter-start="opacity-0 translate-y-4 scale-95"
-             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-             x-transition:leave="transition ease-in duration-200 transform"
-             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-             x-transition:leave-end="opacity-0 translate-y-4 scale-95">
-            
-            <!-- Header -->
-            <div class="p-8 pb-6 border-b border-gray-100 flex justify-between items-start shrink-0">
-                <div class="flex gap-4">
-                    <div class="w-14 h-14 bg-brewlygreen text-white rounded-2xl flex items-center justify-center shadow-sm">
-                        <i class="fas fa-cloud-upload-alt text-2xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold font-sans text-brewlytext mb-1">Upload Menu</h2>
-                        <p class="text-gray-500 text-sm">Add your coffee and pastry items with images, prices, and categories.</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button @click="triggerBulkCSV()" class="border border-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-50 transition flex items-center gap-2">
-                        <i class="fas fa-cloud-upload-alt text-brewlygreen"></i> Bulk upload CSV
-                    </button>
-                    <button @click="showAddMenuModal = false" class="text-gray-400 hover:text-gray-600 transition">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Body (Rows) -->
-            <div class="p-8 overflow-y-auto bg-gray-50/30 flex-grow hide-scroll flex flex-col gap-4">
-                <template x-for="(item, index) in uploadItems" :key="item.id">
-                    <div class="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm flex items-center gap-4">
-                        <!-- Image Upload Box -->
-                        <div class="relative w-32 h-24 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-gray-400 hover:bg-gray-100 transition overflow-hidden shrink-0 group">
-                            <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" @change="handleUploadImage($event, item)" accept="image/png, image/jpeg, image/webp">
-                            <template x-if="item.imagePreview">
-                                <img :src="item.imagePreview" class="absolute inset-0 w-full h-full object-cover z-0">
-                            </template>
-                            <template x-if="!item.imagePreview">
-                                <div class="flex flex-col items-center">
-                                    <i class="fas fa-cloud-upload-alt mb-1 group-hover:text-brewlygreen transition"></i>
-                                    <span class="text-[10px] font-semibold">Upload image</span>
-                                    <span class="text-[8px] uppercase tracking-wider mt-0.5">JPG, PNG</span>
-                                </div>
-                            </template>
-                        </div>
-                        
-                        <!-- Form Fields -->
-                        <div class="flex-grow grid grid-cols-3 gap-4">
-                            <!-- Name -->
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Item name</label>
-                                <input type="text" x-model="item.name" placeholder="e.g. Blueberry Muffin" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none text-brewlytext">
-                            </div>
-                            <!-- Category -->
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Category</label>
-                                <div class="relative">
-                                    <select x-model="item.categoryId" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm appearance-none focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none bg-white text-brewlytext">
-                                        <option value="">Select category</option>
-                                        <option value="beverages">☕ Beverages</option>
-                                        <option value="foods">🍽 Foods</option>
-                                        <option value="snacks">🥐 Snacks</option>
-                                        <option value="sweets">🍦 Sweets</option>
-                                    </select>
-                                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                                </div>
-                            </div>
-                            <!-- Price -->
-                            <div class="flex flex-col gap-1.5">
-                                <label class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Price</label>
-                                <div class="relative">
-                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
-                                    <input type="number" x-model="item.price" placeholder="0" class="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen outline-none text-brewlytext">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Button -->
-                        <div class="shrink-0 pt-5">
-                            <template x-if="index === uploadItems.length - 1 && uploadItems.length < 10">
-                                <button @click="addNewUploadRow()" class="w-10 h-10 rounded-xl border border-[#E7F2EB] bg-[#E7F2EB] text-brewlygreen hover:bg-[#D5E9DE] transition flex items-center justify-center shadow-sm">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </template>
-                            <template x-if="index !== uploadItems.length - 1 || uploadItems.length === 10">
-                                <button @click="removeUploadRow(item.id)" class="w-10 h-10 rounded-xl border border-red-50 bg-red-50 text-red-500 hover:bg-red-100 transition flex items-center justify-center">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-                </template>
-            </div>
-
-            <!-- Footer -->
-            <div class="p-6 border-t border-gray-100 bg-white flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2">
-                    <span class="font-bold text-brewlygreen text-lg" x-text="uploadItems.length"></span>
-                    <span class="text-gray-500 text-sm font-semibold">items added</span>
-                    
-                    <div class="ml-6 flex items-center gap-2 text-brewlygreen text-xs font-bold bg-[#E7F2EB] px-3 py-1.5 rounded-full">
-                        <i class="fas fa-check-circle"></i> Customers will see your updated menu immediately.
-                    </div>
-                </div>
-                <div class="flex gap-3">
-                    <button @click="showAddMenuModal = false" class="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold text-sm hover:bg-gray-50 transition">
-                        Save draft
-                    </button>
-                    <button @click="saveUploadItems()" class="px-6 py-3 rounded-xl bg-brewlyorange text-white font-bold text-sm shadow-sm hover:bg-[#C25824] transition flex items-center gap-2">
-                        <i class="fas fa-cloud-upload-alt"></i> Publish menu
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div class="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col gap-3 pointer-events-none">
         <template x-for="toast in toasts" :key="toast.id">
@@ -1508,9 +1434,12 @@
     </div>
 
     <!-- Floating Action Button to Customer Menu -->
-    <a href="index.html" target="_blank" class="fixed bottom-10 right-10 bg-[#1E5A7A] text-white p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:bg-[#154660] transition-all z-[100] group border-4 border-white">
+    <a :href="'/' + settings.slug" target="_blank" class="fixed bottom-10 right-10 bg-[#1E5A7A] text-white p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:bg-[#154660] transition-all z-[100] group border-4 border-white">
         <i class="fas fa-store text-xl"></i>
         <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[200px] transition-all duration-500 ease-in-out pl-0 group-hover:pl-3 font-bold text-sm">Lihat Web Pelanggan</span>
     </a>
 </body>
 </html>
+
+
+
