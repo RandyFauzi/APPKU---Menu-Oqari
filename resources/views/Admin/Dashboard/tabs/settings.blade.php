@@ -116,7 +116,8 @@
                 </form>
             </div>
 
-            <!-- GoFood / GoBiz Integration -->
+            <!-- FITUR SEMENTARA DINONAKTIFKAN (GoFood / GoBiz Integration) -->
+            @if(false)
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-3xl mt-8">
                 <div class="flex items-center gap-4 mb-6">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/e/e6/GoFood_logo.svg" alt="GoFood" class="h-8">
@@ -125,7 +126,7 @@
                 
                 <p class="text-gray-500 text-sm mb-6">Hubungkan aplikasi POS Anda dengan GoFood untuk menerima pesanan secara otomatis dan menyinkronkan katalog menu.</p>
                 
-                @if(auth()->user()->shop->gobiz_access_token)
+                @if(optional(auth()->user()->shop)->gobiz_access_token)
                     <div class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between mb-6">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
@@ -166,4 +167,5 @@
                     </a>
                 @endif
             </div>
+            @endif
         </div>
