@@ -1,7 +1,7 @@
 <div x-show="currentTab === 'settings'" x-cloak class="flex-grow p-8 lg:p-10 bg-[#FDFBF7] overflow-auto hide-scroll relative">
     
     <!-- Sticky Action Bar -->
-    <div class="sticky top-0 z-40 mb-8 bg-[#FDFBF7]/95 backdrop-blur-md pb-4 pt-4 -mx-8 px-8 -mt-8 border-b border-[#E3E1DC]/50 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="sticky top-0 z-40 mb-8 bg-[#FDFBF7]/95 backdrop-blur-md pb-4 pt-8 lg:pt-10 -mx-8 lg:-mx-10 px-8 lg:px-10 -mt-8 lg:-mt-10 border-b border-[#E3E1DC]/50 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <p class="text-[#777873] font-medium text-sm"><i class="fas fa-info-circle mr-1"></i> Kelola identitas, tampilan, dan operasional toko Anda.</p>
         </div>
