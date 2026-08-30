@@ -219,7 +219,7 @@
                     </div>
 
                     <!-- Header APP (Logo, Notif, Profile) -->
-                    <header class="bg-white pt-7 pb-3 px-4 z-30 relative">
+                    <header class="bg-white pt-7 pb-3 px-4 z-30 relative shadow-sm">
                         <div class="flex items-center gap-2">
                             <template x-if="settings.logoPreview">
                                 <img :src="settings.logoPreview" alt="Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg shrink-0">
@@ -237,7 +237,7 @@
                     </header>
 
                     <!-- Location & Search Bar -->
-                    <div class="bg-white px-4 pb-5 relative z-30">
+                    <div class="bg-white px-4 pb-5 relative z-30 border-b border-gray-100">
                         <div class="bg-white rounded-full p-1.5 flex items-center shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] border border-gray-200">
                             <div class="flex items-center gap-2 pl-2 pr-3 border-r border-gray-200 rounded-l-full py-1.5 shrink-0 max-w-[55%]">
                                 <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0" :style="'background-color: ' + (settings.primary_color ? settings.primary_color + '15' : '#1c453215')">
@@ -258,7 +258,7 @@
                     </div>
 
                     <!-- Promo Carousel Section -->
-                    <div x-show="settings.is_banner_active" class="px-4 mt-1 mb-8">
+                    <div x-show="settings.is_banner_active" class="px-4 mt-5 mb-8">
                         <div class="relative rounded-[20px] overflow-hidden shadow-lg h-40 group flex items-center justify-center" :style="'background-color: ' + (settings.primary_color || '#1c4532')">
                             <template x-if="settings.banners.filter(b => b !== null).length > 0">
                                 <!-- Just show the first active banner as preview -->
@@ -276,10 +276,10 @@
                     </div>
 
                     <!-- Categories Square Grid -->
-                    <div class="sticky top-0 bg-gray-50/90 backdrop-blur-md z-20 pt-3 pb-3 border-y border-gray-200/50">
+                    <div class="sticky top-0 bg-white/90 backdrop-blur-md z-20 pt-3 pb-3 border-y border-gray-100 shadow-sm">
                         <div class="flex overflow-x-auto px-4 gap-3 hide-scroll">
                             <div class="flex flex-col items-center gap-1 min-w-[70px]">
-                                <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2" :style="'border-color: ' + (settings.primary_color || '#1c4532') + '; background-color: ' + (settings.primary_color ? settings.primary_color + '15' : '#1c453215')">
+                                <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2" :style="'border-color: ' + (settings.primary_color || '#1c4532') + '; background-color: ' + (settings.primary_color ? settings.primary_color + '10' : '#1c453210')">
                                     <i class="fas fa-star text-lg" :style="'color: ' + (settings.primary_color || '#1c4532')"></i>
                                 </div>
                                 <span class="text-[10px] font-bold" :style="'color: ' + (settings.primary_color || '#1c4532')">All Menu</span>
@@ -300,14 +300,14 @@
                     </div>
                     
                     <h3 class="px-4 mt-4 mb-2 font-bold text-[15px]" :style="'color: ' + (settings.primary_color || '#1c4532')">Coffee</h3>
-                    <div class="px-4 mb-4"><div class="h-px bg-gray-300 w-full"></div></div>
+                    <div class="px-4 mb-4"><div class="h-px bg-gray-200 w-full"></div></div>
 
                     <!-- Menu Items View (List vs Grid) -->
                     <div class="px-4">
                         <!-- Grid View -->
                         <div x-show="settings.theme_style === 'grid'" class="grid grid-cols-2 gap-4">
-                            <div class="bg-[#EAEAEA] p-3 rounded-[20px] relative">
-                                <div class="w-full aspect-[4/3] bg-gray-300 rounded-xl mb-3 flex flex-col items-center justify-center text-gray-400">
+                            <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 relative">
+                                <div class="w-full aspect-[4/3] bg-gray-100 rounded-xl mb-3 flex flex-col items-center justify-center text-gray-300">
                                     <i class="fas fa-image text-3xl mb-1"></i>
                                     <span class="text-[8px] font-bold tracking-wider">NO IMAGE</span>
                                 </div>
@@ -317,8 +317,8 @@
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
-                            <div class="bg-[#EAEAEA] p-3 rounded-[20px] relative">
-                                <div class="w-full aspect-[4/3] bg-gray-300 rounded-xl mb-3 flex flex-col items-center justify-center text-gray-400">
+                            <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 relative">
+                                <div class="w-full aspect-[4/3] bg-gray-100 rounded-xl mb-3 flex flex-col items-center justify-center text-gray-300">
                                     <i class="fas fa-image text-3xl mb-1"></i>
                                 </div>
                                 <h4 class="font-bold text-xs text-gray-800 leading-tight">Americano</h4>
@@ -331,8 +331,8 @@
 
                         <!-- List View -->
                         <div x-show="settings.theme_style === 'list'" class="flex flex-col gap-4">
-                            <div class="bg-[#EAEAEA] p-3 rounded-[20px] flex gap-3 relative">
-                                <div class="w-20 h-20 bg-gray-300 rounded-xl shrink-0 flex items-center justify-center text-gray-400">
+                            <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 flex gap-3 relative">
+                                <div class="w-20 h-20 bg-gray-100 rounded-xl shrink-0 flex items-center justify-center text-gray-300">
                                     <i class="fas fa-image text-2xl"></i>
                                 </div>
                                 <div class="flex-1 flex flex-col justify-center pr-6">
@@ -344,8 +344,8 @@
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
-                            <div class="bg-[#EAEAEA] p-3 rounded-[20px] flex gap-3 relative">
-                                <div class="w-20 h-20 bg-gray-300 rounded-xl shrink-0 flex items-center justify-center text-gray-400">
+                            <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 flex gap-3 relative">
+                                <div class="w-20 h-20 bg-gray-100 rounded-xl shrink-0 flex items-center justify-center text-gray-300">
                                     <i class="fas fa-image text-2xl"></i>
                                 </div>
                                 <div class="flex-1 flex flex-col justify-center pr-6">
@@ -371,58 +371,6 @@
                         <i class="fas fa-shopping-cart text-[11px]"></i>
                         <span class="bg-gray-800 text-white text-[9px] px-1.5 py-0.5 rounded-full">0</span>
                     </button>
-                </div>
-            </div>
-            
-            <p class="text-center text-xs text-[#777873] mt-4"><i class="fas fa-info-circle mr-1"></i> Preview bersifat simulasi desain.</p>
-        </div>
-    </div>
-</div>
-
-                <!-- Preview Content -->
-                <div class="flex-1 bg-[#FDFBF7] overflow-y-auto hide-scroll p-4 pb-20">
-                    <!-- Status & Socials -->
-                    <div class="flex items-center justify-between mb-5">
-                        <span class="px-3 py-1 rounded-full text-[10px] font-bold" :class="settings.is_open ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" x-text="settings.is_open ? 'Buka Sekarang' : 'Sedang Tutup'"></span>
-                        <div class="flex gap-2 text-gray-400">
-                            <i x-show="settings.instagram_link" class="fab fa-instagram"></i>
-                            <i x-show="settings.whatsapp_number" class="fab fa-whatsapp"></i>
-                            <i x-show="settings.maps_link" class="fas fa-map-marker-alt"></i>
-                        </div>
-                    </div>
-
-                    <!-- Dummy Menu Items -->
-                    <h3 class="font-bold text-sm mb-3 text-[#202522]">Rekomendasi Menu</h3>
-                    
-                    <!-- List View Preview -->
-                    <div x-show="settings.theme_style === 'list'" class="space-y-3">
-                        <template x-for="i in 3">
-                            <div class="bg-white p-3 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-[#E3E1DC] flex gap-3">
-                                <div class="w-16 h-16 bg-[#F8F7F3] rounded-lg shrink-0 flex items-center justify-center text-[#E3E1DC]"><i class="fas fa-coffee"></i></div>
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-xs text-[#202522]">Signature Coffee</h4>
-                                    <p class="text-[10px] text-[#777873] mt-1">Kopi andalan dengan susu rahasia...</p>
-                                    <p class="font-black text-sm mt-1" :style="'color: ' + (settings.primary_color || '#164A35')">Rp 25.000</p>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Grid View Preview -->
-                    <div x-show="settings.theme_style === 'grid'" class="grid grid-cols-2 gap-3">
-                        <template x-for="i in 4">
-                            <div class="bg-white p-2 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-[#E3E1DC]">
-                                <div class="w-full aspect-square bg-[#F8F7F3] rounded-lg mb-2 flex items-center justify-center text-[#E3E1DC]"><i class="fas fa-coffee"></i></div>
-                                <h4 class="font-bold text-xs text-[#202522] truncate">Signature</h4>
-                                <p class="font-black text-sm mt-0.5" :style="'color: ' + (settings.primary_color || '#164A35')">Rp 25.000</p>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-                
-                <!-- Floating Cart Button -->
-                <div class="absolute bottom-4 inset-x-4 h-12 rounded-full shadow-lg flex items-center justify-center text-white font-bold text-sm" :style="'background-color: ' + (settings.primary_color || '#164A35')">
-                    <i class="fas fa-shopping-cart mr-2"></i> Keranjang (0)
                 </div>
             </div>
             
