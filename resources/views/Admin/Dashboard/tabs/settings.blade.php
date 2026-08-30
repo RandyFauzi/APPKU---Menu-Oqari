@@ -53,17 +53,17 @@
                                 </div>
                                 <div class="grid grid-cols-3 gap-2" :class="!settings.is_banner_active ? 'opacity-50 pointer-events-none' : ''">
                                     <template x-for="(banner, idx) in 3" :key="idx">
-                                        <div class="w-full aspect-[21/9] rounded-xl border-2 border-dashed border-[#E3E1DC] flex items-center justify-center bg-[#F8F7F3] overflow-hidden relative group cursor-pointer" @click="$refs['bannerInput' + idx].click()">
+                                        <div class="w-full aspect-[21/9] rounded-xl border-2 border-dashed border-[#E3E1DC] flex items-center justify-center bg-[#F8F7F3] overflow-hidden relative group cursor-pointer" @click="document.getElementById('bannerInput' + idx).click()">
                                             <img x-show="settings.banners[idx]" :src="settings.banners[idx]" class="w-full h-full object-cover">
                                             <div x-show="!settings.banners[idx]" class="flex flex-col items-center text-[#777873]">
-                                                <i class="fas fa-image text-lg mb-1 text-[#E3E1DC]"></i>
-                                                <span class="text-[8px] font-semibold">Banner <span x-text="idx+1"></span></span>
+                                                <i class="fas fa-image text-xl mb-1 text-[#E3E1DC]"></i>
+                                                <span class="text-[9px] font-semibold" x-text="'Banner ' + (idx+1)"></span>
                                             </div>
-                                            <div class="absolute inset-0 bg-[#202522]/40 backdrop-blur-sm flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div class="absolute inset-0 bg-[#202522]/60 backdrop-blur-sm flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <i class="fas fa-camera text-white mb-1"></i>
                                                 <button x-show="settings.banners[idx]" @click.stop="settings.banners[idx] = null; settings.bannerFiles[idx] = null; settings.bannerPaths[idx] = null" class="text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-full hover:bg-red-600">Hapus</button>
                                             </div>
-                                            <input type="file" :x-ref="'bannerInput' + idx" @change="(e) => { 
+                                            <input type="file" :id="'bannerInput' + idx" @change="(e) => { 
                                                 const file = e.target.files[0]; 
                                                 if(file) { 
                                                     settings.bannerFiles[idx] = file; 
