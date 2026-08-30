@@ -1,4 +1,4 @@
-# Konteks Project: Brewly SaaS (Multi-Tenant Coffee Shop POS & Menu)
+ï»¿# Konteks Project: Brewly SaaS (Multi-Tenant Coffee Shop POS & Menu)
 
 ## ?? Ringkasan Project
 Aplikasi ini adalah **SaaS (Software as a Service)** untuk manajemen kedai kopi. Terdiri dari dua bagian utama:
@@ -35,26 +35,33 @@ app/Http/Controllers/
 
 resources/views/
 +-- Admin/
-¦   +-- Layouts/admin_master.blade.php
-¦   +-- Dashboard/dashboard.blade.php
+Â¦   +-- Layouts/admin_master.blade.php
+Â¦   +-- Dashboard/dashboard.blade.php
 +-- Customer/
-¦   +-- Layouts/customer_master.blade.php
-¦   +-- Menu/catalog_menu.blade.php
+Â¦   +-- Layouts/customer_master.blade.php
+Â¦   +-- Menu/catalog_menu.blade.php
 +-- welcome_saas.blade.php (Halaman Login SaaS)
 ```
 
-## ? Apa Saja Yang Sudah Selesai Dikerjakan?
-1. Inisialisasi Project Laravel 11 (`coffee-saas`).
-2. Setup *Database*, *Migration*, dan *Seeder* untuk 3 toko.
-3. Pembuatan rute dasar Web (`web.php`).
-4. **Halaman Login SaaS**: Membuat UI Login yang sangat profesional, split-screen dengan gambar kopi premium.
-5. **Dashboard Admin**: Berhasil memigrasi layout statis `dashboard.html` sebelumnya (lengkap dengan Alpine.js tabs, Kanban Live Orders, & Analytics) ke dalam file Blade.
-6. **Customer Menu Dinamis**: Berhasil membuat Blade template yang warnanya berubah dinamis (via inline style CSS variable) menyesuaikan `primary_color` milik kedai kopi di database.
-7. **NPM Script Khusus**: Menambahkan perintah `npm run dev-all` (menggunakan paket `concurrently`) untuk menjalankan `php artisan serve` dan `npm run dev` dalam 1 terminal.
+## ðŸŽ¯ Apa Saja Yang Sudah Selesai Dikerjakan?
+1. Inisialisasi Project Laravel 11 (coffee-saas).
+2. Setup Database, Migration, dan Seeder untuk 3 toko.
+3. Pembuatan rute dasar Web (web.php).
+4. Halaman Login SaaS: Membuat UI Login yang sangat profesional, split-screen dengan gambar kopi premium.
+5. Dashboard Admin: Berhasil memigrasi layout statis dashboard.html sebelumnya ke dalam file Blade.
+6. Customer Menu Dinamis: Berhasil membuat Blade template yang warnanya berubah dinamis menyesuaikan primary_color.
+7. NPM Script Khusus: Menambahkan perintah npm run dev-all.
+8. Live Orders Real-time (Laravel Reverb): Integrasi WebSockets secara penuh.
+9. Cetak Struk (Thermal Printer): Fitur cetak struk khusus ukuran 58mm/80mm.
+10. Bulk Upload Menu (CSV): Fitur impor menu massal yang langsung masuk ke database.
+11. Xendit Payment Gateway (Scaffolding): Kode integrasi Xendit telah disiapkan di ShopController.
+12. Branding & Halaman Toko (5 Pilar):
+    - Database: Penambahan field is_open, slogan, font_family, instagram_link, whatsapp_number, maps_link.
+    - Dashboard CMS: Integrasi penuh di Alpine.js pada tab Pengaturan.
+    - UI Customer: Mendukung kustomisasi tipografi, Layout Dinamis (List & Grid), Toggle Buka/Tutup Toko (Kill Switch Overlay), Slogan, dan Tautan Sosial Media.
 
-## ?? Langkah Selanjutnya (Next Steps untuk AI berikutnya)
-AI selanjutnya dapat melanjutkan dari titik ini:
-1. **Fungsionalitas Database Admin**: Menyambungkan form "Tambah Menu" di `dashboard.blade.php` agar menyimpan data nyata ke tabel `products`.
-2. **Checkout Pelanggan**: Membuat fitur keranjang pesanan (Cart) di menu pelanggan berfungsi dan menyimpan transaksi ke tabel `orders`.
-3. **Live Orders Real-time**: Mengimplementasikan *Laravel Reverb / Pusher* (WebSockets) agar saat pesanan masuk, layar Kanban Live Orders di kasir ter-*update* otomatis secara real-time tanpa refresh.
-4. **Desain Tema Kustom**: Membuat *routing* yang membaca `theme_style` toko untuk merender file Blade yang berbeda (misal `bitten_menu.blade.php` vs `mada_menu.blade.php`) karena user ingin merancang UI/UX menu secara manual untuk setiap klien.
+## ðŸš€ Langkah Selanjutnya (Next Steps untuk AI berikutnya)
+1. Integrasi Payment Gateway: Mengaktifkan dan menyempurnakan XENDIT_ACTIVE=true.
+2. Upload Banner Carousel: Menyempurnakan form upload gambar banner di tab Pengaturan.
+3. Penyempurnaan Reporting: Membangun backend logika untuk Analytics agar datanya asli.
+4. Deploy ke Cloud: Menyesuaikan Reverb dan Vite build untuk siap naik produksi ke server.

@@ -44,6 +44,10 @@
                                     <span x-show="order.status === 'Completed'" class="px-2 py-1 rounded bg-gray-100 text-gray-500 text-[10px] font-bold border border-gray-200 flex items-center gap-1">
                                         <i class="fas fa-check-double"></i> Completed
                                     </span>
+                                    <!-- DIBATALKAN -->
+                                    <span x-show="order.status === 'Dibatalkan'" class="px-2 py-1 rounded bg-red-100 text-red-700 text-[10px] font-bold border border-red-200 flex items-center gap-1">
+                                        <i class="fas fa-times-circle"></i> Dibatalkan
+                                    </span>
                                     
                                     <p class="text-[10px] font-bold text-gray-400 mt-1" x-text="order.time"></p>
                                 </div>
@@ -70,7 +74,7 @@
                             
                             <div class="space-y-2 mb-4 overflow-y-auto hide-scroll">
                                 <template x-for="item in order.items">
-                                    <div class="flex justify-between text-sm" :class="order.status === 'Completed' ? 'text-gray-400 line-through' : 'text-textdark'">
+                                    <div class="flex justify-between text-sm" :class="['Completed', 'Dibatalkan'].includes(order.status) ? 'text-gray-400 line-through' : 'text-textdark'">
                                         <div class="flex flex-col truncate pr-2 flex-grow">
                                             <span x-text="item.name" class="truncate font-medium"></span>
                                             <span x-show="item.notes" class="text-[10px] text-red-500 italic mt-0.5" x-text="item.notes"></span>
@@ -118,6 +122,12 @@
                                 <template x-if="order.status === 'Completed'">
                                     <button disabled class="flex-grow py-2.5 rounded text-sm font-bold bg-gray-100 text-gray-400 cursor-not-allowed">
                                         Done
+                                    </button>
+                                </template>
+                                
+                                <template x-if="order.status === 'Dibatalkan'">
+                                    <button disabled class="flex-grow py-2.5 rounded text-sm font-bold bg-red-50 text-red-400 cursor-not-allowed border border-red-100">
+                                        Dibatalkan
                                     </button>
                                 </template>
                             </div>

@@ -13,7 +13,7 @@ class Product extends Model
         'description',
         'price',
         'image_url',
-        'is_sold_out'
+        'is_sold_out',
     ];
 
     public function shop()

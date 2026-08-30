@@ -6,6 +6,27 @@
         window.SHOP_CART_URL = '{{ route("shop.cart", $shop->slug) }}';
         window.SHOP_TRACKING_URL = '{{ route("shop.tracking", $shop->slug) }}';
 
+        if (typeof apiData !== 'undefined' && window.SHOP_DATA) {
+            const uniqueCats = [...new Set(window.SHOP_DATA.map(item => item.category_name))];
+            apiData.categories = [{ id: 'all', name: 'All Menu', icon: 'fa-star' }];
+            const iconMap = {
+                'Coffee': 'fa-coffee',
+                'Tea': 'fa-leaf',
+                'Foods': 'fa-utensils',
+                'Snacks': 'fa-cookie',
+                'Sweets': 'fa-ice-cream'
+            };
+            uniqueCats.forEach(cat => {
+                if (cat) {
+                    apiData.categories.push({
+                        id: cat,
+                        name: cat,
+                        icon: iconMap[cat] || 'fa-utensils'
+                    });
+                }
+            });
+        }
+
         const DB = {
             get: function(tableName) {
                 if (tableName === 'bitten_menu') {

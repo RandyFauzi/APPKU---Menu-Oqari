@@ -60,11 +60,12 @@
     </style>
 </head>
 <body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()">
+    
 
     <!-- Audio untuk notifikasi pesanan masuk -->
-    <audio id="chime-sound" src="{{ asset('Assest/Notif Orderan Masuk.mp3') }}" preload="auto"></audio>
+    <audio id="chime-sound" src="{{ asset('Assest/notif_orderan_masuk.mp3') }}" preload="auto"></audio>
 
-    <!-- Sidebar -->
+<!-- Sidebar -->
     <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg">
         <div class="flex items-center gap-3 mb-2">
             @if(isset($shop) && $shop->logo_url)
@@ -644,10 +645,11 @@
                         }
                         
                         if (added > 0) {
-                            this.addToast(added + ' item diimpor dari CSV', 'success');
+                            this.addToast(added + ' item diimpor dari CSV. Sedang menyimpan...', 'info');
                             if (this.draftMenus.length > 0 && this.draftMenus[this.draftMenus.length - 1].name === '') {
                                 this.draftMenus.pop();
                             }
+                            this.saveBulkMenu();
                         } else {
                             this.addToast('Format CSV tidak valid atau kosong', 'error');
                         }
@@ -707,11 +709,18 @@ handleDraftImageUpload(event, index) {
                     this.toasts = this.toasts.filter(t => t.id !== id);
                 },
                 settings: {
-                    name: '',
-                    slug: '',
-                    primary_color: '#1E5A7A',
-                    logoPreview: '',
-                    logoFile: null
+                    name: window.INITIAL_DATA.shop?.name || '',
+                    slug: window.INITIAL_DATA.shop?.slug || '',
+                    primary_color: window.INITIAL_DATA.shop?.primary_color || '#1E5A7A',
+                    logoPreview: window.INITIAL_DATA.shop?.logo_url ? '/storage/' + window.INITIAL_DATA.shop.logo_url : '',
+                    logoFile: null,
+                    slogan: window.INITIAL_DATA.shop?.slogan || '',
+                    is_open: window.INITIAL_DATA.shop?.is_open ?? true,
+                    theme_style: window.INITIAL_DATA.shop?.theme_style || 'list',
+                    font_family: window.INITIAL_DATA.shop?.font_family || 'poppins',
+                    instagram_link: window.INITIAL_DATA.shop?.instagram_link || '',
+                    whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
+                    maps_link: window.INITIAL_DATA.shop?.maps_link || ''
                 },
                 isSavingSettings: false,
                 profile: {
@@ -894,6 +903,22 @@ handleDraftImageUpload(event, index) {
                 orders: [],
                 menuItems: [],
                 init() {
+                    const unlockAudio = () => {
+                        const chime = document.getElementById('chime-sound');
+                        if (chime) {
+                            chime.volume = 0;
+                            chime.play().then(() => {
+                                chime.pause();
+                                chime.currentTime = 0;
+                                chime.volume = 1;
+                            }).catch(() => {});
+                        }
+                    };
+                    
+                    document.body.addEventListener('click', unlockAudio, { once: true });
+                    document.body.addEventListener('touchstart', unlockAudio, { once: true });
+                    document.body.addEventListener('keydown', unlockAudio, { once: true });
+                    
                     this.$watch('currentTab', (val) => {
                         localStorage.setItem('activeDashboardTab', val);
                         if (val === 'analytics') {
@@ -919,10 +944,19 @@ handleDraftImageUpload(event, index) {
                     
                     this.fetchLiveOrders(true);
                     
-                    // Poll for new orders every 5 seconds
-                    setInterval(() => {
-                        this.fetchLiveOrders(false);
-                    }, 5000);
+                    // Listen for real-time orders via Laravel Reverb
+                    if (window.Echo && window.INITIAL_DATA.shop) {
+                        window.Echo.private('shop.' + window.INITIAL_DATA.shop.id + '.orders')
+                            .listen('OrderCreated', (e) => {
+                                console.log('New Order Received via Reverb:', e.order);
+                                this.handleNewOrderFromSocket(e.order);
+                            });
+                    } else {
+                        // Fallback polling just in case Echo fails to load
+                        setInterval(() => {
+                            this.fetchLiveOrders(false);
+                        }, 5000);
+                    }
 
 
                 },
@@ -995,12 +1029,18 @@ handleDraftImageUpload(event, index) {
                             } else {
                                 data.menu.categoryId = data.menu.category_name;
                                 data.menu.desc = data.menu.description;
+                                data.menu.image = data.menu.image_url ? '/storage/' + data.menu.image_url : null;
                                 this.menuItems.unshift(data.menu);
                             }
                             this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '' };
                             if (this.$refs.menuImageInput) this.$refs.menuImageInput.value = '';
                             this.showAddMenuModal = false;
+                            this.addToast('Menu berhasil disimpan!', 'success');
+                        } else {
+                            this.addToast(data.message || 'Gagal menyimpan menu', 'error');
                         }
+                    }).catch(err => {
+                        this.addToast('Terjadi kesalahan jaringan', 'error');
                     });
                 },
                 viewOrderDetails(order) {
@@ -1046,34 +1086,92 @@ handleDraftImageUpload(event, index) {
                     if (!this.activeIncomingOrder && this.incomingOrderQueue.length > 0) {
                         this.activeIncomingOrder = this.incomingOrderQueue.shift();
                         this.incomingOrderState = 'new';
-                        this.incomingTimer = 45;
+                        this.incomingTimer = 30;
                         clearInterval(this.incomingTimerInterval);
                         
                         this.incomingTimerInterval = setInterval(() => {
                             if (['new', 'reject_confirm'].includes(this.incomingOrderState)) {
                                 this.incomingTimer--;
                                 if (this.incomingTimer <= 0) {
-                                    this.confirmRejectOrder(true);
+                                    this.autoCloseOrder();
                                 }
                             }
                         }, 1000);
                     }
                 },
+                playNotification() {
+                    const chime = document.getElementById('chime-sound');
+                    if (chime) {
+                        chime.currentTime = 0;
+                        chime.loopCount = 0;
+                        chime.onended = () => {
+                            if (chime.loopCount < 4) {
+                                chime.loopCount++;
+                                chime.currentTime = 0;
+                                chime.play().catch(e => console.log('Audio error', e));
+                            }
+                        };
+                        chime.play().catch(e => {
+                            console.log('Audio autoplay blocked', e);
+                            if (typeof this.addToast === 'function') {
+                                this.addToast('?? Pesanan Baru! (Klik layar untuk izinkan suara otomatis)', 'info');
+                            }
+                        });
+                    }
+                },
+                stopNotification() {
+                    const chime = document.getElementById('chime-sound');
+                    if (chime) {
+                        chime.pause();
+                        chime.currentTime = 0;
+                        chime.loopCount = 5;
+                    }
+                },
                 acceptOrder() {
-                    this.incomingOrderState = 'accepting';
+                    this.stopNotification();
+                      this.incomingOrderState = 'accepting';
                     setTimeout(() => {
                         this.incomingOrderState = 'accepted';
                         this.updateStatus(this.activeIncomingOrder.id, 'In Progress');
                         setTimeout(() => this.closeActiveOrder(), 1500);
                     }, 800);
                 },
+                autoCloseOrder() {
+                    this.addToast(`Popup ditutup. Pesanan #${this.activeIncomingOrder.id} masuk ke daftar tunggu.`, 'info');
+                    this.closeActiveOrder();
+                },
                 confirmRejectOrder(isAuto = false) {
-                    this.incomingOrderState = 'rejected';
+                    this.stopNotification();
+                      this.incomingOrderState = 'rejected';
                     this.updateStatus(this.activeIncomingOrder.id, 'Dibatalkan');
                     if (isAuto) {
                         this.addToast(`Pesanan #${this.activeIncomingOrder.id} telah kedaluwarsa.`, 'error');
                     }
                     setTimeout(() => this.closeActiveOrder(), 1500);
+                },
+                handleNewOrderFromSocket(newOrder) {
+                    const mappedOrder = {
+                        id: newOrder.id,
+                        customer: newOrder.customer_name || ('Meja ' + (newOrder.table ? newOrder.table.name : '-')),
+                        status: newOrder.status,
+                        total: parseFloat(newOrder.total_price),
+                        time: newOrder.created_at,
+                        items: (newOrder.items || []).map(i => ({
+                            name: i.product?.name || 'Produk',
+                            qty: i.quantity,
+                            price: parseFloat(i.price),
+                            image: i.product?.image_url ? ('/storage/' + i.product.image_url) : null,
+                            desc: i.product?.description || ''
+                        }))
+                    };
+
+                    // Add to beginning of orders
+                    this.orders.unshift(mappedOrder);
+
+                    // Add to incoming queue
+                    this.playNotification();
+                    this.incomingOrderQueue.push(mappedOrder);
+                    this.processIncomingQueue();
                 },
                 closeActiveOrder() {
                     this.activeIncomingOrder = null;
@@ -1081,55 +1179,59 @@ handleDraftImageUpload(event, index) {
                     setTimeout(() => this.processIncomingQueue(), 400);
                 },
                 async fetchLiveOrders(isInit = false) {
-                    let sourceOrders = window.INITIAL_DATA.orders;
-                    
-                    if (!isInit) {
-                        try {
-                            const res = await fetch('/admin/api/orders/live?t=' + new Date().getTime(), {
-                                headers: {
-                                    'Cache-Control': 'no-cache',
-                                    'Pragma': 'no-cache'
+                    try {
+                        let sourceOrders = window.INITIAL_DATA.orders;
+                        
+                        if (!isInit) {
+                            try {
+                                const res = await fetch('/admin/api/orders/live?t=' + new Date().getTime(), {
+                                    headers: {
+                                        'Cache-Control': 'no-cache',
+                                        'Pragma': 'no-cache'
+                                    }
+                                });
+                                if (res.ok) {
+                                    sourceOrders = await res.json();
+                                } else {
+                                    return;
                                 }
-                            });
-                            if (res.ok) {
-                                sourceOrders = await res.json();
-                            } else {
+                            } catch (err) {
                                 return;
                             }
-                        } catch (err) {
+                        }
+
+                        if (!Array.isArray(sourceOrders)) {
                             return;
                         }
-                    }
 
-                    const dbOrders = sourceOrders.map(o => ({
-                        id: o.id,
-                        customer: o.customer_name || ('Meja ' + (o.table ? o.table.name : '-')),
-                        status: o.status,
-                        total: parseFloat(o.total_price),
-                        time: o.created_at,
-                        items: (o.items || []).map(i => ({
-                            name: i.product.name,
-                            qty: i.quantity,
-                            price: parseFloat(i.price),
-                            image: i.product.image_url ? ('/storage/' + i.product.image_url) : null,
-                            desc: i.product.description
-                        }))
-                    }));
+                        const dbOrders = sourceOrders.map(o => ({
+                            id: o.id,
+                            customer: o.customer_name || ('Meja ' + (o.table ? o.table.name : '-')),
+                            status: o.status,
+                            total: parseFloat(o.total_price),
+                            time: o.created_at,
+                            items: (o.items || []).map(i => ({
+                                name: i.product?.name || 'Produk',
+                                qty: i.quantity,
+                                price: parseFloat(i.price),
+                                image: i.product?.image_url ? ('/storage/' + i.product.image_url) : null,
+                                desc: i.product?.description || ''
+                            }))
+                        }));
 
-                    const newIncomingOrders = dbOrders.filter(o => o.status === 'Masuk' && !this.orders.find(old => old.id == o.id));
+                        const newIncomingOrders = dbOrders.filter(o => o.status === 'Masuk' && !this.orders.find(old => old.id == o.id));
 
-                    if (!isInit && newIncomingOrders.length > 0) {
-                        const chime = document.getElementById('chime-sound');
-                        if (chime) {
-                            chime.currentTime = 0;
-                            chime.play().catch(e => console.log('Audio autoplay blocked', e));
+                        if (!isInit && newIncomingOrders.length > 0) {
+                            this.playNotification();
+
+                            newIncomingOrders.forEach(o => this.incomingOrderQueue.push(o));
+                            this.processIncomingQueue();
                         }
 
-                        newIncomingOrders.forEach(o => this.incomingOrderQueue.push(o));
-                        this.processIncomingQueue();
+                        this.orders = dbOrders;
+                    } catch (e) {
+                        console.error('fetchLiveOrders error:', e);
                     }
-
-                    this.orders = dbOrders;
                 },
                 addTableFromModal() {
                     if (!this.newTableId.trim()) {
@@ -1376,6 +1478,14 @@ handleDraftImageUpload(event, index) {
                     formData.append('name', this.settings.name);
                     formData.append('slug', this.settings.slug);
                     formData.append('primary_color', this.settings.primary_color);
+                    formData.append('slogan', this.settings.slogan);
+                    formData.append('is_open', this.settings.is_open ? 1 : 0);
+                    formData.append('theme_style', this.settings.theme_style);
+                    formData.append('font_family', this.settings.font_family);
+                    formData.append('instagram_link', this.settings.instagram_link);
+                    formData.append('whatsapp_number', this.settings.whatsapp_number);
+                    formData.append('maps_link', this.settings.maps_link);
+                    
                     if (this.settings.logoFile) {
                         formData.append('logo', this.settings.logoFile);
                     }

@@ -146,6 +146,14 @@ function renderMenu() {
     const container = document.getElementById('menu-container');
     if (!container) return;
     
+    // Set layout class
+    const theme = typeof SHOP_THEME !== 'undefined' ? SHOP_THEME : 'list';
+    if (theme === 'list') {
+        container.className = 'p-4 grid grid-cols-1 gap-3';
+    } else {
+        container.className = 'p-4 grid grid-cols-2 gap-4';
+    }
+    
     let filteredMenu = typeof DB !== 'undefined' ? DB.get('bitten_menu') : apiData.menu;
     if (activeCategory !== 'all') {
         filteredMenu = filteredMenu.filter(m => m.categoryId === activeCategory);
@@ -162,7 +170,8 @@ function renderMenu() {
             if (cat.id === 'all') return;
             const itemsInCat = filteredMenu.filter(m => m.categoryId === cat.id);
             if (itemsInCat.length > 0) {
-                htmlOutput += `<div class="col-span-2 mt-4 mb-1 border-b-2 border-primary/10 pb-1"><h3 class="font-heading font-bold text-lg text-primary">${cat.name}</h3></div>`;
+                const colSpan = (theme === 'list') ? 'col-span-1' : 'col-span-2';
+                htmlOutput += `<div class="${colSpan} mt-4 mb-1 border-b-2 border-primary/10 pb-1"><h3 class="font-heading font-bold text-lg text-primary">${cat.name}</h3></div>`;
                 htmlOutput += itemsInCat.map(item => renderMenuItem(item)).join('');
             }
         });
@@ -179,6 +188,31 @@ function renderMenu() {
 }
 
 function renderMenuItem(item) {
+    const theme = typeof SHOP_THEME !== 'undefined' ? SHOP_THEME : 'list';
+    
+    if (theme === 'list') {
+        // Horizontal Layout (GoFood style)
+        return `
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex hover:shadow-md transition duration-300 relative h-28">
+                <div class="w-28 flex-shrink-0 relative cursor-pointer" onclick="openItemDetail('${item.id}')">
+                    <img src="${item.image || item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${item.name}" loading="lazy" class="h-full w-full object-cover">
+                    ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
+                </div>
+                <div class="p-3 flex flex-col flex-grow relative cursor-pointer" onclick="openItemDetail('${item.id}')">
+                    <h3 class="font-bold text-textdark text-sm leading-tight mb-1 pr-6">${item.name}</h3>
+                    <p class="text-xs text-gray-500 line-clamp-2 leading-snug">${item.desc || ''}</p>
+                    <div class="mt-auto flex justify-between items-end">
+                        <span class="font-bold text-primary text-sm">${formatRp(item.price)}</span>
+                    </div>
+                </div>
+                <button onclick="quickAddToCart('${item.id}', event)" class="absolute bottom-3 right-3 bg-primary text-white h-8 w-8 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
+                    <i class="fas fa-plus text-xs"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    // Vertical Layout (Instagram style grid)
     return `
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative">
             <div class="p-2 relative cursor-pointer" onclick="openItemDetail('${item.id}')">

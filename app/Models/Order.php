@@ -14,7 +14,7 @@ class Order extends Model
         'customer_phone',
         'status',
         'payment_method',
-        'total_price'
+        'total_price',
     ];
 
     public function shop()

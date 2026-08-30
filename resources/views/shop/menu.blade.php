@@ -16,7 +16,21 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    @php
+        $font = $shop->font_family ?? 'poppins';
+        if ($font == 'playfair') {
+            echo '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">';
+            $fontFamily = "'Playfair Display', serif";
+        } elseif ($font == 'nunito') {
+            echo '<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">';
+            $fontFamily = "'Nunito', sans-serif";
+        } else {
+            echo '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">';
+            $fontFamily = "'Poppins', sans-serif";
+        }
+    @endphp
+
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     
     <style>
@@ -24,6 +38,7 @@
             --color-primary: {{ $shop->primary_color ?? '#1c4532' }};
             --color-secondary: {{ $shop->primary_color ?? '#2d6a4f' }};
         }
+        body { font-family: {!! $fontFamily !!}; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .page-transition { transition: all 0.3s ease; }
     </style>
@@ -31,13 +46,23 @@
 </head>
 <body data-page="home" class="antialiased max-w-md mx-auto bg-gray-50 min-h-screen relative shadow-xl overflow-x-hidden pb-24 page-transition">
 
+    @if(!($shop->is_open ?? true))
+    <!-- TOKO TUTUP OVERLAY -->
+    <div class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[200] flex flex-col items-center justify-center p-6 text-center">
+        <i class="fas fa-store-slash text-6xl text-gray-400 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Toko Sedang Tutup</h2>
+        <p class="text-gray-500 font-medium">Mohon maaf, toko kami saat ini sedang tidak menerima pesanan.</p>
+        <button onclick="window.location.reload()" class="mt-6 bg-primary text-white px-6 py-3 rounded-full font-bold shadow-md hover:bg-opacity-90">Cek Lagi Nanti</button>
+    </div>
+    @endif
+
     <!-- SPLASH SCREEN -->
     <div id="splash-screen" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-700">
         <div class="w-28 h-28 flex items-center justify-center p-2 mb-4 animate-bounce">
             <img src="{{ $shop->logo_url ? asset('storage/' . $shop->logo_url) : asset('Pavico.webp') }}" alt="Logo" class="w-full h-full object-contain">
         </div>
         <h1 class="text-primary text-3xl font-extrabold tracking-widest uppercase">{{ $shop->name }}</h1>
-        <p class="text-gray-500 text-sm mt-1 font-medium tracking-wider uppercase">{{ $shop->theme_style ?? 'COFFEE & EATERY' }}</p>
+        <p class="text-gray-500 text-sm mt-1 font-medium tracking-wider uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</p>
     </div>
 
     <!-- Header APP (Logo, Notif, Profile) -->
@@ -47,7 +72,7 @@
                 <img src="{{ $shop->logo_url ? asset('storage/' . $shop->logo_url) : asset('Pavico.webp') }}" alt="{{ $shop->name }} Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg">
                 <div class="flex flex-col">
                     <span class="font-extrabold text-[15px] leading-tight tracking-tight text-primary uppercase">{{ $shop->name }}</span>
-                    <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase">{{ $shop->theme_style ?? 'COFFEE & EATERY' }}</span>
+                    <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</span>
                 </div>
             </div>
         </div>
@@ -55,20 +80,26 @@
 
     <!-- Location & Search Bar -->
     <div class="bg-white px-4 mb-5 relative z-30">
-        <div class="bg-gray-50 rounded-[24px] p-2 flex items-center shadow-inner border border-gray-200">
-            <div class="flex items-center gap-3 pl-3 pr-4 border-r border-gray-300 cursor-pointer hover:bg-gray-100 transition rounded-l-2xl py-1" onclick="document.getElementById('modal-table-selector').classList.remove('hidden')">
-                <i class="fas fa-map-marker-alt text-primary text-lg"></i>
-                <div class="flex flex-col leading-tight">
-                    <span class="text-[10px] text-gray-500 font-medium uppercase">Deliver To / Table</span>
-                    <span class="text-xs font-bold text-gray-900 flex items-center gap-1" id="header-table-number">Meja {{ $table ?? '(...)' }}, {{ $shop->name }} <i class="fas fa-chevron-down text-[9px] text-gray-400 ml-1"></i></span>
+        <div class="bg-white rounded-full p-1.5 flex items-center shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] border border-gray-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/30 transition-all duration-300">
+            <div class="flex items-center gap-2 pl-2 pr-3 border-r border-gray-200 cursor-pointer hover:bg-gray-50 transition rounded-l-full py-1.5 shrink-0 max-w-[55%]" onclick="document.getElementById('modal-table-selector').classList.remove('hidden')">
+                <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <i class="fas fa-map-marker-alt text-primary text-[11px]"></i>
+                </div>
+                <div class="flex flex-col leading-tight min-w-0">
+                    <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider truncate">Deliver To / Meja</span>
+                    <span class="text-xs font-bold text-gray-800 flex items-center gap-1 truncate" id="header-table-number">
+                        {{ $table ?? '(...)' }} 
+                        <i class="fas fa-chevron-down text-[8px] text-gray-400 ml-0.5"></i>
+                    </span>
                 </div>
             </div>
-            <div class="flex-1 flex items-center pl-3">
-                <input type="text" id="search-menu" placeholder="Cari menu..." class="w-full bg-transparent text-sm font-medium focus:outline-none text-gray-800 placeholder-gray-400">
-                <button class="pr-3 text-gray-400 hover:text-gray-600"><i class="fas fa-search text-lg"></i></button>
+            <div class="flex-1 flex items-center px-3 relative">
+                <i class="fas fa-search text-gray-400 text-sm absolute left-3"></i>
+                <input type="text" id="search-menu" placeholder="Cari menu favoritmu..." class="w-full bg-transparent text-sm font-medium focus:outline-none focus:ring-0 border-0 border-transparent p-0 pl-6 text-gray-800 placeholder-gray-400 shadow-none h-auto">
             </div>
         </div>
     </div>
+
 
     <!-- Promo Carousel Section -->
     <div class="px-4 mb-8">
@@ -192,7 +223,32 @@
         <i class="fas fa-home text-lg"></i>
     </a>
 
+    <!-- Footer / Social Media -->
+    <div class="px-4 py-8 mb-6 mt-8 flex flex-col items-center justify-center text-center opacity-80">
+        <div class="flex gap-4 mb-4">
+            @if($shop->instagram_link)
+                <a href="{{ $shop->instagram_link }}" target="_blank" class="w-10 h-10 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            @endif
+            @if($shop->whatsapp_number)
+                <a href="https://wa.me/{{ $shop->whatsapp_number }}" target="_blank" class="w-10 h-10 rounded-full bg-green-100 text-green-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            @endif
+            @if($shop->maps_link)
+                <a href="{{ $shop->maps_link }}" target="_blank" class="w-10 h-10 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
+                    <i class="fas fa-map-marker-alt"></i>
+                </a>
+            @endif
+        </div>
+        <p class="text-xs text-gray-400 font-medium">Powered by Menu Oqari &copy; {{ date('Y') }}</p>
+    </div>
+
     <!-- Include Scripts -->
+    <script>
+        const SHOP_THEME = "{{ $shop->theme_style ?? 'list' }}";
+    </script>
     @include('shop.scripts')
     <script>
         function saveManualTable() {

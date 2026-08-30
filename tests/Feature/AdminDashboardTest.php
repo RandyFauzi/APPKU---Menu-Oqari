@@ -2,20 +2,21 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class AdminDashboardTest extends TestCase
 {
     use RefreshDatabase;
+
     /**
      * A basic feature test example.
      */
     public function test_admin_can_access_dashboard()
     {
-        $user = \App\Models\User::factory()->create();
-        
+        $user = User::factory()->create();
+
         $response = $this->actingAs($user)->get('/admin/dashboard');
 
         $response->assertStatus(200);
@@ -24,8 +25,8 @@ class AdminDashboardTest extends TestCase
 
     public function test_admin_can_create_menu()
     {
-        $user = \App\Models\User::factory()->create();
-        
+        $user = User::factory()->create();
+
         // Ensure a shop is created via the dashboard
         $this->actingAs($user)->get('/admin/dashboard');
 
@@ -33,13 +34,13 @@ class AdminDashboardTest extends TestCase
             'name' => 'Kopi Test',
             'price' => 15000,
             'categoryId' => 'beverages',
-            'desc' => 'Kopi testing'
+            'desc' => 'Kopi testing',
         ]);
 
         $response->assertStatus(200);
         $this->assertDatabaseHas('products', [
             'name' => 'Kopi Test',
-            'price' => 15000
+            'price' => 15000,
         ]);
     }
 

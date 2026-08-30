@@ -3,31 +3,43 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Shop;
+use App\Models\Table;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
-        if (!$user->shop_id) $user->update(['shop_id' => $shopId]);
-        $shop = \App\Models\Shop::find($shopId);
+        $user = Auth::user();
+        $shopId = $user->shop_id ?? Shop::first()->id ?? Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        if (! $user->shop_id) {
+            $user->update(['shop_id' => $shopId]);
+        }
+        $shop = Shop::find($shopId);
 
-        $menuItems = \App\Models\Product::where('shop_id', $shop->id)->get();
-        $orders = \App\Models\Order::where('shop_id', $shop->id)->with('items.product', 'table')->orderBy('created_at', 'desc')->get();
-        $tables = \App\Models\Table::where('shop_id', $shop->id)->get();
-        $users = \App\Models\User::where('shop_id', $shop->id)->get();
+        $menuItems = Product::where('shop_id', $shop->id)->get();
+        $orders = Order::where('shop_id', $shop->id)->with('items.product', 'table')->orderBy('created_at', 'desc')->get();
+        $tables = Table::where('shop_id', $shop->id)->get();
+        $users = User::where('shop_id', $shop->id)->get();
 
         return view('Admin.Dashboard.dashboard', compact('shop', 'orders', 'menuItems', 'tables', 'users'));
     }
 
     public function getLiveOrders()
     {
-        $shop = auth()->user()->shop;
-        if (!$shop) return response()->json([]);
+        $shopId = auth()->user()->shop_id;
+        if (! $shopId) {
+            return response()->json([]);
+        }
 
-        $orders = \App\Models\Order::where('shop_id', $shop->id)
+        $orders = Order::where('shop_id', $shopId)
             ->with(['items.product', 'table'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -37,36 +49,52 @@ class DashboardController extends Controller
 
     public function updateOrderStatus(Request $request, $orderId)
     {
-        $order = \App\Models\Order::findOrFail($orderId);
+        $order = Order::findOrFail($orderId);
         $order->status = $request->status;
         $order->save();
+
         return response()->json(['success' => true]);
+    }
+
+    public function printOrder($orderId)
+    {
+        $order = Order::with('items.product', 'table', 'shop')->findOrFail($orderId);
+
+        // Ensure the logged in user belongs to the same shop
+        if (auth()->user()->shop_id !== $order->shop_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        return view('admin.orders.print', compact('order'));
     }
 
     public function deleteMenu($id)
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $menu = \App\Models\Product::where('shop_id', $user->shop_id)->where('id', $id)->first();
+        $user = Auth::user();
+        $menu = Product::where('shop_id', $user->shop_id)->where('id', $id)->first();
         if ($menu) {
             $menu->delete();
+
             return response()->json(['success' => true]);
         }
+
         return response()->json(['success' => false, 'message' => 'Menu not found'], 404);
     }
 
     public function toggleMenuStatus(Request $request, $menuId)
     {
-        $menu = \App\Models\Product::findOrFail($menuId);
-        $menu->is_sold_out = !$menu->is_sold_out;
+        $menu = Product::findOrFail($menuId);
+        $menu->is_sold_out = ! $menu->is_sold_out;
         $menu->save();
+
         return response()->json(['success' => true, 'is_sold_out' => $menu->is_sold_out]);
     }
 
-        public function saveMenu(Request $request)
+    public function saveMenu(Request $request)
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
-        
+        $user = Auth::user();
+        $shopId = $user->shop_id ?? Shop::first()->id ?? Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+
         $data = [
             'name' => $request->name,
             'price' => $request->price,
@@ -78,17 +106,18 @@ class DashboardController extends Controller
             $data['image_url'] = $request->file('image')->store('menus', 'public');
         }
 
-        $menu = \App\Models\Product::updateOrCreate(
+        $menu = Product::updateOrCreate(
             ['id' => $request->id, 'shop_id' => $shopId],
             $data
         );
+
         return response()->json(['success' => true, 'menu' => $menu]);
     }
 
     public function saveMenuBulk(Request $request)
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        $user = Auth::user();
+        $shopId = $user->shop_id ?? Shop::first()->id ?? Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
 
         $items = $request->input('items', []);
         $savedMenus = [];
@@ -117,15 +146,15 @@ class DashboardController extends Controller
             }
 
             // Jika ada id, berarti update, jika tidak, create
-            if (!empty($itemData['id'])) {
-                $menu = \App\Models\Product::where('id', $itemData['id'])->where('shop_id', $shopId)->first();
+            if (! empty($itemData['id'])) {
+                $menu = Product::where('id', $itemData['id'])->where('shop_id', $shopId)->first();
                 if ($menu) {
                     $menu->update($productData);
                     $savedMenus[] = $menu;
                 }
             } else {
                 $productData['shop_id'] = $shopId;
-                $menu = \App\Models\Product::create($productData);
+                $menu = Product::create($productData);
                 $savedMenus[] = $menu;
             }
         }
@@ -135,18 +164,18 @@ class DashboardController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        
+        $user = Auth::user();
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'password' => 'nullable|min:8|confirmed',
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
         if ($request->filled('password')) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            $user->password = Hash::make($request->password);
         }
         $user->save();
 
@@ -155,7 +184,7 @@ class DashboardController extends Controller
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
-            ]
+            ],
         ]);
     }
 
@@ -165,55 +194,82 @@ class DashboardController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255',
             'primary_color' => 'nullable|string|max:20',
-            'logo' => 'nullable|image|max:2048'
+            'logo' => 'nullable|image|max:2048',
+            'theme_style' => 'nullable|string|in:grid,list',
+            'is_open' => 'nullable|boolean',
+            'slogan' => 'nullable|string|max:255',
+            'font_family' => 'nullable|string|max:50',
+            'instagram_link' => 'nullable|string|max:255',
+            'whatsapp_number' => 'nullable|string|max:50',
+            'maps_link' => 'nullable|string|max:500',
         ]);
 
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $shopId = $user->shop_id ?? \App\Models\Shop::first()->id ?? \App\Models\Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
-        
-        if (!$user->shop_id) {
+        $user = Auth::user();
+        $shopId = $user->shop_id ?? Shop::first()->id ?? Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+
+        if (! $user->shop_id) {
             $user->update(['shop_id' => $shopId]);
         }
 
-        $shop = \App\Models\Shop::find($shopId);
-        if (!$shop) {
+        $shop = Shop::find($shopId);
+        if (! $shop) {
             return response()->json(['success' => false, 'message' => 'Shop not found.']);
         }
 
         $shop->name = $request->name;
-        $shop->slug = \Illuminate\Support\Str::slug($request->slug);
-        
+        $shop->slug = Str::slug($request->slug);
+
+        if ($request->has('theme_style')) {
+            $shop->theme_style = $request->theme_style;
+        }
+        if ($request->has('is_open')) {
+            $shop->is_open = $request->boolean('is_open');
+        }
+        if ($request->has('slogan')) {
+            $shop->slogan = $request->slogan;
+        }
+        if ($request->has('font_family')) {
+            $shop->font_family = $request->font_family;
+        }
+        if ($request->has('instagram_link')) {
+            $shop->instagram_link = $request->instagram_link;
+        }
+        if ($request->has('whatsapp_number')) {
+            $shop->whatsapp_number = $request->whatsapp_number;
+        }
+        if ($request->has('maps_link')) {
+            $shop->maps_link = $request->maps_link;
+        }
+
         if ($request->filled('primary_color')) {
             $shop->primary_color = $request->primary_color;
         }
 
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('logos', 'public');
+            $path = $request->file('logo')->store('shops', 'public');
             $shop->logo_url = $path;
         }
 
         $shop->save();
 
-        return response()->json([
-            'success' => true,
-            'logo_url' => $shop->logo_url
-        ]);
+        return response()->json(['success' => true, 'shop' => $shop]);
     }
+
     public function saveCrew(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'role' => 'required|string'
+            'role' => 'required|string',
         ]);
 
-        $user = \Illuminate\Support\Facades\Auth::user();
-        
-        $newCrew = new \App\Models\User();
+        $user = Auth::user();
+
+        $newCrew = new User;
         $newCrew->name = $request->name;
         $newCrew->email = $request->email;
-        $newCrew->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $newCrew->password = Hash::make($request->password);
         $newCrew->shop_id = $user->shop_id;
         $newCrew->role = $request->role;
         $newCrew->save();
@@ -227,13 +283,13 @@ class DashboardController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$id,
             'password' => 'nullable|string|min:6',
-            'role' => 'required|string'
+            'role' => 'required|string',
         ]);
 
-        $currentUser = \Illuminate\Support\Facades\Auth::user();
-        $crew = \App\Models\User::where('shop_id', $currentUser->shop_id)->where('id', $id)->first();
-        
-        if (!$crew) {
+        $currentUser = Auth::user();
+        $crew = User::where('shop_id', $currentUser->shop_id)->where('id', $id)->first();
+
+        if (! $crew) {
             return response()->json(['success' => false, 'message' => 'Crew not found'], 404);
         }
 
@@ -245,7 +301,7 @@ class DashboardController extends Controller
         $crew->name = $request->name;
         $crew->email = $request->email;
         if ($request->filled('password')) {
-            $crew->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            $crew->password = Hash::make($request->password);
         }
         $crew->role = $request->role;
         $crew->save();
@@ -255,26 +311,28 @@ class DashboardController extends Controller
 
     public function deleteCrew($id)
     {
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $crew = \App\Models\User::where('shop_id', $user->shop_id)->where('id', $id)->first();
-        
+        $user = Auth::user();
+        $crew = User::where('shop_id', $user->shop_id)->where('id', $id)->first();
+
         if ($crew && $crew->role !== 'admin') {
             $crew->delete();
+
             return response()->json(['success' => true]);
         }
-        
+
         return response()->json(['success' => false, 'message' => 'Cannot delete this user']);
     }
+
     public function saveTable(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'qr_code_url' => 'required|string'
+            'qr_code_url' => 'required|string',
         ]);
 
-        $user = \Illuminate\Support\Facades\Auth::user();
-        
-        $table = new \App\Models\Table();
+        $user = Auth::user();
+
+        $table = new Table;
         $table->shop_id = $user->shop_id;
         $table->name = $request->name;
         $table->qr_code_url = $request->qr_code_url;
@@ -287,20 +345,19 @@ class DashboardController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'qr_code_url' => 'required|string'
+            'qr_code_url' => 'required|string',
         ]);
 
-        $user = \Illuminate\Support\Facades\Auth::user();
-        $table = \App\Models\Table::where('shop_id', $user->shop_id)->where('name', $request->name)->first();
-        
+        $user = Auth::user();
+        $table = Table::where('shop_id', $user->shop_id)->where('name', $request->name)->first();
+
         if ($table) {
             $table->qr_code_url = $request->qr_code_url;
             $table->save();
+
             return response()->json(['success' => true, 'table' => $table]);
         }
-        
+
         return response()->json(['success' => false, 'message' => 'Table not found']);
     }
 }
-
-

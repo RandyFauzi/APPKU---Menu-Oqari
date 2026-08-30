@@ -1,9 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Admin\DashboardController;
 
 Route::get('/', function () {
     return redirect()->route('admin.dashboard');
@@ -13,6 +12,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/api/orders/live', [DashboardController::class, 'getLiveOrders']);
     Route::post('/admin/api/orders/{order}/status', [DashboardController::class, 'updateOrderStatus']);
+    Route::get('/admin/api/orders/{order}/print', [DashboardController::class, 'printOrder']);
     Route::post('/admin/api/menu/{menu}/toggle', [DashboardController::class, 'toggleMenuStatus']);
     Route::post('/admin/api/menu/bulk', [DashboardController::class, 'saveMenuBulk']);
     Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 use App\Http\Controllers\ShopController;
+
 Route::get('/{slug}', [ShopController::class, 'show'])->name('shop.menu');
 Route::get('/{slug}/cart', [ShopController::class, 'cart'])->name('shop.cart');
 Route::get('/{slug}/tracking', [ShopController::class, 'tracking'])->name('shop.tracking');

@@ -11,6 +11,18 @@ class Shop extends Model
         'slug',
         'logo_url',
         'primary_color',
-        'theme_style'
+        'theme_style',
+        'is_open',
+        'slogan',
+        'font_family',
+        'instagram_link',
+        'whatsapp_number',
+        'maps_link',
+        'banners',
+    ];
+
+    protected $casts = [
+        'banners' => 'array',
+        'is_open' => 'boolean',
     ];
 }
