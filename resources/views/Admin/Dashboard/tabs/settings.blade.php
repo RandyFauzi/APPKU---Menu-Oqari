@@ -1,11 +1,13 @@
-<div x-show="currentTab === 'settings'" x-cloak class="flex-grow p-8 lg:p-10 bg-[#FDFBF7] overflow-auto hide-scroll">
-    <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div x-show="currentTab === 'settings'" x-cloak class="flex-grow p-8 lg:p-10 bg-[#FDFBF7] overflow-auto hide-scroll relative">
+    
+    <!-- Sticky Action Bar -->
+    <div class="sticky top-0 z-40 mb-8 bg-[#FDFBF7]/95 backdrop-blur-md pb-4 pt-4 -mx-8 px-8 -mt-8 border-b border-[#E3E1DC]/50 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h2 class="text-3xl font-black text-[#202522] tracking-tight">Toko & Branding</h2>
-            <p class="text-[#777873] font-medium mt-1">Kelola identitas, tampilan, dan operasional toko Anda.</p>
+            <p class="text-[#777873] font-medium text-sm"><i class="fas fa-info-circle mr-1"></i> Kelola identitas, tampilan, dan operasional toko Anda.</p>
         </div>
-        <button @click="saveSettings" type="button" class="bg-[#164A35] text-white px-6 py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-[#1e5f44] transition-colors flex items-center gap-2 justify-center" :disabled="isSavingSettings">
+        <button @click="saveSettings" type="button" class="bg-[#164A35] text-white px-8 py-3 rounded-xl font-bold text-sm shadow-[0_8px_20px_-6px_rgba(22,74,53,0.5)] hover:bg-[#1e5f44] hover:-translate-y-0.5 transition-all flex items-center gap-2 justify-center" :disabled="isSavingSettings">
             <i class="fas fa-spinner fa-spin" x-show="isSavingSettings"></i>
+            <i class="fas fa-save" x-show="!isSavingSettings"></i>
             <span x-text="isSavingSettings ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
         </button>
     </div>
@@ -42,11 +44,12 @@
                             <div class="w-full md:w-2/3">
                                 <div class="flex items-center justify-between mb-3">
                                     <label class="block text-sm font-bold text-[#202522]">Banner Promo (Max 3)</label>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" x-model="settings.is_banner_active" class="sr-only peer">
-                                        <div class="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#164A35]"></div>
-                                        <span class="ml-2 text-[10px] font-bold text-gray-500">Aktif</span>
-                                    </label>
+                                    <div @click="settings.is_banner_active = !settings.is_banner_active" class="relative inline-flex items-center cursor-pointer group p-1 -mr-1">
+                                        <div class="w-10 h-[22px] rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_banner_active ? 'bg-[#164A35]' : 'bg-gray-300'">
+                                            <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out absolute top-[3px] left-[3px]" :class="settings.is_banner_active ? 'translate-x-[18px]' : 'translate-x-0'"></div>
+                                        </div>
+                                        <span class="ml-2 text-xs font-bold transition-colors" :class="settings.is_banner_active ? 'text-[#164A35]' : 'text-gray-400'">Aktif</span>
+                                    </div>
                                 </div>
                                 <div class="grid grid-cols-3 gap-2" :class="!settings.is_banner_active ? 'opacity-50 pointer-events-none' : ''">
                                     <template x-for="(banner, idx) in 3" :key="idx">
@@ -148,10 +151,11 @@
                                 <label class="block text-sm font-bold text-[#202522]">Toko Buka Sekarang?</label>
                                 <p class="text-xs text-[#777873] mt-1">Matikan untuk menutup toko secara manual darurat.</p>
                             </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" x-model="settings.is_open" class="sr-only peer">
-                                <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#164A35]"></div>
-                            </label>
+                            <div @click="settings.is_open = !settings.is_open" class="relative inline-flex items-center cursor-pointer p-1">
+                                <div class="w-14 h-7 rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_open ? 'bg-[#164A35]' : 'bg-gray-300'">
+                                    <div class="w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out absolute top-[4px] left-[4px]" :class="settings.is_open ? 'translate-x-7' : 'translate-x-0'"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
