@@ -1554,6 +1554,7 @@ handleDraftImageUpload(event, index) {
                     fetch('/admin/api/settings', {
                         method: 'POST',
                         headers: {
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: formData
