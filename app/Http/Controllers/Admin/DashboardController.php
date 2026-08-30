@@ -202,6 +202,8 @@ class DashboardController extends Controller
             'instagram_link' => 'nullable|string|max:255',
             'whatsapp_number' => 'nullable|string|max:50',
             'maps_link' => 'nullable|string|max:500',
+            'operating_hours' => 'nullable|string',
+            'banner' => 'nullable|image|max:5120',
         ]);
 
         $user = Auth::user();
@@ -239,6 +241,15 @@ class DashboardController extends Controller
         }
         if ($request->has('maps_link')) {
             $shop->maps_link = $request->maps_link;
+        }
+
+        if ($request->has('operating_hours')) {
+            $shop->operating_hours = json_decode($request->operating_hours, true);
+        }
+
+        if ($request->hasFile('banner')) {
+            $path = $request->file('banner')->store('shops/banners', 'public');
+            $shop->banner_url = $path;
         }
 
         if ($request->filled('primary_color')) {

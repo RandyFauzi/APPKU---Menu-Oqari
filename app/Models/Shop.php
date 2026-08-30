@@ -23,10 +23,13 @@ class Shop extends Model
         'gobiz_access_token',
         'gobiz_refresh_token',
         'gobiz_token_expires_at',
+        'operating_hours',
+        'banner_url',
     ];
 
     protected $casts = [
         'banners' => 'array',
+        'operating_hours' => 'array',
         'is_open' => 'boolean',
         'gobiz_token_expires_at' => 'datetime',
     ];

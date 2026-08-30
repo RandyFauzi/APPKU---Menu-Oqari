@@ -721,7 +721,18 @@ handleDraftImageUpload(event, index) {
                     font_family: window.INITIAL_DATA.shop?.font_family || 'poppins',
                     instagram_link: window.INITIAL_DATA.shop?.instagram_link || '',
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
-                    maps_link: window.INITIAL_DATA.shop?.maps_link || ''
+                    maps_link: window.INITIAL_DATA.shop?.maps_link || '',
+                    bannerPreview: window.INITIAL_DATA.shop?.banner_url ? '/storage/' + window.INITIAL_DATA.shop.banner_url : '',
+                    bannerFile: null,
+                    operating_hours: window.INITIAL_DATA.shop?.operating_hours || {
+                        monday: { open: '08:00', close: '22:00', is_closed: false },
+                        tuesday: { open: '08:00', close: '22:00', is_closed: false },
+                        wednesday: { open: '08:00', close: '22:00', is_closed: false },
+                        thursday: { open: '08:00', close: '22:00', is_closed: false },
+                        friday: { open: '08:00', close: '22:00', is_closed: false },
+                        saturday: { open: '08:00', close: '22:00', is_closed: false },
+                        sunday: { open: '08:00', close: '22:00', is_closed: false },
+                    }
                 },
                 isSavingSettings: false,
                 profile: {
@@ -1528,6 +1539,10 @@ handleDraftImageUpload(event, index) {
                     if (this.settings.logoFile) {
                         formData.append('logo', this.settings.logoFile);
                     }
+                    if (this.settings.bannerFile) {
+                        formData.append('banner', this.settings.bannerFile);
+                    }
+                    formData.append('operating_hours', JSON.stringify(this.settings.operating_hours));
                     
                     fetch('/admin/api/settings', {
                         method: 'POST',
