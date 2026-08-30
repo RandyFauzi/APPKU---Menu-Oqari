@@ -18,7 +18,7 @@ class Shop extends Model
         'instagram_link',
         'whatsapp_number',
         'maps_link',
-        'banners',
+        'banners', 'is_banner_active',
         'gobiz_outlet_id',
         'gobiz_access_token',
         'gobiz_refresh_token',
@@ -34,3 +34,4 @@ class Shop extends Model
         'gobiz_token_expires_at' => 'datetime',
     ];
 }
+

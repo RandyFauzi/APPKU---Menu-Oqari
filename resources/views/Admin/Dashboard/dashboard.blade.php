@@ -722,8 +722,10 @@ handleDraftImageUpload(event, index) {
                     instagram_link: window.INITIAL_DATA.shop?.instagram_link || '',
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
                     maps_link: window.INITIAL_DATA.shop?.maps_link || '',
-                    bannerPreview: window.INITIAL_DATA.shop?.banner_url ? '/storage/' + window.INITIAL_DATA.shop.banner_url : '',
-                    bannerFile: null,
+                    is_banner_active: window.INITIAL_DATA.shop?.is_banner_active ?? true,
+                      banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? '/storage/' + b : null).concat([null, null, null]).slice(0, 3),
+                      bannerFiles: [null, null, null],
+                      bannerPaths: (window.INITIAL_DATA.shop?.banners || []).concat([null, null, null]).slice(0, 3),
                     operating_hours: window.INITIAL_DATA.shop?.operating_hours || {
                         monday: { open: '08:00', close: '22:00', is_closed: false },
                         tuesday: { open: '08:00', close: '22:00', is_closed: false },
@@ -1539,8 +1541,13 @@ handleDraftImageUpload(event, index) {
                     if (this.settings.logoFile) {
                         formData.append('logo', this.settings.logoFile);
                     }
-                    if (this.settings.bannerFile) {
-                        formData.append('banner', this.settings.bannerFile);
+                    formData.append('is_banner_active', this.settings.is_banner_active ? 1 : 0);
+                    for (let i = 0; i < 3; i++) {
+                        if (this.settings.bannerFiles[i]) {
+                            formData.append(anner_, this.settings.bannerFiles[i]);
+                        } else if (this.settings.bannerPaths[i]) {
+                            formData.append(existing_banner_, this.settings.bannerPaths[i]);
+                        }
                     }
                     formData.append('operating_hours', JSON.stringify(this.settings.operating_hours));
                     
@@ -1604,6 +1611,7 @@ handleDraftImageUpload(event, index) {
     </a>
 </body>
 </html>
+
 
 
 

@@ -188,7 +188,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function saveSettings(Request $request)
+        public function saveSettings(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -203,7 +203,10 @@ class DashboardController extends Controller
             'whatsapp_number' => 'nullable|string|max:50',
             'maps_link' => 'nullable|string|max:500',
             'operating_hours' => 'nullable|string',
-            'banner' => 'nullable|image|max:5120',
+            'is_banner_active' => 'nullable|boolean',
+            'banner_0' => 'nullable|image|max:5120',
+            'banner_1' => 'nullable|image|max:5120',
+            'banner_2' => 'nullable|image|max:5120',
         ]);
 
         $user = Auth::user();
@@ -219,37 +222,19 @@ class DashboardController extends Controller
         }
 
         $shop->name = $request->name;
-        $shop->slug = Str::slug($request->slug);
+        $shop->slug = \Illuminate\Support\Str::slug($request->slug);
 
-        if ($request->has('theme_style')) {
-            $shop->theme_style = $request->theme_style;
-        }
-        if ($request->has('is_open')) {
-            $shop->is_open = $request->boolean('is_open');
-        }
-        if ($request->has('slogan')) {
-            $shop->slogan = $request->slogan;
-        }
-        if ($request->has('font_family')) {
-            $shop->font_family = $request->font_family;
-        }
-        if ($request->has('instagram_link')) {
-            $shop->instagram_link = $request->instagram_link;
-        }
-        if ($request->has('whatsapp_number')) {
-            $shop->whatsapp_number = $request->whatsapp_number;
-        }
-        if ($request->has('maps_link')) {
-            $shop->maps_link = $request->maps_link;
-        }
+        if ($request->has('theme_style')) $shop->theme_style = $request->theme_style;
+        if ($request->has('is_open')) $shop->is_open = $request->boolean('is_open');
+        if ($request->has('slogan')) $shop->slogan = $request->slogan;
+        if ($request->has('font_family')) $shop->font_family = $request->font_family;
+        if ($request->has('instagram_link')) $shop->instagram_link = $request->instagram_link;
+        if ($request->has('whatsapp_number')) $shop->whatsapp_number = $request->whatsapp_number;
+        if ($request->has('maps_link')) $shop->maps_link = $request->maps_link;
+        if ($request->has('is_banner_active')) $shop->is_banner_active = $request->boolean('is_banner_active');
 
         if ($request->has('operating_hours')) {
             $shop->operating_hours = json_decode($request->operating_hours, true);
-        }
-
-        if ($request->hasFile('banner')) {
-            $path = $request->file('banner')->store('shops/banners', 'public');
-            $shop->banner_url = $path;
         }
 
         if ($request->filled('primary_color')) {
@@ -260,6 +245,17 @@ class DashboardController extends Controller
             $path = $request->file('logo')->store('shops', 'public');
             $shop->logo_url = $path;
         }
+
+        // Banners
+        $banners = [];
+        for ($i = 0; $i < 3; $i++) {
+            if ($request->hasFile("banner_{$i}")) {
+                $banners[] = $request->file("banner_{$i}")->store('shops/banners', 'public');
+            } elseif ($request->filled("existing_banner_{$i}")) {
+                $banners[] = $request->input("existing_banner_{$i}");
+            }
+        }
+        $shop->banners = $banners;
 
         $shop->save();
 
@@ -372,3 +368,5 @@ class DashboardController extends Controller
         return response()->json(['success' => false, 'message' => 'Table not found']);
     }
 }
+
+
