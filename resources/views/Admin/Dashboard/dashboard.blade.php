@@ -1544,9 +1544,9 @@ handleDraftImageUpload(event, index) {
                     formData.append('is_banner_active', this.settings.is_banner_active ? 1 : 0);
                     for (let i = 0; i < 3; i++) {
                         if (this.settings.bannerFiles[i]) {
-                            formData.append(anner_, this.settings.bannerFiles[i]);
+                            formData.append(`banner_${i}`, this.settings.bannerFiles[i]);
                         } else if (this.settings.bannerPaths[i]) {
-                            formData.append(existing_banner_, this.settings.bannerPaths[i]);
+                            formData.append(`existing_banner_${i}`, this.settings.bannerPaths[i]);
                         }
                     }
                     formData.append('operating_hours', JSON.stringify(this.settings.operating_hours));
