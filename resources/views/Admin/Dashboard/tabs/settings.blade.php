@@ -115,4 +115,55 @@
                     </div>
                 </form>
             </div>
+
+            <!-- GoFood / GoBiz Integration -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-3xl mt-8">
+                <div class="flex items-center gap-4 mb-6">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e6/GoFood_logo.svg" alt="GoFood" class="h-8">
+                    <h3 class="font-bold text-gray-800 text-xl">Integrasi GoFood (GoBiz)</h3>
+                </div>
+                
+                <p class="text-gray-500 text-sm mb-6">Hubungkan aplikasi POS Anda dengan GoFood untuk menerima pesanan secara otomatis dan menyinkronkan katalog menu.</p>
+                
+                @if(auth()->user()->shop->gobiz_access_token)
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-green-800">Toko Terhubung dengan GoFood</p>
+                                <p class="text-xs text-green-600">ID Outlet: {{ auth()->user()->shop->gobiz_outlet_id ?? 'Belum disinkronisasi' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form action="{{ route('admin.integrations.gobiz.sync') }}" method="POST" class="flex flex-col gap-4">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">ID Outlet GoBiz Anda</label>
+                            <input type="text" name="outlet_id" value="{{ auth()->user()->shop->gobiz_outlet_id }}" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none" placeholder="Masukkan ID Outlet GoBiz" required>
+                        </div>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-green-700 transition-colors self-start">
+                            <i class="fas fa-sync-alt mr-2"></i> Sinkronisasi Katalog Menu Sekarang
+                        </button>
+                    </form>
+                @else
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-yellow-800">Toko Belum Terhubung</p>
+                                <p class="text-xs text-yellow-600">Anda perlu melakukan otorisasi akun GoBiz Anda terlebih dahulu.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ route('admin.integrations.gobiz.connect') }}" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-red-700 transition-colors inline-block">
+                        Hubungkan dengan GoFood
+                    </a>
+                @endif
+            </div>
         </div>

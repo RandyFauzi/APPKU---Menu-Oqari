@@ -24,6 +24,11 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/admin/api/crew/{id}', [DashboardController::class, 'updateCrew']);
     Route::post('/admin/api/table', [DashboardController::class, 'saveTable']);
     Route::put('/admin/api/table', [DashboardController::class, 'updateTableQR']);
+
+    // GoBiz Integration Routes
+    Route::get('/admin/integrations/gobiz/connect', [GoBizIntegrationController::class, 'connect'])->name('admin.integrations.gobiz.connect');
+    Route::get('/admin/integrations/gobiz/callback', [GoBizIntegrationController::class, 'callback'])->name('admin.integrations.gobiz.callback');
+    Route::post('/admin/integrations/gobiz/sync', [GoBizIntegrationController::class, 'syncCatalog'])->name('admin.integrations.gobiz.sync');
 });
 
 Route::middleware('auth')->group(function () {
@@ -34,6 +39,7 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+use App\Http\Controllers\Admin\GoBizIntegrationController;
 use App\Http\Controllers\ShopController;
 
 Route::get('/{slug}', [ShopController::class, 'show'])->name('shop.menu');

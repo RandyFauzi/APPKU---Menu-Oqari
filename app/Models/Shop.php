@@ -19,10 +19,15 @@ class Shop extends Model
         'whatsapp_number',
         'maps_link',
         'banners',
+        'gobiz_outlet_id',
+        'gobiz_access_token',
+        'gobiz_refresh_token',
+        'gobiz_token_expires_at',
     ];
 
     protected $casts = [
         'banners' => 'array',
         'is_open' => 'boolean',
+        'gobiz_token_expires_at' => 'datetime',
     ];
 }

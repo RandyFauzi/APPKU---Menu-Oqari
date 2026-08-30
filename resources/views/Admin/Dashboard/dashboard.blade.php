@@ -155,6 +155,7 @@
         
         <!-- VIEW: ANALYTICS (OWNER) -->
         @include('Admin.Dashboard.tabs.analytics')
+        @include('Admin.Dashboard.tabs.report')
         @include('Admin.Dashboard.tabs.qr')
         @include('Admin.Dashboard.tabs.crew')
         @include('Admin.Dashboard.tabs.settings')
@@ -796,13 +797,48 @@ handleDraftImageUpload(event, index) {
                 },
                 tabs: [
                     { id: 'analytics', name: 'Dashboard Analytics', icon: 'fas fa-chart-pie' },
+                      { id: 'report', name: 'Laporan Keuangan', icon: 'fas fa-book' },
                     { id: 'orders', name: 'Live Orders', icon: 'fas fa-receipt' },
                     { id: 'menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
                     { id: 'qr', name: 'Table & QR', icon: 'fas fa-qrcode' },
                     { id: 'crew', name: 'Crew Management', icon: 'fas fa-users' },
                     { id: 'settings', name: 'Toko & Branding', icon: 'fas fa-store' },
                 ],
-                tables: [],
+                                tables: [],
+                reportPeriod: 'all',
+                get reportData() {
+                    const now = new Date();
+                    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    const startOfWeek = new Date(startOfToday);
+                    startOfWeek.setDate(startOfToday.getDate() - now.getDay());
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const completed = this.orders.filter(o => o.status === 'Completed');
+                    let daily = { count: 0, total: 0 };
+                    let weekly = { count: 0, total: 0 };
+                    let monthly = { count: 0, total: 0 };
+                    completed.forEach(o => {
+                        const d = new Date(o.created_at);
+                        if (d >= startOfToday) { daily.count++; daily.total += Number(o.total || 0); }
+                        if (d >= startOfWeek) { weekly.count++; weekly.total += Number(o.total || 0); }
+                        if (d >= startOfMonth) { monthly.count++; monthly.total += Number(o.total || 0); }
+                    });
+                    return { daily, weekly, monthly };
+                },
+                get filteredReportOrders() {
+                    const now = new Date();
+                    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    const startOfWeek = new Date(startOfToday);
+                    startOfWeek.setDate(startOfToday.getDate() - now.getDay());
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                    return this.orders.filter(o => {
+                        if (o.status !== 'Completed') return false;
+                        const d = new Date(o.created_at);
+                        if (this.reportPeriod === 'daily') return d >= startOfToday;
+                        if (this.reportPeriod === 'weekly') return d >= startOfWeek;
+                        if (this.reportPeriod === 'monthly') return d >= startOfMonth;
+                        return true;
+                    });
+                },
                 getQRUrl(tableCode, token = '') {
                     const slug = window.INITIAL_DATA.shop?.slug || 'menu';
                     const baseUrl = window.location.origin + '/' + slug;
