@@ -3,8 +3,7 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold text-[#164A35]">Laporan Keuangan</h2>
-            <p class="text-sm text-[#777873] mt-1">Ringkasan penjualan Harian, Mingguan, dan Bulanan</p>
+            <p class="text-sm font-medium text-[#777873]">Ringkasan penjualan Harian, Mingguan, dan Bulanan</p>
         </div>
         <div class="flex gap-2">
             <button @click="exportCSV" class="px-4 py-2 bg-[#F8F7F3] border border-[#E3E1DC] text-[#777873] rounded-xl font-bold hover:bg-gray-100 transition-colors flex items-center gap-2">
@@ -19,19 +18,19 @@
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Harian -->
-        <div class="bg-gradient-to-br from-[#164A35] to-[#1e5a42] rounded-2xl p-6 text-white shadow-md relative overflow-hidden group">
+        <div class="bg-gradient-to-br from-[#164A35] to-[#1e5f44] rounded-2xl p-6 text-white shadow-md relative overflow-hidden group">
             <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
             <div class="flex items-center gap-4 mb-4 relative z-10">
                 <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                    <i class="fas fa-sun text-xl"></i>
+                    <i class="fas fa-sun text-xl text-white"></i>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-white/80">Pendapatan Hari Ini</p>
-                    <h3 class="text-2xl font-black tracking-tight" x-text="'Rp ' + formatNum(reportData.daily.total)"></h3>
+                    <h3 class="text-2xl font-black tracking-tight text-white" x-text="'Rp ' + formatNum(reportData.daily.total)"></h3>
                 </div>
             </div>
             <div class="text-sm text-white/80 relative z-10 flex items-center gap-2 border-t border-white/20 pt-3 mt-2">
-                <i class="fas fa-receipt text-xs"></i>
+                <i class="fas fa-receipt text-xs text-white/80"></i>
                 <span><strong class="text-white" x-text="reportData.daily.count"></strong> transaksi sukses</span>
             </div>
         </div>
@@ -41,15 +40,15 @@
             <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
             <div class="flex items-center gap-4 mb-4 relative z-10">
                 <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                    <i class="fas fa-calendar-week text-xl"></i>
+                    <i class="fas fa-calendar-week text-xl text-white"></i>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-white/80">Pendapatan Minggu Ini</p>
-                    <h3 class="text-2xl font-black tracking-tight" x-text="'Rp ' + formatNum(reportData.weekly.total)"></h3>
+                    <h3 class="text-2xl font-black tracking-tight text-white" x-text="'Rp ' + formatNum(reportData.weekly.total)"></h3>
                 </div>
             </div>
             <div class="text-sm text-white/80 relative z-10 flex items-center gap-2 border-t border-white/20 pt-3 mt-2">
-                <i class="fas fa-receipt text-xs"></i>
+                <i class="fas fa-receipt text-xs text-white/80"></i>
                 <span><strong class="text-white" x-text="reportData.weekly.count"></strong> transaksi sukses</span>
             </div>
         </div>
@@ -59,15 +58,15 @@
             <div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
             <div class="flex items-center gap-4 mb-4 relative z-10">
                 <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                    <i class="fas fa-calendar-alt text-xl"></i>
+                    <i class="fas fa-calendar-alt text-xl text-white"></i>
                 </div>
                 <div>
                     <p class="text-sm font-medium text-white/80">Pendapatan Bulan Ini</p>
-                    <h3 class="text-2xl font-black tracking-tight" x-text="'Rp ' + formatNum(reportData.monthly.total)"></h3>
+                    <h3 class="text-2xl font-black tracking-tight text-white" x-text="'Rp ' + formatNum(reportData.monthly.total)"></h3>
                 </div>
             </div>
             <div class="text-sm text-white/80 relative z-10 flex items-center gap-2 border-t border-white/20 pt-3 mt-2">
-                <i class="fas fa-receipt text-xs"></i>
+                <i class="fas fa-receipt text-xs text-white/80"></i>
                 <span><strong class="text-white" x-text="reportData.monthly.count"></strong> transaksi sukses</span>
             </div>
         </div>
@@ -82,12 +81,32 @@
             </div>
             <div class="flex items-center gap-3">
                 <span class="text-sm font-semibold text-[#777873]">Periode:</span>
-                <select x-model="reportPeriod" class="text-sm font-semibold border-[#E3E1DC] bg-white rounded-xl focus:ring-[#164A35] focus:border-[#164A35] py-2 px-4 shadow-sm">
-                    <option value="daily">Hari Ini</option>
-                    <option value="weekly">Minggu Ini</option>
-                    <option value="monthly">Bulan Ini</option>
-                    <option value="all">Semua Waktu</option>
-                </select>
+                <!-- Custom Dropdown -->
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" @click.away="open = false" type="button" class="flex items-center justify-between w-40 text-sm font-semibold border border-[#E3E1DC] bg-white rounded-xl focus:ring-2 focus:ring-[#164A35]/20 focus:border-[#164A35] py-2.5 px-4 shadow-sm transition-all hover:bg-gray-50">
+                        <span x-text="reportPeriod === 'daily' ? 'Hari Ini' : (reportPeriod === 'weekly' ? 'Minggu Ini' : (reportPeriod === 'monthly' ? 'Bulan Ini' : 'Semua Waktu'))" class="text-[#202522]"></span>
+                        <i class="fas fa-chevron-down text-[10px] text-gray-400 ml-2 transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
+                    </button>
+                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-[#E3E1DC] py-1.5 z-50 overflow-hidden">
+                        <button type="button" @click="reportPeriod = 'daily'; open = false" class="w-full text-left px-4 py-2.5 text-sm font-medium transition-colors flex items-center justify-between group" :class="reportPeriod === 'daily' ? 'bg-[#F8F7F3] text-[#164A35]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+                            <span>Hari Ini</span>
+                            <i class="fas fa-check text-[#164A35] text-xs" x-show="reportPeriod === 'daily'"></i>
+                        </button>
+                        <button type="button" @click="reportPeriod = 'weekly'; open = false" class="w-full text-left px-4 py-2.5 text-sm font-medium transition-colors flex items-center justify-between group" :class="reportPeriod === 'weekly' ? 'bg-[#F8F7F3] text-[#164A35]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+                            <span>Minggu Ini</span>
+                            <i class="fas fa-check text-[#164A35] text-xs" x-show="reportPeriod === 'weekly'"></i>
+                        </button>
+                        <button type="button" @click="reportPeriod = 'monthly'; open = false" class="w-full text-left px-4 py-2.5 text-sm font-medium transition-colors flex items-center justify-between group" :class="reportPeriod === 'monthly' ? 'bg-[#F8F7F3] text-[#164A35]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+                            <span>Bulan Ini</span>
+                            <i class="fas fa-check text-[#164A35] text-xs" x-show="reportPeriod === 'monthly'"></i>
+                        </button>
+                        <div class="h-px bg-[#E3E1DC] my-1 mx-2"></div>
+                        <button type="button" @click="reportPeriod = 'all'; open = false" class="w-full text-left px-4 py-2.5 text-sm font-medium transition-colors flex items-center justify-between group" :class="reportPeriod === 'all' ? 'bg-[#F8F7F3] text-[#164A35]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'">
+                            <span>Semua Waktu</span>
+                            <i class="fas fa-check text-[#164A35] text-xs" x-show="reportPeriod === 'all'"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="overflow-x-auto">

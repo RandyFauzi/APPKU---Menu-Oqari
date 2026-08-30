@@ -806,6 +806,9 @@ handleDraftImageUpload(event, index) {
                 ],
                                 tables: [],
                 reportPeriod: 'all',
+                formatNum(num) {
+                    return new Intl.NumberFormat('id-ID').format(num);
+                },
                 get reportData() {
                     const now = new Date();
                     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
