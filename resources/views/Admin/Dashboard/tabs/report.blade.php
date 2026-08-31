@@ -127,8 +127,8 @@
                     <template x-for="order in filteredReportOrders" :key="order.id">
                         <tr class="hover:bg-[#F8F7F3] transition-colors group">
                             <td class="px-6 md:px-8 py-5 text-[#777873] whitespace-nowrap">
-                                <span class="font-bold text-[#202522]" x-text="new Date(order.created_at).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})"></span><br>
-                                <span class="text-xs font-medium" x-text="new Date(order.created_at).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})"></span>
+                                <span class="font-bold text-[#202522]" x-text="new Date((order.time || '').replace(' ', 'T')).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})"></span><br>
+                                <span class="text-xs font-medium" x-text="new Date((order.time || '').replace(' ', 'T')).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})"></span>
                             </td>
                             <td class="px-6 md:px-8 py-5">
                                 <span class="font-black text-[#164A35] bg-[#DDEBDD] px-2.5 py-1.5 rounded-lg text-xs tracking-wide" x-text="'#' + order.id"></span>
@@ -168,3 +168,5 @@
         </div>
     </div>
 </div>
+
+

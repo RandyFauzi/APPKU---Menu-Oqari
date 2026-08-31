@@ -848,7 +848,7 @@ handleDraftImageUpload(event, index) {
                     let weekly = { count: 0, total: 0 };
                     let monthly = { count: 0, total: 0 };
                     completed.forEach(o => {
-                        const d = new Date(o.created_at);
+                        const d = new Date(o.time.replace(' ', 'T'));
                         if (d >= startOfToday) { daily.count++; daily.total += Number(o.total || 0); }
                         if (d >= startOfWeek) { weekly.count++; weekly.total += Number(o.total || 0); }
                         if (d >= startOfMonth) { monthly.count++; monthly.total += Number(o.total || 0); }
@@ -863,7 +863,7 @@ handleDraftImageUpload(event, index) {
                     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
                     return this.orders.filter(o => {
                         if (o.status !== 'Completed') return false;
-                        const d = new Date(o.created_at);
+                        const d = new Date(o.time.replace(' ', 'T'));
                         if (this.reportPeriod === 'daily') return d >= startOfToday;
                         if (this.reportPeriod === 'weekly') return d >= startOfWeek;
                         if (this.reportPeriod === 'monthly') return d >= startOfMonth;
@@ -1741,6 +1741,7 @@ handleDraftImageUpload(event, index) {
     </a>
 </body>
 </html>
+
 
 
 
