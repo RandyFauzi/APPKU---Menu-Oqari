@@ -1,4 +1,4 @@
-﻿<div x-show="currentTab === 'profile'" x-cloak class="space-y-6">
+<div x-show="currentTab === 'profile'" x-cloak class="space-y-6">
     <div class="flex justify-between items-center mb-6">
         <div>
             <h2 class="text-[28px] font-bold text-[#164A35] leading-tight" style="font-family: 'Playfair Display', serif;">Profile Settings</h2>

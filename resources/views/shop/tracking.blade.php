@@ -8,7 +8,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     @if(isset($shop) && $shop->logo_url)
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $shop->logo_url) }}">
+        <link rel="icon" type="image/png" href="{{ asset('uploads/' . $shop->logo_url) }}">
     @else
         <link rel="icon" type="image/webp" href="{{ asset('Pavico.webp') }}">
     @endif

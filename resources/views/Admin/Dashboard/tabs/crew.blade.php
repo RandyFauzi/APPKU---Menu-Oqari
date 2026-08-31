@@ -1,4 +1,4 @@
-ï»¿<div x-show="currentTab === 'crew'" x-cloak class="flex-grow p-8 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans">
+<div x-show="currentTab === 'crew'" x-cloak class="flex-grow p-8 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans">
     <div class="max-w-5xl mx-auto">
         <div class="flex justify-between items-center mb-8">
             <p class="text-[#777873] text-[16px]">Manage your team members and roles.</p>
@@ -99,7 +99,7 @@
                 </div>
                 <div>
                     <label class="block text-[13px] font-bold text-[#777873] mb-1.5 uppercase tracking-wide">Password <span class="text-[10px] lowercase normal-case text-gray-400">(Biarkan kosong jika tidak diubah)</span></label>
-                    <input type="password" x-model="editCrewData.password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-xl px-4 py-3 text-sm focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
+                    <input type="password" x-model="editCrewData.password" placeholder="••••••••" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-xl px-4 py-3 text-sm focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
                 </div>
                 <div>
                     <label class="block text-[13px] font-bold text-[#777873] mb-1.5 uppercase tracking-wide">Role</label>

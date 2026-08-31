@@ -10,7 +10,7 @@
     
     <!-- Favicon -->
     @if(isset($shop) && $shop->logo_url)
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $shop->logo_url) }}">
+        <link rel="icon" type="image/png" href="{{ asset('uploads/' . $shop->logo_url) }}">
     @else
         <link rel="icon" type="image/webp" href="{{ asset('Pavico.webp') }}">
     @endif
@@ -69,7 +69,7 @@
     <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg">
         <div class="flex items-center gap-3 mb-2">
             @if(isset($shop) && $shop->logo_url)
-                <img src="{{ asset('storage/' . $shop->logo_url) }}" alt="Logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
+                <img src="{{ asset('uploads/' . $shop->logo_url) }}" alt="Logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
             @else
                 <img src="{{ asset('Pavico.webp') }}" alt="Logo" class="w-10 h-10 object-contain">
             @endif

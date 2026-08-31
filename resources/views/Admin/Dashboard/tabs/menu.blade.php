@@ -1,4 +1,4 @@
-﻿<div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-10 pt-6 overflow-y-auto hide-scroll bg-brewlybg">
+<div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-10 pt-6 overflow-y-auto hide-scroll bg-brewlybg">
             <!-- Main Menu UI -->
             <div class="flex flex-col gap-8">
                 <p class="text-brewlymuted text-sm">Add your coffee, food, and drinks to create a beautiful menu for your shop.</p>

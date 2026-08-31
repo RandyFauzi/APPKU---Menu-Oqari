@@ -7,7 +7,7 @@
     
     <!-- Favicon -->
     @if(isset($shop) && $shop->logo_url)
-        <link rel="icon" type="image/png" href="{{ asset('storage/' . $shop->logo_url) }}">
+        <link rel="icon" type="image/png" href="{{ asset('uploads/' . $shop->logo_url) }}">
     @else
         <link rel="icon" type="image/webp" href="{{ asset('Pavico.webp') }}">
     @endif
@@ -59,7 +59,7 @@
     <!-- SPLASH SCREEN -->
     <div id="splash-screen" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-700">
         <div class="w-28 h-28 flex items-center justify-center p-2 mb-4 animate-bounce">
-            <img src="{{ $shop->logo_url ? asset('storage/' . $shop->logo_url) : asset('Pavico.webp') }}" alt="Logo" class="w-full h-full object-contain">
+            <img src="{{ $shop->logo_url ? asset('uploads/' . $shop->logo_url) : asset('Pavico.webp') }}" alt="Logo" class="w-full h-full object-contain">
         </div>
         <h1 class="text-primary text-3xl font-extrabold tracking-widest uppercase">{{ $shop->name }}</h1>
         <p class="text-gray-500 text-sm mt-1 font-medium tracking-wider uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</p>
@@ -69,7 +69,7 @@
     <header class="bg-white pt-5 pb-3 px-4 z-30 relative">
         <div class="flex items-center justify-between px-1 pt-2 pb-2">
             <div class="flex items-center gap-2">
-                <img src="{{ $shop->logo_url ? asset('storage/' . $shop->logo_url) : asset('Pavico.webp') }}" alt="{{ $shop->name }} Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg">
+                <img src="{{ $shop->logo_url ? asset('uploads/' . $shop->logo_url) : asset('Pavico.webp') }}" alt="{{ $shop->name }} Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg">
                 <div class="flex flex-col">
                     <span class="font-extrabold text-[15px] leading-tight tracking-tight text-primary uppercase">{{ $shop->name }}</span>
                     <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</span>
@@ -192,7 +192,7 @@
                 <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay">
                 <div class="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent"></div>
                 <div class="absolute -bottom-8 w-20 h-20 bg-white rounded-full p-2.5 shadow-[0_4px_10px_rgba(0,0,0,0.1)] border-[3px] border-white z-10 flex items-center justify-center left-1/2 -translate-x-1/2">
-                    <img src="{{ $shop->logo_url ? asset('storage/' . $shop->logo_url) : asset('Pavico.webp') }}" alt="Logo" class="w-full h-full object-contain rounded-full">
+                    <img src="{{ $shop->logo_url ? asset('uploads/' . $shop->logo_url) : asset('Pavico.webp') }}" alt="Logo" class="w-full h-full object-contain rounded-full">
                 </div>
             </div>
             
