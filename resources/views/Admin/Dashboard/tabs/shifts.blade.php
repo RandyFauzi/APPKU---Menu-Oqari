@@ -1,14 +1,12 @@
-<div x-show="currentTab === 'shifts'" x-cloak>
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h2 class="text-[32px] font-bold text-[#164A35]" style="font-family: 'Playfair Display', serif;">Jadwal Shift Crew</h2>
-            <p class="text-[#777873] mt-2">Atur jadwal kerja harian untuk seluruh pegawai.</p>
+<div x-show="currentTab === 'shifts'" x-cloak class="flex-grow p-8 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans">
+    <div class="max-w-5xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <p class="text-[#777873] text-[16px]">Atur jadwal kerja harian untuk seluruh pegawai.</p>
+            <button @click="showAddShiftModal = true; newShift = { id: null, user_id: '', date: '', start_time: '', end_time: '', notes: '' }" 
+                x-show="user.role === 'admin'" class="bg-[#164A35] text-white px-5 py-2.5 rounded-[12px] font-bold text-[14px] hover:bg-[#0f3526] transition-colors flex items-center gap-2 shadow-sm">
+                <i class="fas fa-calendar-plus"></i> Tambah Shift
+            </button>
         </div>
-        <button @click="showAddShiftModal = true; newShift = { id: null, user_id: '', date: '', start_time: '', end_time: '', notes: '' }" 
-            x-show="user.role === 'admin'" class="bg-[#164A35] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#0f3526] transition-colors flex items-center gap-2 shadow-lg shadow-[#164A35]/20">
-            <i class="fas fa-calendar-plus"></i> Tambah Shift
-        </button>
-    </div>
 
     <div class="bg-white rounded-[24px] border border-[#E3E1DC] overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
@@ -83,5 +81,6 @@
                 </div>
             </form>
         </div>
+    </div>
     </div>
 </div>

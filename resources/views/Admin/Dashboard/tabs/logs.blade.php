@@ -1,13 +1,11 @@
-<div x-show="currentTab === 'logs'" x-cloak>
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h2 class="text-[32px] font-bold text-[#164A35]" style="font-family: 'Playfair Display', serif;">Log Aktivitas & Keamanan</h2>
-            <p class="text-[#777873] mt-2">Audit trail untuk memantau semua aktivitas perubahan oleh pegawai.</p>
+<div x-show="currentTab === 'logs'" x-cloak class="flex-grow p-8 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans">
+    <div class="max-w-5xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <p class="text-[#777873] text-[16px]">Audit trail untuk memantau semua aktivitas perubahan oleh pegawai.</p>
+            <button @click="fetchLogs" class="bg-white border border-[#E3E1DC] text-[#164A35] px-4 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-colors shadow-sm">
+                <i class="fas fa-sync-alt mr-2"></i> Segarkan
+            </button>
         </div>
-        <button @click="fetchLogs" class="bg-white border border-[#E3E1DC] text-[#164A35] px-4 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition-colors shadow-sm">
-            <i class="fas fa-sync-alt mr-2"></i> Segarkan
-        </button>
-    </div>
 
     <div class="bg-white rounded-[24px] border border-[#E3E1DC] overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
@@ -37,5 +35,6 @@
                 </tbody>
             </table>
         </div>
+    </div>
     </div>
 </div>
