@@ -90,8 +90,22 @@
             </template>
         </nav>
         
+        <!-- Store Status Toggle -->
+        <div class="mt-auto mb-2 bg-[#F8F7F3] p-4 rounded-2xl border border-[#E3E1DC] flex flex-col gap-2">
+            <div>
+                <label class="block text-[13px] font-bold text-[#202522]">Toko Buka Sekarang?</label>
+                <p class="text-[10px] text-[#777873] leading-tight mt-0.5">Matikan untuk menutup toko manual.</p>
+            </div>
+            <div @click="settings.is_open = !settings.is_open; saveSettings()" class="relative inline-flex items-center cursor-pointer mt-1">
+                <div class="w-12 h-6 rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_open ? 'bg-[#164A35]' : 'bg-gray-300'">
+                    <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out absolute top-[4px] left-[4px]" :class="settings.is_open ? 'translate-x-6' : 'translate-x-0'"></div>
+                </div>
+                <span class="ml-2 text-xs font-bold" :class="settings.is_open ? 'text-[#164A35]' : 'text-gray-400'" x-text="settings.is_open ? 'Buka' : 'Tutup'"></span>
+            </div>
+        </div>
+
         <!-- Promo Card -->
-        <div class="bg-[#F8F7F3] rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mt-auto mb-2 border border-[#E3E1DC]">
+        <div class="bg-[#F8F7F3] rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mb-2 border border-[#E3E1DC]">
             <h4 class="font-bold text-[16px] leading-tight z-10 text-[#164A35]">Brew Better Days</h4>
             <p class="text-[12px] text-[#777873] z-10 leading-snug w-4/5">Track, analyze and grow your cafe effortlessly.</p>
             <img src="https://images.unsplash.com/photo-1550133730-695473e544be?w=100&fit=crop" class="absolute -bottom-4 -right-4 w-20 h-20 object-cover rounded-full opacity-70 border-4 border-white shadow-sm">
@@ -715,7 +729,7 @@ handleDraftImageUpload(event, index) {
                     name: window.INITIAL_DATA.shop?.name || '',
                     slug: window.INITIAL_DATA.shop?.slug || '',
                     primary_color: window.INITIAL_DATA.shop?.primary_color || '#1E5A7A',
-                    logoPreview: window.INITIAL_DATA.shop?.logo_url ? '/storage/' + window.INITIAL_DATA.shop.logo_url : '',
+                    logoPreview: window.INITIAL_DATA.shop?.logo_url ? '/uploads/' + window.INITIAL_DATA.shop.logo_url : '',
                     logoFile: null,
                     slogan: window.INITIAL_DATA.shop?.slogan || '',
                     is_open: window.INITIAL_DATA.shop?.is_open ?? true,
@@ -725,7 +739,7 @@ handleDraftImageUpload(event, index) {
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
                     maps_link: window.INITIAL_DATA.shop?.maps_link || '',
                     is_banner_active: window.INITIAL_DATA.shop?.is_banner_active ?? true,
-                      banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? '/storage/' + b : null).concat([null, null, null]).slice(0, 3),
+                      banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? '/uploads/' + b : null).concat([null, null, null]).slice(0, 3),
                       bannerFiles: [null, null, null],
                       bannerPaths: (window.INITIAL_DATA.shop?.banners || []).concat([null, null, null]).slice(0, 3),
                     operating_hours: window.INITIAL_DATA.shop?.operating_hours || {
@@ -1001,7 +1015,7 @@ handleDraftImageUpload(event, index) {
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
                         this.settings.primary_color = window.INITIAL_DATA.shop.primary_color || '#1E5A7A';
                         if (window.INITIAL_DATA.shop.logo_url) {
-                            this.settings.logoPreview = '/storage/' + window.INITIAL_DATA.shop.logo_url + '?v=' + new Date(window.INITIAL_DATA.shop.updated_at).getTime();
+                            this.settings.logoPreview = '/uploads/' + window.INITIAL_DATA.shop.logo_url + '?v=' + new Date(window.INITIAL_DATA.shop.updated_at).getTime();
                         }
                     }
                     
@@ -1028,7 +1042,7 @@ handleDraftImageUpload(event, index) {
                         ...m,
                         categoryId: m.category_name,
                         desc: m.description,
-                        image: m.image_url ? ('/storage/' + m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
+                        image: m.image_url ? ('/uploads/' + m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
                         tags: m.tags || []
                     }));
                 },
@@ -1086,13 +1100,13 @@ handleDraftImageUpload(event, index) {
                                     item.desc = this.newMenu.desc;
                                     item.categoryId = this.newMenu.categoryId;
                                     if (data.menu.image_url) {
-                                        item.image = '/storage/' + data.menu.image_url + '?v=' + Date.now();
+                                        item.image = '/uploads/' + data.menu.image_url + '?v=' + Date.now();
                                     }
                                 }
                             } else {
                                 data.menu.categoryId = data.menu.category_name;
                                 data.menu.desc = data.menu.description;
-                                data.menu.image = data.menu.image_url ? '/storage/' + data.menu.image_url : null;
+                                data.menu.image = data.menu.image_url ? '/uploads/' + data.menu.image_url : null;
                                 this.menuItems.unshift(data.menu);
                             }
                             this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '' };
@@ -1223,7 +1237,7 @@ handleDraftImageUpload(event, index) {
                             name: i.product?.name || 'Produk',
                             qty: i.quantity,
                             price: parseFloat(i.price),
-                            image: i.product?.image_url ? ('/storage/' + i.product.image_url) : null,
+                            image: i.product?.image_url ? ('/uploads/' + i.product.image_url) : null,
                             desc: i.product?.description || ''
                         }))
                     };
@@ -1277,7 +1291,7 @@ handleDraftImageUpload(event, index) {
                                 name: i.product?.name || 'Produk',
                                 qty: i.quantity,
                                 price: parseFloat(i.price),
-                                image: i.product?.image_url ? ('/storage/' + i.product.image_url) : null,
+                                image: i.product?.image_url ? ('/uploads/' + i.product.image_url) : null,
                                 desc: i.product?.description || ''
                             }))
                         }));
@@ -1635,7 +1649,7 @@ handleDraftImageUpload(event, index) {
                         if (data.success) {
                             this.addToast('Pengaturan berhasil disimpan!', 'success');
                             if (data.logo_url) {
-                                this.settings.logoPreview = '/storage/' + data.logo_url;
+                                this.settings.logoPreview = '/uploads/' + data.logo_url;
                                 this.settings.logoFile = null;
                             }
                         } else {

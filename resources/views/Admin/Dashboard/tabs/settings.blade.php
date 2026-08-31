@@ -144,21 +144,6 @@
                         <p class="text-xs text-[#777873]">Atur jam buka otomatis dan sosial media.</p>
                     </div>
                     
-                    <!-- Toko Buka Toggle -->
-                    <div class="p-6 border-b border-[#E3E1DC]">
-                        <div class="flex items-center justify-between bg-[#F8F7F3] p-5 rounded-2xl border border-[#E3E1DC]">
-                            <div>
-                                <label class="block text-sm font-bold text-[#202522]">Toko Buka Sekarang?</label>
-                                <p class="text-xs text-[#777873] mt-1">Matikan untuk menutup toko secara manual darurat.</p>
-                            </div>
-                            <div @click="settings.is_open = !settings.is_open" class="relative inline-flex items-center cursor-pointer p-1">
-                                <div class="w-14 h-7 rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_open ? 'bg-[#164A35]' : 'bg-gray-300'">
-                                    <div class="w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out absolute top-[4px] left-[4px]" :class="settings.is_open ? 'translate-x-7' : 'translate-x-0'"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Jam Operasional -->
                     <div class="p-6 border-b border-[#E3E1DC]">
                         <h4 class="text-sm font-bold text-[#202522] mb-4">Jadwal Operasional Otomatis</h4>

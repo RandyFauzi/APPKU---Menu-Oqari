@@ -36,7 +36,7 @@
                         price: Number(item.price),
                         desc: item.description,
                         categoryId: item.category_name,
-                        img: item.image_url ? '/storage/' + item.image_url : '/Assests/null image.webp',
+                        img: item.image_url ? '/uploads/' + item.image_url : '/Assests/null image.webp',
                         soldOut: item.is_sold_out
                     }));
                 }
