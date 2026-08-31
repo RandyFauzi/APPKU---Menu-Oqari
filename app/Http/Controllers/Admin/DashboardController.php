@@ -18,6 +18,19 @@ use Illuminate\Support\Str;
 
 class DashboardController extends Controller
 {
+    private function logActivity($action, $description)
+    {
+        if (class_exists(ActivityLog::class)) {
+            ActivityLog::create([
+                'shop_id' => Auth::user()->shop_id,
+                'user_id' => Auth::id(),
+                'action' => $action,
+                'description' => $description,
+                'ip_address' => request()->ip(),
+            ]);
+        }
+    }
+
     public function index()
     {
         $user = Auth::user();

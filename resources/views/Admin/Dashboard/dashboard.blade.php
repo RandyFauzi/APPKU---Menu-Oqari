@@ -54,7 +54,8 @@
         [x-cloak] { display: none !important; }
         .dashed-box { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23CFCFCF' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"); border-radius: 16px; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>`n</head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 <body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()">
     
 
