@@ -733,7 +733,7 @@ handleDraftImageUpload(event, index) {
                     logoFile: null,
                     slogan: window.INITIAL_DATA.shop?.slogan || '',
                     is_open: window.INITIAL_DATA.shop?.is_open ?? true,
-                    theme_style: window.INITIAL_DATA.shop?.theme_style || 'list',
+                    theme_style: ['list', 'grid'].includes(window.INITIAL_DATA.shop?.theme_style) ? window.INITIAL_DATA.shop?.theme_style : 'list',
                     font_family: window.INITIAL_DATA.shop?.font_family || 'poppins',
                     instagram_link: window.INITIAL_DATA.shop?.instagram_link || '',
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
@@ -1611,16 +1611,16 @@ handleDraftImageUpload(event, index) {
                     this.isSavingSettings = true;
                     
                     const formData = new FormData();
-                    formData.append('name', this.settings.name);
-                    formData.append('slug', this.settings.slug);
-                    formData.append('primary_color', this.settings.primary_color);
-                    formData.append('slogan', this.settings.slogan);
+                    formData.append('name', this.settings.name || '');
+                    formData.append('slug', this.settings.slug || '');
+                    formData.append('primary_color', this.settings.primary_color || '');
+                    formData.append('slogan', this.settings.slogan || '');
                     formData.append('is_open', this.settings.is_open ? 1 : 0);
-                    formData.append('theme_style', this.settings.theme_style);
-                    formData.append('font_family', this.settings.font_family);
-                    formData.append('instagram_link', this.settings.instagram_link);
-                    formData.append('whatsapp_number', this.settings.whatsapp_number);
-                    formData.append('maps_link', this.settings.maps_link);
+                    formData.append('theme_style', this.settings.theme_style || '');
+                    formData.append('font_family', this.settings.font_family || '');
+                    formData.append('instagram_link', this.settings.instagram_link || '');
+                    formData.append('whatsapp_number', this.settings.whatsapp_number || '');
+                    formData.append('maps_link', this.settings.maps_link || '');
                     
                     if (this.settings.logoFile) {
                         formData.append('logo', this.settings.logoFile);
