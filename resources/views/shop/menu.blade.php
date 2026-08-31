@@ -101,6 +101,7 @@
     </div>
 
 
+    @if($shop->is_banner_active ?? true)
     <!-- Promo Carousel Section -->
     <div class="px-4 mb-8">
         <div class="relative bg-primary rounded-[20px] overflow-hidden shadow-lg h-56 group">
@@ -117,6 +118,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Categories Square Grid -->
     <div class="sticky top-0 bg-white z-20 pt-3 pb-3 border-b border-gray-100 shadow-sm">
