@@ -18,10 +18,22 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $shopId = $user->shop_id ?? Shop::first()->id ?? Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        
+        // JIKA USER BARU DAFTAR & BELUM PUNYA SHOP
         if (! $user->shop_id) {
-            $user->update(['shop_id' => $shopId]);
+            $newShop = Shop::create([
+                'name' => $user->name . ' Shop',
+                'slug' => \Illuminate\Support\Str::slug($user->name . '-' . uniqid()),
+                'primary_color' => '#1E5A7A', // Default color
+            ]);
+            
+            $user->update([
+                'shop_id' => $newShop->id,
+                'role' => 'admin' // Jadikan dia admin dari tokonya sendiri
+            ]);
         }
+        
+        $shopId = $user->shop_id;
         $shop = Shop::find($shopId);
 
         $menuItems = Product::where('shop_id', $shop->id)->get();
