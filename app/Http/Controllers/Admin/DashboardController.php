@@ -50,8 +50,23 @@ class DashboardController extends Controller
     public function updateOrderStatus(Request $request, $orderId)
     {
         $order = Order::findOrFail($orderId);
+        $oldStatus = $order->status;
         $order->status = $request->status;
         $order->save();
+
+        if (class_exists(\App\Models\ActivityLog::class)) {
+            $desc = $request->status === 'Batal' 
+                ? 'Membatalkan pesanan #' . $order->id 
+                : 'Mengubah status pesanan #' . $order->id . ' dari ' . $oldStatus . ' menjadi ' . $request->status;
+            
+            \App\Models\ActivityLog::create([
+                'shop_id' => auth()->user()->shop_id,
+                'user_id' => auth()->id(),
+                'action' => 'update_order_status',
+                'description' => $desc,
+                'ip_address' => request()->ip()
+            ]);
+        }
 
         return response()->json(['success' => true]);
     }
@@ -73,8 +88,19 @@ class DashboardController extends Controller
         $user = Auth::user();
         $menu = Product::where('shop_id', $user->shop_id)->where('id', $id)->first();
         if ($menu) {
+            $menuName = $menu->name;
             $menu->delete();
 
+            if (class_exists(\App\Models\ActivityLog::class)) {
+                \App\Models\ActivityLog::create([
+                    'shop_id' => $user->shop_id,
+                    'user_id' => $user->id,
+                    'action' => 'delete_menu',
+                    'description' => 'Menghapus menu: ' . $menuName,
+                    'ip_address' => request()->ip()
+                ]);
+            }
+            
             return response()->json(['success' => true]);
         }
 
@@ -366,6 +392,92 @@ class DashboardController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'Table not found']);
+    }
+
+    public function getLogs()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return response()->json([], 403);
+        }
+        $logs = \App\Models\ActivityLog::with('user')
+            ->where('shop_id', $user->shop_id)
+            ->orderBy('created_at', 'desc')
+            ->limit(50)
+            ->get()
+            ->map(function($log) {
+                return [
+                    'id' => $log->id,
+                    'user' => $log->user ? $log->user->name : 'Sistem',
+                    'action' => $log->action,
+                    'description' => $log->description,
+                    'time' => $log->created_at->format('d M Y H:i:s'),
+                ];
+            });
+        return response()->json($logs);
+    }
+
+    public function getShifts()
+    {
+        $user = Auth::user();
+        $shifts = \App\Models\CrewShift::with('user')
+            ->whereHas('user', function($q) use ($user) {
+                $q->where('shop_id', $user->shop_id);
+            })
+            ->orderBy('date', 'desc')
+            ->orderBy('start_time', 'asc')
+            ->get()
+            ->map(function($s) {
+                return [
+                    'id' => $s->id,
+                    'user_id' => $s->user_id,
+                    'user_name' => $s->user ? $s->user->name : '-',
+                    'date' => $s->date->format('Y-m-d'),
+                    'start_time' => \Carbon\Carbon::parse($s->start_time)->format('H:i'),
+                    'end_time' => \Carbon\Carbon::parse($s->end_time)->format('H:i'),
+                    'notes' => $s->notes
+                ];
+            });
+        return response()->json($shifts);
+    }
+
+    public function saveShift(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return response()->json(['success' => false], 403);
+        }
+
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required'
+        ]);
+
+        $shift = clone \App\Models\CrewShift::updateOrCreate(
+            ['id' => $request->id],
+            [
+                'user_id' => $request->user_id,
+                'date' => $request->date,
+                'start_time' => $request->start_time,
+                'end_time' => $request->end_time,
+                'notes' => $request->notes
+            ]
+        );
+
+        return response()->json(['success' => true]);
+    }
+
+    public function deleteShift($id)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return response()->json(['success' => false], 403);
+        }
+
+        \App\Models\CrewShift::where('id', $id)->delete();
+        return response()->json(['success' => true]);
     }
 }
 

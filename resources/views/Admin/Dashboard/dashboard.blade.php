@@ -158,6 +158,8 @@
         @include('Admin.Dashboard.tabs.report')
         @include('Admin.Dashboard.tabs.qr')
         @include('Admin.Dashboard.tabs.crew')
+        @include('Admin.Dashboard.tabs.shifts')
+        @include('Admin.Dashboard.tabs.logs')
         @include('Admin.Dashboard.tabs.settings')
         @include('Admin.Dashboard.tabs.profile')
 
@@ -815,6 +817,8 @@ handleDraftImageUpload(event, index) {
                     { id: 'menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
                     { id: 'qr', name: 'Table & QR', icon: 'fas fa-qrcode' },
                     { id: 'crew', name: 'Crew Management', icon: 'fas fa-users' },
+                    { id: 'shifts', name: 'Jadwal Shift', icon: 'fas fa-calendar-alt' },
+                    { id: 'logs', name: 'Log Aktivitas', icon: 'fas fa-history' },
                     { id: 'settings', name: 'Toko & Branding', icon: 'fas fa-store' },
                 ],
                                 tables: [],
@@ -965,7 +969,14 @@ handleDraftImageUpload(event, index) {
                                 chime.volume = 1;
                             }).catch(() => {});
                         }
+                        document.removeEventListener('click', unlockAudio);
                     };
+                    document.addEventListener('click', unlockAudio);
+                    
+                    this.loadMenu();
+                    this.fetchLiveOrders(true);
+                    this.fetchShifts();
+                    this.fetchLogs();
                     
                     document.body.addEventListener('click', unlockAudio, { once: true });
                     document.body.addEventListener('touchstart', unlockAudio, { once: true });
@@ -1284,6 +1295,65 @@ handleDraftImageUpload(event, index) {
                     } catch (e) {
                         console.error('fetchLiveOrders error:', e);
                     }
+                },
+                shifts: [],
+                logs: [],
+                showAddShiftModal: false,
+                newShift: { id: null, user_id: '', date: '', start_time: '', end_time: '', notes: '' },
+                async fetchShifts() {
+                    try {
+                        let res = await fetch('/admin/api/shifts');
+                        if (res.ok) this.shifts = await res.json();
+                    } catch (e) {}
+                },
+                async fetchLogs() {
+                    try {
+                        let res = await fetch('/admin/api/logs');
+                        if (res.ok) this.logs = await res.json();
+                    } catch (e) {}
+                },
+                async saveShift() {
+                    this.isSaving = true;
+                    try {
+                        let formData = new FormData();
+                        if (this.newShift.id) formData.append('id', this.newShift.id);
+                        formData.append('user_id', this.newShift.user_id);
+                        formData.append('date', this.newShift.date);
+                        formData.append('start_time', this.newShift.start_time);
+                        formData.append('end_time', this.newShift.end_time);
+                        if (this.newShift.notes) formData.append('notes', this.newShift.notes);
+
+                        let res = await fetch('/admin/api/shifts', {
+                            method: 'POST',
+                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: formData
+                        });
+                        let data = await res.json();
+                        if (data.success) {
+                            this.addToast('Jadwal shift berhasil disimpan', 'success');
+                            this.showAddShiftModal = false;
+                            this.fetchShifts();
+                        } else {
+                            this.addToast('Gagal menyimpan shift', 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Terjadi kesalahan', 'error');
+                    }
+                    this.isSaving = false;
+                },
+                async deleteShift(id) {
+                    if (!confirm('Hapus jadwal shift ini?')) return;
+                    try {
+                        let res = await fetch(`/admin/api/shifts/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        });
+                        let data = await res.json();
+                        if (data.success) {
+                            this.addToast('Shift dihapus', 'success');
+                            this.fetchShifts();
+                        }
+                    } catch (e) {}
                 },
                 addTableFromModal() {
                     if (!this.newTableId.trim()) {

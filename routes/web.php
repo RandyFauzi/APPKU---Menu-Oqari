@@ -24,6 +24,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/api/crew', [DashboardController::class, 'saveCrew']);
     Route::delete('/admin/api/crew/{id}', [DashboardController::class, 'deleteCrew']);
     Route::put('/admin/api/crew/{id}', [DashboardController::class, 'updateCrew']);
+    
+    // Shifts & Logs
+    Route::get('/admin/api/logs', [DashboardController::class, 'getLogs']);
+    Route::get('/admin/api/shifts', [DashboardController::class, 'getShifts']);
+    Route::post('/admin/api/shifts', [DashboardController::class, 'saveShift']);
+    Route::delete('/admin/api/shifts/{id}', [DashboardController::class, 'deleteShift']);
+
     Route::post('/admin/api/table', [DashboardController::class, 'saveTable']);
     Route::put('/admin/api/table', [DashboardController::class, 'updateTableQR']);
 
