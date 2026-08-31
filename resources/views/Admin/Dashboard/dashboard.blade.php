@@ -54,7 +54,7 @@
         [x-cloak] { display: none !important; }
         .dashed-box { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23CFCFCF' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"); border-radius: 16px; }
     </style>
-</head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>`n</head>
 <body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()">
     
 
@@ -1046,8 +1046,19 @@ handleDraftImageUpload(event, index) {
                     this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc, categoryId: item.categoryId || 'beverages' };
                     this.showAddMenuModal = true;
                 },
-                deleteMenu(id) {
-                    if (confirm("Yakin ingin menghapus menu ini?")) {
+                async deleteMenu(id) {
+                    const result = await Swal.fire({
+                        title: 'Hapus Menu?',
+                        text: "Data menu ini akan dihapus permanen!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#777873',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    });
+                    
+                    if (result.isConfirmed) {
                         fetch('/admin/api/menu/' + id, {
                             method: 'DELETE',
                             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
@@ -1352,7 +1363,18 @@ handleDraftImageUpload(event, index) {
                     this.isSaving = false;
                 },
                 async deleteShift(id) {
-                    if (!confirm('Hapus jadwal shift ini?')) return;
+                    const result = await Swal.fire({
+                        title: 'Hapus Jadwal Shift?',
+                        text: "Data jadwal ini akan dihapus permanen!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#777873',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    });
+                    
+                    if (!result.isConfirmed) return;
                     try {
                         let res = await fetch(`/admin/api/shifts/${id}`, {
                             method: 'DELETE',
@@ -1582,8 +1604,19 @@ handleDraftImageUpload(event, index) {
                         }
                     });
                 },
-                deleteCrew(id) {
-                    if(!confirm('Hapus crew ini?')) return;
+                async deleteCrew(id) {
+                    const result = await Swal.fire({
+                        title: 'Hapus Crew?',
+                        text: "Data anggota tim ini akan dihapus permanen!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#777873',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    });
+                    
+                    if(!result.isConfirmed) return;
                     fetch('/admin/api/crew/' + id, {
                         method: 'DELETE',
                         headers: {
@@ -1707,6 +1740,7 @@ handleDraftImageUpload(event, index) {
     </a>
 </body>
 </html>
+
 
 
 
