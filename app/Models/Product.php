@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToShop;
 class Product extends Model
 {
+    use BelongsToShop;
     protected $fillable = [
         'shop_id',
         'category_name',
@@ -18,6 +20,8 @@ class Product extends Model
 
     public function shop()
     {
+    use BelongsToShop;
         return $this->belongsTo(Shop::class);
     }
 }
+

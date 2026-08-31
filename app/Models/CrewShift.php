@@ -5,8 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToShop;
 class CrewShift extends Model
 {
+    use BelongsToShop;
     use HasFactory;
 
     protected $fillable = [
@@ -23,7 +25,9 @@ class CrewShift extends Model
 
     public function user()
     {
+    use BelongsToShop;
         return $this->belongsTo(User::class);
     }
 }
+
 

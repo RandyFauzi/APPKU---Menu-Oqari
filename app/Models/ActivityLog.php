@@ -5,8 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToShop;
 class ActivityLog extends Model
 {
+    use BelongsToShop;
     use HasFactory;
 
     protected $fillable = [
@@ -19,12 +21,15 @@ class ActivityLog extends Model
 
     public function user()
     {
+    use BelongsToShop;
         return $this->belongsTo(User::class);
     }
 
     public function shop()
     {
+    use BelongsToShop;
         return $this->belongsTo(Shop::class);
     }
 }
+
 

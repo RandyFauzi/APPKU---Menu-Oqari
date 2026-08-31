@@ -338,9 +338,9 @@ class DashboardController extends Controller
             return response()->json(['success' => false, 'message' => 'Crew not found'], 404);
         }
 
-        // Prevent changing admin role or self-role logic if necessary
-        if ($crew->role === 'admin' && $request->role !== 'admin') {
-            return response()->json(['success' => false, 'message' => 'Cannot change admin role'], 403);
+        // Prevent changing own role or deleting own account
+        if ($crew->id === Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Cannot modify yourself'], 403);
         }
 
         $crew->name = $request->name;
@@ -359,7 +359,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         $crew = User::where('shop_id', $user->shop_id)->where('id', $id)->first();
 
-        if ($crew && $crew->role !== 'admin') {
+        if ($crew && $crew->id !== Auth::id()) {
             $crew->delete();
 
             return response()->json(['success' => true]);
@@ -492,5 +492,6 @@ class DashboardController extends Controller
         return response()->json(['success' => true]);
     }
 }
+
 
 
