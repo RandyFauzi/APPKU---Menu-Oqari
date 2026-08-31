@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToShop;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Traits\BelongsToShop;
 class Product extends Model
 {
     use BelongsToShop;
+
     protected $fillable = [
         'shop_id',
         'category_name',
@@ -23,4 +24,3 @@ class Product extends Model
         return $this->belongsTo(Shop::class);
     }
 }
-

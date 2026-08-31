@@ -2,25 +2,25 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Traits\BelongsToShop;
 class CrewShift extends Model
 {
     use BelongsToShop;
     use HasFactory;
 
     protected $fillable = [
-        "user_id",
-        "date",
-        "start_time",
-        "end_time",
-        "notes"
+        'user_id',
+        'date',
+        'start_time',
+        'end_time',
+        'notes',
     ];
 
     protected $casts = [
-        "date" => "date",
+        'date' => 'date',
     ];
 
     public function user()
@@ -28,5 +28,3 @@ class CrewShift extends Model
         return $this->belongsTo(User::class);
     }
 }
-
-

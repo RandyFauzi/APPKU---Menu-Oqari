@@ -24,7 +24,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/api/crew', [DashboardController::class, 'saveCrew']);
     Route::delete('/admin/api/crew/{id}', [DashboardController::class, 'deleteCrew']);
     Route::put('/admin/api/crew/{id}', [DashboardController::class, 'updateCrew']);
-    
+
     // Shifts & Logs
     Route::get('/admin/api/logs', [DashboardController::class, 'getLogs']);
     Route::get('/admin/api/shifts', [DashboardController::class, 'getShifts']);

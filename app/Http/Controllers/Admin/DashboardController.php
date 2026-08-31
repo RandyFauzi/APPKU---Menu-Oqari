@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
+use App\Models\CrewShift;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Shop;
 use App\Models\Table;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,21 +21,21 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         // JIKA USER BARU DAFTAR & BELUM PUNYA SHOP
         if (! $user->shop_id) {
             $newShop = Shop::create([
-                'name' => $user->name . ' Shop',
-                'slug' => \Illuminate\Support\Str::slug($user->name . '-' . uniqid()),
+                'name' => $user->name.' Shop',
+                'slug' => Str::slug($user->name.'-'.uniqid()),
                 'primary_color' => '#1E5A7A', // Default color
             ]);
-            
+
             $user->update([
                 'shop_id' => $newShop->id,
-                'role' => 'admin' // Jadikan dia admin dari tokonya sendiri
+                'role' => 'admin', // Jadikan dia admin dari tokonya sendiri
             ]);
         }
-        
+
         $shopId = $user->shop_id;
         $shop = Shop::find($shopId);
 
@@ -66,17 +69,17 @@ class DashboardController extends Controller
         $order->status = $request->status;
         $order->save();
 
-        if (class_exists(\App\Models\ActivityLog::class)) {
-            $desc = $request->status === 'Batal' 
-                ? 'Membatalkan pesanan #' . $order->id 
-                : 'Mengubah status pesanan #' . $order->id . ' dari ' . $oldStatus . ' menjadi ' . $request->status;
-            
-            \App\Models\ActivityLog::create([
+        if (class_exists(ActivityLog::class)) {
+            $desc = $request->status === 'Batal'
+                ? 'Membatalkan pesanan #'.$order->id
+                : 'Mengubah status pesanan #'.$order->id.' dari '.$oldStatus.' menjadi '.$request->status;
+
+            ActivityLog::create([
                 'shop_id' => auth()->user()->shop_id,
                 'user_id' => auth()->id(),
                 'action' => 'update_order_status',
                 'description' => $desc,
-                'ip_address' => request()->ip()
+                'ip_address' => request()->ip(),
             ]);
         }
 
@@ -103,16 +106,16 @@ class DashboardController extends Controller
             $menuName = $menu->name;
             $menu->delete();
 
-            if (class_exists(\App\Models\ActivityLog::class)) {
-                \App\Models\ActivityLog::create([
+            if (class_exists(ActivityLog::class)) {
+                ActivityLog::create([
                     'shop_id' => $user->shop_id,
                     'user_id' => $user->id,
                     'action' => 'delete_menu',
-                    'description' => 'Menghapus menu: ' . $menuName,
-                    'ip_address' => request()->ip()
+                    'description' => 'Menghapus menu: '.$menuName,
+                    'ip_address' => request()->ip(),
                 ]);
             }
-            
+
             return response()->json(['success' => true]);
         }
 
@@ -226,7 +229,7 @@ class DashboardController extends Controller
         ]);
     }
 
-        public function saveSettings(Request $request)
+    public function saveSettings(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -260,16 +263,32 @@ class DashboardController extends Controller
         }
 
         $shop->name = $request->name;
-        $shop->slug = \Illuminate\Support\Str::slug($request->slug);
+        $shop->slug = Str::slug($request->slug);
 
-        if ($request->has('theme_style')) $shop->theme_style = $request->theme_style;
-        if ($request->has('is_open')) $shop->is_open = $request->boolean('is_open');
-        if ($request->has('slogan')) $shop->slogan = $request->slogan;
-        if ($request->has('font_family')) $shop->font_family = $request->font_family;
-        if ($request->has('instagram_link')) $shop->instagram_link = $request->instagram_link;
-        if ($request->has('whatsapp_number')) $shop->whatsapp_number = $request->whatsapp_number;
-        if ($request->has('maps_link')) $shop->maps_link = $request->maps_link;
-        if ($request->has('is_banner_active')) $shop->is_banner_active = $request->boolean('is_banner_active');
+        if ($request->has('theme_style')) {
+            $shop->theme_style = $request->theme_style;
+        }
+        if ($request->has('is_open')) {
+            $shop->is_open = $request->boolean('is_open');
+        }
+        if ($request->has('slogan')) {
+            $shop->slogan = $request->slogan;
+        }
+        if ($request->has('font_family')) {
+            $shop->font_family = $request->font_family;
+        }
+        if ($request->has('instagram_link')) {
+            $shop->instagram_link = $request->instagram_link;
+        }
+        if ($request->has('whatsapp_number')) {
+            $shop->whatsapp_number = $request->whatsapp_number;
+        }
+        if ($request->has('maps_link')) {
+            $shop->maps_link = $request->maps_link;
+        }
+        if ($request->has('is_banner_active')) {
+            $shop->is_banner_active = $request->boolean('is_banner_active');
+        }
 
         if ($request->has('operating_hours')) {
             $shop->operating_hours = json_decode($request->operating_hours, true);
@@ -412,12 +431,12 @@ class DashboardController extends Controller
         if ($user->role !== 'admin') {
             return response()->json([], 403);
         }
-        $logs = \App\Models\ActivityLog::with('user')
+        $logs = ActivityLog::with('user')
             ->where('shop_id', $user->shop_id)
             ->orderBy('created_at', 'desc')
             ->limit(50)
             ->get()
-            ->map(function($log) {
+            ->map(function ($log) {
                 return [
                     'id' => $log->id,
                     'user' => $log->user ? $log->user->name : 'Sistem',
@@ -426,30 +445,32 @@ class DashboardController extends Controller
                     'time' => $log->created_at->format('d M Y H:i:s'),
                 ];
             });
+
         return response()->json($logs);
     }
 
     public function getShifts()
     {
         $user = Auth::user();
-        $shifts = \App\Models\CrewShift::with('user')
-            ->whereHas('user', function($q) use ($user) {
+        $shifts = CrewShift::with('user')
+            ->whereHas('user', function ($q) use ($user) {
                 $q->where('shop_id', $user->shop_id);
             })
             ->orderBy('date', 'desc')
             ->orderBy('start_time', 'asc')
             ->get()
-            ->map(function($s) {
+            ->map(function ($s) {
                 return [
                     'id' => $s->id,
                     'user_id' => $s->user_id,
                     'user_name' => $s->user ? $s->user->name : '-',
                     'date' => $s->date->format('Y-m-d'),
-                    'start_time' => \Carbon\Carbon::parse($s->start_time)->format('H:i'),
-                    'end_time' => \Carbon\Carbon::parse($s->end_time)->format('H:i'),
-                    'notes' => $s->notes
+                    'start_time' => Carbon::parse($s->start_time)->format('H:i'),
+                    'end_time' => Carbon::parse($s->end_time)->format('H:i'),
+                    'notes' => $s->notes,
                 ];
             });
+
         return response()->json($shifts);
     }
 
@@ -464,17 +485,17 @@ class DashboardController extends Controller
             'user_id' => 'required|exists:users,id',
             'date' => 'required|date',
             'start_time' => 'required',
-            'end_time' => 'required'
+            'end_time' => 'required',
         ]);
 
-        $shift = clone \App\Models\CrewShift::updateOrCreate(
+        $shift = clone CrewShift::updateOrCreate(
             ['id' => $request->id],
             [
                 'user_id' => $request->user_id,
                 'date' => $request->date,
                 'start_time' => $request->start_time,
                 'end_time' => $request->end_time,
-                'notes' => $request->notes
+                'notes' => $request->notes,
             ]
         );
 
@@ -488,10 +509,8 @@ class DashboardController extends Controller
             return response()->json(['success' => false], 403);
         }
 
-        \App\Models\CrewShift::where('id', $id)->delete();
+        CrewShift::where('id', $id)->delete();
+
         return response()->json(['success' => true]);
     }
 }
-
-
-

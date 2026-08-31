@@ -34,4 +34,3 @@ class Shop extends Model
         'gobiz_token_expires_at' => 'datetime',
     ];
 }
-

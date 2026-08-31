@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToShop;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Traits\BelongsToShop;
 class Table extends Model
 {
     use BelongsToShop;
+
     protected $fillable = [
         'shop_id',
         'name',
@@ -19,4 +20,3 @@ class Table extends Model
         return $this->belongsTo(Shop::class);
     }
 }
-

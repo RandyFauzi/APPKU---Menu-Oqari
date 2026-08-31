@@ -2,21 +2,21 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Traits\BelongsToShop;
 class ActivityLog extends Model
 {
     use BelongsToShop;
     use HasFactory;
 
     protected $fillable = [
-        "shop_id",
-        "user_id",
-        "action",
-        "description",
-        "ip_address"
+        'shop_id',
+        'user_id',
+        'action',
+        'description',
+        'ip_address',
     ];
 
     public function user()
@@ -29,5 +29,3 @@ class ActivityLog extends Model
         return $this->belongsTo(Shop::class);
     }
 }
-
-

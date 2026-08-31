@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToShop;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Traits\BelongsToShop;
 class Order extends Model
 {
     use BelongsToShop;
+
     protected $fillable = [
         'shop_id',
         'table_id',
@@ -34,4 +35,3 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 }
-
