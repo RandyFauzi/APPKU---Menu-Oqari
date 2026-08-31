@@ -9,11 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Favicon -->
-    @if(isset($shop) && $shop->logo_url)
-        <link rel="icon" type="image/png" href="{{ asset('uploads/' . $shop->logo_url) }}">
-    @else
-        <link rel="icon" type="image/webp" href="{{ asset('Pavico.webp') }}">
-    @endif
+    <link rel="icon" type="image/png" id="favicon" href="{{ (isset($shop) && $shop->logo_url) ? asset('uploads/' . $shop->logo_url) : asset('Pavico.webp') }}">
     
     <!-- View Transitions API -->
     <meta name="view-transition" content="same-origin" />
@@ -69,9 +65,9 @@
     <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg">
         <div class="flex items-center gap-3 mb-2">
             @if(isset($shop) && $shop->logo_url)
-                <img src="{{ asset('uploads/' . $shop->logo_url) }}" alt="Logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
+                <img src="{{ asset('uploads/' . $shop->logo_url) }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
             @else
-                <img src="{{ asset('Pavico.webp') }}" alt="Logo" class="w-10 h-10 object-contain">
+                <img src="{{ asset('Pavico.webp') }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 object-contain">
             @endif
             <div class="flex flex-col">
                 <span class="font-bold text-lg leading-tight truncate w-32">{{ $shop->name ?? 'Appku' }}</span>
@@ -1648,9 +1644,24 @@ handleDraftImageUpload(event, index) {
                         this.isSavingSettings = false;
                         if (data.success) {
                             this.addToast('Pengaturan berhasil disimpan!', 'success');
-                            if (data.logo_url) {
-                                this.settings.logoPreview = '/uploads/' + data.logo_url;
+                            if (data.shop && data.shop.logo_url) {
+                                this.settings.logoPreview = '/uploads/' + data.shop.logo_url;
                                 this.settings.logoFile = null;
+                            }
+                            
+                            // Perbarui elemen UI lain
+                            const favicon = document.getElementById('favicon');
+                            const sidebarLogo = document.getElementById('sidebar-logo');
+                            if (data.shop && data.shop.logo_url) {
+                                const newLogoUrl = '/uploads/' + data.shop.logo_url;
+                                if (favicon) favicon.href = newLogoUrl;
+                                if (sidebarLogo) sidebarLogo.src = newLogoUrl;
+                            }
+                            
+                            if (data.shop && data.shop.banners) {
+                                this.settings.bannerPaths = data.shop.banners.concat([null, null, null]).slice(0, 3);
+                                this.settings.banners = data.shop.banners.map(b => b ? '/uploads/' + b : null).concat([null, null, null]).slice(0, 3);
+                                this.settings.bannerFiles = [null, null, null];
                             }
                         } else {
                             this.addToast('Gagal menyimpan pengaturan: ' + (data.message || 'Error tidak diketahui'), 'error');
