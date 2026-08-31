@@ -21,13 +21,11 @@ class ActivityLog extends Model
 
     public function user()
     {
-    use BelongsToShop;
         return $this->belongsTo(User::class);
     }
 
     public function shop()
     {
-    use BelongsToShop;
         return $this->belongsTo(Shop::class);
     }
 }

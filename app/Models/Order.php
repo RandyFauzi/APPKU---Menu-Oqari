@@ -21,19 +21,16 @@ class Order extends Model
 
     public function shop()
     {
-    use BelongsToShop;
         return $this->belongsTo(Shop::class);
     }
 
     public function table()
     {
-    use BelongsToShop;
         return $this->belongsTo(Table::class);
     }
 
     public function items()
     {
-    use BelongsToShop;
         return $this->hasMany(OrderItem::class);
     }
 }

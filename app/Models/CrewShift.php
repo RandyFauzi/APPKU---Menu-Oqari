@@ -25,7 +25,6 @@ class CrewShift extends Model
 
     public function user()
     {
-    use BelongsToShop;
         return $this->belongsTo(User::class);
     }
 }

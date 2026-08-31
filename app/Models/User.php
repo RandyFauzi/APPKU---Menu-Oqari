@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 use App\Traits\BelongsToShop;
+
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -26,7 +27,6 @@ class User extends Authenticatable
      */
     protected function casts(): array
     {
-    use BelongsToShop;
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',

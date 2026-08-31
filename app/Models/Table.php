@@ -16,7 +16,6 @@ class Table extends Model
 
     public function shop()
     {
-    use BelongsToShop;
         return $this->belongsTo(Shop::class);
     }
 }
