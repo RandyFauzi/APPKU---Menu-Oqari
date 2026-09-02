@@ -11,70 +11,96 @@
         </a>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] overflow-hidden flex flex-col">
-        <div class="p-4 border-b border-[#E3E1DC] bg-gray-50 flex items-center justify-between">
-            <h3 class="font-bold text-gray-800"><i class="fas fa-users mr-2"></i> Daftar semua pengguna</h3>
+    <div class="bg-white rounded-[20px] shadow-sm border border-[#E3E1DC] overflow-hidden">
+        <div class="p-5 border-b border-[#E3E1DC] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-[#F8F7F3] text-[#164A35] flex items-center justify-center text-sm">
+                    <i class="fas fa-users"></i>
+                </div>
+                Daftar Pengguna
+            </h3>
             
             <form method="GET" class="flex gap-2">
-                <input type="text" name="user_search" value="{{ request('user_search') }}" placeholder="Cari nama / email..."
-                       class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#164A35]">
-                <button class="px-3 py-2 text-sm bg-[#164A35] text-white rounded-lg font-bold hover:bg-[#113a29] transition">Cari</button>
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" name="user_search" value="{{ request('user_search') }}" placeholder="Cari nama / email..."
+                           class="pl-9 pr-4 py-2.5 text-sm border border-[#E3E1DC] bg-[#F8F7F3] rounded-xl focus:outline-none focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] w-full sm:w-64 transition-all">
+                </div>
+                <button type="submit" class="px-4 py-2.5 text-sm bg-[#164A35] text-white rounded-xl font-bold hover:bg-[#113a29] transition shadow-sm">Cari</button>
             </form>
         </div>
-        <div class="overflow-x-auto flex-1">
-            <table class="w-full text-left text-sm relative">
-                <thead class="bg-white sticky top-0 shadow-sm text-xs uppercase text-gray-500 z-10">
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-[#F8F7F3] text-xs uppercase text-gray-500 font-bold border-b border-[#E3E1DC]">
                     <tr>
-                        <th class="p-4">Nama & Email</th>
-                        <th class="p-4">Role</th>
-                        <th class="p-4">Toko Terkait</th>
-                        <th class="p-4">Terdaftar</th>
-                        <th class="p-4 text-right">Aksi</th>
+                        <th class="py-4 px-5">Profil</th>
+                        <th class="py-4 px-5">Role</th>
+                        <th class="py-4 px-5">Toko Terkait</th>
+                        <th class="py-4 px-5">Terdaftar</th>
+                        <th class="py-4 px-5 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-[#E3E1DC]/50">
                     @forelse($users as $user)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="p-4">
-                            <div class="font-bold text-gray-800">{{ $user->name }}</div>
-                            <div class="text-xs text-gray-500 mt-1">{{ $user->email }}</div>
+                    <tr class="hover:bg-[#F8F7F3]/50 transition duration-150">
+                        <td class="py-4 px-5">
+                            <div class="flex items-center gap-3">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=E7F2EB&color=164A35" class="w-10 h-10 rounded-full object-cover border border-[#E3E1DC]">
+                                <div>
+                                    <div class="font-bold text-gray-800">{{ $user->name }}</div>
+                                    <div class="text-xs text-gray-500 mt-0.5">{{ $user->email }}</div>
+                                </div>
+                            </div>
                         </td>
-                        <td class="p-4">
-                            <span class="px-2 py-1 rounded-lg text-[10px] font-black uppercase
+                        <td class="py-4 px-5">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider
                                 {{ $user->role === 'superadmin' ? 'bg-purple-100 text-purple-700' : ($user->role === 'owner' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700') }}">
                                 {{ $user->role }}
                             </span>
                         </td>
-                        <td class="p-4">
+                        <td class="py-4 px-5">
                             @if($user->shop)
-                                <a href="{{ route('superadmin.shops.show', $user->shop) }}" class="font-bold text-[#164A35] hover:underline">{{ $user->shop->name }}</a>
+                                <a href="{{ route('superadmin.shops.show', $user->shop) }}" class="font-semibold text-[#164A35] hover:text-[#113a29] hover:underline flex items-center gap-1.5">
+                                    <i class="fas fa-store text-xs opacity-70"></i> {{ $user->shop->name }}
+                                </a>
                             @else
-                                <span class="text-gray-400 italic">-</span>
+                                <span class="text-gray-400 italic text-sm">-</span>
                             @endif
                         </td>
-                        <td class="p-4 text-gray-500 text-xs">{{ $user->created_at->format('d M Y') }}</td>
-                        <td class="p-4 text-right whitespace-nowrap space-x-1">
-                            <a href="{{ route('superadmin.users.edit', $user) }}" class="inline-block px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-medium transition text-xs">
-                                <i class="fas fa-edit mr-1"></i> Edit
-                            </a>
-                            @if($user->role !== 'superadmin' || App\Models\User::where('role', 'superadmin')->count() > 1)
-                                <form method="POST" action="{{ route('superadmin.users.destroy', $user) }}" class="inline" onsubmit="return confirm('Yakin hapus akun {{ $user->name }} permanen?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-medium transition text-xs">
-                                        <i class="fas fa-trash mr-1"></i> Hapus
-                                    </button>
-                                </form>
-                            @endif
+                        <td class="py-4 px-5 text-gray-500 text-xs font-medium">{{ $user->created_at->format('d M Y') }}</td>
+                        <td class="py-4 px-5 text-right whitespace-nowrap">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ route('superadmin.users.edit', $user) }}" class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition" title="Edit">
+                                    <i class="fas fa-pen text-sm"></i>
+                                </a>
+                                @if($user->role !== 'superadmin' || App\Models\User::where('role', 'superadmin')->count() > 1)
+                                    <form method="POST" action="{{ route('superadmin.users.destroy', $user) }}" class="inline" onsubmit="return confirm('Yakin hapus akun {{ $user->name }} permanen?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition" title="Hapus">
+                                            <i class="fas fa-trash-alt text-sm"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="5" class="p-8 text-center text-gray-500">Tidak ada pengguna ditemukan.</td></tr>
+                    <tr>
+                        <td colspan="5" class="py-12 px-5 text-center">
+                            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-users-slash text-2xl text-gray-400"></i>
+                            </div>
+                            <p class="text-gray-500 font-medium">Belum ada pengguna yang terdaftar.</p>
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="p-4 border-t border-[#E3E1DC]">
+        
+        <div class="p-4 border-t border-[#E3E1DC] bg-white">
             {{ $users->links() }}
         </div>
     </div>

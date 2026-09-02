@@ -141,14 +141,28 @@ class DashboardController extends Controller
     public function updateOrderStatus(Request $request, $orderId)
     {
         $order = Order::where('shop_id', Auth::user()->shop_id)->findOrFail($orderId);
-        $oldStatus = $order->status;
-        $order->status = $request->status;
+        $oldStatus = $order->order_status ?? $order->status;
+
+        $newStatus = $request->status;
+        // Translate legacy status to new schema if needed
+        $statusMap = [
+            'Masuk' => 'CONFIRMED',
+            'In Progress' => 'PREPARING',
+            'Ready' => 'READY',
+            'Completed' => 'COMPLETED',
+            'Dibatalkan' => 'CANCELLED',
+        ];
+        if (array_key_exists($newStatus, $statusMap)) {
+            $newStatus = $statusMap[$newStatus];
+        }
+
+        $order->order_status = $newStatus;
         $order->save();
 
         if (class_exists(ActivityLog::class)) {
-            $desc = in_array($request->status, ['Batal', 'CANCELLED'])
+            $desc = in_array($newStatus, ['Batal', 'CANCELLED'])
                 ? 'Membatalkan pesanan #'.$order->id
-                : 'Mengubah status pesanan #'.$order->id.' dari '.$oldStatus.' menjadi '.$request->status;
+                : 'Mengubah status pesanan #'.$order->id.' dari '.$oldStatus.' menjadi '.$newStatus;
 
             ActivityLog::create([
                 'shop_id' => auth()->user()->shop_id,

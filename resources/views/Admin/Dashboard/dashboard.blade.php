@@ -850,9 +850,9 @@ handleDraftImageUpload(event, index) {
                 get filteredOrders() {
                     let filtered = this.orders;
                     if (this.activeOrderFilter === 'process') {
-                        filtered = filtered.filter(o => o.status === 'In Progress' || o.status === 'Ready' || o.status === 'Masuk');
+                        filtered = filtered.filter(o => (o.status === 'In Progress' || o.order_status === 'PREPARING' || o.status === 'PREPARING') || (o.status === 'Ready' || o.order_status === 'READY' || o.status === 'READY') || (o.status === 'Masuk' || o.order_status === 'CONFIRMED' || o.status === 'CONFIRMED'));
                     } else if (this.activeOrderFilter === 'completed') {
-                        filtered = filtered.filter(o => o.status === 'Completed');
+                        filtered = filtered.filter(o => (o.status === 'Completed' || o.order_status === 'COMPLETED' || o.status === 'COMPLETED'));
                     }
                     
                     if (this.searchQuery) {
@@ -887,7 +887,7 @@ handleDraftImageUpload(event, index) {
                     const startOfWeek = new Date(startOfToday);
                     startOfWeek.setDate(startOfToday.getDate() - now.getDay());
                     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                    const completed = this.orders.filter(o => o.status === 'Completed');
+                    const completed = this.orders.filter(o => (o.status === 'Completed' || o.order_status === 'COMPLETED' || o.status === 'COMPLETED'));
                     let daily = { count: 0, total: 0 };
                     let weekly = { count: 0, total: 0 };
                     let monthly = { count: 0, total: 0 };
@@ -922,13 +922,13 @@ handleDraftImageUpload(event, index) {
                 },
                 chartInstance: null,
                 get totalRevenue() {
-                    return this.orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.total || 0), 0);
+                    return this.orders.filter(o => (o.status === 'Completed' || o.order_status === 'COMPLETED' || o.status === 'COMPLETED')).reduce((sum, o) => sum + (o.total || 0), 0);
                 },
                 get totalOrders() {
                     return this.orders.length;
                 },
                 get totalSuccess() {
-                    return this.orders.filter(o => o.status === 'Completed').length;
+                    return this.orders.filter(o => (o.status === 'Completed' || o.order_status === 'COMPLETED' || o.status === 'COMPLETED')).length;
                 },
                 get successRate() {
                     if (this.orders.length === 0) return 100;
@@ -1309,8 +1309,8 @@ handleDraftImageUpload(event, index) {
                     const mappedOrder = {
                         id: newOrder.id,
                         customer: newOrder.customer_name || ('Meja ' + (newOrder.table ? newOrder.table.name : '-')),
-                        status: newOrder.status,
-                        total: parseFloat(newOrder.total_price),
+                        status: newOrder.order_status || newOrder.status,
+                        total: parseFloat(newOrder.grand_total || newOrder.total_price),
                         time: newOrder.created_at,
                         items: (newOrder.items || []).map(i => ({
                             name: i.product?.name || 'Produk',
@@ -1363,8 +1363,8 @@ handleDraftImageUpload(event, index) {
                         const dbOrders = sourceOrders.map(o => ({
                             id: o.id,
                             customer: o.customer_name || ('Meja ' + (o.table ? o.table.name : '-')),
-                            status: o.status,
-                            total: parseFloat(o.total_price),
+                            status: o.order_status || o.status,
+                            total: parseFloat(o.grand_total || o.total_price),
                             time: o.created_at,
                             items: (o.items || []).map(i => ({
                                 name: i.product?.name || 'Produk',
@@ -1375,7 +1375,7 @@ handleDraftImageUpload(event, index) {
                             }))
                         }));
 
-                        const newIncomingOrders = dbOrders.filter(o => o.status === 'Masuk' && !this.orders.find(old => old.id == o.id));
+                        const newIncomingOrders = dbOrders.filter(o => (o.status === 'Masuk' || o.order_status === 'CONFIRMED' || o.status === 'CONFIRMED') && !this.orders.find(old => old.id == o.id));
 
                         if (!isInit && newIncomingOrders.length > 0) {
                             this.playNotification();
