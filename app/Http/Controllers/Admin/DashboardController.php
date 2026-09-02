@@ -81,7 +81,7 @@ class DashboardController extends Controller
 
     public function updateOrderStatus(Request $request, $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = Order::where('shop_id', Auth::user()->shop_id)->findOrFail($orderId);
         $oldStatus = $order->status;
         $order->status = $request->status;
         $order->save();
@@ -105,7 +105,7 @@ class DashboardController extends Controller
 
     public function printOrder($orderId)
     {
-        $order = Order::with('items.product', 'table', 'shop')->findOrFail($orderId);
+        $order = Order::with('items.product', 'table', 'shop')->where('shop_id', Auth::user()->shop_id)->findOrFail($orderId);
 
         // Ensure the logged in user belongs to the same shop
         if (auth()->user()->shop_id !== $order->shop_id) {
@@ -141,7 +141,7 @@ class DashboardController extends Controller
 
     public function toggleMenuStatus(Request $request, $menuId)
     {
-        $menu = Product::findOrFail($menuId);
+        $menu = Product::where('shop_id', Auth::user()->shop_id)->findOrFail($menuId);
         $menu->is_sold_out = ! $menu->is_sold_out;
         $menu->save();
 
@@ -498,36 +498,34 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'user_id' => [
+                'required',
+                \Illuminate\Validation\Rule::exists('users', 'id')->where('shop_id', $user->shop_id)
+            ],
             'date' => 'required|date',
             'start_time' => 'required',
             'end_time' => 'required',
         ]);
 
-        $shift = clone CrewShift::updateOrCreate(
-            ['id' => $request->id],
-            [
-                'user_id' => $request->user_id,
-                'date' => $request->date,
-                'start_time' => $request->start_time,
-                'end_time' => $request->end_time,
-                'notes' => $request->notes,
-            ]
-        );
+        $data = [
+            'user_id' => $request->user_id,
+            'shop_id' => $user->shop_id,
+            'date' => $request->date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'notes' => $request->notes,
+        ];
+
+        if ($request->filled('id')) {
+            $shift = CrewShift::where('shop_id', $user->shop_id)->findOrFail($request->id);
+            $shift->update($data);
+        } else {
+            CrewShift::create($data);
+        }
 
         return response()->json(['success' => true]);
     }
 
-    public function deleteShift($id)
-    {
-        $user = Auth::user();
-        
-
-        CrewShift::where('id', $id)->delete();
-
-        return response()->json(['success' => true]);
     }
-}
 
