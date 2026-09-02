@@ -236,6 +236,27 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'menu' => $menu]);
     }
 
+    public function saveCategory(Request $request)
+    {
+        $request->validate(['name' => 'required|string|max:255']);
+
+        $user = Auth::user();
+        $shopId = $user->shop_id;
+        if (! $shopId) {
+            abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
+        }
+
+        $category = Category::create([
+            'shop_id' => $shopId,
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+            'sort_order' => Category::where('shop_id', $shopId)->count() + 1,
+            'is_active' => true,
+        ]);
+
+        return response()->json(['success' => true, 'category' => $category]);
+    }
+
     public function saveMenuBulk(Request $request)
     {
         $user = Auth::user();

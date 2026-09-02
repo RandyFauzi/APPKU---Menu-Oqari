@@ -25,15 +25,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // POS & Orders
+    // POS Terminal + APIs
     Route::middleware('can:access-pos')->group(function () {
+        Route::get('/admin/pos', [PosController::class, 'index'])->name('admin.pos.index');
+        Route::post('/admin/pos/orders', [PosController::class, 'submitOrder'])->name('admin.pos.orders.submit');
+        Route::post('/admin/pos/orders/hold', [PosController::class, 'holdOrder'])->name('admin.pos.orders.hold');
+        Route::get('/admin/pos/orders/held', [PosController::class, 'heldOrders'])->name('admin.pos.orders.held');
+        Route::post('/admin/pos/orders/{order}/recall', [PosController::class, 'recallOrder'])->name('admin.pos.orders.recall');
+        Route::get('/admin/pos/products', [PosController::class, 'products'])->name('admin.pos.products');
+        // Legacy order status updates
         Route::get('/admin/api/orders/live', [DashboardController::class, 'getLiveOrders']);
         Route::post('/admin/api/orders/{order}/status', [DashboardController::class, 'updateOrderStatus']);
         Route::get('/admin/api/orders/{order}/print', [DashboardController::class, 'printOrder']);
-    });
-
-    // POS Terminal
-    Route::middleware('can:access-pos')->group(function () {
-        Route::get('/admin/pos', [PosController::class, 'index'])->name('admin.pos.index');
     });
 
     // Cash Register / Shift Session
@@ -46,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/api/menu/bulk', [DashboardController::class, 'saveMenuBulk']);
         Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
         Route::delete('/admin/api/menu/{id}', [DashboardController::class, 'deleteMenu']);
+        Route::post('/admin/api/category', [DashboardController::class, 'saveCategory']);
     });
 
     // Settings

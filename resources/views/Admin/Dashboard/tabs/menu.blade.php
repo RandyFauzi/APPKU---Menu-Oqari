@@ -70,21 +70,14 @@
                         <button @click="activeMenuFilter = 'all'" :class="activeMenuFilter === 'all' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
                             All Items <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.length"></span>
                         </button>
-                        <button @click="activeMenuFilter = 'beverages'" :class="activeMenuFilter === 'beverages' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fas fa-coffee opacity-50"></i> Beverages <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.filter(i=>i.categoryId==='beverages').length"></span>
-                        </button>
-                        <button @click="activeMenuFilter = 'foods'" :class="activeMenuFilter === 'foods' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fas fa-utensils opacity-50"></i> Foods <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.filter(i=>i.categoryId==='foods').length"></span>
-                        </button>
-                        <button @click="activeMenuFilter = 'snacks'" :class="activeMenuFilter === 'snacks' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fas fa-cookie opacity-50"></i> Snacks <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.filter(i=>i.categoryId==='snacks').length"></span>
-                        </button>
-                        <button @click="activeMenuFilter = 'sweets'" :class="activeMenuFilter === 'sweets' ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
-                            <i class="fas fa-ice-cream opacity-50"></i> Sweets <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.filter(i=>i.categoryId==='sweets').length"></span>
-                        </button>
+                        <template x-for="cat in categories" :key="cat.id">
+                            <button @click="activeMenuFilter = cat.id" :class="activeMenuFilter === cat.id ? 'bg-brewlygreen text-white' : 'bg-white border border-gray-200 text-brewlytext hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-sm font-semibold transition flex items-center gap-2 shadow-sm">
+                                <span x-text="cat.name"></span> <span class="bg-black/10 px-1.5 py-0.5 rounded text-[10px]" x-text="menuItems.filter(i => i.categoryId === cat.id).length"></span>
+                            </button>
+                        </template>
                     </div>
                 </div>
-                <button class="bg-white border border-gray-200 text-brewlytext px-4 py-2 rounded-full font-bold text-sm shadow-sm hover:bg-gray-50 transition flex items-center gap-2">
+                <button @click="showAddCategoryModal = true" class="bg-white border border-gray-200 text-brewlytext px-4 py-2 rounded-full font-bold text-sm shadow-sm hover:bg-gray-50 transition flex items-center gap-2">
                     <i class="fas fa-plus"></i> Add Category
                 </button>
             </div>
@@ -209,32 +202,22 @@
                             <div>
                                 <label class="block text-[12px] font-semibold text-[#777873] mb-1.5">Category</label>
                                 <div class="relative">
-                                    <div :class="open ? 'relative z-50' : 'relative'" x-data="{ 
-                                        open: false,
-                                        options: [
-                                            { id: 'Coffee', icon: 'fas fa-mug-hot', bg: 'bg-[#DDEBDD]', text: 'text-[#164A35]' },
-                                            { id: 'Pastry', icon: 'fas fa-bread-slice', bg: 'bg-[#F7E5D2]', text: 'text-[#D97A32]' },
-                                            { id: 'Beverages', icon: 'fas fa-glass-martini-alt', bg: 'bg-blue-100', text: 'text-blue-700' },
-                                            { id: 'Foods', icon: 'fas fa-utensils', bg: 'bg-red-100', text: 'text-red-700' },
-                                            { id: 'Snacks', icon: 'fas fa-cookie', bg: 'bg-yellow-100', text: 'text-yellow-700' },
-                                            { id: 'Sweets', icon: 'fas fa-ice-cream', bg: 'bg-pink-100', text: 'text-pink-700' }
-                                        ]
-                                    }">
+                                    <div :class="open ? 'relative z-50' : 'relative'" x-data="{ open: false }">
                                         <!-- Trigger -->
                                         <button @click="open = !open" @click.away="open = false" type="button" 
                                                 class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[11px] px-3 py-1.5 h-[46px] flex items-center justify-between focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] transition-colors outline-none cursor-pointer">
                                             
                                             <!-- Dynamic Badge for Selected -->
-                                            <template x-for="opt in options">
-                                                <template x-if="draftMenus[index].categoryId === opt.id">
-                                                    <div :class="opt.bg + ' ' + opt.text" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-sm">
-                                                        <i :class="opt.icon"></i> <span x-text="opt.id"></span>
+                                            <template x-for="cat in categories">
+                                                <template x-if="draftMenus[index].categoryId === cat.id">
+                                                    <div class="bg-gray-100 text-gray-700 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-sm border border-gray-200">
+                                                        <i class="fas fa-tag"></i> <span x-text="cat.name"></span>
                                                     </div>
                                                 </template>
                                             </template>
                                             
                                             <!-- Fallback if not found -->
-                                            <template x-if="!options.find(o => o.id === draftMenus[index].categoryId)">
+                                            <template x-if="!categories.find(o => o.id === draftMenus[index].categoryId)">
                                                 <span class="text-[#777873] font-medium text-sm px-2">Select category</span>
                                             </template>
 
@@ -250,11 +233,11 @@
                                              x-transition:leave-start="opacity-100 scale-100"
                                              x-transition:leave-end="opacity-0 scale-95"
                                              class="absolute z-50 w-full mt-2 bg-white border border-[#E3E1DC] rounded-[12px] shadow-[0_10px_35px_rgba(0,0,0,0.08)] py-2 flex flex-col gap-1 max-h-56 overflow-y-auto">
-                                            <template x-for="opt in options" :key="opt.id">
-                                                <button @click="draftMenus[index].categoryId = opt.id; open = false" type="button" 
+                                            <template x-for="cat in categories" :key="cat.id">
+                                                <button @click="draftMenus[index].categoryId = cat.id; open = false" type="button" 
                                                         class="mx-2 px-2 py-1.5 rounded-[10px] text-left hover:bg-[#F8F7F3] transition-colors flex items-center">
-                                                    <div :class="opt.bg + ' ' + opt.text" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-sm">
-                                                        <i :class="opt.icon"></i> <span x-text="opt.id"></span>
+                                                    <div class="bg-gray-100 text-gray-700 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-sm border border-gray-200">
+                                                        <i class="fas fa-tag"></i> <span x-text="cat.name"></span>
                                                     </div>
                                                 </button>
                                             </template>

@@ -261,6 +261,41 @@
         </div>
 
         <!-- MODAL: ADD TABLE -->
+        <!-- MODAL: ADD CATEGORY -->
+        <div x-show="showAddCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-[#164A35]/40 backdrop-blur-sm" x-transition.opacity>
+            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(22,74,53,0.15)] relative overflow-hidden" @click.away="showAddCategoryModal = false" x-transition>
+                
+                <div class="absolute top-4 right-4 z-10">
+                    <button @click="showAddCategoryModal = false" class="text-[#777873] hover:text-[#202522] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors w-8 h-8 flex items-center justify-center rounded-full">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-4 mb-6 relative z-10">
+                    <div class="w-12 h-12 rounded-full bg-[#DDEBDD] text-[#164A35] flex items-center justify-center text-xl shrink-0">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-[24px] text-[#164A35] leading-tight" style="font-family: 'Playfair Display', serif; font-weight: 700;">Tambah Kategori</h2>
+                        <p class="text-[14px] text-[#777873]">Buat kategori menu baru</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Nama Kategori</label>
+                        <input type="text" x-model="newCategoryName" placeholder="Contoh: Coffee, Pastry..." class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <button @click="saveCategory" class="w-full py-3.5 bg-[#164A35] text-white rounded-[14px] font-bold text-[15px] hover:bg-[#0f3526] transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-save"></i> Simpan Kategori
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- MODAL: ADD TABLE -->
         <div x-show="showAddTableModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-[#164A35]/40 backdrop-blur-sm" x-transition.opacity>
             <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(22,74,53,0.15)] relative overflow-hidden" @click.away="showAddTableModal = false" x-transition>
@@ -582,6 +617,8 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
                 currentTab: localStorage.getItem('activeDashboardTab') || 'orders',
+                showAddCategoryModal: false,
+                newCategoryName: '',
                 showAddMenuModal: false,
                 showAddTableModal: false,
                 showResetQRModal: false,
@@ -620,7 +657,7 @@
                     }
                 },
                 addDraftRow() {
-                    this.draftMenus.push({ id: null, name: '', price: '', categoryId: this.categories[0], imagePreview: null, imageFile: null });
+                    this.draftMenus.push({ id: null, name: '', price: '', categoryId: this.categories.length > 0 ? this.categories[0].id : '', imagePreview: null, imageFile: null });
                 },
                 removeDraftRow(index) {
                     this.draftMenus.splice(index, 1);
@@ -648,15 +685,15 @@
                                 const priceStr = cols[2].replace(/[^0-9]/g, '');
                                 const price = parseInt(priceStr) || 0;
                                 
-                                let validCategory = this.categories[0];
+                                let validCategoryId = this.categories.length > 0 ? this.categories[0].id : '';
                                 const catLower = category.toLowerCase();
-                                const matchedCat = this.categories.find(c => c.toLowerCase() === catLower);
-                                if (matchedCat) validCategory = matchedCat;
+                                const matchedCat = this.categories.find(c => c.name.toLowerCase() === catLower);
+                                if (matchedCat) validCategoryId = matchedCat.id;
                                 
                                 this.draftMenus.unshift({
                                     id: null,
                                     name: name,
-                                    categoryId: validCategory,
+                                    categoryId: validCategoryId,
                                     price: price,
                                     imagePreview: null,
                                     imageFile: null
@@ -1131,6 +1168,32 @@ handleDraftImageUpload(event, index) {
                             this.addToast('Menu berhasil disimpan!', 'success');
                         } else {
                             this.addToast(data.message || 'Gagal menyimpan menu', 'error');
+                        }
+                    }).catch(err => {
+                        this.addToast('Terjadi kesalahan jaringan', 'error');
+                    });
+                },
+                saveCategory() {
+                    if (!this.newCategoryName.trim()) {
+                        this.addToast('Nama kategori tidak boleh kosong', 'error');
+                        return;
+                    }
+                    fetch('/admin/api/category', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ name: this.newCategoryName })
+                    }).then(res => res.json()).then(data => {
+                        if (data.success) {
+                            this.categories.push(data.category);
+                            this.newCategoryName = '';
+                            this.showAddCategoryModal = false;
+                            this.addToast('Kategori berhasil ditambahkan!', 'success');
+                        } else {
+                            this.addToast(data.message || 'Gagal menambahkan kategori', 'error');
                         }
                     }).catch(err => {
                         this.addToast('Terjadi kesalahan jaringan', 'error');
