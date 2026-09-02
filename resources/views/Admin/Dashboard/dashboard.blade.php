@@ -244,10 +244,22 @@
                     <div>
                         <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Upload Gambar (Opsional)</label>
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-[14px] bg-[#F8F7F3] border border-dashed border-[#C5DBC5] flex items-center justify-center shrink-0">
-                                <i class="fas fa-image text-[#C5DBC5] text-xl"></i>
+                            <div class="w-16 h-16 rounded-[14px] bg-[#F8F7F3] border border-dashed border-[#C5DBC5] flex items-center justify-center shrink-0 overflow-hidden">
+                                <template x-if="newMenu.imagePreview">
+                                    <img :src="newMenu.imagePreview" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!newMenu.imagePreview">
+                                    <i class="fas fa-image text-[#C5DBC5] text-xl"></i>
+                                </template>
                             </div>
-                            <input type="file" x-ref="menuImageInput" class="w-full text-sm text-[#777873] file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-[#DDEBDD] file:text-[#164A35] hover:file:bg-[#C5DBC5] cursor-pointer outline-none">
+                            <input type="file" x-ref="menuImageInput" @change="(e) => {
+                                const file = e.target.files[0];
+                                if(file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => newMenu.imagePreview = ev.target.result;
+                                    reader.readAsDataURL(file);
+                                }
+                            }" class="w-full text-sm text-[#777873] file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-[#DDEBDD] file:text-[#164A35] hover:file:bg-[#C5DBC5] cursor-pointer outline-none" accept="image/*">
                         </div>
                     </div>
                 </div>
@@ -650,7 +662,7 @@
                 activeMenuFilter: 'all',
                 activeOrderFilter: 'process',
                 searchQuery: '',
-                newMenu: { id: null, name: '', price: '', desc: '', categoryId: '' },
+                newMenu: { id: null, name: '', price: '', desc: '', categoryId: '', imagePreview: null },
                 showBulkUpload: false,
                 draftMenus: [],
                 categories: window.INITIAL_DATA.categories || [],
@@ -1093,7 +1105,7 @@ handleDraftImageUpload(event, index) {
                     }));
                 },
                 editMenu(item) {
-                    this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc, categoryId: item.categoryId || '' };
+                    this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc, categoryId: item.categoryId || '', imagePreview: item.image || null };
                     this.showAddMenuModal = true;
                 },
                 async deleteMenu(id) {
@@ -1166,7 +1178,7 @@ handleDraftImageUpload(event, index) {
                                 data.menu.image = data.menu.image_url ? data.menu.image_url : null;
                                 this.menuItems.unshift(data.menu);
                             }
-                            this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '' };
+                            this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '', imagePreview: null };
                             if (this.$refs.menuImageInput) this.$refs.menuImageInput.value = '';
                             this.showAddMenuModal = false;
                             this.addToast('Menu berhasil disimpan!', 'success');
