@@ -76,7 +76,7 @@ class UserController extends Controller
         $user->update($validated);
 
         // redirect back to where they came from (could be shop show page or users index)
-        if ($request->has('redirect_to')) {
+        if ($request->filled('redirect_to')) {
             return redirect($request->input('redirect_to'))->with('success', 'Pengguna berhasil diperbarui.');
         }
 
