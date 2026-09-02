@@ -68,11 +68,16 @@ class Shop extends Model
         return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
     }
 
-    public function getBannerUrlAttribute($value)
+    public function getBannersAttribute($value)
     {
-        if (!$value) return null;
-        if (\Illuminate\Support\Str::startsWith($value, ['http://', 'https://', '/'])) return $value;
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
+        $banners = is_string($value) ? json_decode($value, true) : $value;
+        if (!is_array($banners)) return [];
+        
+        return array_map(function ($banner) {
+            if (!$banner) return null;
+            if (\Illuminate\Support\Str::startsWith($banner, ['http://', 'https://', '/'])) return $banner;
+            return \Illuminate\Support\Facades\Storage::disk('public')->url($banner);
+        }, $banners);
     }
 
     public function products()

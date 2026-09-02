@@ -1073,12 +1073,12 @@ handleDraftImageUpload(event, index) {
                                 console.log('New Order Received via Reverb:', e.order);
                                 this.handleNewOrderFromSocket(e.order);
                             });
-                    } else {
-                        // Fallback polling just in case Echo fails to load
-                        setInterval(() => {
-                            this.fetchLiveOrders(false);
-                        }, 5000);
                     }
+                    
+                    // Fallback polling just in case Echo fails to connect
+                    setInterval(() => {
+                        this.fetchLiveOrders(false);
+                    }, 5000);
 
 
                 },
@@ -1727,13 +1727,14 @@ handleDraftImageUpload(event, index) {
                     formData.append('whatsapp_number', this.settings.whatsapp_number || '');
                     formData.append('maps_link', this.settings.maps_link || '');
                     
-                    if (this.settings.logoFile) {
-                        formData.append('logo', this.settings.logoFile);
+                    if (this.settings.logoFile && this.$refs.logoInput && this.$refs.logoInput.files.length > 0) {
+                        formData.append('logo', this.$refs.logoInput.files[0]);
                     }
                     formData.append('is_banner_active', this.settings.is_banner_active ? 1 : 0);
                     for (let i = 0; i < 3; i++) {
-                        if (this.settings.bannerFiles[i]) {
-                            formData.append(`banner_${i}`, this.settings.bannerFiles[i]);
+                        const bInput = document.getElementById('bannerInput' + i);
+                        if (this.settings.bannerFiles[i] && bInput && bInput.files.length > 0) {
+                            formData.append(`banner_${i}`, bInput.files[0]);
                         } else if (this.settings.bannerPaths[i]) {
                             formData.append(`existing_banner_${i}`, this.settings.bannerPaths[i]);
                         }
