@@ -50,6 +50,7 @@
                         <option value="crew" @selected(old('role') === 'crew')>Crew / Pelayan</option>
                         <option value="kitchen" @selected(old('role') === 'kitchen')>Kitchen / Dapur</option>
                         <option value="cashier" @selected(old('role') === 'cashier')>Cashier / Kasir</option>
+                        <option value="barista" @selected(old('role') === 'barista')>Barista</option>
                     </select>
                 </div>
             </div>

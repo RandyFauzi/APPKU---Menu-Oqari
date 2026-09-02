@@ -33,9 +33,7 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-white border-r border-[#E3E1DC] flex flex-col hidden md:flex shrink-0">
         <div class="p-6 flex items-center gap-3 border-b border-[#E3E1DC]">
-            <div class="w-10 h-10 bg-[#164A35] rounded-lg flex items-center justify-center text-white">
-                <i class="fas fa-chess-king"></i>
-            </div>
+            <img src="{{ asset('logo-oqari.webp') }}" alt="Oqari Logo" class="w-10 h-10 object-contain">
             <div class="font-black text-xl text-[#164A35]">Oqari</div>
         </div>
         
@@ -66,9 +64,7 @@
         <!-- Mobile Header (Visible only on small screens) -->
         <div class="md:hidden bg-white border-b border-[#E3E1DC] p-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-[#164A35] rounded-lg flex items-center justify-center text-white">
-                    <i class="fas fa-chess-king text-sm"></i>
-                </div>
+                <img src="{{ asset('logo-oqari.webp') }}" alt="Oqari Logo" class="w-8 h-8 object-contain">
                 <div class="font-black text-lg text-[#164A35]">Oqari Super Admin</div>
             </div>
             <!-- Menu button could go here, but for now we keep it simple -->

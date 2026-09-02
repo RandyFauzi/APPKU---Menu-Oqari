@@ -40,7 +40,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => ['required', Rule::in(['superadmin', 'owner', 'admin', 'crew', 'kitchen', 'cashier'])],
+            'role' => ['required', Rule::in(['superadmin', 'owner', 'admin', 'crew', 'kitchen', 'cashier', 'barista'])],
             'shop_id' => 'nullable|exists:shops,id',
         ]);
 
@@ -63,7 +63,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
-            'role' => ['required', Rule::in(['superadmin', 'owner', 'admin', 'crew', 'kitchen', 'cashier'])],
+            'role' => ['required', Rule::in(['superadmin', 'owner', 'admin', 'crew', 'kitchen', 'cashier', 'barista'])],
             'shop_id' => 'nullable|exists:shops,id',
         ]);
 

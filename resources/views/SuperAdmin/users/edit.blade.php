@@ -52,6 +52,7 @@
                         <option value="crew" @selected(old('role', $user->role) === 'crew')>Crew / Pelayan</option>
                         <option value="kitchen" @selected(old('role', $user->role) === 'kitchen')>Kitchen / Dapur</option>
                         <option value="cashier" @selected(old('role', $user->role) === 'cashier')>Cashier / Kasir</option>
+                        <option value="barista" @selected(old('role', $user->role) === 'barista')>Barista</option>
                     </select>
                 </div>
             </div>
