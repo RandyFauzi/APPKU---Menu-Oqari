@@ -7,23 +7,28 @@
         window.SHOP_TRACKING_URL = '{{ route("shop.tracking", $shop->slug) }}';
 
         if (typeof apiData !== 'undefined' && window.SHOP_DATA) {
-            const uniqueCats = [...new Set(window.SHOP_DATA.map(item => item.category_name))];
-            apiData.categories = [{ id: 'all', name: 'All Menu', icon: 'fa-star' }];
+            // Build categories from relational data (category object on each product)
+            const catMap = {};
+            window.SHOP_DATA.forEach(item => {
+                if (item.category && item.category.id && !catMap[item.category.id]) {
+                    catMap[item.category.id] = item.category.name;
+                }
+            });
             const iconMap = {
                 'Coffee': 'fa-coffee',
                 'Tea': 'fa-leaf',
                 'Foods': 'fa-utensils',
                 'Snacks': 'fa-cookie',
-                'Sweets': 'fa-ice-cream'
+                'Sweets': 'fa-ice-cream',
+                'Beverages': 'fa-glass-water'
             };
-            uniqueCats.forEach(cat => {
-                if (cat) {
-                    apiData.categories.push({
-                        id: cat,
-                        name: cat,
-                        icon: iconMap[cat] || 'fa-utensils'
-                    });
-                }
+            apiData.categories = [{ id: 'all', name: 'All Menu', icon: 'fa-star' }];
+            Object.entries(catMap).forEach(([id, name]) => {
+                apiData.categories.push({
+                    id: parseInt(id),
+                    name: name,
+                    icon: iconMap[name] || 'fa-utensils'
+                });
             });
             
             // Override highlights with shop banners
@@ -55,7 +60,8 @@
                         name: item.name,
                         price: Number(item.price),
                         desc: item.description,
-                        categoryId: item.category_name,
+                        categoryId: item.category ? item.category.id : null,
+                        categoryName: item.category ? item.category.name : '',
                         img: item.image_url ? '/uploads/' + item.image_url : '/Assests/null image.webp',
                         soldOut: item.is_sold_out
                     }));

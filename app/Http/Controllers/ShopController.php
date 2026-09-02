@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Orders\CreateOrderAction;
 use App\Events\OrderCreated;
-use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Shop;
-use App\Models\Table;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ShopController extends Controller
 {
     public function show(Request $request, $slug)
     {
         $shop = Shop::where('slug', $slug)->firstOrFail();
-        $menuItems = Product::where('shop_id', $shop->id)->where('is_sold_out', false)->get();
+        $menuItems = Product::where('shop_id', $shop->id)->where('is_sold_out', false)->with('category')->get();
         $table = $request->query('table');
 
         return view('shop.menu', compact('shop', 'menuItems', 'table'));
@@ -36,9 +33,9 @@ class ShopController extends Controller
         return view('shop.tracking', compact('shop'));
     }
 
-    public function submitOrder(Request $request, $slug, \App\Actions\Orders\CreateOrderAction $createOrder)
+    public function submitOrder(Request $request, $slug, CreateOrderAction $createOrder)
     {
-        $shop = \App\Models\Shop::where('slug', $slug)->firstOrFail();
+        $shop = Shop::where('slug', $slug)->firstOrFail();
 
         $validated = $request->validate([
             'table_id' => 'required|string',
@@ -57,12 +54,12 @@ class ShopController extends Controller
         try {
             // Action Pattern / Domain Layer
             $order = $createOrder->execute($shop, $validated, 'DINE_IN');
-            
+
             $paymentUrl = null;
             if (config('services.xendit.active')) {
                 // Future Xendit Integration
             } else {
-                \App\Events\OrderCreated::dispatch($order);
+                OrderCreated::dispatch($order);
             }
 
             return response()->json([

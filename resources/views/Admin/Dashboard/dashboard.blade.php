@@ -209,10 +209,13 @@
                         <div>
                             <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Kategori</label>
                             <select x-model="newMenu.categoryId" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none appearance-none">
-                                <option value="beverages">Beverages</option>
-                                <option value="foods">Foods</option>
-                                <option value="snacks">Snacks</option>
-                                <option value="sweets">Sweets</option>
+                                <option value="" disabled>-- Pilih Kategori --</option>
+                                <template x-for="cat in categories" :key="cat.id">
+                                    <option :value="cat.id" x-text="cat.name"></option>
+                                </template>
+                                <template x-if="categories.length === 0">
+                                    <option disabled>Belum ada kategori — buat dulu di tab Kategori</option>
+                                </template>
                             </select>
                         </div>
                         <div>
@@ -570,7 +573,8 @@
             tables: @json($tables ?? []),
             shop: @json($shop ?? null),
             user: @json(auth()->user()),
-            users: @json($users ?? [])
+            users: @json($users ?? []),
+            categories: @json($categories ?? [])
         };
 
         const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
@@ -608,7 +612,7 @@
                 newMenu: { id: null, name: '', price: '', desc: '', categoryId: '' },
                 showBulkUpload: false,
                 draftMenus: [],
-                categories: ['Coffee', 'Pastry', 'Beverages', 'Foods', 'Snacks', 'Sweets'],
+                categories: window.INITIAL_DATA.categories || [],
                 initBulkUpload() {
                     this.showBulkUpload = true;
                     if (this.draftMenus.length === 0) {
@@ -1040,14 +1044,15 @@ handleDraftImageUpload(event, index) {
                 loadMenu() {
                     this.menuItems = window.INITIAL_DATA.menu.map(m => ({
                         ...m,
-                        categoryId: m.category_name,
+                        categoryId: m.category_id,
+                        categoryName: m.category ? m.category.name : '',
                         desc: m.description,
                         image: m.image_url ? ('/uploads/' + m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
                         tags: m.tags || []
                     }));
                 },
                 editMenu(item) {
-                    this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc, categoryId: item.categoryId || 'beverages' };
+                    this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc, categoryId: item.categoryId || '' };
                     this.showAddMenuModal = true;
                 },
                 async deleteMenu(id) {

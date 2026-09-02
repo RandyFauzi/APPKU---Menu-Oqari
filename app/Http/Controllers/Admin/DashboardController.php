@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\CashRegisterSession;
+use App\Models\Category;
 use App\Models\CrewShift;
 use App\Models\Order;
 use App\Models\Product;
@@ -13,8 +15,10 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
@@ -58,15 +62,15 @@ class DashboardController extends Controller
 
         // Eager load everything needed for tabs
         $menuItems = Product::where('shop_id', $shop->id)->with('category', 'variants', 'modifierGroups.modifiers')->get();
-        $categories = \App\Models\Category::where('shop_id', $shop->id)->orderBy('sort_order')->get();
+        $categories = Category::where('shop_id', $shop->id)->orderBy('sort_order')->get();
         $orders = Order::where('shop_id', $shop->id)->with('items.product', 'table')->orderBy('created_at', 'desc')->get();
         $tables = Table::where('shop_id', $shop->id)->get();
         $users = User::where('shop_id', $shop->id)->get();
-        $activeSession = \App\Models\CashRegisterSession::where('user_id', $user->id)->where('status', 'OPEN')->first();
+        $activeSession = CashRegisterSession::where('user_id', $user->id)->where('status', 'OPEN')->first();
 
         // Analytics Calculations (Real Data)
-        $today = \Carbon\Carbon::today();
-        $yesterday = \Carbon\Carbon::yesterday();
+        $today = Carbon::today();
+        $yesterday = Carbon::yesterday();
 
         $ordersToday = Order::where('shop_id', $shop->id)->whereDate('created_at', $today)->count();
         $ordersYesterday = Order::where('shop_id', $shop->id)->whereDate('created_at', $yesterday)->count();
@@ -77,11 +81,11 @@ class DashboardController extends Controller
         $revenueChange = $revenueYesterday > 0 ? round((($revenueToday - $revenueYesterday) / $revenueYesterday) * 100) : 0;
 
         // Top Product
-        $topItem = \Illuminate\Support\Facades\DB::table('order_items')
+        $topItem = DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.shop_id', $shop->id)
             ->whereDate('orders.created_at', $today)
-            ->select('order_items.product_name', \Illuminate\Support\Facades\DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
             ->groupBy('order_items.product_name')
             ->orderByDesc('total_sold')
             ->first();
@@ -104,16 +108,16 @@ class DashboardController extends Controller
             'revenueChange' => $revenueChange,
             'topProduct' => $topItem ? [
                 'name' => $topItem->product_name,
-                'sold' => (int)$topItem->total_sold,
-                'change' => 0 // Can implement yesterday comparison later
+                'sold' => (int) $topItem->total_sold,
+                'change' => 0, // Can implement yesterday comparison later
             ] : [
                 'name' => 'Belum ada',
                 'sold' => 0,
-                'change' => 0
+                'change' => 0,
             ],
             'returningCustomers' => 15, // Dummy for now as we don't have full CRM
             'newCustomersPct' => 85,
-            'hourlySales' => $hourlySales
+            'hourlySales' => $hourlySales,
         ];
 
         return view('Admin.Dashboard.dashboard', compact('shop', 'orders', 'menuItems', 'categories', 'tables', 'users', 'analytics', 'activeSession'));
@@ -207,14 +211,14 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $shopId = $user->shop_id;
-        if (!$shopId) {
+        if (! $shopId) {
             abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
         }
 
         $data = [
             'name' => $request->name,
             'price' => $request->price,
-            'category_name' => $request->categoryId,
+            'category_id' => $request->categoryId ?: null,
             'description' => $request->desc,
         ];
 
@@ -227,6 +231,8 @@ class DashboardController extends Controller
             $data
         );
 
+        $menu->load('category');
+
         return response()->json(['success' => true, 'menu' => $menu]);
     }
 
@@ -234,7 +240,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $shopId = $user->shop_id;
-        if (!$shopId) {
+        if (! $shopId) {
             abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
         }
 
@@ -309,7 +315,7 @@ class DashboardController extends Controller
 
     public function saveSettings(Request $request)
     {
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255',
@@ -331,7 +337,7 @@ class DashboardController extends Controller
 
         $user = Auth::user();
         $shopId = $user->shop_id;
-        if (!$shopId) {
+        if (! $shopId) {
             abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
         }
 
@@ -403,7 +409,6 @@ class DashboardController extends Controller
 
     public function saveCrew(Request $request)
     {
-        
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -427,7 +432,7 @@ class DashboardController extends Controller
 
     public function updateCrew(Request $request, $id)
     {
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$id,
@@ -460,7 +465,7 @@ class DashboardController extends Controller
 
     public function deleteCrew($id)
     {
-        
+
         $user = Auth::user();
         $crew = User::where('shop_id', $user->shop_id)->where('id', $id)->first();
 
@@ -514,7 +519,7 @@ class DashboardController extends Controller
     public function getLogs()
     {
         $user = Auth::user();
-        
+
         $logs = ActivityLog::with('user')
             ->where('shop_id', $user->shop_id)
             ->orderBy('created_at', 'desc')
@@ -561,11 +566,11 @@ class DashboardController extends Controller
     public function saveShift(Request $request)
     {
         $user = Auth::user();
-        
+
         $request->validate([
             'user_id' => [
                 'required',
-                \Illuminate\Validation\Rule::exists('users', 'id')->where('shop_id', $user->shop_id)
+                Rule::exists('users', 'id')->where('shop_id', $user->shop_id),
             ],
             'date' => 'required|date',
             'start_time' => 'required',
@@ -590,6 +595,4 @@ class DashboardController extends Controller
 
         return response()->json(['success' => true]);
     }
-
-    }
-
+}

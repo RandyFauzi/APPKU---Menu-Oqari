@@ -9,17 +9,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory, BelongsToShop, SoftDeletes;
+    use BelongsToShop, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'shop_id',
         'category_id',
+        'category_name',
         'name',
         'description',
         'price',
         'image_url',
         'is_sold_out',
-        'cogs'
+        'cogs',
     ];
 
     public function shop()
