@@ -28,11 +28,11 @@
         }
     </style>
 </head>
-<body class="bg-[#F8F7F3] text-gray-800 flex min-h-screen">
+<body class="bg-[#F8F7F3] text-gray-800 flex h-screen overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-[#E3E1DC] flex flex-col hidden md:flex shrink-0">
-        <div class="p-6 flex items-center gap-3 border-b border-[#E3E1DC]">
+    <aside class="w-64 bg-white border-r border-[#E3E1DC] flex flex-col hidden md:flex shrink-0 h-full overflow-y-auto">
+        <div class="p-6 flex items-center gap-3 border-b border-[#E3E1DC] shrink-0">
             <img src="{{ asset('logo-oqari.webp') }}" alt="Oqari Logo" class="w-10 h-10 object-contain">
             <div class="font-black text-xl text-[#164A35]">Oqari</div>
         </div>
@@ -49,7 +49,7 @@
             </a>
         </nav>
 
-        <div class="p-4 border-t border-[#E3E1DC]">
+        <div class="p-4 border-t border-[#E3E1DC] shrink-0">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="w-full px-4 py-2 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition flex items-center justify-center gap-2">
@@ -60,7 +60,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-x-hidden">
+    <main class="flex-1 h-full overflow-y-auto overflow-x-hidden">
         <!-- Mobile Header (Visible only on small screens) -->
         <div class="md:hidden bg-white border-b border-[#E3E1DC] p-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
