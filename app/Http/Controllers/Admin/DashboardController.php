@@ -63,7 +63,7 @@ class DashboardController extends Controller
         // Eager load everything needed for tabs
         $menuItems = Product::where('shop_id', $shop->id)->with('category', 'variants', 'modifierGroups.modifiers')->get();
         $categories = Category::where('shop_id', $shop->id)->orderBy('sort_order')->get();
-        $orders = Order::where('shop_id', $shop->id)->with('items.product', 'table')->orderBy('created_at', 'desc')->get();
+        $orders = Order::where('shop_id', $shop->id)->with('items.product', 'table')->orderBy('created_at', 'desc')->limit(150)->get();
         $tables = Table::where('shop_id', $shop->id)->get();
         $users = User::where('shop_id', $shop->id)->get();
         $activeSession = CashRegisterSession::where('user_id', $user->id)->where('status', 'OPEN')->first();
@@ -133,6 +133,7 @@ class DashboardController extends Controller
         $orders = Order::where('shop_id', $shopId)
             ->with(['items.product', 'table'])
             ->orderBy('created_at', 'desc')
+            ->limit(150)
             ->get();
 
         return response()->json($orders);

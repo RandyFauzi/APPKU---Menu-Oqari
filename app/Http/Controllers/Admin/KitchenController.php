@@ -17,6 +17,7 @@ class KitchenController extends Controller
             ->whereIn('order_status', ['CONFIRMED', 'PREPARING', 'READY'])
             ->with('items')
             ->latest()
+            ->limit(150)
             ->get();
 
         return view('Admin.kitchen.index', compact('orders'));
