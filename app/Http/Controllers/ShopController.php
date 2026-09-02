@@ -95,8 +95,11 @@ class ShopController extends Controller
                 'customer_email' => $request->customer_email,
                 'customer_phone' => $request->customer_phone,
                 'payment_method' => $request->payment_method,
-                'total_price' => $total,
-                'status' => 'Masuk',
+                'subtotal' => $total,
+                'grand_total' => $total,
+                'order_status' => 'CONFIRMED',
+                'payment_status' => 'UNPAID',
+                'fulfillment_type' => 'DINE_IN',
             ]);
 
             // Simpan Items
