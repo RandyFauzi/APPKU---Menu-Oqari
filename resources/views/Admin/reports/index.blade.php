@@ -16,7 +16,7 @@
     </div>
 
     <!-- Top Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <p class="text-sm font-semibold text-gray-500 uppercase">Gross Sales</p>
             <p class="text-2xl font-bold text-gray-900 mt-1">Rp {{ number_format($grossSales, 0, ',', '.') }}</p>
@@ -32,6 +32,14 @@
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <p class="text-sm font-semibold text-gray-500 uppercase">Avg Order Value</p>
             <p class="text-2xl font-bold text-gray-900 mt-1">Rp {{ number_format($aov, 0, ',', '.') }}</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <p class="text-sm font-semibold text-gray-500 uppercase">COGS</p>
+            <p class="text-2xl font-bold text-red-500 mt-1">Rp {{ number_format($totalCogs, 0, ',', '.') }}</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <p class="text-sm font-semibold text-gray-500 uppercase">Gross Profit ({{ $margin }}%)</p>
+            <p class="text-2xl font-bold text-green-600 mt-1">Rp {{ number_format($grossProfit, 0, ',', '.') }}</p>
         </div>
     </div>
 

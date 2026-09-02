@@ -17,7 +17,8 @@ class Product extends Model
         'price',
         'image_url',
         'is_sold_out',
-    ];
+    
+        'cogs',];
 
     public function shop()
     {

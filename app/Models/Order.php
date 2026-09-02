@@ -29,7 +29,8 @@ class Order extends Model
         'fulfillment_type',
         'payment_reference',
         'paid_at',
-    ];
+    
+        'total_cogs',];
 
     protected $casts = [
         'paid_at' => 'datetime',

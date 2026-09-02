@@ -15,7 +15,8 @@ class OrderItem extends Model
         'variant_id',
         'variant_name',
         'modifiers',
-    ];
+    
+        'total_cogs',];
 
     protected $casts = [
         'modifiers' => 'array',
