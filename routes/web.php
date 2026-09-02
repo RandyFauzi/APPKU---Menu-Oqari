@@ -26,6 +26,11 @@ Route::middleware(['auth'])->group(function () {
     });
 
 
+
+    // Reporting & Analytics
+    Route::middleware('can:view-reports')->group(function () {
+        Route::get('/admin/reports', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('admin.reports.index');
+    });
     // POS Terminal
     Route::middleware('can:access-pos')->group(function () {
         Route::get('/admin/pos', [App\Http\Controllers\Admin\PosController::class, 'index'])->name('admin.pos.index');
@@ -71,8 +76,12 @@ require __DIR__.'/auth.php';
 
 Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\SuperAdminController::class, 'index'])->name('dashboard');
+
+    Route::post('/shops/{shop}/suspend', [\App\Http\Controllers\SuperAdminController::class, 'suspendShop'])->name('shops.suspend');
+    Route::post('/shops/{shop}/activate', [\App\Http\Controllers\SuperAdminController::class, 'activateShop'])->name('shops.activate');
+    Route::delete('/shops/{shop}', [\App\Http\Controllers\SuperAdminController::class, 'deleteShop'])->name('shops.delete');
+
     Route::delete('/users/{id}', [\App\Http\Controllers\SuperAdminController::class, 'deleteUser'])->name('users.delete');
-    Route::delete('/shops/{id}', [\App\Http\Controllers\SuperAdminController::class, 'deleteShop'])->name('shops.delete');
 });
 
 

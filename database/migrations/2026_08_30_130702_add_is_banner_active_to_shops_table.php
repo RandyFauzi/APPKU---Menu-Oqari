@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('shops', function (Blueprint $table) {
-            $table->boolean('is_banner_active')->default(true)->after('banners');
-        });
+        if (!Schema::hasColumn('shops', 'is_banner_active')) {
+            Schema::table('shops', function (Blueprint $table) {
+                $table->boolean('is_banner_active')->default(true)->after('banners');
+            });
+        }
     }
 
     public function down(): void
