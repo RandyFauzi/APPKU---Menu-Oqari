@@ -52,6 +52,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('can:manage-settings')->group(function () {
         Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
         Route::post('/admin/api/profile', [DashboardController::class, 'updateProfile']);
+        // Table & QR Management
+        Route::post('/admin/api/table', [DashboardController::class, 'saveTable']);
+        Route::put('/admin/api/table', [DashboardController::class, 'updateTableQR']);
     });
 
     // Crew Management (Owner/Manager)
