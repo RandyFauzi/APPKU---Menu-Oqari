@@ -36,11 +36,11 @@ class ShopController extends Controller
         return view('shop.tracking', compact('shop'));
     }
 
-    public function submitOrder(Request $request, $slug)
+    public function submitOrder(Request $request, $slug, \App\Actions\Orders\CreateOrderAction $createOrder)
     {
-        $shop = Shop::where('slug', $slug)->firstOrFail();
+        $shop = \App\Models\Shop::where('slug', $slug)->firstOrFail();
 
-        $request->validate([
+        $validated = $request->validate([
             'table_id' => 'required|string',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'nullable|email|max:255',
@@ -48,106 +48,32 @@ class ShopController extends Controller
             'payment_method' => 'required|string|exists:payment_methods,code',
             'items' => 'required|array|min:1|max:50',
             'items.*.id' => 'required|exists:products,id',
-            'items.*.qty' => 'required|integer|min:1|max:100', // Mencegah spam qty jutaan
+            'items.*.qty' => 'required|integer|min:1|max:100',
             'items.*.notes' => 'nullable|string|max:200',
-            // Variant dan Modifier validation placeholder jika struktur JSON dikirimkan
+            'items.*.variant_id' => 'nullable|integer',
+            'items.*.modifiers' => 'nullable|array',
         ]);
 
-        $total = 0;
-        $orderItems = [];
-
-        // Hitung total dan verifikasi produk
-        foreach ($request->items as $item) {
-            // Anti-manipulasi harga & status produk
-            $product = Product::where('id', $item['id'])
-                ->where('shop_id', $shop->id)
-                ->where('is_sold_out', false)
-                ->first();
-
-            if (! $product) {
-                return response()->json(['success' => false, 'message' => 'Beberapa produk tidak tersedia atau telah habis.'], 400);
-            }
-
-            $subtotal = $product->price * $item['qty'];
-            $total += $subtotal;
-
-            $orderItems[] = [
-                'product_id' => $product->id,
-                'quantity' => $item['qty'],
-                'price' => $product->price,
-                'notes' => $item['notes'] ?? null,
-            ];
-        }
-
-        if (empty($orderItems)) {
-            return response()->json(['success' => false, 'message' => 'Items are invalid.'], 400);
-        }
-
-        $order = DB::transaction(function () use ($shop, $request, $total, $orderItems, &$paymentUrl, $slug) {
-            // Resolve Table
-            $tableModel = Table::where('shop_id', $shop->id)->where('name', $request->table_id)->first();
-            if (! $tableModel) {
-                $tableModel = Table::create(['shop_id' => $shop->id, 'name' => $request->table_id]);
-            }
-
-            // Create Order
-            $order = Order::create([
-                'shop_id' => $shop->id,
-                'table_id' => $tableModel->id,
-                'customer_name' => $request->customer_name,
-                'customer_email' => $request->customer_email,
-                'customer_phone' => $request->customer_phone,
-                'payment_method' => $request->payment_method,
-                'subtotal' => $total,
-                'grand_total' => $total,
-                'order_status' => 'CONFIRMED',
-                'payment_status' => 'UNPAID',
-                'fulfillment_type' => 'DINE_IN',
-            ]);
-
-            // Simpan Items
-            foreach ($orderItems as $orderItem) {
-                $orderItem['order_id'] = $order->id;
-                OrderItem::create($orderItem);
-            }
-
-            // Load relasi agar return datanya lengkap (untuk socket/response)
-            $order->load('items.product');
-
-            // INTEGRASI PAYMENT GATEWAY (XENDIT)
-            // Saat ini XENDIT_ACTIVE=false, maka akan langsung sukses.
-            // Jika true, kita akan melakukan request ke API Xendit untuk membuat Invoice (QRIS/E-Wallet).
+        try {
+            // Action Pattern / Domain Layer
+            $order = $createOrder->execute($shop, $validated, 'DINE_IN');
+            
             $paymentUrl = null;
             if (config('services.xendit.active')) {
-                // Contoh implementasi API Xendit (Create Invoice):
-                /*
-                $response = Http::withHeaders([
-                    'Authorization' => 'Basic ' . base64_encode(config('services.xendit.api_key') . ':')
-                ])->post('https://api.xendit.co/v2/invoices', [
-                    'external_id' => 'order_' . $order->id,
-                    'amount' => $total,
-                    'payer_email' => $request->customer_email,
-                    'description' => 'Pembayaran Pesanan #' . $order->id,
-                    'success_redirect_url' => route('shop.tracking', ['slug' => $slug])
-                ]);
-                $paymentUrl = $response->json('invoice_url');
-                $order->update(['payment_status' => 'PENDING']);
-                */
+                // Future Xendit Integration
+            } else {
+                \App\Events\OrderCreated::dispatch($order);
             }
-            
-            return $order;
-        });
-        
-        if (!config('services.xendit.active')) {
-            // Jika testing/bypassed, pesanan langsung masuk ke kasir via Reverb
-            OrderCreated::dispatch($order);
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Order placed successfully',
-            'payment_url' => $paymentUrl,
-            'order' => $order,
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Order placed successfully',
+                'payment_url' => $paymentUrl,
+                'order' => $order,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
 }
