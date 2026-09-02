@@ -77,11 +77,11 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\SuperAdminController::class, 'index'])->name('dashboard');
 
-    Route::post('/shops/{shop}/suspend', [\App\Http\Controllers\SuperAdminController::class, 'suspendShop'])->name('shops.suspend');
-    Route::post('/shops/{shop}/activate', [\App\Http\Controllers\SuperAdminController::class, 'activateShop'])->name('shops.activate');
-    Route::delete('/shops/{shop}', [\App\Http\Controllers\SuperAdminController::class, 'deleteShop'])->name('shops.delete');
+    Route::resource('shops', \App\Http\Controllers\SuperAdmin\ShopController::class);
+    Route::post('/shops/{shop}/suspend', [\App\Http\Controllers\SuperAdmin\ShopController::class, 'suspend'])->name('shops.suspend');
+    Route::post('/shops/{shop}/activate', [\App\Http\Controllers\SuperAdmin\ShopController::class, 'activate'])->name('shops.activate');
 
-    Route::delete('/users/{id}', [\App\Http\Controllers\SuperAdminController::class, 'deleteUser'])->name('users.delete');
+    Route::resource('users', \App\Http\Controllers\SuperAdmin\UserController::class);
 });
 
 
