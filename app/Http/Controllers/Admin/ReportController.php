@@ -27,14 +27,27 @@ class ReportController extends Controller
             ->whereIn('payment_status', ['PAID', 'PENDING']) // Exclude FAILED/CANCELLED for sales
             ->get();
 
-        $transactionsCount = $orders->count();
-        $grossSales = $orders->sum('grand_total');
-        $totalTax = $orders->sum('tax_amount');
+                $transactionsCount = $orders->count();
+        
+        // Accurate Financial Metrics Definition
+        // Gross merchandise sales (Subtotal of all items sold)
+        $grossSales = $orders->sum('subtotal');
         $totalDiscount = $orders->sum('discount_amount');
         
-        $netSales = $grossSales - $totalTax; // Simplified Net Sales
-        $aov = $transactionsCount > 0 ? $grossSales / $transactionsCount : 0;
-
+        // Gross - Discount = Net sales before tax
+        $netSales = $grossSales - $totalDiscount;
+        
+        $totalTax = $orders->sum('tax_amount');
+        $totalServiceCharge = $orders->sum('service_charge_amount');
+        
+        // Grand Total collected from customers
+        $grandTotal = $orders->sum('grand_total');
+        
+        // AOV typically uses Grand Total because it's what the customer actually pays
+        $aov = $transactionsCount > 0 ? $grandTotal / $transactionsCount : 0;
+        
+        // Ensure variables are defined for the view if it expects them
+        
         // 2. Split by Payment Methods
         $payments = Payment::where('shop_id', $shopId)
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
