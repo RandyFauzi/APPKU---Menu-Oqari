@@ -1,12 +1,19 @@
-@extends('layouts.app')
-@section('title', 'Oqari Super Admin')
-
-@section('content')
-<div class="min-h-screen bg-[#F8F7F3] p-4 md:p-8">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oqari Super Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/webp" href="{{ asset('logo-oqari.webp') }}">
+</head>
+<body class="bg-[#F8F7F3] text-gray-800">
+<div class="min-h-screen p-4 md:p-8">
     <div class="max-w-7xl mx-auto space-y-6">
         
         <!-- Header -->
-        <div class="flex items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-[#E3E1DC]">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-6 rounded-2xl shadow-sm border border-[#E3E1DC] gap-4">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-[#164A35] rounded-xl flex items-center justify-center text-white">
                     <i class="fas fa-chess-king text-2xl"></i>
@@ -19,8 +26,8 @@
             <div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="px-4 py-2 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    <button type="submit" class="w-full sm:w-auto px-4 py-2 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </form>
             </div>
@@ -55,13 +62,13 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Shops Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] overflow-hidden">
-                <div class="p-4 border-b border-[#E3E1DC] bg-gray-50">
+            <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] overflow-hidden flex flex-col">
+                <div class="p-4 border-b border-[#E3E1DC] bg-gray-50 shrink-0">
                     <h3 class="font-bold text-gray-800"><i class="fas fa-store mr-2"></i> Daftar Toko</h3>
                 </div>
-                <div class="overflow-x-auto max-h-[500px]">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-white sticky top-0 shadow-sm text-xs uppercase text-gray-500">
+                <div class="overflow-x-auto max-h-[500px] flex-1">
+                    <table class="w-full text-left text-sm relative">
+                        <thead class="bg-white sticky top-0 shadow-sm text-xs uppercase text-gray-500 z-10">
                             <tr>
                                 <th class="p-4">Nama Toko</th>
                                 <th class="p-4">Slug</th>
@@ -92,13 +99,13 @@
             </div>
 
             <!-- Users Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] overflow-hidden">
-                <div class="p-4 border-b border-[#E3E1DC] bg-gray-50">
+            <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] overflow-hidden flex flex-col">
+                <div class="p-4 border-b border-[#E3E1DC] bg-gray-50 shrink-0">
                     <h3 class="font-bold text-gray-800"><i class="fas fa-users mr-2"></i> Daftar Pengguna</h3>
                 </div>
-                <div class="overflow-x-auto max-h-[500px]">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-white sticky top-0 shadow-sm text-xs uppercase text-gray-500">
+                <div class="overflow-x-auto max-h-[500px] flex-1">
+                    <table class="w-full text-left text-sm relative">
+                        <thead class="bg-white sticky top-0 shadow-sm text-xs uppercase text-gray-500 z-10">
                             <tr>
                                 <th class="p-4">Nama & Email</th>
                                 <th class="p-4">Role</th>
@@ -141,4 +148,5 @@
 
     </div>
 </div>
-@endsection
+</body>
+</html>
