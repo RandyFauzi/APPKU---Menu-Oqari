@@ -56,12 +56,13 @@ class DashboardController extends Controller
         $shopId = $user->shop_id;
         $shop = Shop::find($shopId);
 
-        $menuItems = Product::where('shop_id', $shop->id)->get();
+        $menuItems = Product::where('shop_id', $shop->id)->with('category', 'variants', 'modifierGroups.modifiers')->get();
+        $categories = \App\Models\Category::where('shop_id', $shop->id)->orderBy('sort_order')->get();
         $orders = Order::where('shop_id', $shop->id)->with('items.product', 'table')->orderBy('created_at', 'desc')->get();
         $tables = Table::where('shop_id', $shop->id)->get();
         $users = User::where('shop_id', $shop->id)->get();
 
-        return view('Admin.Dashboard.dashboard', compact('shop', 'orders', 'menuItems', 'tables', 'users'));
+        return view('Admin.Dashboard.dashboard', compact('shop', 'orders', 'menuItems', 'categories', 'tables', 'users'));
     }
 
     public function getLiveOrders()
