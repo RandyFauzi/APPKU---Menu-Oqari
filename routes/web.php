@@ -50,20 +50,7 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
-Route::get('/setup-superadmin', function () {
-    $admin = \App\Models\User::where('email', 'admin@oqari.com')->first();
-    if (!$admin) {
-        \App\Models\User::create([
-            'name' => 'Oqari Owner',
-            'email' => 'admin@oqari.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('OqariSuper2026!'),
-            'role' => 'superadmin',
-            'shop_id' => null,
-        ]);
-        return 'Berhasil! Akun Super Admin (admin@oqari.com) sudah dibuat di Database Live. Silakan kembali ke halaman Login.';
-    }
-    return 'Akun Super Admin sudah ada! Silakan login.';
-});
+
 
 Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\SuperAdminController::class, 'index'])->name('dashboard');
@@ -76,3 +63,4 @@ Route::get('/{slug}', [ShopController::class, 'show'])->name('shop.menu');
 Route::get('/{slug}/cart', [ShopController::class, 'cart'])->name('shop.cart');
 Route::get('/{slug}/tracking', [ShopController::class, 'tracking'])->name('shop.tracking');
 Route::post('/{slug}/order', [ShopController::class, 'submitOrder'])->name('shop.order.submit');
+
