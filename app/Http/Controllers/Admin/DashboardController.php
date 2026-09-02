@@ -280,21 +280,19 @@ class DashboardController extends Controller
             abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
         }
 
+        // Validate all uploaded images if they exist
+        foreach ($request->allFiles() as $key => $file) {
+            if (\Illuminate\Support\Str::startsWith($key, 'images.')) {
+                $request->validate([
+                    $key => 'mimes:jpeg,png,jpg,webp|max:5120'
+                ]);
+            }
+        }
+
         $items = $request->input('items', []);
         $savedMenus = [];
 
         foreach ($items as $index => $itemData) {
-            // Check if there's an image file for this specific index
-            $imagePath = null;
-            if ($request->hasFile("images.{$index}")) {
-                $imagePath = $request->file("images.{$index}")->store('menus', 'public');
-            }
-
-            // Validasi sederhana
-            if (empty($itemData['name']) || empty($itemData['price'])) {
-                continue; // Lewati item yang kosong
-            }
-
             $productData = [
                 'name' => $itemData['name'],
                 'price' => $itemData['price'],
@@ -302,20 +300,43 @@ class DashboardController extends Controller
                 'description' => $itemData['description'] ?? null,
             ];
 
-            if ($imagePath) {
-                $productData['image_url'] = $imagePath;
-            }
-
-            // Jika ada id, berarti update, jika tidak, create
+            $menu = null;
             if (! empty($itemData['id'])) {
                 $menu = Product::where('id', $itemData['id'])->where('shop_id', $shopId)->first();
-                if ($menu) {
-                    $menu->update($productData);
-                    $savedMenus[] = $menu;
+            }
+
+            if ($request->hasFile("images.{$index}")) {
+                $file = $request->file("images.{$index}");
+                $extension = $file->getClientOriginalExtension();
+                
+                // If update, clean up old file
+                if ($menu && $menu->image_path) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($menu->image_path);
                 }
+
+                $productIdDir = $menu ? $menu->id : \Illuminate\Support\Str::uuid()->toString();
+                $filename = 'image_' . \Illuminate\Support\Str::random(10) . '.' . $extension;
+                
+                $path = $file->storeAs("media/shops/{$shopId}/products/{$productIdDir}", $filename, 'public');
+                $productData['image_path'] = $path;
+            }
+
+            // Validasi sederhana
+            if (empty($itemData['name']) || empty($itemData['price'])) {
+                continue; // Lewati item yang kosong
+            }
+
+            if ($menu) {
+                $menu->update($productData);
+                $savedMenus[] = $menu;
             } else {
                 $productData['shop_id'] = $shopId;
                 $menu = Product::create($productData);
+                
+                // If we used a UUID dir for new product, we could move it to the real ID, 
+                // but the DB image_path already contains the UUID path which is fine, 
+                // or we can rename the directory. For now, UUID is perfectly fine.
+                
                 $savedMenus[] = $menu;
             }
         }
@@ -356,7 +377,7 @@ class DashboardController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255',
             'primary_color' => 'nullable|string|max:20',
-            'logo' => 'nullable|image|max:2048',
+            'logo' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
             'theme_style' => 'nullable|string|in:grid,list',
             'is_open' => 'nullable|boolean',
             'slogan' => 'nullable|string|max:255',
@@ -366,9 +387,9 @@ class DashboardController extends Controller
             'maps_link' => 'nullable|string|max:500',
             'operating_hours' => 'nullable|string',
             'is_banner_active' => 'nullable|boolean',
-            'banner_0' => 'nullable|image|max:5120',
-            'banner_1' => 'nullable|image|max:5120',
-            'banner_2' => 'nullable|image|max:5120',
+            'banner_0' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
+            'banner_1' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
+            'banner_2' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         $user = Auth::user();
@@ -423,20 +444,43 @@ class DashboardController extends Controller
         }
 
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('shops', 'public');
-            $shop->logo_url = $path;
+            // Delete old file if exists
+            if ($shop->logo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($shop->logo_path);
+            }
+            
+            // Generate random filename
+            $extension = $request->file('logo')->getClientOriginalExtension();
+            $filename = 'logo_' . \Illuminate\Support\Str::random(10) . '.' . $extension;
+            
+            $path = $request->file('logo')->storeAs("media/shops/{$shopId}/branding", $filename, 'public');
+            $shop->logo_path = $path;
         }
 
         // Banners
         $banners = [];
+        $existingBanners = $shop->banner_paths ?? [];
+        
         for ($i = 0; $i < 3; $i++) {
             if ($request->hasFile("banner_{$i}")) {
-                $banners[] = $request->file("banner_{$i}")->store('shops/banners', 'public');
+                $extension = $request->file("banner_{$i}")->getClientOriginalExtension();
+                $filename = 'banner_' . $i . '_' . \Illuminate\Support\Str::random(10) . '.' . $extension;
+                
+                $path = $request->file("banner_{$i}")->storeAs("media/shops/{$shopId}/branding", $filename, 'public');
+                $banners[] = $path;
             } elseif ($request->filled("existing_banner_{$i}")) {
                 $banners[] = $request->input("existing_banner_{$i}");
             }
         }
-        $shop->banners = $banners;
+        
+        // Clean up orphan banners
+        foreach ($existingBanners as $oldBanner) {
+            if (!in_array($oldBanner, $banners)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldBanner);
+            }
+        }
+
+        $shop->banner_paths = $banners;
 
         $shop->save();
 

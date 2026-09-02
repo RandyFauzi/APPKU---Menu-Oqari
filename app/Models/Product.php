@@ -18,10 +18,25 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'image_url',
+        'image_path',
         'is_sold_out',
         'cogs',
     ];
+
+    protected $appends = [
+        'image_url',
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::forceDeleted(function ($product) {
+            if ($product->image_path && !\Illuminate\Support\Str::startsWith($product->image_path, ['http://', 'https://', '/'])) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image_path);
+            }
+        });
+    }
 
     public function shop()
     {
@@ -43,8 +58,9 @@ class Product extends Model
         return $this->hasMany(ModifierGroup::class);
     }
 
-    public function getImageUrlAttribute($value)
+    public function getImageUrlAttribute()
     {
+        $value = $this->image_path;
         if (!$value) {
             return null;
         }
