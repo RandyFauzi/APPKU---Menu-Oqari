@@ -25,6 +25,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/api/shifts', [DashboardController::class, 'saveShift']);
     });
 
+
+    // POS Terminal
+    Route::middleware('can:access-pos')->group(function () {
+        Route::get('/admin/pos', [App\Http\Controllers\Admin\PosController::class, 'index'])->name('admin.pos.index');
+        // Nanti kita tambah route /admin/pos/open-register, dll.
+    });
     // Menu Management
     Route::middleware('can:manage-menu')->group(function () {
         Route::post('/admin/api/menu/{menu}/toggle', [DashboardController::class, 'toggleMenuStatus']);
