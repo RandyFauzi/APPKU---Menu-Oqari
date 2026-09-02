@@ -12,7 +12,9 @@ class CrewShift extends Model
     use HasFactory;
 
     protected $fillable = [
+        'shift_template_id',
         'user_id',
+        'position',
         'date',
         'start_time',
         'end_time',
