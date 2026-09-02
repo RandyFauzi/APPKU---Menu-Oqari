@@ -22,5 +22,15 @@ class Product extends Model
     public function shop()
     {
         return $this->belongsTo(Shop::class);
+    
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
     }
+
+    public function modifierGroups()
+    {
+        return $this->hasMany(ModifierGroup::class);
+    }
+}
 }

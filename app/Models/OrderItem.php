@@ -12,7 +12,15 @@ class OrderItem extends Model
         'quantity',
         'price',
         'notes',
+        'variant_id',
+        'variant_name',
+        'modifiers',
     ];
+
+    protected $casts = [
+        'modifiers' => 'array',
+    ];
+
 
     public function order()
     {
