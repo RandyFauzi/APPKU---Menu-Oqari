@@ -130,7 +130,7 @@
                         <span class="px-4 text-xs font-extrabold text-gray-400 uppercase tracking-wider">Personal</span>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center px-4 py-3 rounded-xl transition-all text-gray-600 hover:bg-primary/10 hover:text-primary">
+                        <a href="{{ route('admin.my-schedule') }}" class="flex items-center px-4 py-3 rounded-xl transition-all {{ request()->routeIs('admin.my-schedule') ? 'bg-primary text-white font-bold shadow-md' : 'text-gray-600 hover:bg-primary/10 hover:text-primary' }}">
                             <i class="fas fa-calendar-check w-6"></i>
                             <span>My Schedule</span>
                         </a>
