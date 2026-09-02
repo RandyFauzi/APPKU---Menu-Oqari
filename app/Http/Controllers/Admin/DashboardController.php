@@ -49,7 +49,7 @@ class DashboardController extends Controller
 
             $user->update([
                 'shop_id' => $newShop->id,
-                'role' => 'admin', // Jadikan dia admin dari tokonya sendiri
+                'role' => 'owner', // Jadikan dia owner dari tokonya sendiri
             ]);
         }
 
@@ -248,6 +248,7 @@ class DashboardController extends Controller
 
     public function saveSettings(Request $request)
     {
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255',
@@ -338,11 +339,13 @@ class DashboardController extends Controller
 
     public function saveCrew(Request $request)
     {
+        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'role' => 'required|string',
+            'role' => 'required|string|in:manager,cashier,kitchen,waiter',
         ]);
 
         $user = Auth::user();
@@ -360,11 +363,12 @@ class DashboardController extends Controller
 
     public function updateCrew(Request $request, $id)
     {
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$id,
             'password' => 'nullable|string|min:6',
-            'role' => 'required|string',
+            'role' => 'required|string|in:manager,cashier,kitchen,waiter',
         ]);
 
         $currentUser = Auth::user();
@@ -392,6 +396,7 @@ class DashboardController extends Controller
 
     public function deleteCrew($id)
     {
+        
         $user = Auth::user();
         $crew = User::where('shop_id', $user->shop_id)->where('id', $id)->first();
 
@@ -445,9 +450,7 @@ class DashboardController extends Controller
     public function getLogs()
     {
         $user = Auth::user();
-        if ($user->role !== 'admin') {
-            return response()->json([], 403);
-        }
+        
         $logs = ActivityLog::with('user')
             ->where('shop_id', $user->shop_id)
             ->orderBy('created_at', 'desc')
@@ -494,9 +497,7 @@ class DashboardController extends Controller
     public function saveShift(Request $request)
     {
         $user = Auth::user();
-        if ($user->role !== 'admin') {
-            return response()->json(['success' => false], 403);
-        }
+        
 
         $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -522,12 +523,11 @@ class DashboardController extends Controller
     public function deleteShift($id)
     {
         $user = Auth::user();
-        if ($user->role !== 'admin') {
-            return response()->json(['success' => false], 403);
-        }
+        
 
         CrewShift::where('id', $id)->delete();
 
         return response()->json(['success' => true]);
     }
 }
+

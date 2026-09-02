@@ -122,7 +122,7 @@
                                 </td>
                                 <td class="p-4">
                                     <span class="px-2 py-1 rounded-lg text-[10px] font-black uppercase
-                                        {{ $user->role === 'superadmin' ? 'bg-purple-100 text-purple-700' : ($user->role === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700') }}">
+                                        {{ $user->role === 'superadmin' ? 'bg-purple-100 text-purple-700' : ($user->role === 'owner' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700') }}">
                                         {{ $user->role }}
                                     </span>
                                 </td>

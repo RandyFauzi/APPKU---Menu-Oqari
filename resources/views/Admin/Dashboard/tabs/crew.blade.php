@@ -30,8 +30,8 @@
                             <td class="py-4 px-6">
                                 <span class="px-2.5 py-1 rounded-md text-[12px] font-bold uppercase tracking-wider" 
                                     :class="{
-                                        'bg-[#F7E5D2] text-[#D97A32]': user.role === 'admin',
-                                        'bg-[#DDEBDD] text-[#164A35]': user.role !== 'admin'
+                                        'bg-[#F7E5D2] text-[#D97A32]': user.role === 'owner',
+                                        'bg-[#DDEBDD] text-[#164A35]': user.role !== 'owner'
                                     }" x-text="user.role"></span>
                             </td>
                             <td class="py-4 px-6 text-right">

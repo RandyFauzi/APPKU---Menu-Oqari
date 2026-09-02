@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center mb-8">
             <p class="text-[#777873] text-[16px]">Atur jadwal kerja harian untuk seluruh pegawai.</p>
             <button @click="showAddShiftModal = true; newShift = { id: null, user_id: '', date: '', start_time: '', end_time: '', notes: '' }" 
-                x-show="user.role === 'admin'" class="bg-[#164A35] text-white px-5 py-2.5 rounded-[12px] font-bold text-[14px] hover:bg-[#0f3526] transition-colors flex items-center gap-2 shadow-sm">
+                x-show="['owner', 'manager'].includes(user.role)" class="bg-[#164A35] text-white px-5 py-2.5 rounded-[12px] font-bold text-[14px] hover:bg-[#0f3526] transition-colors flex items-center gap-2 shadow-sm">
                 <i class="fas fa-calendar-plus"></i> Tambah Shift
             </button>
         </div>
@@ -17,7 +17,7 @@
                         <th class="py-4 px-6 text-[13px] font-bold text-[#777873] uppercase tracking-wider">Crew</th>
                         <th class="py-4 px-6 text-[13px] font-bold text-[#777873] uppercase tracking-wider">Waktu Shift</th>
                         <th class="py-4 px-6 text-[13px] font-bold text-[#777873] uppercase tracking-wider">Catatan</th>
-                        <th x-show="user.role === 'admin'" class="py-4 px-6 text-[13px] font-bold text-[#777873] uppercase tracking-wider text-right">Aksi</th>
+                        <th x-show="['owner', 'manager'].includes(user.role)" class="py-4 px-6 text-[13px] font-bold text-[#777873] uppercase tracking-wider text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,7 +30,7 @@
                             <td class="py-4 px-6 font-medium text-[#202522]" x-text="shift.user_name"></td>
                             <td class="py-4 px-6 text-[#777873]"><span x-text="shift.start_time"></span> - <span x-text="shift.end_time"></span></td>
                             <td class="py-4 px-6 text-[#777873]" x-text="shift.notes || '-'"></td>
-                            <td x-show="user.role === 'admin'" class="py-4 px-6 text-right">
+                            <td x-show="['owner', 'manager'].includes(user.role)" class="py-4 px-6 text-right">
                                 <button @click="deleteShift(shift.id)" class="text-red-400 hover:text-red-600 p-2 transition-colors"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
