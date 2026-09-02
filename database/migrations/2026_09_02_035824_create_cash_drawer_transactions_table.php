@@ -1,30 +1,30 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    public function up(): void
-    {
+return new class extends Migration {
+    public function up(): void {
         Schema::create('cash_drawer_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cash_register_session_id')->constrained('cash_register_sessions')->cascadeOnDelete();
+            $table->foreignId('shop_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('cash_register_session_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('order_id')->nullable()->constrained()->nullOnDelete();
             
-            $table->string('type'); // CASH_IN, CASH_OUT, PAYMENT, REFUND
-            $table->integer('amount'); // nilai positif
-            $table->string('description')->nullable();
+            $table->string('type'); // CASH_IN, CASH_OUT
+            $table->decimal('amount', 12, 2);
+            $table->string('description');
             
-            // Relasi opsional jika ini berasal dari pembayaran order
-            $table->foreignId('payment_id')->nullable()->constrained()->nullOnDelete(); 
+            // Cancellation fields
+            $table->timestamp('cancelled_at')->nullable();
+            $table->foreignId('cancelled_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('cancellation_reason')->nullable();
             
             $table->timestamps();
         });
     }
-
-    public function down(): void
-    {
+    public function down(): void {
         Schema::dropIfExists('cash_drawer_transactions');
     }
 };
