@@ -43,13 +43,14 @@ class ShopController extends Controller
         $request->validate([
             'table_id' => 'required|string',
             'customer_name' => 'required|string|max:255',
-            'customer_email' => 'nullable|string|max:255',
-            'customer_phone' => 'nullable|string|max:255',
+            'customer_email' => 'nullable|email|max:255',
+            'customer_phone' => 'nullable|string|max:20',
             'payment_method' => 'required|string',
-            'items' => 'required|array|min:1',
+            'items' => 'required|array|min:1|max:50',
             'items.*.id' => 'required|exists:products,id',
-            'items.*.qty' => 'required|integer|min:1',
-            'items.*.notes' => 'nullable|string',
+            'items.*.qty' => 'required|integer|min:1|max:100', // Mencegah spam qty jutaan
+            'items.*.notes' => 'nullable|string|max:200',
+            // Variant dan Modifier validation placeholder jika struktur JSON dikirimkan
         ]);
 
         $total = 0;
@@ -57,12 +58,14 @@ class ShopController extends Controller
 
         // Hitung total dan verifikasi produk
         foreach ($request->items as $item) {
+            // Anti-manipulasi harga & status produk
             $product = Product::where('id', $item['id'])
                 ->where('shop_id', $shop->id)
+                ->where('is_sold_out', false)
                 ->first();
 
             if (! $product) {
-                continue;
+                return response()->json(['success' => false, 'message' => 'Beberapa produk tidak tersedia atau telah habis.'], 400);
             }
 
             $subtotal = $product->price * $item['qty'];
