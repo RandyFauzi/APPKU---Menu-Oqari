@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SuperAdminAuditLog extends Model
 {
+    protected $table = 'superadmin_audit_logs';
+
     protected $fillable = [
         'actor_id',
         'action',
