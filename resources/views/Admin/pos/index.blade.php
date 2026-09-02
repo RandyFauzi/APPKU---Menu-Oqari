@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] { display: none !important; }
         .hide-scroll::-webkit-scrollbar { display: none; }
@@ -19,8 +20,7 @@
         .animate-badge { animation: pulse-badge 1s ease-in-out infinite; }
     </style>
 </head>
-<body class="bg-gray-100 h-screen overflow-hidden font-sans" x-data="posApp()" x-init="init()" @keydown.window="handleKey($event)">
-<audio id="chime-sound" src="{{ asset('Assest/notif_orderan_masuk.mp3') }}" preload="auto"></audio>
+<body class="bg-gray-100 h-screen overflow-hidden font-sans" x-data="posApp()" x-init="init()" @keydown.window="handleKey($event)" @refresh-live-orders.window="fetchIncoming()">
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- SHIFT GATE — Blur overlay if no active session             --}}
@@ -510,15 +510,7 @@ function posApp() {
 
                 // Play sound if there's a new ID we haven't seen yet
                 const currentIds = newIncoming.map(o => o.id);
-                const hasNew = currentIds.some(id => !this.lastKnownOrderIds.includes(id));
-                
-                if (hasNew && this.lastKnownOrderIds.length > 0) {
-                    const chime = document.getElementById('chime-sound');
-                    if (chime) {
-                        chime.currentTime = 0;
-                        chime.play().catch(() => {});
-                    }
-                }
+                // Badge count updated above. Sound is handled by notification engine.
                 this.lastKnownOrderIds = currentIds;
 
             } catch(e) {
@@ -707,6 +699,11 @@ function promptCloseShift() {
         document.querySelector('form[action*="shift.close"]').submit();
     }
 }
+</script>
+
+<x-order-notification />
+<script>
+    window.SHOP_ID = {{ $shop->id ?? 'null' }};
 </script>
 </body>
 </html>

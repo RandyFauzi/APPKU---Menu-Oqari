@@ -21,6 +21,10 @@
     
     <!-- Alpine JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Vite Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
@@ -57,7 +61,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()">
+<body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()" @refresh-live-orders.window="fetchLiveOrders(false)">
     
 
     <!-- Audio untuk notifikasi pesanan masuk -->
@@ -1827,6 +1831,11 @@ handleDraftImageUpload(event, index) {
         <i class="fas fa-store text-xl"></i>
         <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[200px] transition-all duration-500 ease-in-out pl-0 group-hover:pl-3 font-bold text-sm">Lihat Web Pelanggan</span>
     </a>
+    <x-order-notification />
+
+    <script>
+        window.SHOP_ID = {{ $shop->id ?? 'null' }};
+    </script>
 </body>
 </html>
 

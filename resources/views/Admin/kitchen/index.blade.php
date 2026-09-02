@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-900 min-h-screen font-sans" x-data="kitchenApp()" x-init="init()">
+<body class="bg-gray-900 min-h-screen font-sans" x-data="kitchenApp()" x-init="init()" @refresh-live-orders.window="fetchOrders()">
 
 {{-- TOPBAR --}}
 <div class="flex items-center justify-between px-6 py-3 bg-gray-800 border-b border-gray-700">
@@ -201,6 +202,10 @@ function kitchenApp() {
         },
     };
 }
+</script>
+<x-order-notification />
+<script>
+    window.SHOP_ID = {{ Auth::user()->shop_id ?? 'null' }};
 </script>
 </body>
 </html>

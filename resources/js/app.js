@@ -7,3 +7,5 @@ window.Alpine = Alpine;
 Alpine.start();
 
 import './echo';
+
+import './realtime/orders';
