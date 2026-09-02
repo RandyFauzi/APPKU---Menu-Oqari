@@ -72,8 +72,8 @@ class DashboardController extends Controller
         $ordersYesterday = Order::where('shop_id', $shop->id)->whereDate('created_at', $yesterday)->count();
         $ordersChange = $ordersYesterday > 0 ? round((($ordersToday - $ordersYesterday) / $ordersYesterday) * 100) : 0;
 
-        $revenueToday = Order::where('shop_id', $shop->id)->whereDate('created_at', $today)->sum('grand_total');
-        $revenueYesterday = Order::where('shop_id', $shop->id)->whereDate('created_at', $yesterday)->sum('grand_total');
+        $revenueToday = Order::where('shop_id', $shop->id)->where('payment_status', 'PAID')->whereDate('created_at', $today)->sum('grand_total');
+        $revenueYesterday = Order::where('shop_id', $shop->id)->where('payment_status', 'PAID')->whereDate('created_at', $yesterday)->sum('grand_total');
         $revenueChange = $revenueYesterday > 0 ? round((($revenueToday - $revenueYesterday) / $revenueYesterday) * 100) : 0;
 
         // Top Product
@@ -90,6 +90,7 @@ class DashboardController extends Controller
         $hourlySales = [];
         for ($i = 8; $i <= 22; $i += 2) {
             $count = Order::where('shop_id', $shop->id)
+                ->where('payment_status', 'PAID')
                 ->whereDate('created_at', $today)
                 ->whereRaw('HOUR(created_at) >= ? AND HOUR(created_at) < ?', [$i, $i + 2])
                 ->count();

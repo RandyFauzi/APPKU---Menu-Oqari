@@ -24,7 +24,7 @@ class ReportController extends Controller
         // 1. Basic Dashboard Metrics
         $orders = Order::where('shop_id', $shopId)
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->whereIn('payment_status', ['PAID', 'PENDING']) // Exclude FAILED/CANCELLED for sales
+            ->where('payment_status', 'PAID') // Strict cash-basis accounting
             ->get();
 
                 $transactionsCount = $orders->count();
