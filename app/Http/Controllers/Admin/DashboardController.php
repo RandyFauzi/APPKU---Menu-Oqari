@@ -31,8 +31,12 @@ class DashboardController extends Controller
         }
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        if (Auth::user()->role === 'superadmin') {
+            return redirect()->route('superadmin.dashboard');
+        }
+
         $user = Auth::user();
 
         // JIKA USER BARU DAFTAR & BELUM PUNYA SHOP

@@ -7,6 +7,9 @@ use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (auth()->check() && auth()->user()->role === 'superadmin') {
+        return redirect()->route('superadmin.dashboard');
+    }
     return redirect()->route('admin.dashboard');
 });
 
@@ -47,6 +50,13 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\SuperAdminController::class, 'index'])->name('dashboard');
+    Route::delete('/users/{id}', [\App\Http\Controllers\SuperAdminController::class, 'deleteUser'])->name('users.delete');
+    Route::delete('/shops/{id}', [\App\Http\Controllers\SuperAdminController::class, 'deleteShop'])->name('shops.delete');
+});
+
 
 Route::get('/{slug}', [ShopController::class, 'show'])->name('shop.menu');
 Route::get('/{slug}/cart', [ShopController::class, 'cart'])->name('shop.cart');
