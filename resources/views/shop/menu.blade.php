@@ -65,40 +65,53 @@
         <p class="text-gray-500 text-sm mt-1 font-medium tracking-wider uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</p>
     </div>
 
-    <!-- Header APP (Logo, Notif, Profile) -->
-    <header class="bg-white pt-5 pb-3 px-4 z-30 relative">
-        <div class="flex items-center justify-between px-1 pt-2 pb-2">
-            <div class="flex items-center gap-2">
-                <img src="{{ $shop->logo_url ? asset('uploads/' . $shop->logo_url) : asset('logo-oqari.webp') }}" alt="{{ $shop->name }} Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg">
-                <div class="flex flex-col">
-                    <span class="font-extrabold text-[15px] leading-tight tracking-tight text-primary uppercase">{{ $shop->name }}</span>
-                    <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</span>
+    <!-- Header APP (Logo + Search Bar) - Sticky -->
+    <div id="sticky-header" class="sticky top-0 z-40 bg-white transition-shadow duration-300">
+        <div class="pt-4 pb-2 px-4">
+            <div class="flex items-center justify-between px-1 pb-2">
+                <div class="flex items-center gap-2">
+                    <img src="{{ $shop->logo_url ? asset('uploads/' . $shop->logo_url) : asset('logo-oqari.webp') }}" alt="{{ $shop->name }} Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg">
+                    <div class="flex flex-col">
+                        <span class="font-extrabold text-[15px] leading-tight tracking-tight text-primary uppercase">{{ $shop->name }}</span>
+                        <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
 
-    <!-- Location & Search Bar -->
-    <div class="bg-white px-4 mb-5 relative z-30">
-        <div class="bg-white rounded-full p-1.5 flex items-center shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] border border-gray-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/30 transition-all duration-300">
-            <div class="flex items-center gap-2 pl-2 pr-3 border-r border-gray-200 cursor-pointer hover:bg-gray-50 transition rounded-l-full py-1.5 shrink-0 max-w-[55%]" onclick="document.getElementById('modal-table-selector').classList.remove('hidden')">
-                <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <i class="fas fa-map-marker-alt text-primary text-[11px]"></i>
+            <!-- Location & Search Bar -->
+            <div class="pb-3">
+                <div class="bg-white rounded-full p-1.5 flex items-center shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] border border-gray-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/30 transition-all duration-300">
+                    <div class="flex items-center gap-2 pl-2 pr-3 border-r border-gray-200 cursor-pointer hover:bg-gray-50 transition rounded-l-full py-1.5 shrink-0 max-w-[55%]" onclick="document.getElementById('modal-table-selector').classList.remove('hidden')">
+                        <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <i class="fas fa-map-marker-alt text-primary text-[11px]"></i>
+                        </div>
+                        <div class="flex flex-col leading-tight min-w-0">
+                            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider truncate">Deliver To / Meja</span>
+                            <span class="text-xs font-bold text-gray-800 flex items-center gap-1 truncate" id="header-table-number">
+                                {{ $table ?? '(...)' }}
+                                <i class="fas fa-chevron-down text-[8px] text-gray-400 ml-0.5"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-1 flex items-center px-3 relative">
+                        <i class="fas fa-search text-gray-400 text-sm absolute left-3"></i>
+                        <input type="text" id="search-menu" placeholder="Cari menu favoritmu..." class="w-full bg-transparent text-sm font-medium focus:outline-none focus:ring-0 border-0 border-transparent p-0 pl-6 text-gray-800 placeholder-gray-400 shadow-none h-auto">
+                    </div>
                 </div>
-                <div class="flex flex-col leading-tight min-w-0">
-                    <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider truncate">Deliver To / Meja</span>
-                    <span class="text-xs font-bold text-gray-800 flex items-center gap-1 truncate" id="header-table-number">
-                        {{ $table ?? '(...)' }} 
-                        <i class="fas fa-chevron-down text-[8px] text-gray-400 ml-0.5"></i>
-                    </span>
-                </div>
-            </div>
-            <div class="flex-1 flex items-center px-3 relative">
-                <i class="fas fa-search text-gray-400 text-sm absolute left-3"></i>
-                <input type="text" id="search-menu" placeholder="Cari menu favoritmu..." class="w-full bg-transparent text-sm font-medium focus:outline-none focus:ring-0 border-0 border-transparent p-0 pl-6 text-gray-800 placeholder-gray-400 shadow-none h-auto">
             </div>
         </div>
     </div>
+    <script>
+        window.addEventListener('scroll', function () {
+            const header = document.getElementById('sticky-header');
+            if (!header) return;
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-md');
+            } else {
+                header.classList.remove('shadow-md');
+            }
+        });
+    </script>
 
 
     @if($shop->is_banner_active ?? true)
