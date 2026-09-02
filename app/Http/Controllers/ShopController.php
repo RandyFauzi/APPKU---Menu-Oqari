@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Shop;
 use App\Models\Table;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ShopController extends Controller
 {
@@ -79,53 +80,59 @@ class ShopController extends Controller
             return response()->json(['success' => false, 'message' => 'Items are invalid.'], 400);
         }
 
-        // Resolve Table
-        $tableModel = Table::where('shop_id', $shop->id)->where('name', $request->table_id)->first();
-        if (! $tableModel) {
-            $tableModel = Table::create(['shop_id' => $shop->id, 'name' => $request->table_id]);
-        }
+        $order = DB::transaction(function () use ($shop, $request, $total, $orderItems, &$paymentUrl, $slug) {
+            // Resolve Table
+            $tableModel = Table::where('shop_id', $shop->id)->where('name', $request->table_id)->first();
+            if (! $tableModel) {
+                $tableModel = Table::create(['shop_id' => $shop->id, 'name' => $request->table_id]);
+            }
 
-        // Create Order
-        $order = Order::create([
-            'shop_id' => $shop->id,
-            'table_id' => $tableModel->id,
-            'customer_name' => $request->customer_name,
-            'customer_email' => $request->customer_email,
-            'customer_phone' => $request->customer_phone,
-            'payment_method' => $request->payment_method,
-            'total_price' => $total,
-            'status' => 'Masuk',
-        ]);
-
-        // Simpan Items
-        foreach ($orderItems as $orderItem) {
-            $orderItem['order_id'] = $order->id;
-            OrderItem::create($orderItem);
-        }
-
-        // Load relasi agar return datanya lengkap (untuk socket/response)
-        $order->load('items.product');
-
-        // INTEGRASI PAYMENT GATEWAY (XENDIT)
-        // Saat ini XENDIT_ACTIVE=false, maka akan langsung sukses.
-        // Jika true, kita akan melakukan request ke API Xendit untuk membuat Invoice (QRIS/E-Wallet).
-        $paymentUrl = null;
-        if (config('services.xendit.active')) {
-            // Contoh implementasi API Xendit (Create Invoice):
-            /*
-            $response = Http::withHeaders([
-                'Authorization' => 'Basic ' . base64_encode(config('services.xendit.api_key') . ':')
-            ])->post('https://api.xendit.co/v2/invoices', [
-                'external_id' => 'order_' . $order->id,
-                'amount' => $total,
-                'payer_email' => $request->customer_email,
-                'description' => 'Pembayaran Pesanan #' . $order->id,
-                'success_redirect_url' => route('shop.tracking', ['slug' => $slug])
+            // Create Order
+            $order = Order::create([
+                'shop_id' => $shop->id,
+                'table_id' => $tableModel->id,
+                'customer_name' => $request->customer_name,
+                'customer_email' => $request->customer_email,
+                'customer_phone' => $request->customer_phone,
+                'payment_method' => $request->payment_method,
+                'total_price' => $total,
+                'status' => 'Masuk',
             ]);
-            $paymentUrl = $response->json('invoice_url');
-            $order->update(['status' => 'Menunggu Pembayaran']);
-            */
-        } else {
+
+            // Simpan Items
+            foreach ($orderItems as $orderItem) {
+                $orderItem['order_id'] = $order->id;
+                OrderItem::create($orderItem);
+            }
+
+            // Load relasi agar return datanya lengkap (untuk socket/response)
+            $order->load('items.product');
+
+            // INTEGRASI PAYMENT GATEWAY (XENDIT)
+            // Saat ini XENDIT_ACTIVE=false, maka akan langsung sukses.
+            // Jika true, kita akan melakukan request ke API Xendit untuk membuat Invoice (QRIS/E-Wallet).
+            $paymentUrl = null;
+            if (config('services.xendit.active')) {
+                // Contoh implementasi API Xendit (Create Invoice):
+                /*
+                $response = Http::withHeaders([
+                    'Authorization' => 'Basic ' . base64_encode(config('services.xendit.api_key') . ':')
+                ])->post('https://api.xendit.co/v2/invoices', [
+                    'external_id' => 'order_' . $order->id,
+                    'amount' => $total,
+                    'payer_email' => $request->customer_email,
+                    'description' => 'Pembayaran Pesanan #' . $order->id,
+                    'success_redirect_url' => route('shop.tracking', ['slug' => $slug])
+                ]);
+                $paymentUrl = $response->json('invoice_url');
+                $order->update(['status' => 'Menunggu Pembayaran']);
+                */
+            }
+            
+            return $order;
+        });
+        
+        if (!config('services.xendit.active')) {
             // Jika testing/bypassed, pesanan langsung masuk ke kasir via Reverb
             OrderCreated::dispatch($order);
         }
