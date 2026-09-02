@@ -24,7 +24,7 @@ class SuperAdminController extends Controller
 
         // Metrik dengan rentang waktu jelas, bukan count() mentah sepanjang masa.
         $ordersLast30d = Order::where('created_at', '>=', $since30d)->count();
-        $revenueLast30d = Order::where('created_at', '>=', $since30d)->sum('total_price');
+        $revenueLast30d = Order::where('created_at', '>=', $since30d)->sum('grand_total');
 
         $shops = Shop::withCount(['users', 'orders'])
             ->search($request->query('search'))
