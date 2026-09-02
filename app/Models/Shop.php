@@ -33,4 +33,20 @@ class Shop extends Model
         'is_open' => 'boolean',
         'gobiz_token_expires_at' => 'datetime',
     ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }
+
