@@ -24,13 +24,23 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 <body onload="window.print(); window.onafterprint = function(){ window.close(); }">
 
 <div class="text-center mb-2">
-<h3 class="font-bold">{{ $order->shop->name ?? 'Menu Oqari' }}</h3>
-<p>{{ $order->created_at->format('d/m/Y H:i') }}</p>
+@if($order->shop->logo_url)
+    <img src="{{ $order->shop->logo_url }}" style="max-width: 40px; margin-bottom: 4px; border-radius: 4px;">
+@endif
+<h3 class="font-bold" style="text-transform: uppercase;">{{ $order->shop->name ?? 'Menu Oqari' }}</h3>
+@if($order->shop->slogan)
+    <p style="font-size: 9px; margin-bottom: 2px;">{{ $order->shop->slogan }}</p>
+@endif
 </div>
 
 <div class="divider"></div>
-<div class="mb-1">Order: #{{ $order->id }}</div>
-<div class="mb-1">Customer: {{ $order->customer_name }}</div>
+<div class="text-center mb-2">
+    <p>Order #{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</p>
+    <p>{{ $order->created_at->format('d/m/Y H:i') }}</p>
+</div>
+
+<div class="divider"></div>
+<div class="mb-1">Customer: {{ $order->customer_name ?: 'Guest' }}</div>
 <div class="mb-1">Meja: {{ $order->table ? $order->table->name : 'Takeaway' }}</div>
 <div class="divider"></div>
 

@@ -56,6 +56,25 @@ class Shop extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function getLogoUrlAttribute($value)
+    {
+        if (!$value) return null;
+        if (\Illuminate\Support\Str::startsWith($value, ['http://', 'https://', '/'])) return $value;
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
+    }
+
+    public function getBannerUrlAttribute($value)
+    {
+        if (!$value) return null;
+        if (\Illuminate\Support\Str::startsWith($value, ['http://', 'https://', '/'])) return $value;
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
+    }
+
     public function products()
     {
         return $this->hasMany(Product::class);

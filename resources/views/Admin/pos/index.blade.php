@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>POS — {{ $shop->name }}</title>
+    <link rel="icon" href="{{ $shop->logo_url ?? asset('logo-oqari.webp') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -14,9 +15,12 @@
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .product-card:active { transform: scale(0.96); }
         .product-card { transition: transform 0.1s, box-shadow 0.1s; }
+        @keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .animate-badge { animation: pulse-badge 1s ease-in-out infinite; }
     </style>
 </head>
 <body class="bg-gray-100 h-screen overflow-hidden font-sans" x-data="posApp()" x-init="init()" @keydown.window="handleKey($event)">
+<audio id="chime-sound" src="{{ asset('Assest/notif_orderan_masuk.mp3') }}" preload="auto"></audio>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- SHIFT GATE — Blur overlay if no active session             --}}
@@ -48,28 +52,63 @@
 {{-- TOPBAR                                                      --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <div class="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 h-14 shrink-0">
-    <div class="flex items-center gap-3">
-        <a href="{{ route('admin.dashboard') }}" class="text-xl font-black text-green-700 hover:text-green-800 transition">OQARI</a>
-        <span class="text-gray-300">|</span>
-        <span class="text-sm font-semibold text-gray-500">{{ $shop->name }}</span>
+    <div class="flex items-center gap-4">
+        {{-- Shop Branding --}}
+        <div class="flex items-center gap-2">
+            @if($shop->logo_url)
+                <img src="{{ $shop->logo_url }}" class="w-8 h-8 rounded-lg object-cover border border-gray-100">
+            @else
+                <div class="w-8 h-8 rounded-lg bg-green-600 text-white flex items-center justify-center font-bold text-xs">
+                    {{ substr($shop->name, 0, 1) }}
+                </div>
+            @endif
+            <div class="leading-tight">
+                <span class="text-base font-black text-gray-800">{{ $shop->name }}</span>
+                @if($activeSession)
+                <div class="flex items-center gap-1 text-[10px] font-bold text-gray-500 uppercase">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span> Shift Aktif
+                </div>
+                @endif
+            </div>
+        </div>
     </div>
+
     <div class="flex items-center gap-3">
+        {{-- Realtime Badge --}}
+        <a href="/admin/dashboard" class="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-1.5 rounded-xl border border-red-200 hover:bg-red-100 transition shadow-sm" x-show="incomingCount > 0" x-cloak>
+            <i class="fas fa-bell animate-badge"></i>
+            <span class="text-xs font-bold">Pesanan Masuk (<span x-text="incomingCount"></span>)</span>
+        </a>
+        <a href="/admin/dashboard" class="flex items-center gap-2 bg-gray-50 text-gray-500 px-3 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-100 transition shadow-sm" x-show="incomingCount === 0">
+            <i class="fas fa-bell"></i>
+            <span class="text-xs font-bold hidden sm:inline">Live Orders</span>
+        </a>
+
+        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-gray-600 hover:bg-gray-100 transition">
+            <i class="fas fa-chart-line"></i>
+            <span class="text-xs font-bold hidden sm:inline">Dashboard</span>
+        </a>
+
+        <div class="w-px h-6 bg-gray-200 mx-1"></div>
+
+        {{-- User & Shift Actions --}}
+        <div class="flex items-center gap-2 text-sm text-gray-700">
+            <div class="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center font-bold text-xs">
+                {{ substr(Auth::user()->name, 0, 1) }}
+            </div>
+            <div class="leading-tight hidden sm:block">
+                <p class="font-bold text-xs">{{ Auth::user()->name }}</p>
+                <p class="text-[10px] text-gray-500 uppercase">Kasir</p>
+            </div>
+        </div>
+
         @if($activeSession)
-        <span class="text-xs bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full">
-            <i class="fas fa-circle text-green-500 text-[8px] mr-1"></i> SHIFT AKTIF
-        </span>
         <form action="{{ route('shift.close') }}" method="POST" onsubmit="return confirm('Tutup shift sekarang?')">
             @csrf
             <input type="hidden" name="actual_cash" id="closeActualCash" value="0">
-            <button type="button" onclick="promptCloseShift()" class="text-xs text-red-500 font-bold hover:underline">Tutup Shift</button>
+            <button type="button" onclick="promptCloseShift()" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1.5 rounded-lg border border-red-100 font-bold ml-1">Tutup Shift</button>
         </form>
-        @endif
-        <div class="flex items-center gap-2 text-sm text-gray-700">
-            <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-xs">
-                {{ substr(Auth::user()->name, 0, 1) }}
-            </div>
-            <span class="font-semibold hidden sm:block">{{ Auth::user()->name }}</span>
-        </div>
+        @else
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button class="text-xs text-gray-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button>
@@ -343,7 +382,7 @@
                         :class="paymentModal.method === m ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'"
                         class="py-3 rounded-xl border-2 font-bold text-sm transition text-center">
                         <i :class="m === 'CASH' ? 'fas fa-money-bill' : m === 'QRIS' ? 'fas fa-qrcode' : 'fas fa-credit-card'" class="block text-xl mb-1"></i>
-                        <span x-text="m"></span>
+                        <span x-text="m === 'QRIS' ? 'QRIS Manual' : m"></span>
                     </button>
                     </template>
                 </div>
@@ -443,8 +482,47 @@ function posApp() {
 
         quickCash: [5000, 10000, 20000, 50000, 100000],
 
+        incomingCount: 0,
+        lastKnownOrderIds: [],
+
         init() {
-            // Keyboard shortcut listener is on body via @keydown.window
+            // Check for incoming orders every 5 seconds
+            this.fetchIncoming();
+            setInterval(() => this.fetchIncoming(), 5000);
+        },
+
+        async fetchIncoming() {
+            try {
+                // Same endpoint dashboard uses
+                const res = await fetch('/admin/api/orders/live?t=' + new Date().getTime(), {
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!res.ok) return;
+                const dbOrders = await res.json();
+                
+                // Active/incoming orders
+                const newIncoming = dbOrders.filter(o => 
+                    o.status === 'Masuk' || o.order_status === 'CONFIRMED' || o.status === 'CONFIRMED'
+                );
+
+                this.incomingCount = newIncoming.length;
+
+                // Play sound if there's a new ID we haven't seen yet
+                const currentIds = newIncoming.map(o => o.id);
+                const hasNew = currentIds.some(id => !this.lastKnownOrderIds.includes(id));
+                
+                if (hasNew && this.lastKnownOrderIds.length > 0) {
+                    const chime = document.getElementById('chime-sound');
+                    if (chime) {
+                        chime.currentTime = 0;
+                        chime.play().catch(() => {});
+                    }
+                }
+                this.lastKnownOrderIds = currentIds;
+
+            } catch(e) {
+                // silent
+            }
         },
 
         // ── Computed ──────────────────────────

@@ -33,7 +33,7 @@
                         <div @click="openProductModal(product)" class="bg-white border-2 border-gray-100 rounded-xl overflow-hidden cursor-pointer hover:border-blue-500 hover:shadow-md transition-all active:scale-95 group flex flex-col">
                             <div class="h-28 bg-gray-100 w-full relative overflow-hidden">
                                 <template x-if="product.image_url">
-                                    <img :src="'/uploads/' + product.image_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                    <img :src="product.image_url" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
                                 </template>
                                 <template x-if="!product.image_url">
                                     <div class="w-full h-full flex items-center justify-center bg-blue-50 text-blue-200">

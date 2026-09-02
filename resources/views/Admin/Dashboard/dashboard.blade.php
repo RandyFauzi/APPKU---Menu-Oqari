@@ -10,7 +10,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" id="favicon" href="{{ (isset($shop) && $shop->logo_url) ? asset('uploads/' . $shop->logo_url) : asset('logo-oqari.webp') }}">
+    <link rel="icon" type="image/png" id="favicon" href="{{ (isset($shop) && $shop->logo_url) ? $shop->logo_url : asset('logo-oqari.webp') }}">
     
     <!-- View Transitions API -->
     <meta name="view-transition" content="same-origin" />
@@ -67,7 +67,7 @@
     <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg overflow-y-auto hide-scroll">
         <div class="flex items-center gap-3 mb-2 shrink-0">
             @if(isset($shop) && $shop->logo_url)
-                <img src="{{ asset('uploads/' . $shop->logo_url) }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
+                <img src="{{ $shop->logo_url }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
             @else
                 <img src="{{ asset('logo-oqari.webp') }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 object-contain">
             @endif
@@ -774,7 +774,7 @@ handleDraftImageUpload(event, index) {
                     name: window.INITIAL_DATA.shop?.name || '',
                     slug: window.INITIAL_DATA.shop?.slug || '',
                     primary_color: window.INITIAL_DATA.shop?.primary_color || '#1E5A7A',
-                    logoPreview: window.INITIAL_DATA.shop?.logo_url ? '/uploads/' + window.INITIAL_DATA.shop.logo_url : '',
+                    logoPreview: window.INITIAL_DATA.shop?.logo_url ? window.INITIAL_DATA.shop.logo_url : '',
                     logoFile: null,
                     slogan: window.INITIAL_DATA.shop?.slogan || '',
                     is_open: window.INITIAL_DATA.shop?.is_open ?? true,
@@ -784,7 +784,7 @@ handleDraftImageUpload(event, index) {
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
                     maps_link: window.INITIAL_DATA.shop?.maps_link || '',
                     is_banner_active: window.INITIAL_DATA.shop?.is_banner_active ?? true,
-                      banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? '/uploads/' + b : null).concat([null, null, null]).slice(0, 3),
+                      banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? b : null).concat([null, null, null]).slice(0, 3),
                       bannerFiles: [null, null, null],
                       bannerPaths: (window.INITIAL_DATA.shop?.banners || []).concat([null, null, null]).slice(0, 3),
                     operating_hours: window.INITIAL_DATA.shop?.operating_hours || {
@@ -1060,7 +1060,7 @@ handleDraftImageUpload(event, index) {
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
                         this.settings.primary_color = window.INITIAL_DATA.shop.primary_color || '#1E5A7A';
                         if (window.INITIAL_DATA.shop.logo_url) {
-                            this.settings.logoPreview = '/uploads/' + window.INITIAL_DATA.shop.logo_url + '?v=' + new Date(window.INITIAL_DATA.shop.updated_at).getTime();
+                            this.settings.logoPreview = window.INITIAL_DATA.shop.logo_url + '?v=' + new Date(window.INITIAL_DATA.shop.updated_at).getTime();
                         }
                     }
                     
@@ -1088,7 +1088,7 @@ handleDraftImageUpload(event, index) {
                         categoryId: m.category_id,
                         categoryName: m.category ? m.category.name : '',
                         desc: m.description,
-                        image: m.image_url ? ('/uploads/' + m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
+                        image: m.image_url ? (m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
                         tags: m.tags || []
                     }));
                 },
@@ -1157,13 +1157,13 @@ handleDraftImageUpload(event, index) {
                                     item.desc = this.newMenu.desc;
                                     item.categoryId = this.newMenu.categoryId;
                                     if (data.menu.image_url) {
-                                        item.image = '/uploads/' + data.menu.image_url + '?v=' + Date.now();
+                                        item.image = data.menu.image_url + '?v=' + Date.now();
                                     }
                                 }
                             } else {
                                 data.menu.categoryId = data.menu.category_name;
                                 data.menu.desc = data.menu.description;
-                                data.menu.image = data.menu.image_url ? '/uploads/' + data.menu.image_url : null;
+                                data.menu.image = data.menu.image_url ? data.menu.image_url : null;
                                 this.menuItems.unshift(data.menu);
                             }
                             this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '' };
@@ -1320,7 +1320,7 @@ handleDraftImageUpload(event, index) {
                             name: i.product?.name || 'Produk',
                             qty: i.quantity,
                             price: parseFloat(i.price),
-                            image: i.product?.image_url ? ('/uploads/' + i.product.image_url) : null,
+                            image: i.product?.image_url ? (i.product.image_url) : null,
                             desc: i.product?.description || ''
                         }))
                     };
@@ -1374,7 +1374,7 @@ handleDraftImageUpload(event, index) {
                                 name: i.product?.name || 'Produk',
                                 qty: i.quantity,
                                 price: parseFloat(i.price),
-                                image: i.product?.image_url ? ('/uploads/' + i.product.image_url) : null,
+                                image: i.product?.image_url ? (i.product.image_url) : null,
                                 desc: i.product?.description || ''
                             }))
                         }));
@@ -1754,7 +1754,7 @@ handleDraftImageUpload(event, index) {
                         if (data.success) {
                             this.addToast('Pengaturan berhasil disimpan!', 'success');
                             if (data.shop && data.shop.logo_url) {
-                                this.settings.logoPreview = '/uploads/' + data.shop.logo_url;
+                                this.settings.logoPreview = data.shop.logo_url;
                                 this.settings.logoFile = null;
                             }
                             
@@ -1762,14 +1762,14 @@ handleDraftImageUpload(event, index) {
                             const favicon = document.getElementById('favicon');
                             const sidebarLogo = document.getElementById('sidebar-logo');
                             if (data.shop && data.shop.logo_url) {
-                                const newLogoUrl = '/uploads/' + data.shop.logo_url;
+                                const newLogoUrl = data.shop.logo_url;
                                 if (favicon) favicon.href = newLogoUrl;
                                 if (sidebarLogo) sidebarLogo.src = newLogoUrl;
                             }
                             
                             if (data.shop && data.shop.banners) {
                                 this.settings.bannerPaths = data.shop.banners.concat([null, null, null]).slice(0, 3);
-                                this.settings.banners = data.shop.banners.map(b => b ? '/uploads/' + b : null).concat([null, null, null]).slice(0, 3);
+                                this.settings.banners = data.shop.banners.map(b => b ? b : null).concat([null, null, null]).slice(0, 3);
                                 this.settings.bannerFiles = [null, null, null];
                             }
                         } else {

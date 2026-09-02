@@ -185,7 +185,7 @@ class DashboardController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        return view('admin.orders.print', compact('order'));
+        return view('Admin.orders.print', compact('order'));
     }
 
     public function deleteMenu($id)

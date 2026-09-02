@@ -42,4 +42,17 @@ class Product extends Model
     {
         return $this->hasMany(ModifierGroup::class);
     }
+
+    public function getImageUrlAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+
+        if (\Illuminate\Support\Str::startsWith($value, ['http://', 'https://', '/'])) {
+            return $value;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
+    }
 }
