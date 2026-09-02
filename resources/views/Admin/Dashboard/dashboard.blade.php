@@ -64,8 +64,8 @@
     <audio id="chime-sound" src="{{ asset('Assest/notif_orderan_masuk.mp3') }}" preload="auto"></audio>
 
 <!-- Sidebar -->
-    <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg">
-        <div class="flex items-center gap-3 mb-2">
+    <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg overflow-y-auto hide-scroll">
+        <div class="flex items-center gap-3 mb-2 shrink-0">
             @if(isset($shop) && $shop->logo_url)
                 <img src="{{ asset('uploads/' . $shop->logo_url) }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
             @else
@@ -77,7 +77,7 @@
             </div>
         </div>
         
-        <nav class="flex-grow space-y-1">
+        <nav class="flex-grow shrink-0 space-y-1">
             <template x-for="tab in tabs" :key="tab.id">
                 <button @click="currentTab = tab.id" 
                         class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-colors text-left"
@@ -89,7 +89,7 @@
         </nav>
         
         <!-- Store Status Toggle -->
-        <div class="mt-auto mb-2 bg-[#F8F7F3] p-4 rounded-2xl border border-[#E3E1DC] flex flex-col gap-2">
+        <div class="mt-auto shrink-0 mb-2 bg-[#F8F7F3] p-4 rounded-2xl border border-[#E3E1DC] flex flex-col gap-2">
             <div>
                 <label class="block text-[13px] font-bold text-[#202522]">Toko Buka Sekarang?</label>
                 <p class="text-[10px] text-[#777873] leading-tight mt-0.5">Matikan untuk menutup toko manual.</p>
@@ -103,14 +103,14 @@
         </div>
 
         <!-- Promo Card -->
-        <div class="bg-[#F8F7F3] rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mb-2 border border-[#E3E1DC]">
+        <div class="shrink-0 bg-[#F8F7F3] rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mb-2 border border-[#E3E1DC]">
             <h4 class="font-bold text-[16px] leading-tight z-10 text-[#164A35]">Brew Better Days</h4>
             <p class="text-[12px] text-[#777873] z-10 leading-snug w-4/5">Track, analyze and grow your cafe effortlessly.</p>
             <img src="https://images.unsplash.com/photo-1550133730-695473e544be?w=100&fit=crop" class="absolute -bottom-4 -right-4 w-20 h-20 object-cover rounded-full opacity-70 border-4 border-white shadow-sm">
         </div>
         
         <!-- Logout Button -->
-        <button @click="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 transition-colors mt-2">
+        <button @click="logout()" class="shrink-0 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 transition-colors mt-2">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     </aside>
