@@ -1,0 +1,1 @@
+<div x-show="currentTab === 'pos'" x-cloak><h2>POS Under Construction</h2></div>
