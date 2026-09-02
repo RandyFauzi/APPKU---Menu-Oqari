@@ -11,7 +11,10 @@ class CashDrawerTransaction extends Model
 
     protected $fillable = [
         'cash_register_session_id', 'type', 'amount', 'description', 'payment_id'
-    ];
+    
+        'cancelled_at',
+        'cancelled_by',
+        'cancellation_reason',];
 
     public function session()
     {

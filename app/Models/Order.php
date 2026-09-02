@@ -30,7 +30,10 @@ class Order extends Model
         'payment_reference',
         'paid_at',
     
-        'total_cogs',];
+        'total_cogs',
+        'cancelled_at',
+        'cancelled_by',
+        'cancellation_reason',];
 
     protected $casts = [
         'paid_at' => 'datetime',

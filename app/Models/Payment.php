@@ -17,7 +17,10 @@ class Payment extends Model
         'status',
         'reference_id',
         'paid_at',
-    ];
+    
+        'cancelled_at',
+        'cancelled_by',
+        'cancellation_reason',];
 
     protected $casts = [
         'paid_at' => 'datetime',
