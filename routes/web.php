@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CashRegisterController;
+
 use App\Http\Controllers\Admin\GoBizIntegrationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;

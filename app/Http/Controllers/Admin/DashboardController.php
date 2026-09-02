@@ -62,6 +62,7 @@ class DashboardController extends Controller
         $orders = Order::where('shop_id', $shop->id)->with('items.product', 'table')->orderBy('created_at', 'desc')->get();
         $tables = Table::where('shop_id', $shop->id)->get();
         $users = User::where('shop_id', $shop->id)->get();
+        $activeSession = \App\Models\CashRegisterSession::where('user_id', $user->id)->where('status', 'OPEN')->first();
 
         // Analytics Calculations (Real Data)
         $today = \Carbon\Carbon::today();
@@ -114,7 +115,7 @@ class DashboardController extends Controller
             'hourlySales' => $hourlySales
         ];
 
-        return view('Admin.Dashboard.dashboard', compact('shop', 'orders', 'menuItems', 'categories', 'tables', 'users', 'analytics'));
+        return view('Admin.Dashboard.dashboard', compact('shop', 'orders', 'menuItems', 'categories', 'tables', 'users', 'analytics', 'activeSession'));
     }
 
     public function getLiveOrders()
