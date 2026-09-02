@@ -151,7 +151,10 @@ class DashboardController extends Controller
     public function saveMenu(Request $request)
     {
         $user = Auth::user();
-        $shopId = $user->shop_id ?? Shop::first()->id ?? Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        $shopId = $user->shop_id;
+        if (!$shopId) {
+            abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
+        }
 
         $data = [
             'name' => $request->name,
@@ -175,7 +178,10 @@ class DashboardController extends Controller
     public function saveMenuBulk(Request $request)
     {
         $user = Auth::user();
-        $shopId = $user->shop_id ?? Shop::first()->id ?? Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        $shopId = $user->shop_id;
+        if (!$shopId) {
+            abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
+        }
 
         $items = $request->input('items', []);
         $savedMenus = [];
@@ -269,7 +275,10 @@ class DashboardController extends Controller
         ]);
 
         $user = Auth::user();
-        $shopId = $user->shop_id ?? Shop::first()->id ?? Shop::create(['name' => 'My Shop', 'slug' => 'my-shop'])->id;
+        $shopId = $user->shop_id;
+        if (!$shopId) {
+            abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
+        }
 
         if (! $user->shop_id) {
             $user->update(['shop_id' => $shopId]);
