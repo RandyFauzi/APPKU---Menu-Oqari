@@ -75,11 +75,11 @@
 
     <div class="flex items-center gap-3">
         {{-- Realtime Badge --}}
-        <a href="/admin/dashboard" class="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-1.5 rounded-xl border border-red-200 hover:bg-red-100 transition shadow-sm" x-show="incomingCount > 0" x-cloak>
+        <a href="/admin/dashboard?tab=orders" class="flex items-center gap-2 bg-red-50 text-red-600 px-3 py-1.5 rounded-xl border border-red-200 hover:bg-red-100 transition shadow-sm" x-show="incomingCount > 0" x-cloak>
             <i class="fas fa-bell animate-badge"></i>
             <span class="text-xs font-bold">Pesanan Masuk (<span x-text="incomingCount"></span>)</span>
         </a>
-        <a href="/admin/dashboard" class="flex items-center gap-2 bg-gray-50 text-gray-500 px-3 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-100 transition shadow-sm" x-show="incomingCount === 0">
+        <a href="/admin/dashboard?tab=orders" class="flex items-center gap-2 bg-gray-50 text-gray-500 px-3 py-1.5 rounded-xl border border-gray-200 hover:bg-gray-100 transition shadow-sm" x-show="incomingCount === 0">
             <i class="fas fa-bell"></i>
             <span class="text-xs font-bold hidden sm:inline">Live Orders</span>
         </a>

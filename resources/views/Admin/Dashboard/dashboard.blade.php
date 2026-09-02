@@ -632,7 +632,7 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
-                currentTab: localStorage.getItem('activeDashboardTab') || 'orders',
+                currentTab: new URLSearchParams(window.location.search).get('tab') || localStorage.getItem('activeDashboardTab') || 'orders',
                 showAddCategoryModal: false,
                 newCategoryName: '',
                 showAddMenuModal: false,
