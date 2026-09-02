@@ -36,10 +36,10 @@
             if (shopBanners && shopBanners.length > 0) {
                 apiData.highlights = shopBanners.map((banner, index) => ({
                     id: 'h' + (index + 1),
-                    img: banner ? banner : '/Assests/Caraousel/Hero ' + (index + 1) + '.jpg',
+                    img: banner ? (banner.startsWith('http') || banner.startsWith('/') ? banner : '/storage/' + banner) : '/Assests/Caraousel/Hero ' + (index + 1) + '.jpg',
                     title: '',
                     desc: ''
-                })).filter(b => b.img.includes('/storage/'));
+                })).filter(b => b.img);
                 
                 // Jika tidak ada banner valid yang diupload, kembalikan ke default agar tidak kosong
                 if (apiData.highlights.length === 0) {

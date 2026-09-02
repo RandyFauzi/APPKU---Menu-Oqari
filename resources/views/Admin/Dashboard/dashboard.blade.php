@@ -784,7 +784,7 @@ handleDraftImageUpload(event, index) {
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
                     maps_link: window.INITIAL_DATA.shop?.maps_link || '',
                     is_banner_active: window.INITIAL_DATA.shop?.is_banner_active ?? true,
-                      banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? b : null).concat([null, null, null]).slice(0, 3),
+                      banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : '/storage/' + b) : null).concat([null, null, null]).slice(0, 3),
                       bannerFiles: [null, null, null],
                       bannerPaths: (window.INITIAL_DATA.shop?.banners || []).concat([null, null, null]).slice(0, 3),
                     operating_hours: window.INITIAL_DATA.shop?.operating_hours || {
@@ -1769,7 +1769,7 @@ handleDraftImageUpload(event, index) {
                             
                             if (data.shop && data.shop.banners) {
                                 this.settings.bannerPaths = data.shop.banners.concat([null, null, null]).slice(0, 3);
-                                this.settings.banners = data.shop.banners.map(b => b ? b : null).concat([null, null, null]).slice(0, 3);
+                                this.settings.banners = data.shop.banners.map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : '/storage/' + b) : null).concat([null, null, null]).slice(0, 3);
                                 this.settings.bannerFiles = [null, null, null];
                             }
                         } else {
