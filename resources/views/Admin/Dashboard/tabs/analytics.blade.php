@@ -205,24 +205,7 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('analyticsApp', () => ({
-            data: {
-                orders: 142,
-                ordersChange: 12,
-                revenue: 2850000,
-                revenueChange: 18,
-                topProduct: {
-                    name: "Es Kopi Aren",
-                    desc: "Perpaduan espresso, gula aren, dan susu segar.",
-                    sold: 132,
-                    change: 22
-                },
-                returningCustomers: 38,
-                returningChange: 6,
-                totalCustomers: 372,
-                newCustomers: 231,
-                returningCount: 141,
-                newCustomersPct: 62
-            },
+            data: {!! json_encode($analytics) !!},
             trendChart: null,
             customerChart: null,
             formatNum(num) {
@@ -261,7 +244,7 @@
                             {
                                 type: 'line',
                                 label: 'Pesanan (Line)',
-                                data: [15, 25, 45, 35, 30, 55, 40, 20],
+                                data: this.data.hourlySales,
                                 borderColor: '#164A35',
                                 backgroundColor: '#164A35',
                                 borderWidth: 3,
@@ -277,7 +260,7 @@
                             {
                                 type: 'bar',
                                 label: 'Pesanan (Bar)',
-                                data: [15, 25, 45, 35, 30, 55, 40, 20],
+                                data: this.data.hourlySales,
                                 backgroundColor: '#DDEBDD',
                                 borderRadius: 6,
                                 barThickness: 24,
