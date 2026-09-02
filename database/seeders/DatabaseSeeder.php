@@ -23,5 +23,9 @@ class DatabaseSeeder extends Seeder
         $shop3 = Shop::create(['name' => 'Mada Coffee', 'slug' => 'mada', 'primary_color' => '#744210', 'theme_style' => 'classic']);
         User::create(['name' => 'Admin Mada', 'email' => 'admin@mada.com', 'password' => Hash::make('password'), 'shop_id' => $shop3->id]);
         Product::create(['shop_id' => $shop3->id, 'category_name' => 'Espresso Based', 'name' => 'Mada Americano', 'price' => 20000]);
+
+        $this->call([
+            CategorySeeder::class,
+        ]);
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ShiftController;
+use App\Http\Controllers\Admin\KitchenController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SuperAdmin\UserController;
@@ -73,6 +74,30 @@ Route::middleware(['auth'])->group(function () {
     // My Schedule (Crew/Barista — personal view only)
     Route::middleware('can:view-own-schedule')->group(function () {
         Route::get('/admin/my-schedule', [ShiftController::class, 'mySchedule'])->name('admin.my-schedule');
+        Route::get('/admin/crew-home', [App\Http\Controllers\Admin\CrewController::class, 'home'])->name('admin.crew.home');
+    });
+
+    // Kitchen Display (Barista/Kitchen)
+    Route::middleware('can:view-kitchen')->group(function () {
+        Route::get('/admin/kitchen', [KitchenController::class, 'index'])->name('admin.kitchen.index');
+        Route::get('/admin/kitchen/orders', fn() => response()->json(
+            \App\Models\Order::where('shop_id', auth()->user()->shop_id)
+                ->whereIn('order_status', ['CONFIRMED','PREPARING','READY'])
+                ->with('items')
+                ->latest()
+                ->get()
+                ->map(fn($o) => [
+                    'id' => $o->id, 'status' => $o->order_status,
+                    'time' => $o->created_at->format('H:i'),
+                    'items' => $o->items->map(fn($i) => [
+                        'id' => $i->id, 'name' => $i->product_name,
+                        'qty' => $i->quantity, 'variant' => $i->variant_name,
+                        'modifiers' => $i->modifiers ? json_decode($i->modifiers, true) : [],
+                        'notes' => $i->notes,
+                    ])
+                ])
+        ))->name('admin.kitchen.orders');
+        Route::post('/admin/kitchen/orders/{order}/status', [KitchenController::class, 'updateStatus'])->name('admin.kitchen.orders.status');
     });
 
     // Reporting & Analytics
