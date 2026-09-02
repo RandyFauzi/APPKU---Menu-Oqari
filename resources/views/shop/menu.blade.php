@@ -114,7 +114,7 @@
     </script>
 
 
-    @if($shop->is_banner_active ?? true)
+    @if(!empty($shop->banners) && ($shop->is_banner_active ?? true))
     <!-- Promo Carousel Section -->
     <div class="px-4 mb-8">
         <div class="relative bg-primary rounded-[20px] overflow-hidden shadow-lg h-56 group">
