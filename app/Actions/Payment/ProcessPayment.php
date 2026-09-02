@@ -63,7 +63,7 @@ class ProcessPayment
             ]);
 
             // 3. Update active CashRegisterSession financial summary
-            $session = CashRegisterSession::where('shop_id', $order->shop_id)
+            $session = CashRegisterSession::whereHas('register', fn ($q) => $q->where('shop_id', $order->shop_id))
                 ->where('status', 'OPEN')
                 ->latest()
                 ->first();

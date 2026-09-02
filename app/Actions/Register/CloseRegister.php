@@ -22,10 +22,14 @@ class CloseRegister
     public function execute(User $cashier, float $actualCash): CashRegisterSession
     {
         return DB::transaction(function () use ($cashier, $actualCash) {
-            $session = CashRegisterSession::where('shop_id', $cashier->shop_id)
+            $session = CashRegisterSession::where('user_id', $cashier->id)
                 ->where('status', 'OPEN')
                 ->latest()
-                ->first();
+                ->first()
+                ?? CashRegisterSession::whereHas('register', fn ($q) => $q->where('shop_id', $cashier->shop_id))
+                    ->where('status', 'OPEN')
+                    ->latest()
+                    ->first();
 
             if (! $session) {
                 throw new Exception('Tidak ada sesi kasir yang aktif untuk ditutup.');
@@ -37,7 +41,6 @@ class CloseRegister
 
             $session->update([
                 'status' => 'CLOSED',
-                'closed_by' => $cashier->id,
                 'closed_at' => now(),
                 'actual_cash' => $actualCash,
                 'expected_cash' => $expectedCash,

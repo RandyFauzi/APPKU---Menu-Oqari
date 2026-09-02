@@ -24,10 +24,14 @@ class PosController extends Controller
         $user = Auth::user();
         $shop = $user->shop;
 
-        $activeSession = CashRegisterSession::where('shop_id', $shop->id)
+        $activeSession = CashRegisterSession::where('user_id', $user->id)
             ->where('status', 'OPEN')
             ->latest()
-            ->first();
+            ->first()
+            ?? CashRegisterSession::whereHas('register', fn ($q) => $q->where('shop_id', $shop->id))
+                ->where('status', 'OPEN')
+                ->latest()
+                ->first();
 
         $products = Product::where('shop_id', $shop->id)
             ->where('is_sold_out', false)

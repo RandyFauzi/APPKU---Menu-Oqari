@@ -14,17 +14,17 @@ class CashRegisterController extends Controller
     public function openShift(Request $request)
     {
         $request->validate([
-            'opening_cash' => 'required|numeric|min:0'
+            'opening_cash' => 'required|numeric|min:0',
         ]);
 
         $user = Auth::user();
-        
+
         return DB::transaction(function () use ($user, $request) {
             // Check if already open
             $active = CashRegisterSession::where('user_id', $user->id)
                 ->where('status', 'OPEN')
                 ->first();
-                
+
             if ($active) {
                 return response()->json(['success' => false, 'message' => 'Anda sudah memiliki shift yang aktif!'], 400);
             }
@@ -46,13 +46,17 @@ class CashRegisterController extends Controller
                 'total_cash_sales' => 0,
                 'total_qris_sales' => 0,
                 'total_other_sales' => 0,
-                'status' => 'OPEN'
+                'status' => 'OPEN',
             ]);
 
-            return response()->json([
-                'success' => true, 
-                'session' => $session
-            ]);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'session' => $session,
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Shift berhasil dibuka!');
         });
     }
 
@@ -60,7 +64,7 @@ class CashRegisterController extends Controller
     {
         $request->validate([
             'actual_cash' => 'required|numeric|min:0',
-            'notes' => 'nullable|string'
+            'notes' => 'nullable|string',
         ]);
 
         $user = Auth::user();
@@ -70,7 +74,7 @@ class CashRegisterController extends Controller
                 ->where('status', 'OPEN')
                 ->first();
 
-            if (!$session) {
+            if (! $session) {
                 return response()->json(['success' => false, 'message' => 'Tidak ada shift aktif!'], 400);
             }
 
@@ -81,14 +85,18 @@ class CashRegisterController extends Controller
                 'actual_cash' => $request->actual_cash,
                 'difference' => $difference,
                 'status' => 'CLOSED',
-                'notes' => $request->notes
+                'notes' => $request->notes,
             ]);
 
-            return response()->json([
-                'success' => true,
-                'session' => $session,
-                'difference' => $difference
-            ]);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'session' => $session,
+                    'difference' => $difference,
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Shift berhasil ditutup!');
         });
     }
 }

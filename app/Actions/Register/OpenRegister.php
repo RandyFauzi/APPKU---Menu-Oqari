@@ -29,9 +29,12 @@ class OpenRegister
 
         return DB::transaction(function () use ($cashier, $shopId, $openingCash) {
             // Guard: prevent double-open
-            $existing = CashRegisterSession::where('shop_id', $shopId)
+            $existing = CashRegisterSession::where('user_id', $cashier->id)
                 ->where('status', 'OPEN')
-                ->first();
+                ->first()
+                ?? CashRegisterSession::whereHas('register', fn ($q) => $q->where('shop_id', $shopId))
+                    ->where('status', 'OPEN')
+                    ->first();
 
             if ($existing) {
                 throw new Exception('Sesi kasir sudah aktif. Tutup sesi sebelumnya terlebih dahulu.');
@@ -43,10 +46,12 @@ class OpenRegister
             );
 
             return CashRegisterSession::create([
-                'shop_id' => $shopId,
                 'cash_register_id' => $register->id,
-                'opened_by' => $cashier->id,
+                'user_id' => $cashier->id,
                 'opening_cash' => $openingCash,
+                'expected_cash' => $openingCash,
+                'actual_cash' => 0,
+                'difference' => 0,
                 'total_cash_sales' => 0,
                 'total_qris_sales' => 0,
                 'total_other_sales' => 0,
