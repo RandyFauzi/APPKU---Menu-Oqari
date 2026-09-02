@@ -78,6 +78,10 @@
         </div>
         
         <nav class="flex-grow shrink-0 space-y-1">
+            <a href="{{ route('admin.pos.index') }}" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-colors text-left text-brewlymuted hover:bg-gray-100 hover:text-[#164A35] font-medium">
+                <i class="fas fa-cash-register w-5 text-center"></i>
+                <span>POS (Kasir)</span>
+            </a>
             <template x-for="tab in tabs" :key="tab.id">
                 <button @click="currentTab = tab.id" 
                         class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-colors text-left"

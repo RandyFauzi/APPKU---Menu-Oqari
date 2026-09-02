@@ -49,7 +49,7 @@
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <div class="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 h-14 shrink-0">
     <div class="flex items-center gap-3">
-        <span class="text-xl font-black text-green-700">OQARI</span>
+        <a href="{{ route('admin.dashboard') }}" class="text-xl font-black text-green-700 hover:text-green-800 transition">OQARI</a>
         <span class="text-gray-300">|</span>
         <span class="text-sm font-semibold text-gray-500">{{ $shop->name }}</span>
     </div>
