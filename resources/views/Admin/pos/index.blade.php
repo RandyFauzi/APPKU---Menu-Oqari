@@ -113,6 +113,7 @@
             @csrf
             <button class="text-xs text-gray-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button>
         </form>
+        @endif
     </div>
 </div>
 
