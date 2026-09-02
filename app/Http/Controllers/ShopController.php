@@ -125,7 +125,7 @@ class ShopController extends Controller
                     'success_redirect_url' => route('shop.tracking', ['slug' => $slug])
                 ]);
                 $paymentUrl = $response->json('invoice_url');
-                $order->update(['status' => 'Menunggu Pembayaran']);
+                $order->update(['payment_status' => 'PENDING']);
                 */
             }
             

@@ -15,9 +15,24 @@ class Order extends Model
         'customer_name',
         'customer_email',
         'customer_phone',
-        'status',
         'payment_method',
-        'total_price',
+        'subtotal',
+        'discount_amount',
+        'tax_amount',
+        'service_charge_amount',
+        'rounding',
+        'grand_total',
+        'amount_paid',
+        'change_amount',
+        'order_status',
+        'payment_status',
+        'fulfillment_type',
+        'payment_reference',
+        'paid_at',
+    ];
+
+    protected $casts = [
+        'paid_at' => 'datetime',
     ];
 
     public function shop()
@@ -33,5 +48,10 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

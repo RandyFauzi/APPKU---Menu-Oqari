@@ -87,7 +87,7 @@ class DashboardController extends Controller
         $order->save();
 
         if (class_exists(ActivityLog::class)) {
-            $desc = $request->status === 'Batal'
+            $desc = in_array($request->status, ['Batal', 'CANCELLED'])
                 ? 'Membatalkan pesanan #'.$order->id
                 : 'Mengubah status pesanan #'.$order->id.' dari '.$oldStatus.' menjadi '.$request->status;
 
