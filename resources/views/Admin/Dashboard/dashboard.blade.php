@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - {{ $shop->name ?? config('app.name', 'Appku') }}</title>
+    <title>Dashboard - {{ $shop->name ?? config('app.name', 'Oqari') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" id="favicon" href="{{ (isset($shop) && $shop->logo_url) ? asset('uploads/' . $shop->logo_url) : asset('Pavico.webp') }}">
+    <link rel="icon" type="image/png" id="favicon" href="{{ (isset($shop) && $shop->logo_url) ? asset('uploads/' . $shop->logo_url) : asset('logo-oqari.webp') }}">
     
     <!-- View Transitions API -->
     <meta name="view-transition" content="same-origin" />
@@ -68,10 +68,10 @@
             @if(isset($shop) && $shop->logo_url)
                 <img src="{{ asset('uploads/' . $shop->logo_url) }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
             @else
-                <img src="{{ asset('Pavico.webp') }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 object-contain">
+                <img src="{{ asset('logo-oqari.webp') }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 object-contain">
             @endif
             <div class="flex flex-col">
-                <span class="font-bold text-lg leading-tight truncate w-32">{{ $shop->name ?? 'Appku' }}</span>
+                <span class="font-bold text-lg leading-tight truncate w-32">{{ $shop->name ?? 'Oqari' }}</span>
                 <span class="text-[10px] text-brewlymuted uppercase tracking-wider">Coffee Shops. Stronger.</span>
             </div>
         </div>

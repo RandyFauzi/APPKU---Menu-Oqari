@@ -10,7 +10,7 @@
     @if(isset($shop) && $shop->logo_url)
         <link rel="icon" type="image/png" href="{{ asset('uploads/' . $shop->logo_url) }}">
     @else
-        <link rel="icon" type="image/webp" href="{{ asset('Pavico.webp') }}">
+        <link rel="icon" type="image/webp" href="{{ asset('logo-oqari.webp') }}">
     @endif
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
