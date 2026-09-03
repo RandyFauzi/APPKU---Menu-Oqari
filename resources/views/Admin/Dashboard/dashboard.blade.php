@@ -71,67 +71,63 @@
     <!-- Audio untuk notifikasi pesanan masuk -->
     <audio id="chime-sound" src="{{ asset('Assest/notif_orderan_masuk.mp3') }}" preload="auto"></audio>
 
-    <!-- Mobile Sidebar Overlay -->
-    <div x-show="sidebarOpen" x-cloak class="fixed inset-0 bg-black/50 z-[100] lg:hidden backdrop-blur-sm" @click="sidebarOpen = false" x-transition.opacity></div>
-
     <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed lg:static inset-y-0 left-0 w-64 lg:w-64 transform lg:translate-x-0 transition-transform duration-300 ease-in-out z-[110] flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg overflow-y-auto hide-scroll">
+    <aside :class="isMinimized ? 'w-20 px-4' : 'w-64 px-6'" class="transition-all duration-300 ease-in-out z-[110] flex flex-col shrink-0 border-r border-brewlyborder py-6 gap-6 h-full bg-brewlybg overflow-y-auto hide-scroll">
+        <!-- Brand & Collapse Toggle -->
         <div class="flex items-center justify-between mb-2 shrink-0">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 w-full" :class="isMinimized ? 'justify-center' : ''">
                 @if(isset($shop) && $shop->logo_url)
-                    <img src="{{ $shop->logo_url }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
+                    <img src="{{ $shop->logo_url }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm shrink-0">
                 @else
-                    <img src="{{ asset('logo-oqari.webp') }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 object-contain">
+                    <img src="{{ asset('logo-oqari.webp') }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 object-contain shrink-0">
                 @endif
-                <div class="flex flex-col">
-                    <span class="font-bold text-lg leading-tight truncate w-24 md:w-32">{{ $shop->name ?? 'Oqari' }}</span>
-                    <span class="text-[10px] text-brewlymuted uppercase tracking-wider">Coffee Shops. Stronger.</span>
+                <div class="flex flex-col" x-show="!isMinimized" x-transition>
+                    <span class="font-bold text-lg leading-tight truncate w-32">{{ $shop->name ?? 'Oqari' }}</span>
+                    <span class="text-[10px] text-brewlymuted uppercase tracking-wider truncate">Coffee Shops. Stronger.</span>
                 </div>
             </div>
-            <button @click="sidebarOpen = false" class="lg:hidden w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800">
-                <i class="fas fa-times"></i>
-            </button>
         </div>
         
         <nav class="flex-grow shrink-0 space-y-1">
-            <a href="{{ route('admin.pos.index') }}" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-colors text-left text-brewlymuted hover:bg-gray-100 hover:text-[#164A35] font-medium">
-                <i class="fas fa-cash-register w-5 text-center"></i>
-                <span>POS (Kasir)</span>
+            <a href="{{ route('admin.pos.index') }}" class="w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors text-left text-brewlymuted hover:bg-gray-100 hover:text-[#164A35] font-medium group" :class="isMinimized ? 'justify-center px-0' : 'gap-3'">
+                <i class="fas fa-cash-register text-center text-lg shrink-0"></i>
+                <span x-show="!isMinimized" x-transition>POS (Kasir)</span>
             </a>
             <template x-for="tab in tabs" :key="tab.id">
                 <button @click="currentTab = tab.id" 
-                        class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-colors text-left"
-                        :class="currentTab === tab.id ? 'bg-[#DDEBDD] text-[#164A35] font-bold' : 'text-brewlymuted hover:bg-gray-100 hover:text-[#164A35] font-medium'">
-                    <i :class="tab.icon" class="w-5 text-center"></i>
-                    <span x-text="tab.name"></span>
+                        class="w-full flex items-center py-2.5 rounded-xl text-sm transition-colors text-left group"
+                        :class="[(isMinimized ? 'justify-center px-0' : 'px-4 gap-3'), (currentTab === tab.id ? 'bg-[#DDEBDD] text-[#164A35] font-bold' : 'text-brewlymuted hover:bg-gray-100 hover:text-[#164A35] font-medium')]">
+                    <i :class="tab.icon" class="text-center text-lg shrink-0"></i>
+                    <span x-show="!isMinimized" x-text="tab.name" x-transition class="truncate"></span>
                 </button>
             </template>
         </nav>
         
         <!-- Store Status Toggle -->
-        <div class="mt-auto shrink-0 mb-2 bg-[#F8F7F3] p-4 rounded-2xl border border-[#E3E1DC] flex flex-col gap-2">
-            <div>
+        <div class="mt-auto shrink-0 mb-2 bg-[#F8F7F3] rounded-2xl border border-[#E3E1DC] flex flex-col transition-all" :class="isMinimized ? 'p-3 items-center' : 'p-4 gap-2'">
+            <div x-show="!isMinimized" x-transition>
                 <label class="block text-[13px] font-bold text-[#202522]">Toko Buka Sekarang?</label>
                 <p class="text-[10px] text-[#777873] leading-tight mt-0.5">Matikan untuk menutup toko manual.</p>
             </div>
-            <div @click="settings.is_open = !settings.is_open; saveSettings()" class="relative inline-flex items-center cursor-pointer mt-1">
-                <div class="w-12 h-6 rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_open ? 'bg-[#164A35]' : 'bg-gray-300'">
-                    <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out absolute top-[4px] left-[4px]" :class="settings.is_open ? 'translate-x-6' : 'translate-x-0'"></div>
+            <div @click="settings.is_open = !settings.is_open; saveSettings()" class="relative inline-flex items-center cursor-pointer" :class="isMinimized ? '' : 'mt-1'">
+                <div class="w-10 h-5 rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_open ? 'bg-[#164A35]' : 'bg-gray-300'">
+                    <div class="w-3.5 h-3.5 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out absolute top-[3px] left-[3px]" :class="settings.is_open ? 'translate-x-5' : 'translate-x-0'"></div>
                 </div>
-                <span class="ml-2 text-xs font-bold" :class="settings.is_open ? 'text-[#164A35]' : 'text-gray-400'" x-text="settings.is_open ? 'Buka' : 'Tutup'"></span>
+                <span x-show="!isMinimized" class="ml-2 text-xs font-bold" :class="settings.is_open ? 'text-[#164A35]' : 'text-gray-400'" x-text="settings.is_open ? 'Buka' : 'Tutup'"></span>
             </div>
         </div>
 
         <!-- Promo Card -->
-        <div class="shrink-0 bg-[#F8F7F3] rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mb-2 border border-[#E3E1DC]">
+        <div x-show="!isMinimized" x-transition class="shrink-0 bg-[#F8F7F3] rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mb-2 border border-[#E3E1DC]">
             <h4 class="font-bold text-[16px] leading-tight z-10 text-[#164A35]">Brew Better Days</h4>
             <p class="text-[12px] text-[#777873] z-10 leading-snug w-4/5">Track, analyze and grow your cafe effortlessly.</p>
             <img src="https://images.unsplash.com/photo-1550133730-695473e544be?w=100&fit=crop" class="absolute -bottom-4 -right-4 w-20 h-20 object-cover rounded-full opacity-70 border-4 border-white shadow-sm">
         </div>
         
         <!-- Logout Button -->
-        <button @click="logout()" class="shrink-0 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 transition-colors mt-2">
-            <i class="fas fa-sign-out-alt"></i> Logout
+        <button @click="logout()" class="shrink-0 w-full flex items-center justify-center rounded-xl text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 transition-colors mt-2" :class="isMinimized ? 'py-3' : 'py-3 gap-2 px-4'">
+            <i class="fas fa-sign-out-alt text-lg shrink-0"></i>
+            <span x-show="!isMinimized" x-transition>Logout</span>
         </button>
     </aside>
 
@@ -141,7 +137,7 @@
         <!-- Top Header for Main Area -->
         <header class="h-20 md:h-24 flex justify-between items-center px-4 md:px-10 shrink-0 border-b border-brewlyborder/50 bg-white relative z-10">
             <div class="flex items-center gap-3">
-                <button @click="sidebarOpen = true" class="lg:hidden w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100">
+                <button @click="isMinimized = !isMinimized" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
                     <i class="fas fa-bars text-lg"></i>
                 </button>
                 <div x-show="currentTab !== 'analytics'">
@@ -646,6 +642,7 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
+                isMinimized: window.innerWidth < 1024,
                 isLoadingSummary: true,
                 isLoadingMenus: true,
                 isLoadingAnalytics: true,
