@@ -68,59 +68,7 @@ class DashboardController extends Controller
         $users = User::where('shop_id', $shop->id)->get();
         $activeSession = CashRegisterSession::where('user_id', $user->id)->where('status', 'OPEN')->first();
 
-        // Analytics Calculations (Real Data)
-        $today = Carbon::today();
-        $yesterday = Carbon::yesterday();
-
-        $ordersToday = Order::where('shop_id', $shop->id)->whereDate('created_at', $today)->count();
-        $ordersYesterday = Order::where('shop_id', $shop->id)->whereDate('created_at', $yesterday)->count();
-        $ordersChange = $ordersYesterday > 0 ? round((($ordersToday - $ordersYesterday) / $ordersYesterday) * 100) : 0;
-
-        $revenueToday = Order::where('shop_id', $shop->id)->where('payment_status', 'PAID')->whereDate('created_at', $today)->sum('grand_total');
-        $revenueYesterday = Order::where('shop_id', $shop->id)->where('payment_status', 'PAID')->whereDate('created_at', $yesterday)->sum('grand_total');
-        $revenueChange = $revenueYesterday > 0 ? round((($revenueToday - $revenueYesterday) / $revenueYesterday) * 100) : 0;
-
-        // Top Product
-        $topItem = DB::table('order_items')
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.shop_id', $shop->id)
-            ->whereDate('orders.created_at', $today)
-            ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
-            ->groupBy('order_items.product_name')
-            ->orderByDesc('total_sold')
-            ->first();
-
-        // Sales Trend (Hourly for Today)
-        $hourlySales = [];
-        for ($i = 8; $i <= 22; $i += 2) {
-            $count = Order::where('shop_id', $shop->id)
-                ->where('payment_status', 'PAID')
-                ->whereDate('created_at', $today)
-                ->whereRaw('HOUR(created_at) >= ? AND HOUR(created_at) < ?', [$i, $i + 2])
-                ->count();
-            $hourlySales[] = $count;
-        }
-
-        $analytics = [
-            'orders' => $ordersToday,
-            'ordersChange' => $ordersChange,
-            'revenue' => $revenueToday,
-            'revenueChange' => $revenueChange,
-            'topProduct' => $topItem ? [
-                'name' => $topItem->product_name,
-                'sold' => (int) $topItem->total_sold,
-                'change' => 0, // Can implement yesterday comparison later
-            ] : [
-                'name' => 'Belum ada',
-                'sold' => 0,
-                'change' => 0,
-            ],
-            'returningCustomers' => null, // Data belum tersedia (No CRM yet)
-            'newCustomersPct' => null,
-            'returningCount' => null,
-            'newCount' => null,
-            'hourlySales' => $hourlySales,
-        ];
+        $analytics = app(\App\Services\ReportingService::class)->getDashboardAnalytics($shop->id);
 
         return view('Admin.Dashboard.dashboard', compact('shop', 'orders', 'menuItems', 'categories', 'tables', 'users', 'analytics', 'activeSession'));
     }
