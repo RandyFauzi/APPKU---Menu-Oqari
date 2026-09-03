@@ -88,10 +88,15 @@
                     <i class="fas fa-users"></i>
                 </div>
             </div>
-            <h3 class="text-[32px] font-bold text-[#202522] mb-2 leading-none" x-text="data.returningCustomers + '%'">38%</h3>
-            <p class="text-[13px] font-medium text-[#777873] flex items-center gap-1.5">
-                <span class="text-green-600 bg-green-50 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-bold"><i class="fas fa-arrow-up text-[10px]"></i> <span x-text="data.returningChange + '%'">6%</span></span> vs. bulan lalu
-            </p>
+            <h3 class="text-[32px] font-bold text-[#202522] mb-2 leading-none" x-text="data.returningCustomers !== null ? (data.returningCustomers + '%') : 'N/A'">38%</h3>
+            <template x-if="data.returningCustomers !== null">
+                <p class="text-[13px] font-medium text-[#777873] flex items-center gap-1.5">
+                    <span class="text-green-600 bg-green-50 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-bold"><i class="fas fa-arrow-up text-[10px]"></i> <span x-text="data.returningChange + '%'">6%</span></span> vs. bulan lalu
+                </p>
+            </template>
+            <template x-if="data.returningCustomers === null">
+                <p class="text-[13px] font-medium text-[#777873] mt-2 italic">Data belum tersedia</p>
+            </template>
         </div>
     </div>
 
@@ -156,11 +161,11 @@
                 
                 <div class="flex items-center gap-6">
                     <!-- Donut Chart -->
-                    <div class="relative w-[110px] h-[110px] shrink-0">
+                    <div class="relative w-32 h-32 flex-shrink-0">
                         <canvas id="customerChart"></canvas>
                         <!-- Center text -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span class="text-[20px] font-bold text-[#164A35]" x-text="data.returningCustomers + '%'">38%</span>
+                            <span class="text-[20px] font-bold text-[#164A35]" x-text="data.returningCustomers !== null ? (data.returningCustomers + '%') : 'N/A'">38%</span>
                         </div>
                     </div>
                     
@@ -172,20 +177,22 @@
                         </div>
                         
                         <div class="flex flex-col gap-2.5">
-                            <div class="flex items-center justify-between text-[13px]">
-                                <div class="flex items-center gap-2 font-medium text-[#202522]">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2 text-[13px]">
                                     <div class="w-2.5 h-2.5 rounded-full bg-[#164A35]"></div> Pelanggan baru
                                 </div>
                                 <div>
-                                    <span class="font-bold text-[#202522] mr-2" x-text="data.newCustomers">231</span> <span class="font-semibold text-[#777873]" x-text="data.newCustomersPct + '%'">62%</span>
+                                    <span class="font-bold text-[#202522] mr-2" x-text="data.newCount !== null ? data.newCount : 'N/A'">230</span> 
+                                    <span class="font-semibold text-[#777873]" x-text="data.newCustomersPct !== null ? (data.newCustomersPct + '%') : ''">62%</span>
                                 </div>
                             </div>
-                            <div class="flex items-center justify-between text-[13px]">
-                                <div class="flex items-center gap-2 font-medium text-[#202522]">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2 text-[13px]">
                                     <div class="w-2.5 h-2.5 rounded-full bg-[#D97A32]"></div> Pelanggan kembali
                                 </div>
                                 <div>
-                                    <span class="font-bold text-[#202522] mr-2" x-text="data.returningCount">141</span> <span class="font-semibold text-[#777873]" x-text="data.returningCustomers + '%'">38%</span>
+                                    <span class="font-bold text-[#202522] mr-2" x-text="data.returningCount !== null ? data.returningCount : 'N/A'">141</span> 
+                                    <span class="font-semibold text-[#777873]" x-text="data.returningCustomers !== null ? (data.returningCustomers + '%') : ''">38%</span>
                                 </div>
                             </div>
                         </div>
@@ -316,12 +323,12 @@
                 this.customerChart = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Pelanggan Baru', 'Pelanggan Kembali'],
+                        labels: this.data.newCustomersPct !== null ? ['Pelanggan Baru', 'Pelanggan Kembali'] : ['Belum Ada Data'],
                         datasets: [{
-                            data: [this.data.newCustomersPct, this.data.returningCustomers],
-                            backgroundColor: ['#164A35', '#D97A32'],
+                            data: this.data.newCustomersPct !== null ? [this.data.newCustomersPct, this.data.returningCustomers] : [100],
+                            backgroundColor: this.data.newCustomersPct !== null ? ['#164A35', '#D97A32'] : ['#e5e7eb'],
                             borderWidth: 0,
-                            hoverOffset: 4
+                            hoverOffset: this.data.newCustomersPct !== null ? 4 : 0
                         }]
                     },
                     options: {

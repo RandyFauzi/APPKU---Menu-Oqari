@@ -115,8 +115,10 @@ class DashboardController extends Controller
                 'sold' => 0,
                 'change' => 0,
             ],
-            'returningCustomers' => 15, // Dummy for now as we don't have full CRM
-            'newCustomersPct' => 85,
+            'returningCustomers' => null, // Data belum tersedia (No CRM yet)
+            'newCustomersPct' => null,
+            'returningCount' => null,
+            'newCount' => null,
             'hourlySales' => $hourlySales,
         ];
 
@@ -142,7 +144,7 @@ class DashboardController extends Controller
     public function updateOrderStatus(Request $request, $orderId)
     {
         $order = Order::where('shop_id', Auth::user()->shop_id)->findOrFail($orderId);
-        $oldStatus = $order->order_status ?? $order->status;
+        $oldStatus = $order->order_status;
 
         $newStatus = $request->status;
         // Translate legacy status to new schema if needed
