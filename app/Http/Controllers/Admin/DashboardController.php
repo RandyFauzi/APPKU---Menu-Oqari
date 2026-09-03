@@ -238,7 +238,7 @@ class DashboardController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            $data['image_url'] = $request->file('image')->store('menus', 'public');
+            $data['image_path'] = $request->file('image')->store('menus', 'public');
         }
 
         $menu = Product::updateOrCreate(

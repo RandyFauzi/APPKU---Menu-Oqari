@@ -34,7 +34,7 @@ class SaveProductAction
             ];
 
             if ($imagePath) {
-                $productData['image_url'] = $imagePath;
+                $productData['image_path'] = $imagePath;
             }
 
             // 3. Save Product
