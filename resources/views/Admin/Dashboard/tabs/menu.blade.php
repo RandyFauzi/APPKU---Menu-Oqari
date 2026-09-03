@@ -119,7 +119,7 @@
                                         </div>
                                     </td>
                                     <td class="p-4">
-                                        <span class="px-3 py-1 bg-brewlylightgreen text-brewlygreen text-xs font-bold rounded-full capitalize" x-text="item.categoryId"></span>
+                                        <span class="px-3 py-1 bg-brewlylightgreen text-brewlygreen text-xs font-bold rounded-full capitalize" x-text="item.categoryName || '-'"></span>
                                     </td>
                                     <td class="p-4 font-semibold text-sm font-mono" x-text="formatRp(item.price)"></td>
                                     <td class="p-4">
