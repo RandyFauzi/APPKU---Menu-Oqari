@@ -7,5 +7,5 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('shop.{shopId}.orders', function ($user, $shopId) {
-    return (int) $user->shop_id === (int) $shopId;
+    return (int) $user->shop_id === (int) $shopId && $user->can('view-orders');
 });

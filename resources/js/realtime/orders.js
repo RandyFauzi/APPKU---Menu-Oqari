@@ -9,11 +9,12 @@ export function initOrderNotificationEngine(shopId) {
     const channelName = "shop." + shopId + ".orders";
 
     window.Echo.private(channelName)
-        .stopListening("OrderCreated")
-        .listen("OrderCreated", (e) => {
+        .stopListening(".order.created")
+        .listen(".order.created", (e) => {
             console.log("[Notification Engine] OrderCreated event received!", e);
+            // Payload is already lean (e.g. e.id, e.order_number, e.total)
             window.dispatchEvent(new CustomEvent("new-order-received", { 
-                detail: e.order || e 
+                detail: e 
             }));
         });
 }
@@ -21,9 +22,8 @@ export function initOrderNotificationEngine(shopId) {
 window.initOrderNotificationEngine = initOrderNotificationEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(() => {
-        if (window.SHOP_ID) {
-            initOrderNotificationEngine(window.SHOP_ID);
-        }
-    }, 500);
+    const shopId = window.OQARI_REALTIME?.shopId;
+    if (shopId) {
+        initOrderNotificationEngine(shopId);
+    }
 });

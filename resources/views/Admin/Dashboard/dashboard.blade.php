@@ -22,6 +22,13 @@
     <!-- Alpine JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
+    <!-- Realtime Config -->
+    <script>
+        window.OQARI_REALTIME = {
+            shopId: @json(auth()->check() ? auth()->user()->shop_id : null)
+        };
+    </script>
+    
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
