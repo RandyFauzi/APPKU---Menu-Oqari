@@ -156,7 +156,7 @@
                 @foreach($products as $product)
                 <button
                     x-show="matchesFilter({{ $product->category_id ?? 'null' }}, '{{ addslashes($product->name) }}')"
-                    @click="openModifier({{ $product->toJson() }})"
+                    @click="handleProductClick({{ $product->toJson() }})"
                     class="product-card bg-white rounded-2xl p-3 text-left shadow-sm border border-gray-100 hover:border-green-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-green-400"
                 >
                     @if($product->image_url)
@@ -537,7 +537,33 @@ function posApp() {
             return catMatch && searchMatch;
         },
 
-        // ── Modifier Modal ────────────────────
+        // ── Modifier Modal ───────────────────
+        handleProductClick(product) {
+            const hasVariants = product.variants && product.variants.length > 0;
+            const hasModifiers = product.modifier_groups && product.modifier_groups.length > 0;
+            
+            if (hasVariants || hasModifiers) {
+                this.openModifier(product);
+            } else {
+                // Bypass modal, add to cart directly
+                this.addToCartDirectly(product);
+            }
+        },
+        addToCartDirectly(p) {
+            // Check if already in cart
+            const existing = this.cart.find(c => c.id === p.id && !c.variant_id && (!c.modifiers || c.modifiers.length === 0) && !c.notes);
+            if (existing) {
+                existing.qty++;
+                existing.subtotal = existing.price * existing.qty;
+            } else {
+                this.cart.push({
+                    id: p.id, name: p.name,
+                    variant_id: null, variant: null,
+                    modifiers: [], notes: '', qty: 1, price: Number(p.price),
+                    subtotal: Number(p.price),
+                });
+            }
+        },
         openModifier(product) {
             this.modifierModal = {
                 show: true, product, selectedVariant: null, selectedVariantId: null,
