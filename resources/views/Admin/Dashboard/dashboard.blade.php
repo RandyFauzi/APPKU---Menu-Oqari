@@ -1854,7 +1854,6 @@ if (res.ok) {
         <i class="fas fa-store text-xl"></i>
         <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[200px] transition-all duration-500 ease-in-out pl-0 group-hover:pl-3 font-bold text-sm">Lihat Web Pelanggan</span>
     </a>
-    <x-order-notification />
 
     <script>
         window.SHOP_ID = {{ $shop->id ?? 'null' }};
