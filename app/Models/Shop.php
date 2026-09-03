@@ -9,7 +9,7 @@ class Shop extends Model
     protected $fillable = [
         'name',
         'slug',
-        'logo_url',
+        'logo_path',
         'primary_color',
         'theme_style',
         'is_open',
@@ -18,14 +18,13 @@ class Shop extends Model
         'instagram_link',
         'whatsapp_number',
         'maps_link',
-        'banners', 'is_banner_active',
+        'banner_paths',
+        'is_banner_active',
         'gobiz_outlet_id',
         'gobiz_access_token',
         'gobiz_refresh_token',
         'gobiz_token_expires_at',
         'operating_hours',
-        'banner_url',
-        // lifecycle
         'status',
         'trial_ends_at',
         'last_active_at',
@@ -35,10 +34,16 @@ class Shop extends Model
         'suspended_by',
     ];
 
+    protected $appends = [
+        'logo_url',
+        'banners',
+    ];
+
     protected $casts = [
-        'banners' => 'array',
+        'banner_paths' => 'array',
         'operating_hours' => 'array',
         'is_open' => 'boolean',
+        'is_banner_active' => 'boolean',
         'gobiz_token_expires_at' => 'datetime',
         'trial_ends_at' => 'datetime',
         'last_active_at' => 'datetime',
@@ -61,19 +66,27 @@ class Shop extends Model
         return $this->hasMany(Payment::class);
     }
 
-    public function getLogoUrlAttribute($value)
+    public function getLogoUrlAttribute()
     {
+        $value = $this->logo_path;
         if (!$value) return null;
         if (\Illuminate\Support\Str::startsWith($value, ['http://', 'https://', '/'])) return $value;
         return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
     }
 
-    public function getBannerUrlAttribute($value)
+    public function getBannersAttribute()
     {
-        if (!$value) return null;
-        if (\Illuminate\Support\Str::startsWith($value, ['http://', 'https://', '/'])) return $value;
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
+        $value = $this->banner_paths;
+        $banners = is_string($value) ? json_decode($value, true) : $value;
+        if (!is_array($banners)) return [];
+        
+        return array_map(function ($banner) {
+            if (!$banner) return null;
+            if (\Illuminate\Support\Str::startsWith($banner, ['http://', 'https://', '/'])) return $banner;
+            return \Illuminate\Support\Facades\Storage::disk('public')->url($banner);
+        }, $banners);
     }
+
 
     public function products()
     {

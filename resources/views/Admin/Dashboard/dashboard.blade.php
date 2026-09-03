@@ -21,6 +21,10 @@
     
     <!-- Alpine JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Vite Assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
@@ -57,7 +61,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()">
+<body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()" @refresh-live-orders.window="fetchLiveOrders(false)">
     
 
     <!-- Audio untuk notifikasi pesanan masuk -->
@@ -244,10 +248,22 @@
                     <div>
                         <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Upload Gambar (Opsional)</label>
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-[14px] bg-[#F8F7F3] border border-dashed border-[#C5DBC5] flex items-center justify-center shrink-0">
-                                <i class="fas fa-image text-[#C5DBC5] text-xl"></i>
+                            <div class="w-16 h-16 rounded-[14px] bg-[#F8F7F3] border border-dashed border-[#C5DBC5] flex items-center justify-center shrink-0 overflow-hidden">
+                                <template x-if="newMenu.imagePreview">
+                                    <img :src="newMenu.imagePreview" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!newMenu.imagePreview">
+                                    <i class="fas fa-image text-[#C5DBC5] text-xl"></i>
+                                </template>
                             </div>
-                            <input type="file" x-ref="menuImageInput" class="w-full text-sm text-[#777873] file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-[#DDEBDD] file:text-[#164A35] hover:file:bg-[#C5DBC5] cursor-pointer outline-none">
+                            <input type="file" x-ref="menuImageInput" @change="(e) => {
+                                const file = e.target.files[0];
+                                if(file) {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => newMenu.imagePreview = ev.target.result;
+                                    reader.readAsDataURL(file);
+                                }
+                            }" class="w-full text-sm text-[#777873] file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-[#DDEBDD] file:text-[#164A35] hover:file:bg-[#C5DBC5] cursor-pointer outline-none" accept="image/*">
                         </div>
                     </div>
                 </div>
@@ -620,7 +636,7 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
-                currentTab: localStorage.getItem('activeDashboardTab') || 'orders',
+                currentTab: new URLSearchParams(window.location.search).get('tab') || localStorage.getItem('activeDashboardTab') || 'orders',
                 showAddCategoryModal: false,
                 newCategoryName: '',
                 showAddMenuModal: false,
@@ -650,7 +666,7 @@
                 activeMenuFilter: 'all',
                 activeOrderFilter: 'process',
                 searchQuery: '',
-                newMenu: { id: null, name: '', price: '', desc: '', categoryId: '' },
+                newMenu: { id: null, name: '', price: '', desc: '', categoryId: '', imagePreview: null },
                 showBulkUpload: false,
                 draftMenus: [],
                 categories: window.INITIAL_DATA.categories || [],
@@ -1073,12 +1089,12 @@ handleDraftImageUpload(event, index) {
                                 console.log('New Order Received via Reverb:', e.order);
                                 this.handleNewOrderFromSocket(e.order);
                             });
-                    } else {
-                        // Fallback polling just in case Echo fails to load
-                        setInterval(() => {
-                            this.fetchLiveOrders(false);
-                        }, 5000);
                     }
+                    
+                    // Fallback polling just in case Echo fails to connect
+                    setInterval(() => {
+                        this.fetchLiveOrders(false);
+                    }, 5000);
 
 
                 },
@@ -1093,7 +1109,7 @@ handleDraftImageUpload(event, index) {
                     }));
                 },
                 editMenu(item) {
-                    this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc, categoryId: item.categoryId || '' };
+                    this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc, categoryId: item.categoryId || '', imagePreview: item.image || null };
                     this.showAddMenuModal = true;
                 },
                 async deleteMenu(id) {
@@ -1166,7 +1182,7 @@ handleDraftImageUpload(event, index) {
                                 data.menu.image = data.menu.image_url ? data.menu.image_url : null;
                                 this.menuItems.unshift(data.menu);
                             }
-                            this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '' };
+                            this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '', imagePreview: null };
                             if (this.$refs.menuImageInput) this.$refs.menuImageInput.value = '';
                             this.showAddMenuModal = false;
                             this.addToast('Menu berhasil disimpan!', 'success');
@@ -1727,13 +1743,14 @@ handleDraftImageUpload(event, index) {
                     formData.append('whatsapp_number', this.settings.whatsapp_number || '');
                     formData.append('maps_link', this.settings.maps_link || '');
                     
-                    if (this.settings.logoFile) {
-                        formData.append('logo', this.settings.logoFile);
+                    if (this.settings.logoFile && this.$refs.logoInput && this.$refs.logoInput.files.length > 0) {
+                        formData.append('logo', this.$refs.logoInput.files[0]);
                     }
                     formData.append('is_banner_active', this.settings.is_banner_active ? 1 : 0);
                     for (let i = 0; i < 3; i++) {
-                        if (this.settings.bannerFiles[i]) {
-                            formData.append(`banner_${i}`, this.settings.bannerFiles[i]);
+                        const bInput = document.getElementById('bannerInput' + i);
+                        if (this.settings.bannerFiles[i] && bInput && bInput.files.length > 0) {
+                            formData.append(`banner_${i}`, bInput.files[0]);
                         } else if (this.settings.bannerPaths[i]) {
                             formData.append(`existing_banner_${i}`, this.settings.bannerPaths[i]);
                         }
@@ -1814,6 +1831,11 @@ handleDraftImageUpload(event, index) {
         <i class="fas fa-store text-xl"></i>
         <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[200px] transition-all duration-500 ease-in-out pl-0 group-hover:pl-3 font-bold text-sm">Lihat Web Pelanggan</span>
     </a>
+    <x-order-notification />
+
+    <script>
+        window.SHOP_ID = {{ $shop->id ?? 'null' }};
+    </script>
 </body>
 </html>
 

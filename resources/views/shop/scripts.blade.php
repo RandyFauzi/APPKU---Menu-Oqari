@@ -36,16 +36,14 @@
             if (shopBanners && shopBanners.length > 0) {
                 apiData.highlights = shopBanners.map((banner, index) => ({
                     id: 'h' + (index + 1),
-                    img: banner ? (banner.startsWith('http') || banner.startsWith('/') ? banner : '/storage/' + banner) : '/Assests/Caraousel/Hero ' + (index + 1) + '.jpg',
+                    img: banner, // Use the full URL provided by Shop->banners accessor
                     title: '',
                     desc: ''
-                })).filter(b => b.img);
+                })).filter(b => b.img); // Just filter out nulls/empty strings
                 
                 // Jika tidak ada banner valid yang diupload, kembalikan ke default agar tidak kosong
                 if (apiData.highlights.length === 0) {
-                    apiData.highlights = [
-                        { id: 'h1', img: '/Assests/Caraousel/Hero 1.jpg', title: 'Welcome', desc: '' }
-                    ];
+                    apiData.highlights = [];
                 }
             } else {
                 apiData.highlights = [];

@@ -56,11 +56,8 @@ class ShopController extends Controller
             $order = $createOrder->execute($shop, $validated, 'DINE_IN');
 
             $paymentUrl = null;
-            if (config('services.xendit.active')) {
-                // Future Xendit Integration
-            } else {
-                OrderCreated::dispatch($order);
-            }
+            
+            OrderCreated::dispatch($order);
 
             return response()->json([
                 'success' => true,

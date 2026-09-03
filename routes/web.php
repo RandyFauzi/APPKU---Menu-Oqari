@@ -85,6 +85,7 @@ Route::middleware(['auth'])->group(function () {
                 ->whereIn('order_status', ['CONFIRMED','PREPARING','READY'])
                 ->with('items')
                 ->latest()
+                ->limit(150)
                 ->get()
                 ->map(fn($o) => [
                     'id' => $o->id, 'status' => $o->order_status,
