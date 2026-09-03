@@ -68,10 +68,7 @@ class Shop extends Model
 
     public function getLogoUrlAttribute()
     {
-        $value = $this->logo_path;
-        if (!$value) return null;
-        if (\Illuminate\Support\Str::startsWith($value, ['http://', 'https://', '/'])) return $value;
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
+        return app(\App\Services\MediaService::class)->url($this->logo_path);
     }
 
     public function getBannersAttribute()
@@ -81,9 +78,7 @@ class Shop extends Model
         if (!is_array($banners)) return [];
         
         return array_map(function ($banner) {
-            if (!$banner) return null;
-            if (\Illuminate\Support\Str::startsWith($banner, ['http://', 'https://', '/'])) return $banner;
-            return \Illuminate\Support\Facades\Storage::disk('public')->url($banner);
+            return app(\App\Services\MediaService::class)->url($banner);
         }, $banners);
     }
 

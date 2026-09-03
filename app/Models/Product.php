@@ -60,15 +60,6 @@ class Product extends Model
 
     public function getImageUrlAttribute()
     {
-        $value = $this->image_path;
-        if (!$value) {
-            return null;
-        }
-
-        if (\Illuminate\Support\Str::startsWith($value, ['http://', 'https://', '/'])) {
-            return $value;
-        }
-
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($value);
+        return app(\App\Services\MediaService::class)->url($this->image_path);
     }
 }

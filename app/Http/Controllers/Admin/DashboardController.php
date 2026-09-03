@@ -237,8 +237,12 @@ class DashboardController extends Controller
             'description' => $request->desc,
         ];
 
+        // Ensure we have a product ID for the directory
+        $productId = $request->id ?: \Illuminate\Support\Str::uuid()->toString();
+
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('menus', 'public');
+            $data['image_path'] = app(\App\Services\MediaService::class)
+                ->storeProductImage($request->file('image'), $shopId, $productId);
         }
 
         $menu = Product::updateOrCreate(
@@ -307,7 +311,6 @@ class DashboardController extends Controller
 
             if ($request->hasFile("images.{$index}")) {
                 $file = $request->file("images.{$index}");
-                $extension = $file->getClientOriginalExtension();
                 
                 // If update, clean up old file
                 if ($menu && $menu->image_path) {
@@ -315,9 +318,10 @@ class DashboardController extends Controller
                 }
 
                 $productIdDir = $menu ? $menu->id : \Illuminate\Support\Str::uuid()->toString();
-                $filename = 'image_' . \Illuminate\Support\Str::random(10) . '.' . $extension;
                 
-                $path = $file->storeAs("media/shops/{$shopId}/products/{$productIdDir}", $filename, 'public');
+                $path = app(\App\Services\MediaService::class)
+                    ->storeProductImage($file, $shopId, $productIdDir);
+                    
                 $productData['image_path'] = $path;
             }
 
@@ -449,11 +453,8 @@ class DashboardController extends Controller
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($shop->logo_path);
             }
             
-            // Generate random filename
-            $extension = $request->file('logo')->getClientOriginalExtension();
-            $filename = 'logo_' . \Illuminate\Support\Str::random(10) . '.' . $extension;
-            
-            $path = $request->file('logo')->storeAs("media/shops/{$shopId}/branding", $filename, 'public');
+            $path = app(\App\Services\MediaService::class)
+                ->storeShopBranding($request->file('logo'), $shopId, 'logo');
             $shop->logo_path = $path;
         }
 
@@ -463,10 +464,8 @@ class DashboardController extends Controller
         
         for ($i = 0; $i < 3; $i++) {
             if ($request->hasFile("banner_{$i}")) {
-                $extension = $request->file("banner_{$i}")->getClientOriginalExtension();
-                $filename = 'banner_' . $i . '_' . \Illuminate\Support\Str::random(10) . '.' . $extension;
-                
-                $path = $request->file("banner_{$i}")->storeAs("media/shops/{$shopId}/branding", $filename, 'public');
+                $path = app(\App\Services\MediaService::class)
+                    ->storeShopBranding($request->file("banner_{$i}"), $shopId, "banner_{$i}");
                 $banners[] = $path;
             } elseif ($request->filled("existing_banner_{$i}")) {
                 $banners[] = $request->input("existing_banner_{$i}");
