@@ -136,6 +136,10 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
     Route::resource('users', UserController::class);
 });
 
+// Customer Receipt (Signed URLs)
+Route::get('/receipt/{order}', [\App\Http\Controllers\ReceiptController::class, 'show'])->name('receipt.web');
+Route::get('/receipt/{order}/pdf', [\App\Http\Controllers\ReceiptController::class, 'downloadPdf'])->name('receipt.pdf');
+
 // Public Customer Menu
 Route::get('/{slug}', [ShopController::class, 'show'])->name('shop.menu');
 Route::get('/{slug}/cart', [ShopController::class, 'cart'])->name('shop.cart');

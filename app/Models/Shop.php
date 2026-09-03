@@ -23,6 +23,7 @@ class Shop extends Model
 
     protected $fillable = [
         'name',
+        'address',
         'slug',
         'logo_path',
         'primary_color',
@@ -31,6 +32,7 @@ class Shop extends Model
         'slogan',
         'font_family',
         'instagram_link',
+        'email',
         'whatsapp_number',
         'maps_link',
         'banner_paths',

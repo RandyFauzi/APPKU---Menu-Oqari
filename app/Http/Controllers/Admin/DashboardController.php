@@ -142,7 +142,9 @@ class DashboardController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        return view('Admin.orders.print', compact('order'));
+        $receiptData = app(\App\Services\Receipt\ReceiptService::class)->build($order);
+
+        return view('receipts.thermal', compact('receiptData'));
     }
 
     public function deleteMenu($id)

@@ -1,4 +1,3 @@
-    <script src="{{ asset('js/data.js') }}?v={{ time() }}"></script>
     <script>
         window.SHOP_CATEGORIES = @json($categories ?? []);
         window.SHOP_DATA = @json($menuItems ?? []);
@@ -7,78 +6,83 @@
         window.SHOP_CART_URL = '{{ route("shop.cart", $shop->slug) }}';
         window.SHOP_TRACKING_URL = '{{ route("shop.tracking", $shop->slug) }}';
 
-        if (typeof apiData !== 'undefined') {
-            const iconMap = {
-                'coffee': 'fa-coffee',
-                'tea': 'fa-leaf',
-                'foods': 'fa-utensils',
-                'food': 'fa-utensils',
-                'snacks': 'fa-cookie',
-                'snack': 'fa-cookie',
-                'sweets': 'fa-ice-cream',
-                'sweet': 'fa-ice-cream',
-                'dessert': 'fa-ice-cream',
-                'beverages': 'fa-glass-water',
-                'beverage': 'fa-glass-water',
-                'drinks': 'fa-glass-water',
-                'drink': 'fa-glass-water'
-            };
-            
-            const getIcon = (name) => {
-                if (!name) return 'fa-utensils';
-                const lower = name.toLowerCase().trim();
-                return iconMap[lower] || 'fa-utensils';
-            };
-            
-            // Build categories from actual DB categories
-            apiData.categories = [{ id: 'all', name: 'All Menu', icon: 'fa-star' }];
-            if (window.SHOP_CATEGORIES && window.SHOP_CATEGORIES.length > 0) {
-                window.SHOP_CATEGORIES.forEach(cat => {
-                    apiData.categories.push({
-                        id: cat.id,
-                        name: cat.name,
-                        icon: getIcon(cat.name)
+        // Initialize apiData to replace legacy data.js
+        window.apiData = {
+            categories: [],
+            highlights: [],
+            menu: []
+        };
+
+        const iconMap = {
+            'coffee': 'fa-coffee',
+            'tea': 'fa-leaf',
+            'foods': 'fa-utensils',
+            'food': 'fa-utensils',
+            'snacks': 'fa-cookie',
+            'snack': 'fa-cookie',
+            'sweets': 'fa-ice-cream',
+            'sweet': 'fa-ice-cream',
+            'dessert': 'fa-ice-cream',
+            'beverages': 'fa-glass-water',
+            'beverage': 'fa-glass-water',
+            'drinks': 'fa-glass-water',
+            'drink': 'fa-glass-water'
+        };
+        
+        const getIcon = (name) => {
+            if (!name) return 'fa-utensils';
+            const lower = name.toLowerCase().trim();
+            return iconMap[lower] || 'fa-utensils';
+        };
+        
+        // Build categories from actual DB categories
+        window.apiData.categories = [{ id: 'all', name: 'All Menu', icon: 'fa-star' }];
+        if (window.SHOP_CATEGORIES && window.SHOP_CATEGORIES.length > 0) {
+            window.SHOP_CATEGORIES.forEach(cat => {
+                window.apiData.categories.push({
+                    id: cat.id,
+                    name: cat.name,
+                    icon: getIcon(cat.name)
+                });
+            });
+        } else if (window.SHOP_DATA && window.SHOP_DATA.length > 0) {
+            // Fallback from products category info if categories table is not yet seeded
+            const existingNames = new Set();
+            window.SHOP_DATA.forEach(item => {
+                const cName = item.category ? item.category.name : (item.category_name || null);
+                const cId = item.category ? item.category.id : (item.category_id || cName);
+                if (cName && !existingNames.has(cName)) {
+                    existingNames.add(cName);
+                    window.apiData.categories.push({
+                        id: cId || cName,
+                        name: cName,
+                        icon: getIcon(cName)
                     });
-                });
-            } else if (window.SHOP_DATA && window.SHOP_DATA.length > 0) {
-                // Fallback from products category info if categories table is not yet seeded
-                const existingNames = new Set();
-                window.SHOP_DATA.forEach(item => {
-                    const cName = item.category ? item.category.name : (item.category_name || null);
-                    const cId = item.category ? item.category.id : (item.category_id || cName);
-                    if (cName && !existingNames.has(cName)) {
-                        existingNames.add(cName);
-                        apiData.categories.push({
-                            id: cId || cName,
-                            name: cName,
-                            icon: getIcon(cName)
-                        });
-                    }
-                });
-            }
-            
-            // Override highlights with shop banners
-            const shopBanners = @json($shop->banners ?? []);
-            if (shopBanners && shopBanners.length > 0) {
-                apiData.highlights = shopBanners.map((banner, index) => ({
-                    id: 'h' + (index + 1),
-                    img: banner, // Use the full URL provided by Shop->banners accessor
-                    title: '',
-                    desc: ''
-                })).filter(b => b.img); // Just filter out nulls/empty strings
-                
-                // Jika tidak ada banner valid yang diupload, kembalikan ke default agar tidak kosong
-                if (apiData.highlights.length === 0) {
-                    apiData.highlights = [];
                 }
-            } else {
-                apiData.highlights = [];
+            });
+        }
+        
+        // Override highlights with shop banners
+        const shopBanners = @json($shop->banners ?? []);
+        if (shopBanners && shopBanners.length > 0) {
+            window.apiData.highlights = shopBanners.map((banner, index) => ({
+                id: 'h' + (index + 1),
+                img: banner, // Use the full URL provided by Shop->banners accessor
+                title: '',
+                desc: ''
+            })).filter(b => b.img); // Just filter out nulls/empty strings
+            
+            // Jika tidak ada banner valid yang diupload, kembalikan ke default agar tidak kosong
+            if (window.apiData.highlights.length === 0) {
+                window.apiData.highlights = [];
             }
+        } else {
+            window.apiData.highlights = [];
         }
 
         const DB = {
             get: function(tableName) {
-                if (tableName === 'bitten_menu') {
+                if (tableName === 'oqari_menu') {
                     return window.SHOP_DATA.map(item => ({
                         id: item.id,
                         name: item.name,
@@ -93,7 +97,7 @@
                 return localStorage.getItem(tableName) ? JSON.parse(localStorage.getItem(tableName)) : [];
             },
             createOrder: function(table, name, email, phone, paymentMethod, items, total) {
-                let orders = this.get('bitten_orders') || [];
+                let orders = this.get('oqari_orders') || [];
                 const newOrder = {
                     id: 'ORD-' + Date.now(),
                     table: table,
@@ -107,7 +111,7 @@
                     timestamp: new Date().toISOString()
                 };
                 orders.push(newOrder);
-                localStorage.setItem('bitten_orders', JSON.stringify(orders));
+                localStorage.setItem('oqari_orders', JSON.stringify(orders));
 
                 return fetch('/' + window.SHOP_SLUG + '/order', {
                     method: 'POST',

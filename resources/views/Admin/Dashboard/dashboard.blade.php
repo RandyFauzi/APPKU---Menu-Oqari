@@ -907,7 +907,7 @@ handleDraftImageUpload(event, index) {
                     { id: 'crew', name: 'Crew Management', icon: 'fas fa-users' },
                     { id: 'shifts', name: 'Jadwal Shift', icon: 'fas fa-calendar-alt' },
                     { id: 'logs', name: 'Log Aktivitas', icon: 'fas fa-history' },
-                    { id: 'settings', name: 'Toko & Branding', icon: 'fas fa-store' },
+                    { id: 'settings', name: 'Toko Saya', icon: 'fas fa-store' },
                 ],
                                 tables: [],
                 reportPeriod: 'all',

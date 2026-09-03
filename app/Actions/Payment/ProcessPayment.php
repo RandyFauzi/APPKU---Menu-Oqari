@@ -76,6 +76,12 @@ class ProcessPayment
                 };
             }
 
+            if ($order->customer_email) {
+                DB::afterCommit(function () use ($order) {
+                    dispatch(new \App\Jobs\SendOrderReceiptEmail($order->id));
+                });
+            }
+
             return $payment;
         });
     }
