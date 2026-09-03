@@ -61,7 +61,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()" @refresh-live-orders.window="fetchLiveOrders(false)">
+<body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()" @new-order-received.window="handleNewOrderFromSocket($event.detail)" @refresh-live-orders.window="fetchLiveOrders(false)">
     
 
     <!-- Audio untuk notifikasi pesanan masuk -->
@@ -1082,16 +1082,10 @@ handleDraftImageUpload(event, index) {
                     
                     this.fetchLiveOrders(true);
                     
-                    // Listen for real-time orders via Laravel Reverb
-                    if (window.Echo && window.INITIAL_DATA.shop) {
-                        window.Echo.private('shop.' + window.INITIAL_DATA.shop.id + '.orders')
-                            .listen('OrderCreated', (e) => {
-                                console.log('New Order Received via Reverb:', e.order);
-                                this.handleNewOrderFromSocket(e.order);
-                            });
-                    }
+                    // The global notification engine (orders.js) handles Reverb connection 
+                    // and dispatches the 'new-order-received' window event.
                     
-                    // Fallback polling just in case Echo fails to connect
+                    // Fallback polling just in case WebSocket fails
                     setInterval(() => {
                         this.fetchLiveOrders(false);
                     }, 5000);
@@ -1329,6 +1323,8 @@ handleDraftImageUpload(event, index) {
                     const mappedOrder = {
                         id: newOrder.id,
                         customer: newOrder.customer_name || ('Meja ' + (newOrder.table ? newOrder.table.name : '-')),
+                        table: newOrder.table ? newOrder.table.name : 'TA',
+                        type: newOrder.fulfillment_type === 'DINE_IN' ? 'Dine In' : (newOrder.fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Delivery'),
                         status: newOrder.order_status || newOrder.status,
                         total: parseFloat(newOrder.grand_total || newOrder.total_price),
                         time: newOrder.created_at,
