@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
         // Role-Permission Matrix
         $rolePermissions = [
             'owner' => ['*'], // Has all access
+            'admin' => ['*'], // Has all access
             'manager' => [
                 'access-pos', 'view-orders', 'manage-orders', 'manage-menu',
                 'manage-crew', 'manage-settings', 'view-reports', 'manage-reports',

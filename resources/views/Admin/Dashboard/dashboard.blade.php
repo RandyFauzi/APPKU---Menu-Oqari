@@ -1056,8 +1056,9 @@ handleDraftImageUpload(event, index) {
                     document.addEventListener('click', unlockAudio);
                     
                     this.initSummary();
-this.initAnalytics();
-if (window.INITIAL_DATA.shop) {
+                    this.initAnalytics();
+                    this.loadMenu();
+                    if (window.INITIAL_DATA.shop) {
                         this.settings.name = window.INITIAL_DATA.shop.name || '';
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
                         this.settings.primary_color = window.INITIAL_DATA.shop.primary_color || '#1E5A7A';
