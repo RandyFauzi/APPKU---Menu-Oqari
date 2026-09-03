@@ -628,7 +628,8 @@
     <script>
         window.INITIAL_DATA = {
             shop: @json($shop ?? null),
-            user: @json(auth()->user())
+            user: @json(auth()->user()),
+            categories: @json($categories ?? [])
         };
 
         const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
@@ -1091,25 +1092,38 @@ handleDraftImageUpload(event, index) {
 
                 },
                 async loadMenu(page = 1) {
-    this.isLoadingMenus = true;
-    try {
-        const res = await fetch('/admin/api/dashboard/products?per_page=50&page=' + page);
-        if (res.ok) {
-            const data = await res.json();
-            this.menuItems = data.data.map(m => ({
-                ...m,
-                categoryId: m.category_id,
-                categoryName: m.category ? m.category.name : '',
-                desc: m.description,
-                image: m.image_url ? (m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
-                tags: m.tags || []
-            }));
-        }
-    } catch(e) {}
-    this.isLoadingMenus = false;
-},
+                    this.isLoadingMenus = true;
+                    try {
+                        const res = await fetch('/admin/api/dashboard/products?per_page=50&page=' + page);
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.menuItems = data.data.map(m => {
+                                let catId = m.category_id || (m.category ? m.category.id : null);
+                                let catName = m.category ? m.category.name : (m.category_name || '');
+                                if (!catId && catName && this.categories.length > 0) {
+                                    const found = this.categories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+                                    if (found) catId = found.id;
+                                }
+                                return {
+                                    ...m,
+                                    categoryId: catId || m.category_name || '',
+                                    categoryName: catName,
+                                    desc: m.description,
+                                    image: m.image_url ? (m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
+                                    tags: m.tags || []
+                                };
+                            });
+                        }
+                    } catch(e) {}
+                    this.isLoadingMenus = false;
+                },
                 editMenu(item) {
-                    this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc, categoryId: item.categoryId || '', imagePreview: item.image || null };
+                    let matchedCatId = item.categoryId || item.category_id || '';
+                    if (matchedCatId && this.categories.length > 0 && !this.categories.some(c => c.id == matchedCatId)) {
+                        const found = this.categories.find(c => c.name.toLowerCase() === String(matchedCatId).toLowerCase());
+                        if (found) matchedCatId = found.id;
+                    }
+                    this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc || item.description || '', categoryId: matchedCatId, imagePreview: item.image || item.image_url || null };
                     this.showAddMenuModal = true;
                 },
                 async deleteMenu(id) {

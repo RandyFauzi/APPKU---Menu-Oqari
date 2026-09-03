@@ -1,4 +1,4 @@
-    <script src="{{ asset('js/data.js') }}"></script>
+    <script src="{{ asset('js/data.js') }}?v={{ time() }}"></script>
     <script>
         window.SHOP_CATEGORIES = @json($categories ?? []);
         window.SHOP_DATA = @json($menuItems ?? []);
@@ -145,5 +145,5 @@
             }
         };
     </script>
-    <script src="{{ asset('js/store.js') }}"></script>
-    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/store.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/main.js') }}?v={{ time() }}"></script>

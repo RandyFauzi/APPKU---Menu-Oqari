@@ -12,11 +12,13 @@ use App\Models\Product;
 use App\Models\Shop;
 use App\Models\Table;
 use App\Models\User;
+use App\Services\MediaService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -38,7 +40,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $role = Auth::user()->role;
-        
+
         if ($role === 'superadmin') {
             return redirect()->route('superadmin.dashboard');
         }
@@ -71,9 +73,10 @@ class DashboardController extends Controller
         $shop = Shop::find($shopId);
 
         // Dashboard shell: only essential layout data
-        $activeSession = \App\Models\CashRegisterSession::where('user_id', $user->id)->where('status', 'OPEN')->first();
+        $activeSession = CashRegisterSession::where('user_id', $user->id)->where('status', 'OPEN')->first();
+        $categories = Category::where('shop_id', $shopId)->orderBy('sort_order')->get();
 
-        return view('Admin.Dashboard.dashboard', compact('shop', 'activeSession'));
+        return view('Admin.Dashboard.dashboard', compact('shop', 'activeSession', 'categories'));
     }
 
     public function getLiveOrders()
@@ -183,18 +186,41 @@ class DashboardController extends Controller
             abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
         }
 
+        $categoryId = null;
+        $categoryName = null;
+
+        if ($request->categoryId) {
+            if (is_numeric($request->categoryId)) {
+                $categoryId = (int) $request->categoryId;
+                $cat = Category::where('shop_id', $shopId)->find($categoryId);
+                if ($cat) {
+                    $categoryName = $cat->name;
+                }
+            } else {
+                // In case string name was passed
+                $cat = Category::where('shop_id', $shopId)->where('name', $request->categoryId)->first();
+                if ($cat) {
+                    $categoryId = $cat->id;
+                    $categoryName = $cat->name;
+                } else {
+                    $categoryName = $request->categoryId;
+                }
+            }
+        }
+
         $data = [
             'name' => $request->name,
             'price' => $request->price,
-            'category_id' => $request->categoryId ?: null,
+            'category_id' => $categoryId,
+            'category_name' => $categoryName,
             'description' => $request->desc,
         ];
 
         // Ensure we have a product ID for the directory
-        $productId = $request->id ?: \Illuminate\Support\Str::uuid()->toString();
+        $productId = $request->id ?: Str::uuid()->toString();
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = app(\App\Services\MediaService::class)
+            $data['image_path'] = app(MediaService::class)
                 ->storeProductImage($request->file('image'), $shopId, $productId);
         }
 
@@ -211,9 +237,9 @@ class DashboardController extends Controller
             ->exists();
 
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'menu' => $menu,
-            'has_duplicate_name' => $duplicateExists
+            'has_duplicate_name' => $duplicateExists,
         ]);
     }
 
@@ -224,32 +250,32 @@ class DashboardController extends Controller
         if (! $shopId) {
             abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
         }
-        
+
         $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                \Illuminate\Validation\Rule::unique('categories', 'name')->where('shop_id', $shopId),
-            ]
+                Rule::unique('categories', 'name')->where('shop_id', $shopId),
+            ],
         ], [
-            'name.unique' => 'Kategori dengan nama ini sudah ada di toko Anda.'
+            'name.unique' => 'Kategori dengan nama ini sudah ada di toko Anda.',
         ]);
 
         // Pastikan slug juga unik per shop_id
-        $baseSlug = \Illuminate\Support\Str::slug($request->name);
+        $baseSlug = Str::slug($request->name);
         $slug = $baseSlug;
         $counter = 1;
-        while (\App\Models\Category::where('shop_id', $shopId)->where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
+        while (Category::where('shop_id', $shopId)->where('slug', $slug)->exists()) {
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 
-        $category = \App\Models\Category::create([
+        $category = Category::create([
             'shop_id' => $shopId,
             'name' => $request->name,
             'slug' => $slug,
-            'sort_order' => \App\Models\Category::where('shop_id', $shopId)->count() + 1,
+            'sort_order' => Category::where('shop_id', $shopId)->count() + 1,
             'is_active' => true,
         ]);
 
@@ -266,9 +292,9 @@ class DashboardController extends Controller
 
         // Validate all uploaded images if they exist
         foreach ($request->allFiles() as $key => $file) {
-            if (\Illuminate\Support\Str::startsWith($key, 'images.')) {
+            if (Str::startsWith($key, 'images.')) {
                 $request->validate([
-                    $key => 'mimes:jpeg,png,jpg,webp|max:5120'
+                    $key => 'mimes:jpeg,png,jpg,webp|max:5120',
                 ]);
             }
         }
@@ -291,17 +317,17 @@ class DashboardController extends Controller
 
             if ($request->hasFile("images.{$index}")) {
                 $file = $request->file("images.{$index}");
-                
+
                 // If update, clean up old file
                 if ($menu && $menu->image_path) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($menu->image_path);
+                    Storage::disk('public')->delete($menu->image_path);
                 }
 
-                $productIdDir = $menu ? $menu->id : \Illuminate\Support\Str::uuid()->toString();
-                
-                $path = app(\App\Services\MediaService::class)
+                $productIdDir = $menu ? $menu->id : Str::uuid()->toString();
+
+                $path = app(MediaService::class)
                     ->storeProductImage($file, $shopId, $productIdDir);
-                    
+
                 $productData['image_path'] = $path;
             }
 
@@ -316,11 +342,11 @@ class DashboardController extends Controller
             } else {
                 $productData['shop_id'] = $shopId;
                 $menu = Product::create($productData);
-                
-                // If we used a UUID dir for new product, we could move it to the real ID, 
-                // but the DB image_path already contains the UUID path which is fine, 
+
+                // If we used a UUID dir for new product, we could move it to the real ID,
+                // but the DB image_path already contains the UUID path which is fine,
                 // or we can rename the directory. For now, UUID is perfectly fine.
-                
+
                 $savedMenus[] = $menu;
             }
         }
@@ -430,10 +456,10 @@ class DashboardController extends Controller
         if ($request->hasFile('logo')) {
             // Delete old file if exists
             if ($shop->logo_path) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($shop->logo_path);
+                Storage::disk('public')->delete($shop->logo_path);
             }
-            
-            $path = app(\App\Services\MediaService::class)
+
+            $path = app(MediaService::class)
                 ->storeShopBranding($request->file('logo'), $shopId, 'logo');
             $shop->logo_path = $path;
         }
@@ -441,21 +467,21 @@ class DashboardController extends Controller
         // Banners
         $banners = [];
         $existingBanners = $shop->banner_paths ?? [];
-        
+
         for ($i = 0; $i < 3; $i++) {
             if ($request->hasFile("banner_{$i}")) {
-                $path = app(\App\Services\MediaService::class)
+                $path = app(MediaService::class)
                     ->storeShopBranding($request->file("banner_{$i}"), $shopId, "banner_{$i}");
                 $banners[] = $path;
             } elseif ($request->filled("existing_banner_{$i}")) {
                 $banners[] = $request->input("existing_banner_{$i}");
             }
         }
-        
+
         // Clean up orphan banners
         foreach ($existingBanners as $oldBanner) {
-            if (!in_array($oldBanner, $banners)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldBanner);
+            if (! in_array($oldBanner, $banners)) {
+                Storage::disk('public')->delete($oldBanner);
             }
         }
 
@@ -548,7 +574,7 @@ class DashboardController extends Controller
         $table = new Table;
         $table->shop_id = $user->shop_id;
         $table->name = $request->name;
-        $table->public_token = strtolower(\Illuminate\Support\Str::random(8));
+        $table->public_token = strtolower(Str::random(8));
         $table->save();
 
         return response()->json(['success' => true, 'table' => $table]);
@@ -564,7 +590,7 @@ class DashboardController extends Controller
         $table = Table::where('shop_id', $user->shop_id)->where('name', $request->name)->first();
 
         if ($table) {
-            $table->public_token = strtolower(\Illuminate\Support\Str::random(8));
+            $table->public_token = strtolower(Str::random(8));
             $table->save();
 
             return response()->json(['success' => true, 'table' => $table]);
