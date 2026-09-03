@@ -623,19 +623,17 @@
 
     <script>
         window.INITIAL_DATA = {
-            menu: @json($menuItems ?? []),
-            orders: @json($orders ?? []),
-            tables: @json($tables ?? []),
             shop: @json($shop ?? null),
-            user: @json(auth()->user()),
-            users: @json($users ?? []),
-            categories: @json($categories ?? [])
+            user: @json(auth()->user())
         };
 
         const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
+                isLoadingSummary: true,
+                isLoadingMenus: true,
+                isLoadingAnalytics: true,
                 currentTab: new URLSearchParams(window.location.search).get('tab') || localStorage.getItem('activeDashboardTab') || 'orders',
                 showAddCategoryModal: false,
                 newCategoryName: '',
@@ -645,7 +643,12 @@
                 qrTableToReset: null,
                 isResettingQR: false,
                 showAddCrewModal: false,
-                users: window.INITIAL_DATA.users || [],
+                users: [],
+                categories: [],
+                tables: [],
+                menuItems: [],
+                orders: [],
+                analytics: null,
                 newCrew: { name: '', email: '', password: '', role: 'barista' },
                 showEditCrewModal: false,
                 editCrewData: { id: null, name: '', email: '', password: '', role: 'barista' },
@@ -1048,30 +1051,9 @@ handleDraftImageUpload(event, index) {
                     };
                     document.addEventListener('click', unlockAudio);
                     
-                    this.loadMenu();
-                    this.fetchLiveOrders(true);
-                    this.fetchShifts();
-                    this.fetchLogs();
-                    
-                    document.body.addEventListener('click', unlockAudio, { once: true });
-                    document.body.addEventListener('touchstart', unlockAudio, { once: true });
-                    document.body.addEventListener('keydown', unlockAudio, { once: true });
-                    
-                    this.$watch('currentTab', (val) => {
-                        localStorage.setItem('activeDashboardTab', val);
-                        if (val === 'analytics') {
-                            setTimeout(() => this.initChart(), 50);
-                        }
-                    });
-
-                    this.loadMenu();
-                    
-                    this.tables = window.INITIAL_DATA.tables.map(t => ({
-                        id: t.name,
-                        qr: t.qr_code_url || this.getQRUrl(t.name)
-                    }));
-                    
-                    if (window.INITIAL_DATA.shop) {
+                    this.initSummary();
+this.initAnalytics();
+if (window.INITIAL_DATA.shop) {
                         this.settings.name = window.INITIAL_DATA.shop.name || '';
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
                         this.settings.primary_color = window.INITIAL_DATA.shop.primary_color || '#1E5A7A';
@@ -1092,16 +1074,24 @@ handleDraftImageUpload(event, index) {
 
 
                 },
-                loadMenu() {
-                    this.menuItems = window.INITIAL_DATA.menu.map(m => ({
-                        ...m,
-                        categoryId: m.category_id,
-                        categoryName: m.category ? m.category.name : '',
-                        desc: m.description,
-                        image: m.image_url ? (m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
-                        tags: m.tags || []
-                    }));
-                },
+                async loadMenu(page = 1) {
+    this.isLoadingMenus = true;
+    try {
+        const res = await fetch('/admin/api/dashboard/products?per_page=50&page=' + page);
+        if (res.ok) {
+            const data = await res.json();
+            this.menuItems = data.data.map(m => ({
+                ...m,
+                categoryId: m.category_id,
+                categoryName: m.category ? m.category.name : '',
+                desc: m.description,
+                image: m.image_url ? (m.image_url + '?v=' + new Date(m.updated_at).getTime()) : null,
+                tags: m.tags || []
+            }));
+        }
+    } catch(e) {}
+    this.isLoadingMenus = false;
+},
                 editMenu(item) {
                     this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc, categoryId: item.categoryId || '', imagePreview: item.image || null };
                     this.showAddMenuModal = true;
@@ -1350,20 +1340,45 @@ handleDraftImageUpload(event, index) {
                     clearInterval(this.incomingTimerInterval);
                     setTimeout(() => this.processIncomingQueue(), 400);
                 },
-                async fetchLiveOrders(isInit = false) {
-                    try {
-                        let sourceOrders = window.INITIAL_DATA.orders;
-                        
-                        if (!isInit) {
+                async initSummary() {
+    this.isLoadingSummary = true;
+    try {
+        const res = await fetch('/admin/api/dashboard/summary');
+        if (res.ok) {
+            const data = await res.json();
+            this.categories = data.categories || [];
+            this.users = data.users || [];
+            this.tables = (data.tables || []).map(t => ({
+                id: t.name,
+                qr: t.qr_code_url || this.getQRUrl(t.name)
+            }));
+        }
+    } catch(e) {}
+    this.isLoadingSummary = false;
+},
+async initAnalytics() {
+    this.isLoadingAnalytics = true;
+    try {
+        const res = await fetch('/admin/api/dashboard/analytics');
+        if (res.ok) {
+            this.analytics = await res.json();
+            // trigger chart init if active
+            setTimeout(() => { if (this.currentTab === 'analytics') this.initChart(); }, 100);
+        }
+    } catch(e) {}
+    this.isLoadingAnalytics = false;
+},
+async fetchLiveOrders(isInit = false) {
+    try {
+        let sourceOrders = [];
+        if (true) {
                             try {
-                                const res = await fetch('/admin/api/orders/live?t=' + new Date().getTime(), {
-                                    headers: {
-                                        'Cache-Control': 'no-cache',
-                                        'Pragma': 'no-cache'
-                                    }
-                                });
-                                if (res.ok) {
-                                    sourceOrders = await res.json();
+                                const res = await fetch('/admin/api/dashboard/orders?per_page=150&t=' + new Date().getTime(), {
+    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+});
+if (res.ok) {
+    const json = await res.json();
+    sourceOrders = json.data;
                                 } else {
                                     return;
                                 }

@@ -55,6 +55,11 @@ Route::middleware(['auth'])->group(function () {
 
     // Settings
     Route::middleware('can:manage-settings')->group(function () {
+        Route::get('/admin/api/dashboard/summary', [\App\Http\Controllers\Admin\Api\DashboardApiController::class, 'getSummary']);
+        Route::get('/admin/api/dashboard/orders', [\App\Http\Controllers\Admin\Api\OrderApiController::class, 'index']);
+        Route::get('/admin/api/dashboard/products', [\App\Http\Controllers\Admin\Api\ProductApiController::class, 'index']);
+        Route::get('/admin/api/dashboard/analytics', [\App\Http\Controllers\Admin\Api\AnalyticsApiController::class, 'index']);
+
         Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
         Route::post('/admin/api/profile', [DashboardController::class, 'updateProfile']);
         // Table & QR Management

@@ -212,13 +212,29 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('analyticsApp', () => ({
-            data: {!! json_encode($analytics) !!},
+            data: {
+                orders: 0, ordersChange: 0, revenue: 0, revenueChange: 0,
+                topProduct: { name: '-', sold: 0, change: 0 },
+                returningCustomers: null, newCustomersPct: null,
+                returningCount: null, newCount: null,
+                hourlySales: [0,0,0,0,0,0,0,0]
+            },
+            isLoading: true,
             trendChart: null,
             customerChart: null,
             formatNum(num) {
                 return Number(num).toLocaleString('id-ID').replace(/,/g, '.');
             },
-            init() {
+            async init() {
+                // Fetch analytics data asynchronously
+                try {
+                    const res = await fetch('/admin/api/dashboard/analytics');
+                    if (res.ok) {
+                        this.data = await res.json();
+                    }
+                } catch(e) {}
+                this.isLoading = false;
+
                 // Initialize Charts after a small delay to ensure DOM is ready
                 setTimeout(() => {
                     this.initTrendChart();
