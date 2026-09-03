@@ -195,7 +195,16 @@ class DashboardController extends Controller
 
         $menu->load('category');
 
-        return response()->json(['success' => true, 'menu' => $menu]);
+        $duplicateExists = Product::where('shop_id', $shopId)
+            ->where('name', $request->name)
+            ->where('id', '!=', $menu->id)
+            ->exists();
+
+        return response()->json([
+            'success' => true, 
+            'menu' => $menu,
+            'has_duplicate_name' => $duplicateExists
+        ]);
     }
 
     public function saveCategory(Request $request)

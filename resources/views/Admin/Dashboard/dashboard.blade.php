@@ -1166,10 +1166,16 @@ if (window.INITIAL_DATA.shop) {
                                 data.menu.image = data.menu.image_url ? data.menu.image_url : null;
                                 this.menuItems.unshift(data.menu);
                             }
+                            
+                            if (data.has_duplicate_name) {
+                                this.addToast('Menu disimpan. Peringatan: Nama menu ini sudah ada sebelumnya!', 'error');
+                            } else {
+                                this.addToast('Menu berhasil disimpan!', 'success');
+                            }
+                            
                             this.newMenu = { id: null, name: '', price: '', desc: '', categoryId: '', imagePreview: null };
                             if (this.$refs.menuImageInput) this.$refs.menuImageInput.value = '';
                             this.showAddMenuModal = false;
-                            this.addToast('Menu berhasil disimpan!', 'success');
                         } else {
                             this.addToast(data.message || 'Gagal menyimpan menu', 'error');
                         }
