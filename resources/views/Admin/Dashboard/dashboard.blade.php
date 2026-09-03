@@ -1054,6 +1054,12 @@ handleDraftImageUpload(event, index) {
                         document.removeEventListener('click', unlockAudio);
                     };
                     document.addEventListener('click', unlockAudio);
+                    this.$watch('currentTab', (val) => {
+                        localStorage.setItem('activeDashboardTab', val);
+                        const url = new URL(window.location);
+                        url.searchParams.set('tab', val);
+                        window.history.replaceState({}, '', url);
+                    });
                     
                     this.initSummary();
                     this.initAnalytics();
