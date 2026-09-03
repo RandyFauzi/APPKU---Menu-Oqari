@@ -37,9 +37,7 @@
     
     <!-- Auth Guard removed, using Laravel middleware instead -->
     
-    <!-- Data -->
-    <script src="js/data.js"></script>
-    <script src="js/database.js"></script>
+    <!-- Data Scripts removed -->
     <script>
         tailwind.config = { 
             theme: { 
@@ -68,24 +66,31 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="font-sans text-textdark h-screen flex overflow-hidden" x-data="dashboardApp()" @new-order-received.window="handleNewOrderFromSocket($event.detail)" @refresh-live-orders.window="fetchLiveOrders(false)">
+<body class="font-sans text-textdark h-screen flex overflow-hidden bg-brewlybg" x-data="dashboardApp()" @new-order-received.window="handleNewOrderFromSocket($event.detail)" @refresh-live-orders.window="fetchLiveOrders(false)">
     
-
     <!-- Audio untuk notifikasi pesanan masuk -->
     <audio id="chime-sound" src="{{ asset('Assest/notif_orderan_masuk.mp3') }}" preload="auto"></audio>
 
-<!-- Sidebar -->
-    <aside class="w-64 flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg overflow-y-auto hide-scroll">
-        <div class="flex items-center gap-3 mb-2 shrink-0">
-            @if(isset($shop) && $shop->logo_url)
-                <img src="{{ $shop->logo_url }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
-            @else
-                <img src="{{ asset('logo-oqari.webp') }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 object-contain">
-            @endif
-            <div class="flex flex-col">
-                <span class="font-bold text-lg leading-tight truncate w-32">{{ $shop->name ?? 'Oqari' }}</span>
-                <span class="text-[10px] text-brewlymuted uppercase tracking-wider">Coffee Shops. Stronger.</span>
+    <!-- Mobile Sidebar Overlay -->
+    <div x-show="sidebarOpen" x-cloak class="fixed inset-0 bg-black/50 z-[100] lg:hidden backdrop-blur-sm" @click="sidebarOpen = false" x-transition.opacity></div>
+
+    <!-- Sidebar -->
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed lg:static inset-y-0 left-0 w-64 lg:w-64 transform lg:translate-x-0 transition-transform duration-300 ease-in-out z-[110] flex flex-col shrink-0 border-r border-brewlyborder p-6 gap-6 h-full bg-brewlybg overflow-y-auto hide-scroll">
+        <div class="flex items-center justify-between mb-2 shrink-0">
+            <div class="flex items-center gap-3">
+                @if(isset($shop) && $shop->logo_url)
+                    <img src="{{ $shop->logo_url }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm">
+                @else
+                    <img src="{{ asset('logo-oqari.webp') }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 object-contain">
+                @endif
+                <div class="flex flex-col">
+                    <span class="font-bold text-lg leading-tight truncate w-24 md:w-32">{{ $shop->name ?? 'Oqari' }}</span>
+                    <span class="text-[10px] text-brewlymuted uppercase tracking-wider">Coffee Shops. Stronger.</span>
+                </div>
             </div>
+            <button @click="sidebarOpen = false" class="lg:hidden w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         
         <nav class="flex-grow shrink-0 space-y-1">
@@ -134,30 +139,35 @@
     <main class="flex-grow flex flex-col h-full bg-white rounded-l-[40px] shadow-[-10px_0_30px_rgba(0,0,0,0.02)] border-l border-brewlyborder overflow-hidden">
         
         <!-- Top Header for Main Area -->
-        <header class="h-24 flex justify-between items-center px-10 shrink-0 border-b border-brewlyborder/50 bg-white relative z-10">
-            <div x-show="currentTab !== 'analytics'">
-                <h2 class="font-sans font-bold text-3xl text-[#164A35]" x-text="tabs.find(t => t.id === currentTab)?.name"></h2>
+        <header class="h-20 md:h-24 flex justify-between items-center px-4 md:px-10 shrink-0 border-b border-brewlyborder/50 bg-white relative z-10">
+            <div class="flex items-center gap-3">
+                <button @click="sidebarOpen = true" class="lg:hidden w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <div x-show="currentTab !== 'analytics'">
+                    <h2 class="font-sans font-bold text-xl md:text-3xl text-[#164A35]" x-text="tabs.find(t => t.id === currentTab)?.name"></h2>
+                </div>
             </div>
             
-            <div class="flex items-center gap-6 ml-auto">
-                <div class="relative cursor-pointer group" x-show="currentTab !== 'analytics'">
+            <div class="flex items-center gap-3 md:gap-6 ml-auto">
+                <div class="relative cursor-pointer group hidden md:block" x-show="currentTab !== 'analytics'">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input type="text" x-model="searchQuery" placeholder="Search..." class="bg-gray-50 border border-gray-200 rounded-full pl-11 pr-4 py-2 text-sm focus:outline-none focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen w-64 transition-all">
                 </div>
 
                 <div class="relative cursor-pointer group">
-                    <i class="fas fa-bell text-[#777873] text-xl group-hover:text-[#164A35] transition-colors"></i>
+                    <i class="fas fa-bell text-[#777873] text-lg md:text-xl group-hover:text-[#164A35] transition-colors"></i>
                     <span class="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">3</span>
                 </div>
                 
-                <div class="relative pl-6 border-l border-gray-200" x-data="{ open: false }">
-                    <div @click="open = !open" @click.away="open = false" class="flex items-center gap-3 cursor-pointer group">
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=164A35&color=fff" class="w-10 h-10 rounded-full object-cover">
-                        <div class="flex flex-col">
-                            <span class="text-[14px] font-bold text-[#202522] leading-tight w-24 truncate" x-text="settings.name || 'Admin'"></span>
-                            <span class="text-[12px] font-semibold text-[#777873]">Admin</span>
+                <div class="relative pl-3 md:pl-6 border-l border-gray-200" x-data="{ open: false }">
+                    <div @click="open = !open" @click.away="open = false" class="flex items-center gap-2 md:gap-3 cursor-pointer group">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'A') }}&background=164A35&color=fff" alt="User Avatar" class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-transparent group-hover:border-brewlygreen transition-all object-cover">
+                        <div class="hidden md:flex flex-col">
+                            <span class="text-sm font-bold text-textdark leading-tight">{{ auth()->user()->name ?? 'Admin' }}</span>
+                            <span class="text-[10px] text-brewlymuted uppercase font-medium">{{ auth()->user()->role ?? 'Manager' }}</span>
                         </div>
-                        <i class="fas fa-chevron-down text-[10px] text-[#777873] ml-1 group-hover:text-[#164A35] transition-colors"></i>
+                        <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-brewlygreen transition-colors hidden md:block"></i>
                     </div>
                     
                     <!-- Dropdown Menu -->

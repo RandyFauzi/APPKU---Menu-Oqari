@@ -44,7 +44,7 @@
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body data-page="home" class="antialiased max-w-md mx-auto bg-gray-50 min-h-screen relative shadow-xl overflow-x-hidden pb-24 page-transition">
+<body data-page="home" class="antialiased w-full max-w-7xl mx-auto md:px-6 bg-gray-50 min-h-screen relative shadow-xl md:shadow-none overflow-x-hidden pb-24 page-transition">
 
     @if(!($shop->is_open ?? true))
     <!-- TOKO TUTUP OVERLAY -->
@@ -77,20 +77,20 @@
     </script>
 
     <!-- Header APP (Logo + Search Bar) - Sticky -->
-    <div id="sticky-header" class="sticky top-0 z-40 bg-white transition-shadow duration-300">
-        <div class="pt-4 pb-2 px-4">
-            <div class="flex items-center justify-between px-1 pb-2">
+    <div id="sticky-header" class="sticky top-0 z-40 bg-white transition-shadow duration-300 md:rounded-b-3xl md:px-4 md:shadow-sm">
+        <div class="pt-4 pb-2 px-4 md:flex md:items-center md:justify-between md:gap-8">
+            <div class="flex items-center justify-between px-1 pb-2 md:pb-0 md:shrink-0">
                 <div class="flex items-center gap-2">
-                    <img src="{{ $shop->logo_url ? $shop->logo_url : asset('logo-oqari.webp') }}" alt="{{ $shop->name }} Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg">
+                    <img src="{{ $shop->logo_url ? $shop->logo_url : asset('logo-oqari.webp') }}" alt="{{ $shop->name }} Logo" class="h-10 w-10 md:h-12 md:w-12 object-contain drop-shadow-sm rounded-lg">
                     <div class="flex flex-col">
-                        <span class="font-extrabold text-[15px] leading-tight tracking-tight text-primary uppercase">{{ $shop->name }}</span>
-                        <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</span>
+                        <span class="font-extrabold text-[15px] md:text-lg leading-tight tracking-tight text-primary uppercase">{{ $shop->name }}</span>
+                        <span class="text-[8px] md:text-[10px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Location & Search Bar -->
-            <div class="pb-3">
+            <div class="pb-3 md:pb-0 w-full md:max-w-xl">
                 <div class="bg-white rounded-full p-1.5 flex items-center shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] border border-gray-200 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/30 transition-all duration-300">
                     <div class="flex items-center gap-2 pl-2 pr-3 border-r border-gray-200 cursor-pointer hover:bg-gray-50 transition rounded-l-full py-1.5 shrink-0 max-w-[55%]" onclick="document.getElementById('modal-table-selector').classList.remove('hidden')">
                         <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -160,9 +160,9 @@
         <!-- Injected by JS -->
     </main>
 
-    <!-- Floating Cart Bar -->
-    <div id="cart-bar" class="fixed bottom-0 w-full max-w-md bg-primary text-white p-4 flex justify-between items-center rounded-t-3xl shadow-[0_-10px_20px_rgba(0,0,0,0.1)] transform translate-y-full opacity-0 transition-all duration-300 z-40 mx-auto left-0 right-0">
-        <div class="flex flex-col">
+    <!-- CART BAR FLOATING -->
+    <div id="cart-bar" class="fixed bottom-0 md:bottom-6 w-full max-w-md md:max-w-xl bg-primary text-white p-4 flex justify-between items-center rounded-t-3xl md:rounded-full shadow-[0_-10px_20px_rgba(0,0,0,0.1)] md:shadow-2xl transform translate-y-full opacity-0 transition-all duration-300 z-40 mx-auto left-0 right-0">
+        <div class="flex flex-col md:pl-4">
             <span class="text-xs text-white/70">Total Pesanan</span>
             <span class="font-bold text-lg" id="cart-total">Rp 0</span>
         </div>
@@ -172,24 +172,24 @@
         </button>
     </div>
 
-    <!-- ITEM DETAIL MODAL (BOTTOM SHEET) -->
-    <div id="modal-item-detail" class="fixed inset-0 z-50 hidden flex flex-col justify-end max-w-md mx-auto">
+    <!-- ITEM DETAIL MODAL (BOTTOM SHEET / CENTER MODAL) -->
+    <div id="modal-item-detail" class="fixed inset-0 z-50 hidden flex flex-col justify-end md:justify-center md:items-center p-0 md:p-6">
         <div class="absolute inset-0 modal-overlay bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeItemDetail()"></div>
         
-        <div class="relative bg-white w-full rounded-t-3xl bottom-sheet flex flex-col max-h-[85vh]">
-            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto my-3 flex-shrink-0"></div>
+        <div class="relative bg-white w-full md:max-w-lg rounded-t-3xl md:rounded-3xl bottom-sheet md:bottom-sheet-none flex flex-col max-h-[85vh] md:max-h-[90vh] md:shadow-2xl md:overflow-hidden">
+            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto my-3 flex-shrink-0 md:hidden"></div>
             
-            <div class="overflow-y-auto px-5 pb-24 hide-scroll relative">
+            <div class="overflow-y-auto px-5 md:px-8 pb-24 md:pb-6 md:pt-6 hide-scroll relative">
                 <!-- Close Button Inside -->
-                <button onclick="closeItemDetail()" class="absolute top-0 right-5 w-8 h-8 bg-black/5 rounded-full flex items-center justify-center text-gray-700 hover:bg-black/10 transition z-10">
+                <button onclick="closeItemDetail()" class="absolute top-2 md:top-6 right-5 md:right-6 w-8 h-8 md:w-10 md:h-10 bg-black/5 md:bg-gray-100 rounded-full flex items-center justify-center text-gray-700 hover:bg-black/10 transition z-10">
                     <i class="fas fa-times"></i>
                 </button>
 
-                <img id="detail-img" src="" alt="Product" class="w-full h-48 object-cover rounded-2xl mb-4 shadow-sm border border-gray-100">
+                <img id="detail-img" src="" alt="Product" class="w-full h-48 md:h-64 object-cover rounded-2xl md:rounded-xl mb-4 shadow-sm border border-gray-100">
                 
-                <h3 id="detail-name" class="font-extrabold text-2xl text-gray-800 leading-tight mb-1">Nama Produk</h3>
-                <p id="detail-desc" class="text-sm text-gray-500 mb-4 line-clamp-3">Deskripsi</p>
-                <p id="detail-price" class="text-xl font-bold text-primary mb-6">Rp 0</p>
+                <h3 id="detail-name" class="font-extrabold text-2xl md:text-3xl text-gray-800 leading-tight mb-1 pr-12">Nama Produk</h3>
+                <p id="detail-desc" class="text-sm md:text-base text-gray-500 mb-4 line-clamp-3">Deskripsi</p>
+                <p id="detail-price" class="text-xl md:text-2xl font-bold text-primary mb-6">Rp 0</p>
 
                 <!-- Variasi Opsi -->
                 <div id="dynamic-addons" class="mb-4"></div>
@@ -201,8 +201,8 @@
                 </div>
             </div>
 
-            <div class="absolute bottom-0 w-full bg-white p-4 border-t border-gray-100 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-                <button id="add-cart-btn" onclick="confirmAddToCart()" class="w-full bg-primary text-white py-3.5 rounded-xl font-bold text-base shadow-lg hover:shadow-xl active:scale-95 transition-all">
+            <div class="absolute md:relative bottom-0 w-full bg-white p-4 md:p-6 border-t border-gray-100 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] md:shadow-none">
+                <button id="add-cart-btn" onclick="confirmAddToCart()" class="w-full bg-primary text-white py-3.5 md:py-4 rounded-xl font-bold text-base md:text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all">
                     Tambah ke Keranjang
                 </button>
             </div>
@@ -212,8 +212,8 @@
     <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none"></div>
 
     <!-- Blocking Table Selection Modal -->
-    <div id="modal-table-selector" class="fixed inset-0 bg-black/75 z-[200] flex-col items-center justify-center p-4 backdrop-blur-md hidden max-w-md mx-auto">
-        <div class="bg-white rounded-[24px] w-full max-w-[320px] text-center shadow-2xl overflow-hidden relative mx-auto mt-[30vh]">
+    <div id="modal-table-selector" class="fixed inset-0 bg-black/75 z-[200] flex-col items-center justify-center p-4 backdrop-blur-md hidden w-full h-full">
+        <div class="bg-white rounded-[24px] w-full max-w-[320px] md:max-w-[400px] text-center shadow-2xl overflow-hidden relative mx-auto mt-[20vh] md:mt-auto">
             <div class="h-32 bg-primary relative flex items-center justify-center">
                 <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay">
                 <div class="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent"></div>

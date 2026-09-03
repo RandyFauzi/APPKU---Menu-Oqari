@@ -23,10 +23,10 @@
             'sweets': 'fa-ice-cream',
             'sweet': 'fa-ice-cream',
             'dessert': 'fa-ice-cream',
-            'beverages': 'fa-glass-water',
-            'beverage': 'fa-glass-water',
-            'drinks': 'fa-glass-water',
-            'drink': 'fa-glass-water'
+            'beverages': 'fa-cocktail',
+            'beverage': 'fa-cocktail',
+            'drinks': 'fa-cocktail',
+            'drink': 'fa-cocktail'
         };
         
         const getIcon = (name) => {

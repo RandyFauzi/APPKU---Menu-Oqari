@@ -204,9 +204,9 @@ function renderMenu() {
     // Set layout class
     const theme = typeof SHOP_THEME !== 'undefined' ? SHOP_THEME : 'list';
     if (theme === 'list') {
-        container.className = 'p-4 grid grid-cols-1 gap-3';
+        container.className = 'p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
     } else {
-        container.className = 'p-4 grid grid-cols-2 gap-4';
+        container.className = 'p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6';
     }
     
     let filteredMenu = typeof DB !== 'undefined' ? DB.get('oqari_menu') : apiData.menu;
