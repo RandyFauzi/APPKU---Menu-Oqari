@@ -1498,9 +1498,7 @@ if (res.ok) {
                         return;
                     }
                     
-                    const tableNumStr = this.newTableId.replace(/[^a-zA-Z0-9]/g, ''); // bersihkan untuk URL
                     const tableName = this.newTableId.trim();
-                    const qrUrl = this.getQRUrl(tableNumStr);
                     
                     fetch('/admin/api/table', {
                         method: 'POST',
@@ -1509,7 +1507,7 @@ if (res.ok) {
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        body: JSON.stringify({ name: tableName, qr_code_url: qrUrl })
+                        body: JSON.stringify({ name: tableName })
                     })
                     .then(async res => {
                         const data = await res.json();
@@ -1517,14 +1515,14 @@ if (res.ok) {
                         return data;
                     })
                     .then(data => {
+                        this.isAddingTable = false;
                         if(data.success) {
                             this.tables.push({
                                 id: data.table.name,
                                 qr: data.table.qr_code_url
                             });
-                            this.newTableId = '';
                             this.showAddTableModal = false;
-                            this.addToast('Meja berhasil ditambahkan', 'success');
+                            this.newTableId = '';
                         }
                     })
                     .catch(err => {
@@ -1573,12 +1571,8 @@ if (res.ok) {
                 },
                 confirmResetQR() {
                     if (!this.qrTableToReset) return;
-                    
                     this.isResettingQR = true;
                     const table = this.qrTableToReset;
-                    const randomToken = Math.random().toString(36).substring(2, 8);
-                    const tableNum = table.id.replace('Meja ', '');
-                    const newQrUrl = this.getQRUrl(tableNum, randomToken);
                     
                     fetch('/admin/api/table', {
                         method: 'PUT',
@@ -1587,18 +1581,17 @@ if (res.ok) {
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        body: JSON.stringify({ name: table.id, qr_code_url: newQrUrl })
+                        body: JSON.stringify({ name: table.id })
                     })
                     .then(res => res.json())
                     .then(data => {
                         this.isResettingQR = false;
                         if(data.success) {
-                            table.qr = newQrUrl;
-                            this.showResetQRModal = false;
-                            this.qrTableToReset = null;
-                            this.addToast('QR Code berhasil di-reset!', 'success');
+                            table.qr = data.table.qr_code_url;
+                            this.showConfirmQRReset = false;
+                            this.addToast('QR Code berhasil di-reset', 'success');
                         } else {
-                            this.addToast(data.message || 'Gagal reset QR', 'error');
+                            this.addToast(data.message || 'Gagal reset QR Code', 'error');
                         }
                     })
                     .catch(err => {

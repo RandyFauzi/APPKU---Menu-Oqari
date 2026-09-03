@@ -14,7 +14,17 @@ class ShopController extends Controller
     {
         $shop = Shop::where('slug', $slug)->firstOrFail();
         $menuItems = Product::where('shop_id', $shop->id)->where('is_sold_out', false)->with('category')->get();
-        $table = $request->query('table');
+        
+        $table = null;
+        if ($request->filled('t')) {
+            $tableModel = \App\Models\Table::where('shop_id', $shop->id)
+                ->where('public_token', $request->query('t'))
+                ->first();
+            $table = $tableModel ? $tableModel->name : null;
+        } elseif ($request->filled('table')) {
+            // Fallback for legacy QR codes (temporary backward compatibility)
+            $table = $request->query('table');
+        }
 
         return view('shop.menu', compact('shop', 'menuItems', 'table'));
     }

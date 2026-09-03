@@ -504,7 +504,6 @@ class DashboardController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'qr_code_url' => 'required|string',
         ]);
 
         $user = Auth::user();
@@ -512,7 +511,7 @@ class DashboardController extends Controller
         $table = new Table;
         $table->shop_id = $user->shop_id;
         $table->name = $request->name;
-        $table->qr_code_url = $request->qr_code_url;
+        $table->public_token = strtolower(\Illuminate\Support\Str::random(8));
         $table->save();
 
         return response()->json(['success' => true, 'table' => $table]);
@@ -522,20 +521,19 @@ class DashboardController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'qr_code_url' => 'required|string',
         ]);
 
         $user = Auth::user();
         $table = Table::where('shop_id', $user->shop_id)->where('name', $request->name)->first();
 
         if ($table) {
-            $table->qr_code_url = $request->qr_code_url;
+            $table->public_token = strtolower(\Illuminate\Support\Str::random(8));
             $table->save();
 
             return response()->json(['success' => true, 'table' => $table]);
         }
 
-        return response()->json(['success' => false, 'message' => 'Table not found']);
+        return response()->json(['success' => false, 'message' => 'Table not found'], 404);
     }
 
     public function getLogs()
