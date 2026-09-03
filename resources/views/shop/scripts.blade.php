@@ -1,19 +1,13 @@
     <script src="{{ asset('js/data.js') }}"></script>
     <script>
+        window.SHOP_CATEGORIES = @json($categories ?? []);
         window.SHOP_DATA = @json($menuItems ?? []);
         window.SHOP_SLUG = '{{ $shop->slug }}';
         window.SHOP_HOME_URL = '{{ route("shop.menu", $shop->slug) }}';
         window.SHOP_CART_URL = '{{ route("shop.cart", $shop->slug) }}';
         window.SHOP_TRACKING_URL = '{{ route("shop.tracking", $shop->slug) }}';
 
-        if (typeof apiData !== 'undefined' && window.SHOP_DATA) {
-            // Build categories from relational data (category object on each product)
-            const catMap = {};
-            window.SHOP_DATA.forEach(item => {
-                if (item.category && item.category.id && !catMap[item.category.id]) {
-                    catMap[item.category.id] = item.category.name;
-                }
-            });
+        if (typeof apiData !== 'undefined') {
             const iconMap = {
                 'Coffee': 'fa-coffee',
                 'Tea': 'fa-leaf',
@@ -22,14 +16,18 @@
                 'Sweets': 'fa-ice-cream',
                 'Beverages': 'fa-glass-water'
             };
+            
+            // Build categories from actual DB categories
             apiData.categories = [{ id: 'all', name: 'All Menu', icon: 'fa-star' }];
-            Object.entries(catMap).forEach(([id, name]) => {
-                apiData.categories.push({
-                    id: parseInt(id),
-                    name: name,
-                    icon: iconMap[name] || 'fa-utensils'
+            if (window.SHOP_CATEGORIES && window.SHOP_CATEGORIES.length > 0) {
+                window.SHOP_CATEGORIES.forEach(cat => {
+                    apiData.categories.push({
+                        id: cat.id,
+                        name: cat.name,
+                        icon: iconMap[cat.name] || 'fa-utensils'
+                    });
                 });
-            });
+            }
             
             // Override highlights with shop banners
             const shopBanners = @json($shop->banners ?? []);

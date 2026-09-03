@@ -39,8 +39,9 @@ class ShopController extends Controller
             // Fallback for legacy QR codes (temporary backward compatibility)
             $table = $request->query('table');
         }
+        $categories = \App\Models\Category::where('shop_id', $shop->id)->orderBy('sort_order')->get();
 
-        return view('shop.menu', compact('shop', 'menuItems', 'table'));
+        return view('shop.menu', compact('shop', 'menuItems', 'table', 'categories'));
     }
 
     public function cart($slug)
