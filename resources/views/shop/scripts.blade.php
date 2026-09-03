@@ -83,7 +83,7 @@
                 orders.push(newOrder);
                 localStorage.setItem('bitten_orders', JSON.stringify(orders));
 
-                fetch('/' + window.SHOP_SLUG + '/order', {
+                return fetch('/' + window.SHOP_SLUG + '/order', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -107,8 +107,12 @@
                     if (data.success && data.order) {
                         localStorage.setItem('gw_last_order', JSON.stringify(data.order));
                     }
+                    return data;
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    console.error(err);
+                    throw err;
+                });
             }
         };
     </script>

@@ -1383,6 +1383,8 @@ handleDraftImageUpload(event, index) {
                         const dbOrders = sourceOrders.map(o => ({
                             id: o.id,
                             customer: o.customer_name || ('Meja ' + (o.table ? o.table.name : '-')),
+                            table: o.table ? o.table.name : 'TA',
+                            type: o.fulfillment_type === 'DINE_IN' ? 'Dine In' : (o.fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Delivery'),
                             status: o.order_status || o.status,
                             total: parseFloat(o.grand_total || o.total_price),
                             time: o.created_at,

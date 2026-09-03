@@ -486,13 +486,25 @@ function processSimulatedPayment() {
     const items = CartStore.get();
     const total = window.currentGrandTotal;
     
-    // Create order using database.js engine
-    DB.createOrder(table, name, email, phone, paymentMethod, items, total);
+    // Disable button to prevent double submit
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = 'Memproses...';
 
-    localStorage.setItem('gw_last_order_type', paymentMethod);
-    localStorage.setItem('gw_last_order_total', total);
-    
-    setTimeout(() => { CartStore.clear(); window.location.href = window.SHOP_TRACKING_URL; }, 1500);
+    // Create order using database.js engine
+    DB.createOrder(table, name, email, phone, paymentMethod, items, total)
+        .then(() => {
+            localStorage.setItem('gw_last_order_type', paymentMethod);
+            localStorage.setItem('gw_last_order_total', total);
+            CartStore.clear(); 
+            window.location.href = window.SHOP_TRACKING_URL;
+        })
+        .catch(err => {
+            alert('Gagal membuat pesanan. Silakan coba lagi.');
+            btn.disabled = false;
+            btn.innerText = originalText;
+        });
 }
 
 function initTrackingPage() {

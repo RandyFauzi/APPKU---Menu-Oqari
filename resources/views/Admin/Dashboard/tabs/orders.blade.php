@@ -101,25 +101,25 @@
                                     See Details
                                 </button>
                                 
-                                <template x-if="order.status === 'Masuk'">
+                                <template x-if="order.status === 'Masuk' || order.status === 'CONFIRMED'">
                                     <button @click="updateStatus(order.id, 'In Progress')" class="flex-grow py-2.5 rounded text-sm font-bold bg-yellow-500 text-yellow-900 shadow hover:bg-yellow-400 transition">
                                         Terima & Proses
                                     </button>
                                 </template>
                                 
-                                <template x-if="order.status === 'In Progress'">
+                                <template x-if="order.status === 'In Progress' || order.status === 'PREPARING'">
                                     <button @click="updateStatus(order.id, 'Ready')" class="flex-grow py-2.5 rounded text-sm font-bold bg-[#1E5A7A] text-white shadow hover:bg-[#154660] transition">
                                         Mark Ready
                                     </button>
                                 </template>
                                 
-                                <template x-if="order.status === 'Ready'">
+                                <template x-if="order.status === 'Ready' || order.status === 'READY'">
                                     <button @click="updateStatus(order.id, 'Completed')" class="flex-grow py-2.5 rounded text-sm font-bold bg-[#1E5A7A] text-white shadow hover:bg-[#154660] transition">
                                         Selesaikan
                                     </button>
                                 </template>
 
-                                <template x-if="order.status === 'Completed'">
+                                <template x-if="order.status === 'Completed' || order.status === 'COMPLETED'">
                                     <button disabled class="flex-grow py-2.5 rounded text-sm font-bold bg-gray-100 text-gray-400 cursor-not-allowed">
                                         Done
                                     </button>
