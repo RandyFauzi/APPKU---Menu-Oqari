@@ -2,18 +2,24 @@
 
 const formatRp = (angka) => 'Rp ' + angka.toLocaleString('id-ID');
 
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
     // 1. Deteksi Meja dari URL (QR Code)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('table')) {
         localStorage.setItem('bitten_table_qr', urlParams.get('table'));
     }
 
-    const page = document.body.dataset.page;
+    const page = document.body ? document.body.dataset.page : null;
     if (page === 'home') initHomePage();
     if (page === 'cart') initCartPage();
     if (page === 'tracking') initTrackingPage();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
 
 // ==========================================
 // LOGIKA: HALAMAN HOME (index.html)
@@ -27,17 +33,13 @@ let slideInterval;
 function initHomePage() {
     const splash = document.getElementById('splash-screen');
     if (splash) {
-        if (sessionStorage.getItem('bitten_splash_shown')) {
-            splash.remove();
-        } else {
+        setTimeout(() => {
+            splash.style.opacity = '0';
+            splash.style.pointerEvents = 'none';
             setTimeout(() => {
-                splash.style.opacity = '0';
-                setTimeout(() => {
-                    splash.remove();
-                    sessionStorage.setItem('bitten_splash_shown', 'true');
-                }, 500);
-            }, 3000);
-        }
+                if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+            }, 500);
+        }, 800);
     }
 
     renderCarousel();
@@ -63,7 +65,12 @@ function renderCarousel() {
     const dotsContainer = document.getElementById('carousel-dots');
     if (!track || !dotsContainer) return;
     
-    const highlights = apiData.highlights || [];
+    const highlights = (typeof apiData !== 'undefined' && apiData.highlights) ? apiData.highlights : [];
+    if (highlights.length === 0) {
+        track.innerHTML = '';
+        dotsContainer.innerHTML = '';
+        return;
+    }
     
     track.innerHTML = highlights.map(h => `
         <div class="min-w-full h-full snap-center bg-gray-900 relative">
@@ -83,10 +90,12 @@ function renderCarousel() {
 
     // Auto Slide
     clearInterval(slideInterval);
-    slideInterval = setInterval(() => {
-        currentSlide = (currentSlide + 1) % highlights.length;
-        updateCarousel();
-    }, 3000); // Diubah menjadi 3 detik
+    if (highlights.length > 1) {
+        slideInterval = setInterval(() => {
+            currentSlide = (currentSlide + 1) % highlights.length;
+            updateCarousel();
+        }, 3000);
+    }
 }
 
 function updateCarousel() {

@@ -57,13 +57,24 @@
     @endif
 
     <!-- SPLASH SCREEN -->
-    <div id="splash-screen" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-700">
+    <div id="splash-screen" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-28 h-28 flex items-center justify-center p-2 mb-4 animate-bounce">
             <img src="{{ $shop->logo_url ? $shop->logo_url : asset('logo-oqari.webp') }}" alt="Logo" class="w-full h-full object-contain">
         </div>
         <h1 class="text-primary text-3xl font-extrabold tracking-widest uppercase">{{ $shop->name }}</h1>
         <p class="text-gray-500 text-sm mt-1 font-medium tracking-wider uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</p>
     </div>
+    <script>
+        // Guaranteed splash screen dismissal
+        setTimeout(function() {
+            var s = document.getElementById('splash-screen');
+            if (s) {
+                s.style.opacity = '0';
+                s.style.pointerEvents = 'none';
+                setTimeout(function() { if (s && s.parentNode) s.parentNode.removeChild(s); }, 500);
+            }
+        }, 800);
+    </script>
 
     <!-- Header APP (Logo + Search Bar) - Sticky -->
     <div id="sticky-header" class="sticky top-0 z-40 bg-white transition-shadow duration-300">
