@@ -13,11 +13,18 @@ use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    if (auth()->check() && auth()->user()->role === 'superadmin') {
-        return redirect()->route('superadmin.dashboard');
+    if (auth()->check()) {
+        $role = auth()->user()->role;
+        return match ($role) {
+            'cashier' => redirect()->route('admin.pos.index'),
+            'barista', 'kitchen' => redirect()->route('admin.kitchen.index'),
+            'crew' => redirect()->route('admin.my-schedule'),
+            'superadmin' => redirect()->route('superadmin.dashboard'),
+            default => redirect()->route('admin.dashboard'),
+        };
     }
 
-    return redirect()->route('admin.dashboard');
+    return redirect()->route('login');
 });
 
 Route::middleware(['auth'])->group(function () {

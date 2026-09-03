@@ -37,8 +37,18 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        if (Auth::user()->role === 'superadmin') {
+        $role = Auth::user()->role;
+        
+        if ($role === 'superadmin') {
             return redirect()->route('superadmin.dashboard');
+        }
+
+        if (in_array($role, ['cashier', 'barista', 'kitchen', 'crew'])) {
+            return match ($role) {
+                'cashier' => redirect()->route('admin.pos.index'),
+                'barista', 'kitchen' => redirect()->route('admin.kitchen.index'),
+                'crew' => redirect()->route('admin.my-schedule'),
+            };
         }
 
         $user = Auth::user();
