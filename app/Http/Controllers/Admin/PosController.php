@@ -83,22 +83,31 @@ class PosController extends Controller
 
         $shop = Auth::user()->shop;
 
-        // Reuse CalculateCart + CreateOrder + ProcessPayment pipeline
-        $calcCart = app(CalculateCart::class);
-        $cart = $calcCart->execute($shop, $validated['items']);
+        $result = \Illuminate\Support\Facades\DB::transaction(function () use ($shop, $validated, $createOrder, $processPayment) {
+            // Reuse CalculateCart + CreateOrder + ProcessPayment pipeline
+            $calcCart = app(\App\Actions\POS\CalculateCart::class);
+            $cart = $calcCart->execute($shop, $validated['items']);
 
-        $order = $createOrder->execute($shop, $cart, $validated);
-        $payment = $processPayment->execute(
-            $order,
-            $validated['payment_method'],
-            (float) $validated['amount_paid']
-        );
+            $order = $createOrder->execute($shop, $cart, $validated);
+            
+            $payment = $processPayment->execute(
+                $order,
+                $validated['payment_method'],
+                (float) $validated['amount_paid']
+            );
+
+            return [
+                'order_id' => $order->id,
+                'change' => $order->change_amount,
+                'total' => $order->grand_total,
+            ];
+        });
 
         return response()->json([
             'success' => true,
-            'order_id' => $order->id,
-            'change' => $order->change_amount,
-            'total' => $order->grand_total,
+            'order_id' => $result['order_id'],
+            'change' => $result['change'],
+            'total' => $result['total'],
         ]);
     }
 
