@@ -200,19 +200,37 @@ class DashboardController extends Controller
 
     public function saveCategory(Request $request)
     {
-        $request->validate(['name' => 'required|string|max:255']);
-
         $user = Auth::user();
         $shopId = $user->shop_id;
         if (! $shopId) {
             abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
         }
+        
+        $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('categories', 'name')->where('shop_id', $shopId),
+            ]
+        ], [
+            'name.unique' => 'Kategori dengan nama ini sudah ada di toko Anda.'
+        ]);
 
-        $category = Category::create([
+        // Pastikan slug juga unik per shop_id
+        $baseSlug = \Illuminate\Support\Str::slug($request->name);
+        $slug = $baseSlug;
+        $counter = 1;
+        while (\App\Models\Category::where('shop_id', $shopId)->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $category = \App\Models\Category::create([
             'shop_id' => $shopId,
             'name' => $request->name,
-            'slug' => Str::slug($request->name),
-            'sort_order' => Category::where('shop_id', $shopId)->count() + 1,
+            'slug' => $slug,
+            'sort_order' => \App\Models\Category::where('shop_id', $shopId)->count() + 1,
             'is_active' => true,
         ]);
 
