@@ -176,9 +176,6 @@
             </div>
         </header>
 
-        <!-- VIEW: LIVE ORDERS (KANBAN) -->
-                @include('Admin.Dashboard.tabs.pos')
-        @include('Admin.Dashboard.tabs.kitchen')
         @include('Admin.Dashboard.tabs.orders')
         @include('Admin.Dashboard.tabs.menu')
         
