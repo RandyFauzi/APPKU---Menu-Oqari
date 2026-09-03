@@ -10,9 +10,23 @@ use Illuminate\Http\Request;
 
 class ShopController extends Controller
 {
+    protected function resolveShop($slug)
+    {
+        $shop = Shop::where('slug', $slug)->first();
+        if (!$shop) {
+            $history = \App\Models\ShopSlugHistory::where('old_slug', $slug)->first();
+            if ($history && $history->shop) {
+                $newUrl = str_replace("/{$slug}", "/" . $history->shop->slug, request()->fullUrl());
+                throw new \Illuminate\Http\Exceptions\HttpResponseException(redirect($newUrl, 301));
+            }
+            abort(404);
+        }
+        return $shop;
+    }
+
     public function show(Request $request, $slug)
     {
-        $shop = Shop::where('slug', $slug)->firstOrFail();
+        $shop = $this->resolveShop($slug);
         $menuItems = Product::where('shop_id', $shop->id)->where('is_sold_out', false)->with('category')->get();
         
         $table = null;
@@ -31,21 +45,21 @@ class ShopController extends Controller
 
     public function cart($slug)
     {
-        $shop = Shop::where('slug', $slug)->firstOrFail();
+        $shop = $this->resolveShop($slug);
 
         return view('shop.cart', compact('shop'));
     }
 
     public function tracking($slug)
     {
-        $shop = Shop::where('slug', $slug)->firstOrFail();
+        $shop = $this->resolveShop($slug);
 
         return view('shop.tracking', compact('shop'));
     }
 
     public function submitOrder(Request $request, $slug, CreateOrderAction $createOrder)
     {
-        $shop = Shop::where('slug', $slug)->firstOrFail();
+        $shop = $this->resolveShop($slug);
 
         $validated = $request->validate([
             'table_id' => 'required|string',

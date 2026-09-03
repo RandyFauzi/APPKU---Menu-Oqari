@@ -6,6 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Shop extends Model
 {
+    protected static function booted()
+    {
+        static::saved(function ($shop) {
+            if ($shop->wasChanged('slug')) {
+                $oldSlug = $shop->getOriginal('slug');
+                if ($oldSlug) {
+                    \App\Models\ShopSlugHistory::firstOrCreate([
+                        'shop_id' => $shop->id,
+                        'old_slug' => $oldSlug,
+                    ]);
+                }
+            }
+        });
+    }
+
     protected $fillable = [
         'name',
         'slug',
