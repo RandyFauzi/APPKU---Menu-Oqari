@@ -67,7 +67,7 @@ class ShopController extends Controller
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'nullable|string|max:20',
-            'payment_method' => 'required|string|exists:payment_methods,code',
+            'payment_method' => 'required|string|max:50',
             'items' => 'required|array|min:1|max:50',
             'items.*.id' => 'required|exists:products,id',
             'items.*.qty' => 'required|integer|min:1|max:100',

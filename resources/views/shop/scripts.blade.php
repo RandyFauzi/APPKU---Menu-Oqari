@@ -100,8 +100,11 @@
                         }))
                     })
                 })
-                .then(res => res.json())
-                .then(data => {
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok || !data.success) {
+                        throw new Error(data.message || 'Server error');
+                    }
                     if (data.success && data.order) {
                         localStorage.setItem('gw_last_order', JSON.stringify(data.order));
                     }
