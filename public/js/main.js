@@ -109,12 +109,56 @@ function updateCarousel() {
     }
 }
 
+function isItemInCategory(item, categoryTarget) {
+    if (!categoryTarget || categoryTarget === 'all' || (typeof categoryTarget === 'object' && categoryTarget.id === 'all')) {
+        return true;
+    }
+
+    const targetId = typeof categoryTarget === 'object' ? categoryTarget.id : categoryTarget;
+    let targetName = typeof categoryTarget === 'object' ? categoryTarget.name : null;
+
+    if (!targetName && typeof apiData !== 'undefined' && apiData.categories) {
+        const found = apiData.categories.find(c => String(c.id).toLowerCase() === String(targetId).toLowerCase());
+        if (found) targetName = found.name;
+    }
+
+    // 1. Match by ID (loose string comparison to handle 1 == '1')
+    if (item.categoryId !== undefined && item.categoryId !== null && targetId !== undefined && targetId !== null) {
+        if (String(item.categoryId).trim().toLowerCase() === String(targetId).trim().toLowerCase()) {
+            return true;
+        }
+    }
+
+    // 2. Match by categoryName
+    if (item.categoryName && targetName) {
+        if (item.categoryName.trim().toLowerCase() === targetName.trim().toLowerCase()) {
+            return true;
+        }
+    }
+
+    // 3. Fallback: item.categoryId might contain category name (e.g. 'Coffee' or 'beverages')
+    if (item.categoryId && targetName) {
+        if (String(item.categoryId).trim().toLowerCase() === targetName.trim().toLowerCase()) {
+            return true;
+        }
+    }
+
+    // 4. Fallback: targetId might be a category name string
+    if (item.categoryName && targetId) {
+        if (item.categoryName.trim().toLowerCase() === String(targetId).trim().toLowerCase()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function renderCategories() {
     const container = document.getElementById('category-container');
     if (!container) return;
     
     container.innerHTML = apiData.categories.map(cat => {
-        const isActive = activeCategory === cat.id;
+        const isActive = String(activeCategory).toLowerCase() === String(cat.id).toLowerCase();
         const bgClass = isActive ? 'bg-white border-2 border-primary' : 'bg-white border-2 border-transparent hover:border-primary/30';
         const iconColor = isActive ? 'text-primary' : 'text-accent';
         const textClass = isActive ? 'text-primary font-bold' : 'text-textdark/70';
@@ -135,9 +179,11 @@ function filterCategory(catId) {
     renderCategories();
     
     const container = document.getElementById('menu-container');
-    container.classList.remove('shoji-slide');
-    void container.offsetWidth; 
-    container.classList.add('shoji-slide');
+    if (container) {
+        container.classList.remove('shoji-slide');
+        void container.offsetWidth; 
+        container.classList.add('shoji-slide');
+    }
 
     renderMenu();
 }
@@ -155,8 +201,12 @@ function renderMenu() {
     }
     
     let filteredMenu = typeof DB !== 'undefined' ? DB.get('bitten_menu') : apiData.menu;
+    
+    const activeCatObj = (typeof apiData !== 'undefined' && apiData.categories) ? 
+        apiData.categories.find(c => String(c.id).toLowerCase() === String(activeCategory).toLowerCase()) : null;
+
     if (activeCategory !== 'all') {
-        filteredMenu = filteredMenu.filter(m => m.categoryId === activeCategory);
+        filteredMenu = filteredMenu.filter(m => isItemInCategory(m, activeCatObj || activeCategory));
     }
     if (searchQuery) {
         filteredMenu = filteredMenu.filter(m => m.name.toLowerCase().includes(searchQuery));
@@ -168,7 +218,7 @@ function renderMenu() {
         // Group by category
         apiData.categories.forEach(cat => {
             if (cat.id === 'all') return;
-            const itemsInCat = filteredMenu.filter(m => m.categoryId === cat.id);
+            const itemsInCat = filteredMenu.filter(m => isItemInCategory(m, cat));
             if (itemsInCat.length > 0) {
                 const colSpan = (theme === 'list') ? 'col-span-1' : 'col-span-2';
                 htmlOutput += `<div class="${colSpan} mt-4 mb-1 border-b-2 border-primary/10 pb-1"><h3 class="font-heading font-bold text-lg text-primary">${cat.name}</h3></div>`;

@@ -9,12 +9,25 @@
 
         if (typeof apiData !== 'undefined') {
             const iconMap = {
-                'Coffee': 'fa-coffee',
-                'Tea': 'fa-leaf',
-                'Foods': 'fa-utensils',
-                'Snacks': 'fa-cookie',
-                'Sweets': 'fa-ice-cream',
-                'Beverages': 'fa-glass-water'
+                'coffee': 'fa-coffee',
+                'tea': 'fa-leaf',
+                'foods': 'fa-utensils',
+                'food': 'fa-utensils',
+                'snacks': 'fa-cookie',
+                'snack': 'fa-cookie',
+                'sweets': 'fa-ice-cream',
+                'sweet': 'fa-ice-cream',
+                'dessert': 'fa-ice-cream',
+                'beverages': 'fa-glass-water',
+                'beverage': 'fa-glass-water',
+                'drinks': 'fa-glass-water',
+                'drink': 'fa-glass-water'
+            };
+            
+            const getIcon = (name) => {
+                if (!name) return 'fa-utensils';
+                const lower = name.toLowerCase().trim();
+                return iconMap[lower] || 'fa-utensils';
             };
             
             // Build categories from actual DB categories
@@ -24,8 +37,23 @@
                     apiData.categories.push({
                         id: cat.id,
                         name: cat.name,
-                        icon: iconMap[cat.name] || 'fa-utensils'
+                        icon: getIcon(cat.name)
                     });
+                });
+            } else if (window.SHOP_DATA && window.SHOP_DATA.length > 0) {
+                // Fallback from products category info if categories table is not yet seeded
+                const existingNames = new Set();
+                window.SHOP_DATA.forEach(item => {
+                    const cName = item.category ? item.category.name : (item.category_name || null);
+                    const cId = item.category ? item.category.id : (item.category_id || cName);
+                    if (cName && !existingNames.has(cName)) {
+                        existingNames.add(cName);
+                        apiData.categories.push({
+                            id: cId || cName,
+                            name: cName,
+                            icon: getIcon(cName)
+                        });
+                    }
                 });
             }
             
@@ -56,8 +84,8 @@
                         name: item.name,
                         price: Number(item.price),
                         desc: item.description,
-                        categoryId: item.category ? item.category.id : null,
-                        categoryName: item.category ? item.category.name : '',
+                        categoryId: item.category_id || (item.category ? item.category.id : item.category_name),
+                        categoryName: item.category ? item.category.name : (item.category_name || ''),
                         img: item.image_url ? item.image_url : '/Assests/null image.webp',
                         soldOut: item.is_sold_out
                     }));

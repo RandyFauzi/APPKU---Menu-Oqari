@@ -866,7 +866,12 @@ handleDraftImageUpload(event, index) {
                 get filteredMenuItems() {
                     let items = this.menuItems;
                     if (this.activeMenuFilter !== 'all') {
-                        items = items.filter(m => m.categoryId === this.activeMenuFilter);
+                        items = items.filter(m => {
+                            if (m.categoryId == this.activeMenuFilter) return true;
+                            if (String(m.categoryId).toLowerCase() === String(this.activeMenuFilter).toLowerCase()) return true;
+                            if (m.categoryName && String(m.categoryName).toLowerCase() === String(this.activeMenuFilter).toLowerCase()) return true;
+                            return false;
+                        });
                     }
                     if (this.searchQuery) {
                         const q = this.searchQuery.toLowerCase();
