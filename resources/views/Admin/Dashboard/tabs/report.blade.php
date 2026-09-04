@@ -1,5 +1,5 @@
 <!-- Report Tab -->
-<div x-show="currentTab === 'report'" class="flex-grow p-8 lg:p-10 bg-transparent overflow-y-auto hide-scroll space-y-8" x-cloak>
+<div x-show="currentTab === 'report'" class="flex-grow p-4 md:p-8 lg:p-10 bg-transparent overflow-y-auto hide-scroll space-y-8" x-cloak>
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

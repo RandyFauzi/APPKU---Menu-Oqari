@@ -12,9 +12,9 @@
         </button>
     </div>
 
-    <div class="p-8 lg:p-10 pt-8 lg:pt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="p-4 md:p-8 lg:p-10 pt-6 md:pt-8 lg:pt-8 grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
         <!-- Kiri: Form Settings -->
-        <div class="lg:col-span-8 flex flex-col gap-8">
+        <div class="xl:col-span-8 flex flex-col gap-8">
             <form id="settingsForm" @submit.prevent="saveSettings" class="flex flex-col gap-8">
                 
                 <!-- Section 1: Identitas & Branding -->
@@ -186,8 +186,8 @@
             </form>
         </div>
 
-        <!-- Kanan: Live Preview Mockup HP -->
-        <div class="lg:col-span-4 sticky top-8">
+        <!-- Kanan: Live Preview (Mobile Frame) -->
+        <div class="xl:col-span-4 xl:sticky xl:top-8 mt-8 xl:mt-0 flex flex-col items-center">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-black text-[#202522]"><i class="fas fa-mobile-alt mr-2 text-[#164A35]"></i>Live Preview</h3>
             </div>

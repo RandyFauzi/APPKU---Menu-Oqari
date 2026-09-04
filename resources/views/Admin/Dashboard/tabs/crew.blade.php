@@ -1,4 +1,4 @@
-﻿<div x-show="currentTab === 'crew'" x-cloak class="flex-grow p-8 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans">
+<div x-show="currentTab === 'crew'" x-cloak class="flex-grow p-4 md:p-8 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans">
     <div class="max-w-5xl mx-auto">
         <div class="flex justify-between items-center mb-8">
             <p class="text-[#777873] text-[16px]">Manage your team members and roles.</p>

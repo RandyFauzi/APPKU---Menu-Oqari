@@ -1,13 +1,13 @@
-<div x-show="currentTab === 'orders'" x-cloak class="flex-grow p-8 pt-2 overflow-hidden flex flex-col">
+<div x-show="currentTab === 'orders'" x-cloak class="flex-grow p-4 md:p-8 pt-2 overflow-hidden flex flex-col">
             <!-- Order Type Filters -->
-            <div class="flex gap-2 mb-6 shrink-0">
+            <div class="flex flex-wrap gap-2 mb-6 shrink-0">
                 <button @click="activeOrderFilter = 'all'" :class="activeOrderFilter === 'all' ? 'bg-[#1E5A7A] text-white shadow-sm border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">All</button>
                 <button @click="activeOrderFilter = 'process'" :class="activeOrderFilter === 'process' ? 'bg-[#1E5A7A] text-white shadow-sm border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">On Process</button>
                 <button @click="activeOrderFilter = 'completed'" :class="activeOrderFilter === 'completed' ? 'bg-[#1E5A7A] text-white shadow-sm border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">Completed</button>
             </div>
 
             <!-- Kanban Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto hide-scroll pb-20 items-start">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 overflow-y-auto hide-scroll pb-20 items-start">
                 <!-- Empty State -->
                 <div x-show="filteredOrders.length === 0" class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-24 text-center">
                     <div class="w-24 h-24 bg-white border border-[#E3E1DC] rounded-full flex items-center justify-center mb-5 text-[#C5DBC5] shadow-sm">

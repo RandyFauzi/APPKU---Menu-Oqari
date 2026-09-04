@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'profile'" x-cloak class="space-y-6">
+<div x-show="currentTab === 'profile'" x-cloak class="flex-grow p-4 md:p-8 overflow-y-auto hide-scroll space-y-6">
     <div class="flex justify-between items-center mb-6">
         <div>
             <h2 class="text-[28px] font-bold text-[#164A35] leading-tight" style="font-family: 'Playfair Display', serif;">Profile Settings</h2>
@@ -7,7 +7,7 @@
     </div>
 
     <div class="bg-white rounded-[24px] shadow-[0_10px_35px_rgba(0,0,0,0.03)] border border-[#E3E1DC] overflow-hidden">
-        <div class="p-8 space-y-6 max-w-2xl">
+        <div class="p-5 md:p-8 space-y-6 max-w-2xl">
             
             <div class="flex flex-col gap-5">
                 <div>

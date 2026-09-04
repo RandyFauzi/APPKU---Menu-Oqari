@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'analytics'" x-cloak class="flex-grow p-8 lg:p-10 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans" x-data="analyticsApp()">
+<div x-show="currentTab === 'analytics'" x-cloak class="flex-grow p-4 md:p-8 lg:p-10 bg-[#F8F7F3] overflow-y-auto hide-scroll font-sans" x-data="analyticsApp()">
     
     <!-- Greeting & Controls -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
@@ -105,7 +105,7 @@
         <!-- Left 62% -->
         <div class="lg:w-[62%] flex flex-col gap-6">
             <!-- Chart Card -->
-            <div class="bg-white rounded-[28px] p-8 border border-[#E3E1DC] shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex-grow flex flex-col">
+            <div class="bg-white rounded-[28px] p-5 md:p-8 border border-[#E3E1DC] shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex-grow flex flex-col">
                 <div class="flex justify-between items-center mb-6">
                     <div>
                         <h3 class="text-[20px] font-bold text-[#202522] mb-1">Tren Pesanan</h3>
@@ -131,7 +131,7 @@
         <!-- Right 38% -->
         <div class="lg:w-[38%] flex flex-col gap-6">
             <!-- Best Selling Menu -->
-            <div class="bg-white rounded-[28px] p-8 border border-[#E3E1DC] shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative">
+            <div class="bg-white rounded-[28px] p-5 md:p-8 border border-[#E3E1DC] shadow-[0_4px_20px_rgba(0,0,0,0.02)] relative">
                 <div class="flex justify-between items-start mb-6">
                     <h3 class="text-[18px] font-bold text-[#202522]">Menu Terlaris Hari Ini</h3>
                 </div>
@@ -156,7 +156,7 @@
             </div>
 
             <!-- Returning Customer -->
-            <div class="bg-white rounded-[28px] p-8 border border-[#E3E1DC] shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+            <div class="bg-white rounded-[28px] p-5 md:p-8 border border-[#E3E1DC] shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
                 <h3 class="text-[18px] font-bold text-[#202522] mb-6">Pelanggan Kembali</h3>
                 
                 <div class="flex items-center gap-6">

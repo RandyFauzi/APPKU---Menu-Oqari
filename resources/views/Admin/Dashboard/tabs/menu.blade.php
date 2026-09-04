@@ -1,10 +1,10 @@
-<div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-10 pt-6 overflow-y-auto hide-scroll bg-brewlybg">
+<div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-4 md:p-8 lg:p-10 pt-6 overflow-y-auto hide-scroll bg-brewlybg">
             <!-- Main Menu UI -->
             <div class="flex flex-col gap-8">
                 <p class="text-brewlymuted text-sm">Add your coffee, food, and drinks to create a beautiful menu for your shop.</p>
             
             <!-- Cards Section -->
-            <div class="grid grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <!-- Upload Card -->
                 <div class="dashed-box flex flex-col items-center justify-center p-8 text-center bg-gray-50/30">
                     <div class="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-brewlymuted mb-3 bg-white shadow-sm">
@@ -174,9 +174,9 @@
             <div class="flex flex-col gap-3 pb-[240px]">
                 <template x-for="(draft, index) in draftMenus" :key="index">
                     <!-- Row -->
-                    <div class="flex items-center gap-5 p-4 bg-white rounded-[16px] border border-[#E3E1DC] shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-5 p-4 bg-white rounded-[16px] border border-[#E3E1DC] shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
                         <!-- Image Box -->
-                        <div class="w-[218px] h-[130px] shrink-0 relative rounded-xl overflow-hidden flex items-center justify-center group cursor-pointer transition-colors"
+                        <div class="w-full md:w-[218px] h-[160px] md:h-[130px] shrink-0 relative rounded-xl overflow-hidden flex items-center justify-center group cursor-pointer transition-colors"
                              :class="!draft.imagePreview ? 'border-2 border-dashed border-[#E3E1DC] bg-[#F8F7F3] hover:border-[#164A35]' : 'bg-gray-100'">
                             <input type="file" @change="handleDraftImageUpload($event, index)" accept="image/jpeg, image/png, image/webp" class="absolute inset-0 opacity-0 cursor-pointer z-20">
                             
@@ -193,7 +193,7 @@
                         </div>
                         
                         <!-- Inputs -->
-                        <div class="flex-grow grid grid-cols-3 gap-5">
+                        <div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 w-full">
                             <div>
                                 <label class="block text-[12px] font-semibold text-[#777873] mb-1.5">Item name</label>
                                 <input type="text" x-model="draftMenus[index].name" placeholder="e.g. Blueberry Muffin" class="w-full bg-white border border-[#E3E1DC] rounded-[11px] px-4 py-3 text-[16px] text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none placeholder-[#C4C4C4]">
@@ -273,12 +273,12 @@
             </div>
         </div> <!-- End Scrollable Body -->
 
-        <!-- Footer -->
-        <div class="flex justify-between items-center pt-6 mt-2 shrink-0">
+        <!-- Action Buttons -->
+        <div class="flex flex-col md:flex-row justify-between items-center pt-6 mt-2 shrink-0 gap-4">
             <div class="text-[15px] text-[#777873] font-medium"><span class="text-[#164A35] font-bold text-lg mr-1" x-text="draftMenus.length"></span> items added</div>
-            <div class="flex gap-4">
-                <button @click="showBulkUpload = false" class="px-6 py-3.5 rounded-[12px] font-semibold text-[15px] bg-white border border-[#E3E1DC] text-[#202522] hover:bg-[#F8F7F3] transition-colors shadow-sm">Save draft</button>
-                <button @click="saveBulkMenu" class="px-7 py-3.5 rounded-[12px] font-semibold text-[15px] bg-[#D97A32] text-white hover:bg-[#c26d2d] transition-colors shadow-md flex items-center gap-2">
+            <div class="flex flex-col md:flex-row gap-3 md:gap-4 w-full md:w-auto">
+                <button @click="showBulkUpload = false" class="w-full md:w-auto px-6 py-3.5 rounded-[12px] font-semibold text-[15px] bg-white border border-[#E3E1DC] text-[#202522] hover:bg-[#F8F7F3] transition-colors shadow-sm">Save draft</button>
+                <button @click="saveBulkMenu" class="w-full md:w-auto px-7 py-3.5 rounded-[12px] font-semibold text-[15px] bg-[#D97A32] text-white hover:bg-[#c26d2d] transition-colors shadow-md flex justify-center items-center gap-2">
                     <i class="fas fa-cloud-upload-alt"></i> Publish menu
                 </button>
             </div>

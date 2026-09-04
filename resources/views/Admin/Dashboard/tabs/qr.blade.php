@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'qr'" x-cloak class="flex-grow p-8 overflow-auto hide-scroll">
+<div x-show="currentTab === 'qr'" x-cloak class="flex-grow p-4 md:p-8 overflow-auto hide-scroll">
             <div class="flex justify-between items-center mb-8">
                 <!-- Removed redundant title since it's already in the top header -->
                 <p class="text-gray-500 font-medium">Kelola QR Code untuk setiap meja secara dinamis.</p>
