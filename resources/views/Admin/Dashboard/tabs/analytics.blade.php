@@ -141,16 +141,21 @@
                         <div class="inline-flex px-2 py-1 rounded-md bg-[#F7E5D2] text-[#D97A32] text-[11px] font-bold uppercase tracking-wider mb-3">
                             <i class="fas fa-star mr-1"></i> #1 Terlaris
                         </div>
-                        <h4 class="text-[22px] font-bold text-[#164A35] mb-2 leading-tight">Es Kopi Aren</h4>
-                        <p class="text-[13px] text-[#777873] font-medium leading-relaxed mb-4">Perpaduan espresso, gula aren, dan susu segar.</p>
+                        <h4 class="text-[22px] font-bold text-[#164A35] mb-2 leading-tight" x-text="data.topProduct.name"></h4>
+                        <p class="text-[13px] text-[#777873] font-medium leading-relaxed mb-4 line-clamp-2" x-text="data.topProduct.description"></p>
                         
                         <div class="flex items-center gap-3">
-                            <span class="font-bold text-[#202522] text-[15px]">132 porsi</span>
-                            <span class="text-green-600 text-[13px] font-bold flex items-center gap-1"><i class="fas fa-arrow-up text-[10px]"></i> <span>22%</span></span>
+                            <span class="font-bold text-[#202522] text-[15px]" x-text="data.topProduct.sold + ' porsi'"></span>
+                            <span class="text-green-600 text-[13px] font-bold flex items-center gap-1" x-show="data.topProduct.change > 0"><i class="fas fa-arrow-up text-[10px]"></i> <span x-text="data.topProduct.change + '%'"></span></span>
                         </div>
                     </div>
-                    <div class="w-[110px] h-[130px] rounded-[16px] overflow-hidden shrink-0 shadow-sm border border-[#E3E1DC]">
-                        <img src="https://images.unsplash.com/photo-1572442388796-11668a67efeb?w=200&fit=crop" class="w-full h-full object-cover">
+                    <div class="w-[110px] h-[130px] rounded-[16px] overflow-hidden shrink-0 shadow-sm border border-[#E3E1DC] bg-gray-50 flex items-center justify-center">
+                        <template x-if="data.topProduct.image">
+                            <img :src="data.topProduct.image" class="w-full h-full object-cover">
+                        </template>
+                        <template x-if="!data.topProduct.image">
+                            <i class="fas fa-mug-hot text-gray-300 text-3xl"></i>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -172,8 +177,7 @@
                     <div class="flex-grow">
                         <p class="text-[13px] text-[#777873] font-medium mb-1">Total pelanggan hari ini</p>
                         <div class="flex items-end gap-3 mb-5">
-                            <span class="text-[28px] font-bold text-[#202522] leading-none" x-text="data.totalCustomers">372</span>
-                            <span class="text-green-600 text-[12px] font-bold flex items-center gap-1 mb-1"><i class="fas fa-arrow-up text-[10px]"></i> 6%</span>
+                            <span class="text-[28px] font-bold text-[#202522] leading-none" x-text="data.totalCustomers ?? 'N/A'"></span>
                         </div>
                         
                         <div class="flex flex-col gap-2.5">
@@ -214,9 +218,9 @@
         Alpine.data('analyticsApp', () => ({
             data: {
                 orders: 0, ordersChange: 0, revenue: 0, revenueChange: 0,
-                topProduct: { name: '-', sold: 0, change: 0 },
+                topProduct: { name: '-', sold: 0, change: 0, image: null, description: '' },
                 returningCustomers: null, newCustomersPct: null,
-                returningCount: null, newCount: null,
+                returningCount: null, newCount: null, totalCustomers: null,
                 hourlySales: [0,0,0,0,0,0,0,0]
             },
             isLoading: true,

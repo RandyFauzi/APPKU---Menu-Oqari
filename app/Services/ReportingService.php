@@ -59,12 +59,46 @@ class ReportingService
         // 3. Top Product Today
         $topItem = DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
             ->where('orders.shop_id', $shopId)
             ->whereDate('orders.created_at', $today)
-            ->select('order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
-            ->groupBy('order_items.product_name')
+            ->select('order_items.product_name', 'products.image_url', 'products.description', DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->groupBy('order_items.product_name', 'products.image_url', 'products.description')
             ->orderByDesc('total_sold')
             ->first();
+
+        // 4. Returning vs New Customers Today
+        $todayCustomers = DB::table('orders')
+            ->where('shop_id', $shopId)
+            ->whereDate('created_at', $today)
+            ->where(function($query) {
+                $query->whereNotNull('customer_phone')
+                      ->orWhereNotNull('customer_name');
+            })
+            ->select(DB::raw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, '')) as identifier"))
+            ->whereNotNull(DB::raw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, ''))"))
+            ->distinct()
+            ->pluck('identifier')
+            ->toArray();
+            
+        $returningIdentifiers = [];
+        if (!empty($todayCustomers)) {
+            $returningIdentifiers = DB::table('orders')
+                ->where('shop_id', $shopId)
+                ->whereDate('created_at', '<', $today)
+                ->whereIn(DB::raw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, ''))"), $todayCustomers)
+                ->select(DB::raw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, '')) as identifier"))
+                ->distinct()
+                ->pluck('identifier')
+                ->toArray();
+        }
+        
+        $returningCount = count($returningIdentifiers);
+        $newCount = count($todayCustomers) - $returningCount;
+        $totalCustomers = count($todayCustomers);
+        
+        $returningCustomersPct = $totalCustomers > 0 ? round(($returningCount / $totalCustomers) * 100) : null;
+        $newCustomersPct = $totalCustomers > 0 ? round(($newCount / $totalCustomers) * 100) : null;
 
         return [
             'orders' => $ordersToday,
@@ -75,15 +109,20 @@ class ReportingService
                 'name' => $topItem->product_name,
                 'sold' => (int) $topItem->total_sold,
                 'change' => 0,
+                'image' => $topItem->image_url ?? null,
+                'description' => $topItem->description ?? 'Tidak ada deskripsi',
             ] : [
                 'name' => 'Belum ada',
                 'sold' => 0,
                 'change' => 0,
+                'image' => null,
+                'description' => 'Belum ada transaksi hari ini',
             ],
-            'returningCustomers' => null,
-            'newCustomersPct' => null,
-            'returningCount' => null,
-            'newCount' => null,
+            'returningCustomers' => $returningCustomersPct,
+            'newCustomersPct' => $newCustomersPct,
+            'returningCount' => $returningCount,
+            'newCount' => $newCount,
+            'totalCustomers' => $totalCustomers,
             'hourlySales' => $hourlySales,
         ];
     }
