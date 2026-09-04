@@ -642,6 +642,7 @@
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
+                user: window.INITIAL_DATA.user || {},
                 isMinimized: window.innerWidth < 1024,
                 isLoadingSummary: true,
                 isLoadingMenus: true,
@@ -946,7 +947,8 @@ handleDraftImageUpload(event, index) {
                     startOfWeek.setDate(startOfToday.getDate() - now.getDay());
                     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
                     return this.orders.filter(o => {
-                        if (o.status !== 'Completed') return false;
+                        const s = (o.status || '').toUpperCase();
+                        if (s !== 'COMPLETED' && s !== 'SELESAI' && s !== 'COMPLETED') return false;
                         const d = new Date(o.time.replace(' ', 'T'));
                         if (this.reportPeriod === 'daily') return d >= startOfToday;
                         if (this.reportPeriod === 'weekly') return d >= startOfWeek;
