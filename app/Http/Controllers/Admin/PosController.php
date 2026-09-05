@@ -96,18 +96,16 @@ class PosController extends Controller
                 (float) $validated['amount_paid']
             );
 
-            return [
-                'order_id' => $order->id,
-                'change' => $order->change_amount,
-                'total' => $order->grand_total,
-            ];
+            return $order;
         });
+        
+        \App\Events\OrderCreated::dispatch($result);
 
         return response()->json([
             'success' => true,
-            'order_id' => $result['order_id'],
-            'change' => $result['change'],
-            'total' => $result['total'],
+            'order_id' => $result->id,
+            'change' => $result->change_amount,
+            'total' => $result->grand_total,
         ]);
     }
 
@@ -140,6 +138,8 @@ class PosController extends Controller
 
         $order = $createOrder->execute($shop, $cart, $data);
         $order->update(['order_status' => 'HOLD', 'payment_status' => 'UNPAID']);
+        
+        \App\Events\OrderCreated::dispatch($order);
 
         return response()->json([
             'success' => true,
