@@ -5,7 +5,10 @@
 <title>Struk Pesanan {{ $receiptData->orderNumber }}</title>
 <style>
 /* CSS for thermal printers 58mm/80mm */
-@page { margin: 0; }
+@page { margin: 0; size: 58mm auto; }
+* {
+    box-sizing: border-box;
+}
 body { 
     background-color: #f3f4f6; /* Gray background for screen preview */
     margin: 0;
@@ -48,9 +51,9 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
     .receipt {
         width: 100%; /* Take full width of the printer */
         max-width: 58mm;
-        padding: 0;
-        padding-top: 2mm;
+        padding: 2mm 3mm; /* Added left-right padding for neatness */
         box-shadow: none; /* No shadow when printing */
+        margin: 0;
     }
 }
 </style>
