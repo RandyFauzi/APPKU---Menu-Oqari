@@ -29,10 +29,10 @@ class ReportingService
         $todayStr = $today->toDateString();
         $yesterdayStr = $yesterday->toDateString();
 
-        $ordersToday = (int) ($stats[$todayStr]->total_orders ?? 0);
-        $ordersYesterday = (int) ($stats[$yesterdayStr]->total_orders ?? 0);
-        $revenueToday = (float) ($stats[$todayStr]->total_revenue ?? 0);
-        $revenueYesterday = (float) ($stats[$yesterdayStr]->total_revenue ?? 0);
+        $ordersToday = (int) $stats->where('date', $todayStr)->sum('total_orders');
+        $ordersYesterday = (int) $stats->where('date', $yesterdayStr)->sum('total_orders');
+        $revenueToday = (float) $stats->where('date', $todayStr)->sum('total_revenue');
+        $revenueYesterday = (float) $stats->where('date', $yesterdayStr)->sum('total_revenue');
 
         $ordersChange = $ordersYesterday > 0 ? round((($ordersToday - $ordersYesterday) / $ordersYesterday) * 100) : 0;
         $revenueChange = $revenueYesterday > 0 ? round((($revenueToday - $revenueYesterday) / $revenueYesterday) * 100) : 0;
@@ -52,7 +52,7 @@ class ReportingService
         $hourlySales = [];
         for ($i = 8; $i <= 22; $i += 2) {
             // Sum the counts for the 2-hour bucket
-            $count = ($hourlyData[$i] ?? 0) + ($hourlyData[$i + 1] ?? 0);
+            $count = $hourlyData->get($i, 0) + $hourlyData->get($i + 1, 0);
             $hourlySales[] = $count;
         }
 
@@ -67,26 +67,24 @@ class ReportingService
             ->orderByDesc('total_sold')
             ->first();
 
-        // 4. Returning vs New Customers Today
+        // 4. Customer Retention Today
+        // Identify customers who ordered today
         $todayCustomers = DB::table('orders')
             ->where('shop_id', $shopId)
             ->whereDate('created_at', $today)
-            ->where(function($query) {
-                $query->whereNotNull('customer_phone')
-                      ->orWhereNotNull('customer_name');
-            })
             ->select(DB::raw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, '')) as identifier"))
-            ->whereNotNull(DB::raw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, ''))"))
+            ->whereRaw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, '')) IS NOT NULL")
             ->distinct()
             ->pluck('identifier')
             ->toArray();
             
         $returningIdentifiers = [];
         if (!empty($todayCustomers)) {
+            $placeholders = implode(',', array_fill(0, count($todayCustomers), '?'));
             $returningIdentifiers = DB::table('orders')
                 ->where('shop_id', $shopId)
                 ->whereDate('created_at', '<', $today)
-                ->whereIn(DB::raw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, ''))"), $todayCustomers)
+                ->whereRaw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, '')) IN ($placeholders)", $todayCustomers)
                 ->select(DB::raw("COALESCE(NULLIF(customer_phone, ''), NULLIF(customer_name, '')) as identifier"))
                 ->distinct()
                 ->pluck('identifier')
