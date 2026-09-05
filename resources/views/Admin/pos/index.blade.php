@@ -216,10 +216,10 @@
 
     {{-- RIGHT PANEL — Cart --}}
     {{-- Overlay for mobile --}}
-    <div x-show="showMobileCart" x-transition.opacity class="fixed inset-0 bg-black/50 z-40 lg:hidden" @click="showMobileCart = false"></div>
+    <div x-show="showMobileCart" x-transition.opacity class="fixed inset-0 bg-black/50 z-30 lg:hidden" @click="showMobileCart = false"></div>
     
     <div :class="showMobileCart ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
-         class="fixed inset-y-0 right-0 z-50 w-full sm:w-96 lg:static lg:z-0 lg:w-80 bg-white border-l border-gray-200 flex flex-col shrink-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none h-full">
+         class="fixed inset-y-0 right-0 z-40 w-full sm:w-96 lg:static lg:z-0 lg:w-80 bg-white border-l border-gray-200 flex flex-col shrink-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none h-full">
         
         {{-- Mobile Cart Close Header --}}
         <div class="lg:hidden flex items-center p-4 bg-gray-50 border-b border-gray-200 shrink-0">
@@ -318,7 +318,7 @@
 {{-- MODIFIER MODAL                                             --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <div x-show="modifierModal.show" x-cloak x-transition
-    class="fixed inset-0 z-40 bg-black/50 flex items-center justify-center p-4"
+    class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
     @click.self="modifierModal.show = false">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm max-h-[90vh] flex flex-col overflow-hidden">
         <div class="p-5 border-b border-gray-100 flex items-center justify-between shrink-0">
@@ -393,7 +393,7 @@
 {{-- PAYMENT MODAL                                              --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <div x-show="paymentModal.show" x-cloak x-transition
-    class="fixed inset-0 z-40 bg-black/50 flex items-center justify-center p-4"
+    class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
     @click.self="paymentModal.show = false">
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden">
         <div class="p-5 border-b border-gray-100">
