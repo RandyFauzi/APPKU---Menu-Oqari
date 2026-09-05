@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="overflow-hidden sm:overflow-auto">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>POS — {{ $shop->name }}</title>
     <link rel="icon" href="{{ $shop->logo_url ?? asset('logo-oqari.webp') }}">
@@ -23,9 +23,11 @@
         .product-card { transition: transform 0.1s, box-shadow 0.1s; }
         @keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         .animate-badge { animation: pulse-badge 1s ease-in-out infinite; }
+        /* Prevent bounce scroll on iOS */
+        body { overscroll-behavior-y: none; }
     </style>
 </head>
-<body class="bg-gray-100 h-screen overflow-hidden font-sans" x-data="posApp()" x-init="init()" @keydown.window="handleKey($event)" @refresh-live-orders.window="fetchIncoming()">
+<body class="bg-gray-100 h-screen w-full overflow-hidden font-sans fixed inset-0" x-data="posApp()" x-init="init()" @keydown.window="handleKey($event)" @refresh-live-orders.window="fetchIncoming()">
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- SHIFT GATE — Blur overlay if no active session             --}}
@@ -56,8 +58,8 @@
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- TOPBAR                                                      --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
-<div class="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 h-14 shrink-0">
-    <div class="flex items-center gap-4">
+<div class="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 h-14 shrink-0 overflow-x-auto hide-scroll w-full">
+    <div class="flex items-center gap-4 shrink-0">
         {{-- Shop Branding --}}
         <div class="flex items-center gap-2">
             @if($shop->logo_url)
