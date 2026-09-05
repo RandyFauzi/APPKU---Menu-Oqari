@@ -125,21 +125,21 @@
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- MAIN LAYOUT                                                 --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
-<div class="flex h-[calc(100vh-3.5rem)] overflow-hidden">
+<div class="flex h-[calc(100vh-3.5rem)] overflow-hidden relative">
 
     {{-- LEFT PANEL — Products --}}
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col overflow-hidden w-full">
 
         {{-- Category Tabs + Search --}}
-        <div class="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 shrink-0">
+        <div class="bg-white border-b border-gray-200 px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
             {{-- Search --}}
-            <div class="relative">
+            <div class="relative w-full sm:w-auto shrink-0">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
                 <input x-ref="searchInput" x-model="search" type="text" placeholder="Cari produk... (F1)"
-                    class="pl-9 pr-4 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 w-48 focus:outline-none focus:border-green-500 focus:bg-white transition">
+                    class="pl-9 pr-4 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 w-full sm:w-48 focus:outline-none focus:border-green-500 focus:bg-white transition">
             </div>
             {{-- Category Pills --}}
-            <div class="flex gap-2 overflow-x-auto hide-scroll">
+            <div class="flex gap-2 overflow-x-auto hide-scroll w-full">
                 <button @click="activeCategory = null"
                     :class="activeCategory === null ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
                     class="shrink-0 text-xs font-bold px-4 py-2 rounded-full transition whitespace-nowrap">
@@ -156,8 +156,8 @@
         </div>
 
         {{-- Product Grid --}}
-        <div class="flex-1 overflow-y-auto p-4">
-            <div class="grid grid-cols-3 xl:grid-cols-4 gap-3">
+        <div class="flex-1 overflow-y-auto p-4 pb-24 lg:pb-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
                 @foreach($products as $product)
                 <button
                     x-show="matchesFilter({{ $product->category_id ?? 'null' }}, '{{ addslashes($product->name) }}')"
@@ -174,7 +174,7 @@
                     <p class="text-sm font-bold text-gray-800 leading-tight truncate">{{ $product->name }}</p>
                     <p class="text-xs text-green-700 font-black mt-1">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
                     @if($product->is_sold_out)
-                    <span class="text-[10px] bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full">HABIS</span>
+                    <span class="text-[10px] bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full mt-1 inline-block">HABIS</span>
                     @endif
                 </button>
                 @endforeach
@@ -183,7 +183,7 @@
 
         {{-- HOLD Recall Bar --}}
         <template x-if="heldOrders.length > 0">
-        <div class="bg-amber-50 border-t border-amber-200 px-4 py-2 shrink-0">
+        <div class="bg-amber-50 border-t border-amber-200 px-4 py-2 shrink-0 pb-20 lg:pb-2">
             <p class="text-xs font-extrabold text-amber-600 mb-1.5 uppercase tracking-wider">
                 <i class="fas fa-pause-circle mr-1"></i> Order Ditahan (F3)
             </p>
@@ -200,8 +200,31 @@
         </template>
     </div>
 
+    {{-- MOBILE CART TOGGLE --}}
+    <div class="lg:hidden fixed bottom-0 left-0 w-full p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30 transition-transform duration-300" 
+         :class="showMobileCart ? 'translate-y-full' : 'translate-y-0'">
+        <button @click="showMobileCart = true" class="w-full bg-green-600 text-white font-black py-3 rounded-xl flex items-center justify-between px-4 shadow-lg shadow-green-200">
+            <div class="flex items-center gap-2">
+                <div class="bg-white/20 px-2 py-0.5 rounded-lg text-sm"><span x-text="cart.reduce((s,i)=>s+i.qty,0)"></span> Item</div>
+                <span>Lihat Keranjang</span>
+            </div>
+            <span>Rp <span x-text="formatRp(subtotal)"></span></span>
+        </button>
+    </div>
+
     {{-- RIGHT PANEL — Cart --}}
-    <div class="w-80 bg-white border-l border-gray-200 flex flex-col shrink-0">
+    {{-- Overlay for mobile --}}
+    <div x-show="showMobileCart" x-transition.opacity class="fixed inset-0 bg-black/50 z-40 lg:hidden" @click="showMobileCart = false"></div>
+    
+    <div :class="showMobileCart ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
+         class="fixed inset-y-0 right-0 z-50 w-full sm:w-96 lg:static lg:z-0 lg:w-80 bg-white border-l border-gray-200 flex flex-col shrink-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none h-full">
+        
+        {{-- Mobile Cart Close Header --}}
+        <div class="lg:hidden flex items-center p-4 bg-gray-50 border-b border-gray-200 shrink-0">
+            <button @click="showMobileCart = false" class="text-gray-500 hover:text-gray-800 font-bold p-2 -ml-2">
+                <i class="fas fa-chevron-right mr-2"></i> Tutup
+            </button>
+        </div>
 
         {{-- Cart Header --}}
         <div class="p-4 border-b border-gray-100 flex items-center justify-between shrink-0">
@@ -252,7 +275,7 @@
         </div>
 
         {{-- Cart Summary --}}
-        <div class="p-4 border-t border-gray-100 shrink-0">
+        <div class="p-4 border-t border-gray-100 shrink-0 bg-white">
             <div class="space-y-1 text-sm mb-3">
                 <div class="flex justify-between text-gray-500">
                     <span>Subtotal</span>
@@ -275,11 +298,11 @@
             <div class="flex gap-2">
                 <button @click="holdCart()" x-show="cart.length > 0" x-cloak
                     class="flex-1 py-3 rounded-xl border-2 border-gray-300 text-gray-600 font-bold text-sm hover:bg-gray-50 transition">
-                    <i class="fas fa-pause mr-1"></i> HOLD (F2)
+                    <i class="fas fa-pause mr-1"></i> HOLD
                 </button>
                 <button @click="openPayment()" x-show="cart.length > 0" x-cloak
                     class="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-black text-sm shadow-lg shadow-green-200 transition">
-                    <i class="fas fa-credit-card mr-1"></i> BAYAR (F4)
+                    <i class="fas fa-credit-card mr-1"></i> BAYAR
                 </button>
                 <div x-show="cart.length === 0" class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-sm text-center">
                     Pilih produk
@@ -473,6 +496,7 @@ function posApp() {
     return {
         // State
         cart: [],
+        showMobileCart: false,
         activeCategory: null,
         search: '',
         heldOrders: @json($heldOrders->map(fn($o) => ['id' => $o->id, 'total' => $o->grand_total])),
