@@ -477,7 +477,7 @@
                     <button @click="showOrderDetailModal = false" class="w-1/3 py-3.5 rounded-[16px] text-[15px] font-bold text-[#777873] bg-white border border-[#E3E1DC] hover:text-[#202522] hover:bg-gray-50 transition-all flex justify-center items-center">
                         Tutup
                     </button>
-                    <button @click="window.print()" class="w-2/3 py-3.5 rounded-[16px] text-[15px] font-bold bg-[#164A35] text-white shadow-sm hover:bg-[#123A2A] hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
+                    <button @click="window.open('/admin/api/orders/' + selectedOrder.id + '/print', '_blank')" class="w-2/3 py-3.5 rounded-[16px] text-[15px] font-bold bg-[#164A35] text-white shadow-sm hover:bg-[#123A2A] hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
                         <i class="fas fa-print"></i> Cetak Struk
                     </button>
                 </div>

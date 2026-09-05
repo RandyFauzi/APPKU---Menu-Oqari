@@ -5,22 +5,30 @@
 <title>Struk Pesanan {{ $receiptData->orderNumber }}</title>
 <style>
 /* CSS for thermal printers 58mm/80mm */
-@page { margin: 0; size: 58mm auto; }
+@page { margin: 0; }
 body { 
+    background-color: #f3f4f6; /* Gray background for screen preview */
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+.receipt {
+    background-color: #fff;
+    width: 58mm; /* Standard 58mm thermal size */
+    max-width: 100%;
+    padding: 4mm;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     font-family: 'Courier New', Courier, monospace; 
-    width: 56mm; /* slightly smaller than 58mm to ensure it fits */
-    padding: 2mm; 
-    font-size: 11px; 
-    margin: 0; 
+    font-size: 12px; 
     color: #000; 
     line-height: 1.2; 
-    background-color: #fff;
 }
 h1, h2, h3, h4, p { margin: 0; padding: 0; }
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .font-bold { font-weight: bold; }
-.divider { border-top: 1px dashed #000; margin: 4px 0; }
+.divider { border-top: 1px dashed #000; margin: 6px 0; }
 .flex-between { display: flex; justify-content: space-between; }
 .mb-1 { margin-bottom: 4px; }
 .mb-2 { margin-bottom: 8px; }
@@ -31,12 +39,25 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 .items .name { width: 50%; }
 .items .price { width: 35%; text-align: right; }
 @media print { 
-    body { width: 56mm; } 
+    @page { margin: 0; size: 58mm auto; }
+    body { 
+        background-color: #fff; 
+        padding: 0; 
+        display: block; 
+    }
+    .receipt {
+        width: 100%; /* Take full width of the printer */
+        max-width: 58mm;
+        padding: 0;
+        padding-top: 2mm;
+        box-shadow: none; /* No shadow when printing */
+    }
 }
 </style>
 </head>
 <body onload="window.print(); window.onafterprint = function(){ window.close(); }">
 
+<div class="receipt">
 <div class="text-center mb-2">
 @if($receiptData->shop['logo_url'])
     <img src="{{ $receiptData->shop['logo_url'] }}" style="max-width: 40px; margin-bottom: 4px; border-radius: 4px; filter: grayscale(100%);">
@@ -107,6 +128,7 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
     @if($receiptData->shop['phone'])
         <p>{{ $receiptData->shop['phone'] }}</p>
     @endif
+</div>
 </div>
 
 </body>
