@@ -55,9 +55,10 @@ class PosController extends Controller
             ->get();
 
         $registers = CashRegister::where('shop_id', $shop->id)->where('is_active', true)->get();
+        $tables = \App\Models\Table::where('shop_id', $shop->id)->get();
 
         return view('Admin.pos.index', compact(
-            'products', 'categories', 'activeSession', 'heldOrders', 'registers', 'shop'
+            'products', 'categories', 'activeSession', 'heldOrders', 'registers', 'shop', 'tables'
         ));
     }
 

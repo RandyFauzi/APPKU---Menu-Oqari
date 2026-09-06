@@ -405,16 +405,31 @@
 
         <div class="p-5 space-y-5">
             {{-- Fulfillment Type --}}
-            <div class="flex gap-2 bg-gray-100 p-1 rounded-xl">
-                <button @click="paymentModal.fulfillment = 'DINE_IN'"
-                    :class="paymentModal.fulfillment === 'DINE_IN' ? 'bg-white shadow-sm text-green-700' : 'text-gray-500 hover:bg-gray-200'"
-                    class="flex-1 py-2 rounded-lg font-bold text-sm transition">
-                    <i class="fas fa-utensils mr-1"></i> Dine In
-                </button>
-                <button @click="paymentModal.fulfillment = 'TAKEAWAY'"
-                    :class="paymentModal.fulfillment === 'TAKEAWAY' ? 'bg-white shadow-sm text-green-700' : 'text-gray-500 hover:bg-gray-200'"
-                    class="flex-1 py-2 rounded-lg font-bold text-sm transition">
-                    <i class="fas fa-shopping-bag mr-1"></i> Takeaway
+            <div class="flex gap-2 bg-gray-100 p-1 rounded-xl" x-show="salesModes.length > 1 || salesModes.length === 0">
+                <template x-for="mode in ['DINE_IN', 'TAKEAWAY', 'DELIVERY']">
+                    <button x-show="salesModes.includes(mode) || salesModes.length === 0"
+                        @click="paymentModal.fulfillment = mode"
+                        :class="paymentModal.fulfillment === mode ? 'bg-white shadow-sm text-green-700' : 'text-gray-500 hover:bg-gray-200'"
+                        class="flex-1 py-2 rounded-lg font-bold text-sm transition">
+                        <i :class="mode === 'DINE_IN' ? 'fas fa-utensils' : (mode === 'TAKEAWAY' ? 'fas fa-shopping-bag' : 'fas fa-motorcycle')" class="mr-1"></i> 
+                        <span x-text="mode === 'DINE_IN' ? 'Dine In' : (mode === 'TAKEAWAY' ? 'Takeaway' : 'Delivery')"></span>
+                    </button>
+                </template>
+            </div>
+
+            {{-- CONTEXTUAL ACTION: MISSING TABLES --}}
+            <div x-show="paymentModal.fulfillment === 'DINE_IN' && tablesCount === 0" class="mt-3 bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col sm:flex-row items-center sm:justify-between gap-3 shadow-inner">
+                <div class="flex items-center gap-3 text-red-800">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                        <i class="fas fa-chair text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm">Meja Belum Tersedia</h4>
+                        <p class="text-xs opacity-90">Pesanan Dine-In membutuhkan minimal 1 meja.</p>
+                    </div>
+                </div>
+                <button @click="tableSetupModal.show = true" class="shrink-0 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-xs shadow-md transition-all active:scale-95">
+                    Buat Meja
                 </button>
             </div>
 
@@ -504,6 +519,45 @@
     </div>
 </div>
 
+<!-- TABLE SETUP CONTEXTUAL MODAL -->
+<div x-show="tableSetupModal.show" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <!-- Overlay -->
+    <div x-show="tableSetupModal.show" x-transition.opacity class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" @click="tableSetupModal.show = false"></div>
+    
+    <!-- Modal -->
+    <div x-show="tableSetupModal.show"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+        class="bg-white rounded-3xl w-full max-w-sm shadow-2xl relative z-10 overflow-hidden flex flex-col">
+        
+        <div class="p-5 border-b border-gray-100 text-center relative bg-gray-50">
+            <button @click="tableSetupModal.show = false" class="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-700 rounded-full transition">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3 class="font-black text-xl text-gray-800 text-center">Buat Meja Pertama</h3>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-2">
+                <i class="fas fa-chair"></i>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Nama / Nomor Meja</label>
+                <input type="text" x-model="tableSetupModal.name" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 outline-none text-center font-bold text-lg" placeholder="Contoh: Meja 1" @keydown.enter="submitTableSetup()">
+            </div>
+        </div>
+
+        <div class="p-5 bg-gray-50 border-t border-gray-100">
+            <button @click="submitTableSetup()" :disabled="!tableSetupModal.name || tableSetupModal.loading" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50">
+                <span x-show="!tableSetupModal.loading"><i class="fas fa-plus mr-1"></i> Tambah Meja</span>
+                <span x-show="tableSetupModal.loading"><i class="fas fa-spinner fa-spin"></i> Memproses...</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- ALPINE JS CONTROLLER                                        --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
@@ -525,11 +579,15 @@ function posApp() {
         },
         paymentModal: { show: false, method: 'CASH', amountPaid: '', fulfillment: 'DINE_IN' },
         successScreen: { show: false, total: 0, change: 0, orderId: null },
+        tableSetupModal: { show: false, name: '', loading: false },
 
         quickCash: [5000, 10000, 20000, 50000, 100000],
 
         incomingCount: 0,
         lastKnownOrderIds: [],
+        
+        tablesCount: {{ $tables->count() }},
+        salesModes: @json($shop->sales_modes ?? ['DINE_IN', 'TAKEAWAY']),
 
         init() {
             // Check for incoming orders every 5 seconds
@@ -755,6 +813,35 @@ function posApp() {
             if (!res.ok) throw json;
             return json;
         },
+        async submitTableSetup() {
+            if (!this.tableSetupModal.name) return;
+            this.tableSetupModal.loading = true;
+            try {
+                const res = await fetch('/admin/api/table', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ name: this.tableSetupModal.name })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    this.tablesCount++;
+                    this.tableSetupModal.show = false;
+                    this.tableSetupModal.name = '';
+                    this.notify('Meja berhasil dibuat!', 'success');
+                } else {
+                    this.notify(data.message || 'Gagal membuat meja', 'error');
+                }
+            } catch (e) {
+                this.notify('Terjadi kesalahan jaringan', 'error');
+            } finally {
+                this.tableSetupModal.loading = false;
+            }
+        },
+        
         formatRp(n) { return Number(n ?? 0).toLocaleString('id-ID'); },
         notify(msg, type) {
             // Simple toast — could be wired to a more robust toast system
