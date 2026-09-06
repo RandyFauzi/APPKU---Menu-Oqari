@@ -139,9 +139,9 @@
                             </td>
                             <td class="px-6 md:px-8 py-5">
                                 <span class="px-3.5 py-1.5 rounded-xl text-xs font-bold inline-flex items-center gap-2" 
-                                    :class="order.type === 'Dine-in' ? 'bg-[#DDEBDD] text-[#164A35]' : 'bg-[#FFF3E0] text-[#D97A32]'">
-                                    <i :class="order.type === 'Dine-in' ? 'fas fa-chair' : 'fas fa-shopping-bag'"></i>
-                                    <span x-text="order.type === 'Dine-in' ? 'Meja ' + (order.table ? order.table.name : '-') : 'Takeaway'"></span>
+                                    :class="order.type === 'Dine In' ? 'bg-[#DDEBDD] text-[#164A35]' : 'bg-[#FFF3E0] text-[#D97A32]'">
+                                    <i :class="order.type === 'Dine In' ? 'fas fa-chair' : 'fas fa-shopping-bag'"></i>
+                                    <span x-text="order.type === 'Dine In' ? 'Meja ' + (order.table ? order.table.name : '-') : 'Takeaway'"></span>
                                 </span>
                             </td>
                             <td class="px-6 md:px-8 py-5 font-black text-right text-base text-[#202522]" x-text="'Rp ' + formatNum(order.total)"></td>

@@ -404,6 +404,20 @@
         </div>
 
         <div class="p-5 space-y-5">
+            {{-- Fulfillment Type --}}
+            <div class="flex gap-2 bg-gray-100 p-1 rounded-xl">
+                <button @click="paymentModal.fulfillment = 'DINE_IN'"
+                    :class="paymentModal.fulfillment === 'DINE_IN' ? 'bg-white shadow-sm text-green-700' : 'text-gray-500 hover:bg-gray-200'"
+                    class="flex-1 py-2 rounded-lg font-bold text-sm transition">
+                    <i class="fas fa-utensils mr-1"></i> Dine In
+                </button>
+                <button @click="paymentModal.fulfillment = 'TAKEAWAY'"
+                    :class="paymentModal.fulfillment === 'TAKEAWAY' ? 'bg-white shadow-sm text-green-700' : 'text-gray-500 hover:bg-gray-200'"
+                    class="flex-1 py-2 rounded-lg font-bold text-sm transition">
+                    <i class="fas fa-shopping-bag mr-1"></i> Takeaway
+                </button>
+            </div>
+
             {{-- Method --}}
             <div>
                 <p class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-3">Metode Pembayaran</p>
@@ -509,7 +523,7 @@ function posApp() {
             show: false, product: null, selectedVariant: null, selectedVariantId: null,
             selectedModifiers: [], qty: 1, notes: ''
         },
-        paymentModal: { show: false, method: 'CASH', amountPaid: '' },
+        paymentModal: { show: false, method: 'CASH', amountPaid: '', fulfillment: 'DINE_IN' },
         successScreen: { show: false, total: 0, change: 0, orderId: null },
 
         quickCash: [5000, 10000, 20000, 50000, 100000],
@@ -674,7 +688,7 @@ function posApp() {
 
         // ── Payment ───────────────────────────
         openPayment() {
-            this.paymentModal = { show: true, method: 'CASH', amountPaid: '' };
+            this.paymentModal = { show: true, method: 'CASH', amountPaid: '', fulfillment: 'DINE_IN' };
         },
         canPay() {
             if (this.paymentModal.method === 'CASH') return Number(this.paymentModal.amountPaid) >= this.subtotal;
@@ -687,7 +701,7 @@ function posApp() {
                 items: this.cartPayload(),
                 payment_method: this.paymentModal.method,
                 amount_paid: amountPaid,
-                fulfillment_type: 'DINE_IN',
+                fulfillment_type: this.paymentModal.fulfillment,
             };
             try {
                 const res = await this.post('{{ route('admin.pos.orders.submit') }}', payload);
