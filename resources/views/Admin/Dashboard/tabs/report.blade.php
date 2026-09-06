@@ -134,14 +134,14 @@
                                 <span class="font-black text-[#164A35] bg-[#DDEBDD] px-2.5 py-1.5 rounded-lg text-xs tracking-wide" x-text="'#' + order.id"></span>
                             </td>
                             <td class="px-6 md:px-8 py-5">
-                                <div class="font-bold text-[#202522] text-[15px]" x-text="order.customer_name"></div>
-                                <div class="text-xs font-medium text-[#777873] mt-1" x-text="order.items ? order.items.length + ' item menu' : '0 item'"></div>
+                                <div class="font-bold text-[#202522] text-[15px]" x-text="order.customer"></div>
+                                <div class="text-xs font-medium text-[#777873] mt-1 max-w-[200px] truncate" x-text="order.items ? order.items.map(i => i.qty + 'x ' + (i.name || 'Item')).join(', ') : '0 item'"></div>
                             </td>
                             <td class="px-6 md:px-8 py-5">
                                 <span class="px-3.5 py-1.5 rounded-xl text-xs font-bold inline-flex items-center gap-2" 
                                     :class="order.type === 'Dine In' ? 'bg-[#DDEBDD] text-[#164A35]' : 'bg-[#FFF3E0] text-[#D97A32]'">
                                     <i :class="order.type === 'Dine In' ? 'fas fa-chair' : 'fas fa-shopping-bag'"></i>
-                                    <span x-text="order.type === 'Dine In' ? 'Meja ' + (order.table || '-') : 'Takeaway'"></span>
+                                    <span x-text="order.type === 'Dine In' ? 'Dine In (Meja ' + (order.table || '-') + ')' : 'Takeaway'"></span>
                                 </span>
                             </td>
                             <td class="px-6 md:px-8 py-5 font-black text-right text-base text-[#202522]" x-text="'Rp ' + formatNum(order.total)"></td>
