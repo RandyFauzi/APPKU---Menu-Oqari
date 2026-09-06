@@ -61,6 +61,9 @@ class DashboardController extends Controller
                 'name' => $user->name.' Shop',
                 'slug' => Str::slug($user->name.'-'.uniqid()),
                 'primary_color' => '#1E5A7A', // Default color
+                'onboarding_status' => 'pending',
+                'onboarding_step' => 'welcome',
+                'status' => 'onboarding', // using the existing status column as well for clarity
             ]);
 
             $user->update([
@@ -71,6 +74,12 @@ class DashboardController extends Controller
 
         $shopId = $user->shop_id;
         $shop = Shop::find($shopId);
+
+        // ONBOARDING GUARD
+        // Hanya Owner dan Manager yang bisa mengakses / melanjutkan onboarding.
+        if ($shop && $shop->onboarding_status !== 'completed' && in_array($role, ['owner', 'manager'])) {
+            return redirect()->route('admin.onboarding');
+        }
 
         // Dashboard shell: only essential layout data
         $activeSession = CashRegisterSession::where('user_id', $user->id)->where('status', 'OPEN')->first();

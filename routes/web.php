@@ -28,6 +28,10 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
+    // Onboarding
+    Route::get('/admin/onboarding', [\App\Http\Controllers\Admin\OnboardingController::class, 'index'])->name('admin.onboarding');
+    Route::post('/admin/onboarding/step', [\App\Http\Controllers\Admin\OnboardingController::class, 'updateStep'])->name('admin.onboarding.step');
+    Route::post('/admin/onboarding/complete', [\App\Http\Controllers\Admin\OnboardingController::class, 'complete'])->name('admin.onboarding.complete');
 
     // Dashboard (accessible to all authenticated users)
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
