@@ -535,7 +535,7 @@
                         </div>
                         <div>
                             <h3 class="text-[18px] font-bold text-[#202522] mb-1">Pesanan #<span x-text="activeIncomingOrder?.id"></span></h3>
-                            <p class="text-[13px] text-[#777873]">Takeaway • <span x-text="activeIncomingOrder?.customer"></span></p>
+                            <p class="text-[13px] text-[#777873]"><span x-text="activeIncomingOrder?.type || 'Takeaway'"></span> • <span x-text="activeIncomingOrder?.customer"></span></p>
                         </div>
                     </div>
 
@@ -1357,11 +1357,11 @@ handleDraftImageUpload(event, index) {
                 handleNewOrderFromSocket(newOrder) {
                     const mappedOrder = {
                         id: newOrder.id,
-                        customer: newOrder.customer_name || ('Meja ' + (newOrder.table ? newOrder.table.name : '-')),
-                        table: newOrder.table ? newOrder.table.name : 'TA',
+                        customer: newOrder.customer_name || ('Meja ' + (newOrder.table ? (newOrder.table.name || newOrder.table) : '-')),
+                        table: newOrder.table ? (newOrder.table.name || newOrder.table) : 'TA',
                         type: newOrder.fulfillment_type === 'DINE_IN' ? 'Dine In' : (newOrder.fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Delivery'),
                         status: newOrder.order_status || newOrder.status,
-                        total: parseFloat(newOrder.grand_total || newOrder.total_price),
+                        total: parseFloat(newOrder.total || newOrder.grand_total || newOrder.total_price || 0),
                         time: newOrder.created_at,
                         items: (newOrder.items || []).map(i => ({
                             name: i.product?.name || 'Produk',
