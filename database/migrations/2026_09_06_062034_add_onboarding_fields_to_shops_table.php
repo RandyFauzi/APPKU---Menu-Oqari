@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('shops', function (Blueprint $table) {
-            $table->string('business_type')->nullable()->after('theme_style');
-            $table->json('sales_modes')->nullable()->after('business_type');
-            $table->string('onboarding_status')->default('pending')->after('sales_modes'); // pending, in_progress, completed
-            $table->string('onboarding_step')->default('welcome')->after('onboarding_status');
+            if (! Schema::hasColumn('shops', 'business_type')) {
+                $table->string('business_type')->nullable();
+            }
+            if (! Schema::hasColumn('shops', 'sales_modes')) {
+                $table->json('sales_modes')->nullable();
+            }
+            if (! Schema::hasColumn('shops', 'onboarding_status')) {
+                $table->string('onboarding_status')->default('pending'); // pending, in_progress, completed
+            }
+            if (! Schema::hasColumn('shops', 'onboarding_step')) {
+                $table->string('onboarding_step')->default('welcome');
+            }
         });
     }
 
@@ -25,7 +33,15 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('shops', function (Blueprint $table) {
-            $table->dropColumn(['business_type', 'sales_modes', 'onboarding_status', 'onboarding_step']);
+            $columnsToDrop = [];
+            foreach (['business_type', 'sales_modes', 'onboarding_status', 'onboarding_step'] as $col) {
+                if (Schema::hasColumn('shops', $col)) {
+                    $columnsToDrop[] = $col;
+                }
+            }
+            if (! empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };

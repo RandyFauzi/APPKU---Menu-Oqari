@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\MediaService;
 use Illuminate\Database\Eloquent\Model;
 
 class Shop extends Model
@@ -12,7 +13,7 @@ class Shop extends Model
             if ($shop->wasChanged('slug')) {
                 $oldSlug = $shop->getOriginal('slug');
                 if ($oldSlug) {
-                    \App\Models\ShopSlugHistory::firstOrCreate([
+                    ShopSlugHistory::firstOrCreate([
                         'shop_id' => $shop->id,
                         'old_slug' => $oldSlug,
                     ]);
@@ -28,6 +29,10 @@ class Shop extends Model
         'logo_path',
         'primary_color',
         'theme_style',
+        'business_type',
+        'sales_modes',
+        'onboarding_status',
+        'onboarding_step',
         'is_open',
         'slogan',
         'font_family',
@@ -59,6 +64,7 @@ class Shop extends Model
     protected $casts = [
         'banner_paths' => 'array',
         'operating_hours' => 'array',
+        'sales_modes' => 'array',
         'is_open' => 'boolean',
         'is_banner_active' => 'boolean',
         'gobiz_token_expires_at' => 'datetime',
@@ -85,20 +91,21 @@ class Shop extends Model
 
     public function getLogoUrlAttribute()
     {
-        return app(\App\Services\MediaService::class)->url($this->logo_path);
+        return app(MediaService::class)->url($this->logo_path);
     }
 
     public function getBannersAttribute()
     {
         $value = $this->banner_paths;
         $banners = is_string($value) ? json_decode($value, true) : $value;
-        if (!is_array($banners)) return [];
-        
+        if (! is_array($banners)) {
+            return [];
+        }
+
         return array_map(function ($banner) {
-            return app(\App\Services\MediaService::class)->url($banner);
+            return app(MediaService::class)->url($banner);
         }, $banners);
     }
-
 
     public function products()
     {

@@ -3,25 +3,65 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Shop;
-use App\Models\Product;
 use App\Models\PaymentMethod;
-use App\Services\MediaService;
+use App\Models\Product;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class OnboardingController extends Controller
 {
+    private function ensureOnboardingColumnsExist(): void
+    {
+        if (! Schema::hasTable('shops')) {
+            return;
+        }
+
+        if (! Schema::hasColumn('shops', 'business_type') || ! Schema::hasColumn('shops', 'onboarding_status') || ! Schema::hasColumn('shops', 'sales_modes') || ! Schema::hasColumn('shops', 'onboarding_step')) {
+            try {
+                Artisan::call('migrate', ['--force' => true]);
+            } catch (\Throwable $e) {
+                Log::warning('Artisan migrate in OnboardingController failed: '.$e->getMessage());
+            }
+
+            // Direct fallback: ensure columns exist even if artisan migrate was blocked or skipped
+            if (! Schema::hasColumn('shops', 'business_type') || ! Schema::hasColumn('shops', 'onboarding_status') || ! Schema::hasColumn('shops', 'sales_modes') || ! Schema::hasColumn('shops', 'onboarding_step')) {
+                try {
+                    Schema::table('shops', function (Blueprint $table) {
+                        if (! Schema::hasColumn('shops', 'business_type')) {
+                            $table->string('business_type')->nullable();
+                        }
+                        if (! Schema::hasColumn('shops', 'sales_modes')) {
+                            $table->json('sales_modes')->nullable();
+                        }
+                        if (! Schema::hasColumn('shops', 'onboarding_status')) {
+                            $table->string('onboarding_status')->default('pending');
+                        }
+                        if (! Schema::hasColumn('shops', 'onboarding_step')) {
+                            $table->string('onboarding_step')->default('welcome');
+                        }
+                    });
+                } catch (\Throwable $e) {
+                    Log::error('Direct schema update in OnboardingController failed: '.$e->getMessage());
+                }
+            }
+        }
+    }
+
     public function index()
     {
+        $this->ensureOnboardingColumnsExist();
+
         $user = Auth::user();
-        if (!in_array($user->role, ['owner', 'manager'])) {
+        if (! in_array($user->role, ['owner', 'manager'])) {
             return redirect()->route('admin.dashboard');
         }
 
         $shop = $user->shop;
-        if (!$shop) {
+        if (! $shop) {
             return redirect()->route('admin.dashboard');
         }
 
@@ -38,10 +78,12 @@ class OnboardingController extends Controller
 
     public function updateStep(Request $request)
     {
+        $this->ensureOnboardingColumnsExist();
+
         $user = Auth::user();
         $shop = $user->shop;
 
-        if (!$shop || $shop->onboarding_status === 'completed') {
+        if (! $shop || $shop->onboarding_status === 'completed') {
             return response()->json(['success' => false, 'message' => 'Onboarding already completed']);
         }
 
@@ -57,7 +99,7 @@ class OnboardingController extends Controller
                 ]);
                 $shop->name = $data['name'];
                 $shop->business_type = $data['business_type'];
-                
+
                 if (isset($data['address'])) {
                     $shop->address = $data['address'];
                 }
@@ -68,7 +110,7 @@ class OnboardingController extends Controller
 
             case 'sales_mode':
                 $modes = $data['sales_modes'] ?? [];
-                $shop->sales_modes = $modes; 
+                $shop->sales_modes = $modes;
                 $shop->onboarding_step = 'menu';
                 break;
 
@@ -93,16 +135,18 @@ class OnboardingController extends Controller
         return response()->json([
             'success' => true,
             'shop' => $shop,
-            'next_step' => $shop->onboarding_step
+            'next_step' => $shop->onboarding_step,
         ]);
     }
 
     public function complete(Request $request)
     {
+        $this->ensureOnboardingColumnsExist();
+
         $shop = Auth::user()->shop;
         if ($shop) {
             $shop->onboarding_status = 'completed';
-            $shop->status = 'active'; 
+            $shop->status = 'active';
             $shop->onboarding_step = 'completed';
             $shop->save();
         }
