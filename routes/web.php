@@ -1,20 +1,29 @@
 <?php
 
+use App\Http\Controllers\Admin\Api\AnalyticsApiController;
+use App\Http\Controllers\Admin\Api\DashboardApiController;
+use App\Http\Controllers\Admin\Api\OrderApiController;
+use App\Http\Controllers\Admin\Api\ProductApiController;
 use App\Http\Controllers\Admin\CashRegisterController;
+use App\Http\Controllers\Admin\CrewController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\KitchenController;
+use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ShiftController;
-use App\Http\Controllers\Admin\KitchenController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SuperAdmin\UserController;
 use App\Http\Controllers\SuperAdminController;
+use App\Models\Order;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     if (auth()->check()) {
         $role = auth()->user()->role;
+
         return match ($role) {
             'cashier' => redirect()->route('admin.pos.index'),
             'barista', 'kitchen' => redirect()->route('admin.kitchen.index'),
@@ -29,9 +38,10 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     // Onboarding
-    Route::get('/admin/onboarding', [\App\Http\Controllers\Admin\OnboardingController::class, 'index'])->name('admin.onboarding');
-    Route::post('/admin/onboarding/step', [\App\Http\Controllers\Admin\OnboardingController::class, 'updateStep'])->name('admin.onboarding.step');
-    Route::post('/admin/onboarding/complete', [\App\Http\Controllers\Admin\OnboardingController::class, 'complete'])->name('admin.onboarding.complete');
+    Route::get('/admin/onboarding/fix-db', [OnboardingController::class, 'fixDb'])->name('admin.onboarding.fix-db');
+    Route::get('/admin/onboarding', [OnboardingController::class, 'index'])->name('admin.onboarding');
+    Route::post('/admin/onboarding/step', [OnboardingController::class, 'updateStep'])->name('admin.onboarding.step');
+    Route::post('/admin/onboarding/complete', [OnboardingController::class, 'complete'])->name('admin.onboarding.complete');
 
     // Dashboard (accessible to all authenticated users)
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -66,10 +76,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Settings
     Route::middleware('can:manage-settings')->group(function () {
-        Route::get('/admin/api/dashboard/summary', [\App\Http\Controllers\Admin\Api\DashboardApiController::class, 'getSummary']);
-        Route::get('/admin/api/dashboard/orders', [\App\Http\Controllers\Admin\Api\OrderApiController::class, 'index']);
-        Route::get('/admin/api/dashboard/products', [\App\Http\Controllers\Admin\Api\ProductApiController::class, 'index']);
-        Route::get('/admin/api/dashboard/analytics', [\App\Http\Controllers\Admin\Api\AnalyticsApiController::class, 'index']);
+        Route::get('/admin/api/dashboard/summary', [DashboardApiController::class, 'getSummary']);
+        Route::get('/admin/api/dashboard/orders', [OrderApiController::class, 'index']);
+        Route::get('/admin/api/dashboard/products', [ProductApiController::class, 'index']);
+        Route::get('/admin/api/dashboard/analytics', [AnalyticsApiController::class, 'index']);
 
         Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
         Route::post('/admin/api/profile', [DashboardController::class, 'updateProfile']);
@@ -90,28 +100,28 @@ Route::middleware(['auth'])->group(function () {
     // My Schedule (Crew/Barista — personal view only)
     Route::middleware('can:view-own-schedule')->group(function () {
         Route::get('/admin/my-schedule', [ShiftController::class, 'mySchedule'])->name('admin.my-schedule');
-        Route::get('/admin/crew-home', [App\Http\Controllers\Admin\CrewController::class, 'home'])->name('admin.crew.home');
+        Route::get('/admin/crew-home', [CrewController::class, 'home'])->name('admin.crew.home');
     });
 
     // Kitchen Display (Barista/Kitchen)
     Route::middleware('can:view-kitchen')->group(function () {
         Route::get('/admin/kitchen', [KitchenController::class, 'index'])->name('admin.kitchen.index');
-        Route::get('/admin/kitchen/orders', fn() => response()->json(
-            \App\Models\Order::where('shop_id', auth()->user()->shop_id)
-                ->whereIn('order_status', ['CONFIRMED','PREPARING','READY'])
+        Route::get('/admin/kitchen/orders', fn () => response()->json(
+            Order::where('shop_id', auth()->user()->shop_id)
+                ->whereIn('order_status', ['CONFIRMED', 'PREPARING', 'READY'])
                 ->with('items')
                 ->latest()
                 ->limit(150)
                 ->get()
-                ->map(fn($o) => [
+                ->map(fn ($o) => [
                     'id' => $o->id, 'status' => $o->order_status,
                     'time' => $o->created_at->format('H:i'),
-                    'items' => $o->items->map(fn($i) => [
+                    'items' => $o->items->map(fn ($i) => [
                         'id' => $i->id, 'name' => $i->product_name,
                         'qty' => $i->quantity, 'variant' => $i->variant_name,
                         'modifiers' => $i->modifiers ? json_decode($i->modifiers, true) : [],
                         'notes' => $i->notes,
-                    ])
+                    ]),
                 ])
         ))->name('admin.kitchen.orders');
         Route::post('/admin/kitchen/orders/{order}/status', [KitchenController::class, 'updateStatus'])->name('admin.kitchen.orders.status');
@@ -141,8 +151,8 @@ Route::middleware(['auth', 'superadmin'])->prefix('superadmin')->name('superadmi
 });
 
 // Customer Receipt (Signed URLs)
-Route::get('/receipt/{order}', [\App\Http\Controllers\ReceiptController::class, 'show'])->name('receipt.web');
-Route::get('/receipt/{order}/pdf', [\App\Http\Controllers\ReceiptController::class, 'downloadPdf'])->name('receipt.pdf');
+Route::get('/receipt/{order}', [ReceiptController::class, 'show'])->name('receipt.web');
+Route::get('/receipt/{order}/pdf', [ReceiptController::class, 'downloadPdf'])->name('receipt.pdf');
 
 // Public Customer Menu
 Route::get('/{slug}', [ShopController::class, 'show'])->name('shop.menu');

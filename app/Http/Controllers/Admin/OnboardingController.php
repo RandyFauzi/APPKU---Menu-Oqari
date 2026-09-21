@@ -5,50 +5,50 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PaymentMethod;
 use App\Models\Product;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class OnboardingController extends Controller
 {
     private function ensureOnboardingColumnsExist(): void
     {
-        if (! Schema::hasTable('shops')) {
-            return;
-        }
+        try {
+            $columns = DB::select('SHOW COLUMNS FROM `shops`');
+            $existing = array_map(fn ($col) => (string) ($col->Field ?? $col['Field'] ?? ''), $columns);
 
-        if (! Schema::hasColumn('shops', 'business_type') || ! Schema::hasColumn('shops', 'onboarding_status') || ! Schema::hasColumn('shops', 'sales_modes') || ! Schema::hasColumn('shops', 'onboarding_step')) {
-            try {
-                Artisan::call('migrate', ['--force' => true]);
-            } catch (\Throwable $e) {
-                Log::warning('Artisan migrate in OnboardingController failed: '.$e->getMessage());
+            if (! in_array('business_type', $existing)) {
+                DB::statement('ALTER TABLE `shops` ADD COLUMN `business_type` VARCHAR(255) NULL');
             }
-
-            // Direct fallback: ensure columns exist even if artisan migrate was blocked or skipped
-            if (! Schema::hasColumn('shops', 'business_type') || ! Schema::hasColumn('shops', 'onboarding_status') || ! Schema::hasColumn('shops', 'sales_modes') || ! Schema::hasColumn('shops', 'onboarding_step')) {
-                try {
-                    Schema::table('shops', function (Blueprint $table) {
-                        if (! Schema::hasColumn('shops', 'business_type')) {
-                            $table->string('business_type')->nullable();
-                        }
-                        if (! Schema::hasColumn('shops', 'sales_modes')) {
-                            $table->json('sales_modes')->nullable();
-                        }
-                        if (! Schema::hasColumn('shops', 'onboarding_status')) {
-                            $table->string('onboarding_status')->default('pending');
-                        }
-                        if (! Schema::hasColumn('shops', 'onboarding_step')) {
-                            $table->string('onboarding_step')->default('welcome');
-                        }
-                    });
-                } catch (\Throwable $e) {
-                    Log::error('Direct schema update in OnboardingController failed: '.$e->getMessage());
-                }
+            if (! in_array('sales_modes', $existing)) {
+                DB::statement('ALTER TABLE `shops` ADD COLUMN `sales_modes` TEXT NULL');
             }
+            if (! in_array('onboarding_status', $existing)) {
+                DB::statement("ALTER TABLE `shops` ADD COLUMN `onboarding_status` VARCHAR(50) NOT NULL DEFAULT 'pending'");
+            }
+            if (! in_array('onboarding_step', $existing)) {
+                DB::statement("ALTER TABLE `shops` ADD COLUMN `onboarding_step` VARCHAR(50) NOT NULL DEFAULT 'welcome'");
+            }
+        } catch (\Throwable $e) {
+            Log::error('Direct ALTER TABLE in OnboardingController failed: '.$e->getMessage());
         }
+    }
+
+    public function fixDb()
+    {
+        $this->ensureOnboardingColumnsExist();
+        $columns = DB::select('SHOW COLUMNS FROM `shops`');
+        $fields = array_map(fn ($col) => (string) ($col->Field ?? $col['Field'] ?? ''), $columns);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kolom database toko berhasil diperiksa dan diperbarui.',
+            'has_business_type' => in_array('business_type', $fields),
+            'has_sales_modes' => in_array('sales_modes', $fields),
+            'has_onboarding_status' => in_array('onboarding_status', $fields),
+            'has_onboarding_step' => in_array('onboarding_step', $fields),
+        ]);
     }
 
     public function index()
@@ -60,7 +60,7 @@ class OnboardingController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        $shop = $user->shop;
+        $shop = $user->shop?->fresh() ?: $user->shop;
         if (! $shop) {
             return redirect()->route('admin.dashboard');
         }
@@ -81,7 +81,7 @@ class OnboardingController extends Controller
         $this->ensureOnboardingColumnsExist();
 
         $user = Auth::user();
-        $shop = $user->shop;
+        $shop = $user->shop?->fresh() ?: $user->shop;
 
         if (! $shop || $shop->onboarding_status === 'completed') {
             return response()->json(['success' => false, 'message' => 'Onboarding already completed']);
