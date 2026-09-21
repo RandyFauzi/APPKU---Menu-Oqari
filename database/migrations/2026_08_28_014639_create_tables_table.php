@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tables', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('shop_id')->constrained()->onDelete('cascade');
-            $table->string('name');
-            $table->string('qr_code_url')->nullable();
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('tables')) {
+            Schema::create('tables', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('shop_id')->constrained()->onDelete('cascade');
+                $table->string('name');
+                $table->string('qr_code_url')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
