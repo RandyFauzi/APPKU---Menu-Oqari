@@ -135,7 +135,7 @@
     <main class="flex-grow flex flex-col h-full bg-white rounded-l-[40px] shadow-[-10px_0_30px_rgba(0,0,0,0.02)] border-l border-brewlyborder overflow-hidden">
         
         <!-- Top Header for Main Area -->
-        <header class="h-20 md:h-24 flex justify-between items-center px-4 md:px-10 shrink-0 border-b border-brewlyborder/50 bg-white relative z-10">
+        <header class="h-20 md:h-24 flex justify-between items-center px-4 md:px-10 shrink-0 border-b border-brewlyborder/50 bg-white relative z-50">
             <div class="flex items-center gap-3">
                 <button @click="isMinimized = !isMinimized" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
                     <i class="fas fa-bars text-lg"></i>
