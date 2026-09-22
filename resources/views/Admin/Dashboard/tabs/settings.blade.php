@@ -178,8 +178,8 @@
                     <div class="p-6 flex flex-col gap-5">
                         <h4 class="text-sm font-bold text-[#202522]">Tautan & Sosial Media</h4>
                         <div class="flex items-center">
-                            <span class="bg-[#F8F7F3] border border-[#E3E1DC] border-r-0 rounded-l-xl px-4 py-3 text-pink-500 flex-shrink-0 w-12 flex justify-center"><i class="fab fa-instagram text-lg"></i></span>
-                            <input type="text" x-model="settings.instagram_link" class="w-full border border-[#E3E1DC] rounded-r-xl px-4 py-3 text-sm focus:border-[#164A35] focus:outline-none" placeholder="https://instagram.com/username">
+                            <span class="bg-[#F8F7F3] border border-[#E3E1DC] border-r-0 rounded-l-xl px-4 py-3 text-[#777873] font-mono text-sm flex-shrink-0 flex items-center gap-2"><i class="fab fa-instagram text-pink-500 text-lg"></i> instagram.com/</span>
+                            <input type="text" x-model="settings.instagram_link" class="w-full border border-[#E3E1DC] rounded-r-xl px-4 py-3 text-sm focus:border-[#164A35] focus:outline-none" placeholder="username">
                         </div>
                         <div class="flex items-center">
                             <span class="bg-[#F8F7F3] border border-[#E3E1DC] border-r-0 rounded-l-xl px-4 py-3 text-green-500 flex-shrink-0 w-12 flex justify-center"><i class="fab fa-whatsapp text-lg"></i></span>

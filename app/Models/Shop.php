@@ -159,4 +159,18 @@ class Shop extends Model
         return $this->isActive()
             && (! $this->last_active_at || $this->last_active_at->lt(now()->subDays(14)));
     }
+
+    public function getInstagramUrlAttribute()
+    {
+        $link = $this->instagram_link;
+        if (empty($link)) {
+            return null;
+        }
+
+        if (\Illuminate\Support\Str::startsWith($link, ['http://', 'https://'])) {
+            return $link;
+        }
+
+        return 'https://www.instagram.com/' . ltrim($link, '/@');
+    }
 }

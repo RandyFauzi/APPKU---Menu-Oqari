@@ -254,7 +254,7 @@
     <div class="px-4 py-8 mb-6 mt-8 flex flex-col items-center justify-center text-center opacity-80">
         <div class="flex gap-4 mb-4">
             @if($shop->instagram_link)
-                <a href="{{ $shop->instagram_link }}" target="_blank" class="w-10 h-10 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
+                <a href="{{ $shop->instagram_url }}" target="_blank" class="w-10 h-10 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
                     <i class="fab fa-instagram"></i>
                 </a>
             @endif
