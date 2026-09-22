@@ -36,6 +36,7 @@ class Shop extends Model
         'is_open',
         'slogan',
         'font_family',
+        'title_font_family',
         'instagram_link',
         'email',
         'whatsapp_number',

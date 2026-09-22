@@ -812,6 +812,7 @@ handleDraftImageUpload(event, index) {
                     is_open: window.INITIAL_DATA.shop?.is_open ?? true,
                     theme_style: ['list', 'grid'].includes(window.INITIAL_DATA.shop?.theme_style) ? window.INITIAL_DATA.shop?.theme_style : 'list',
                     font_family: window.INITIAL_DATA.shop?.font_family || 'poppins',
+                    title_font_family: window.INITIAL_DATA.shop?.title_font_family || 'poppins',
                     instagram_link: window.INITIAL_DATA.shop?.instagram_link || '',
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
                     maps_link: window.INITIAL_DATA.shop?.maps_link || '',
@@ -1790,6 +1791,7 @@ if (res.ok) {
                     formData.append('is_open', this.settings.is_open ? 1 : 0);
                     formData.append('theme_style', this.settings.theme_style || '');
                     formData.append('font_family', this.settings.font_family || '');
+                    formData.append('title_font_family', this.settings.title_font_family || '');
                     formData.append('instagram_link', this.settings.instagram_link || '');
                     formData.append('whatsapp_number', this.settings.whatsapp_number || '');
                     formData.append('maps_link', this.settings.maps_link || '');

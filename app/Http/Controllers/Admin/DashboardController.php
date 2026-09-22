@@ -403,6 +403,7 @@ class DashboardController extends Controller
             'is_open' => 'nullable|boolean',
             'slogan' => 'nullable|string|max:255',
             'font_family' => 'nullable|string|max:50',
+            'title_font_family' => 'nullable|string|max:50',
             'instagram_link' => 'nullable|string|max:255',
             'whatsapp_number' => 'nullable|string|max:50',
             'maps_link' => 'nullable|string|max:500',
@@ -442,6 +443,9 @@ class DashboardController extends Controller
         }
         if ($request->has('font_family')) {
             $shop->font_family = $request->font_family;
+        }
+        if ($request->has('title_font_family')) {
+            $shop->title_font_family = $request->title_font_family;
         }
         if ($request->has('instagram_link')) {
             $shop->instagram_link = $request->instagram_link;

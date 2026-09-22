@@ -54,17 +54,17 @@
     </div>
 
     <!-- CHECKOUT FOOTER -->
-    <div class="fixed bottom-0 md:bottom-6 max-w-md md:max-w-2xl w-full bg-white border-t border-gray-100 p-4 md:p-6 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.05)] md:shadow-2xl z-40 mx-auto left-0 right-0 md:rounded-3xl">
+    <div class="fixed bottom-0 max-w-md w-full bg-white border-t border-gray-100 p-4 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.05)] z-40 mx-auto left-0 right-0">
         <button id="btn-trigger-pay" onclick="openCustomerInfoModal()" class="w-full bg-primary text-white py-3.5 rounded-xl font-bold text-base shadow-lg hover:shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
             <span id="btn-pay-text">Lanjut Pembayaran</span> <i class="fas fa-chevron-right text-xs opacity-80"></i>
         </button>
     </div>
 
     <!-- CUSTOMER INFO MODAL (Bottom Sheet -> Center Modal) -->
-    <div id="modal-customer-info" class="fixed inset-0 z-50 hidden flex flex-col justify-end md:justify-center md:items-center p-0 md:p-6">
+    <div id="modal-customer-info" class="fixed inset-0 z-50 hidden flex flex-col justify-end p-0">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeCustomerInfoModal()"></div>
         
-        <div class="relative bg-white w-full md:max-w-lg rounded-t-3xl md:rounded-3xl p-6 flex flex-col max-h-[90vh] md:shadow-2xl overflow-hidden overflow-y-auto">
+        <div class="relative bg-white w-full rounded-t-3xl p-6 flex flex-col max-h-[90vh] overflow-hidden overflow-y-auto">
             <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-5"></div>
             
             <h3 class="font-bold text-xl text-gray-800 mb-6">Informasi Meja & Pemesan</h3>
@@ -99,9 +99,9 @@
     </div>
 
     <!-- PAYMENT METHOD MODAL -->
-    <div id="modal-payment" class="fixed inset-0 z-50 hidden flex flex-col justify-end md:justify-center md:items-center p-0 md:p-6">
+    <div id="modal-payment" class="fixed inset-0 z-50 hidden flex flex-col justify-end p-0">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="cancelPayment()"></div>
-        <div class="relative bg-white w-full md:max-w-lg rounded-t-3xl md:rounded-3xl p-6 flex flex-col md:shadow-2xl max-h-[90vh] overflow-hidden overflow-y-auto">
+        <div class="relative bg-white w-full rounded-t-3xl p-6 flex flex-col max-h-[90vh] overflow-hidden overflow-y-auto">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-5"></div>
             
             <div class="flex justify-between items-center mb-6">

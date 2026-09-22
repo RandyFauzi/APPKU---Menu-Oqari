@@ -116,8 +116,16 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-[#202522] mb-2">Tipografi (Font)</label>
+                                <label class="block text-sm font-bold text-[#202522] mb-2">Tipografi Utama (Teks)</label>
                                 <select x-model="settings.font_family" class="w-full border border-[#E3E1DC] rounded-xl px-4 py-3 text-sm focus:border-[#164A35] focus:outline-none bg-white">
+                                    <option value="poppins">Modern (Poppins)</option>
+                                    <option value="playfair">Elegan (Playfair Display)</option>
+                                    <option value="nunito">Fun (Nunito)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-[#202522] mb-2">Font Judul Toko</label>
+                                <select x-model="settings.title_font_family" class="w-full border border-[#E3E1DC] rounded-xl px-4 py-3 text-sm focus:border-[#164A35] focus:outline-none bg-white">
                                     <option value="poppins">Modern (Poppins)</option>
                                     <option value="playfair">Elegan (Playfair Display)</option>
                                     <option value="nunito">Fun (Nunito)</option>
@@ -219,7 +227,7 @@
                                 </div>
                             </template>
                             <div class="flex flex-col">
-                                <span class="font-extrabold text-[15px] leading-tight tracking-tight uppercase" :style="'color: ' + (settings.primary_color || '#1c4532')" x-text="settings.name || 'BITTEN COFFEE'"></span>
+                                <span class="font-extrabold text-[15px] leading-tight tracking-tight uppercase" :style="'color: ' + (settings.primary_color || '#1c4532') + '; ' + (settings.title_font_family === 'poppins' ? 'font-family: Poppins, sans-serif;' : (settings.title_font_family === 'playfair' ? 'font-family: Playfair Display, serif;' : 'font-family: Nunito, sans-serif;'))" x-text="settings.name || 'BITTEN COFFEE'"></span>
                                 <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase" x-text="settings.slogan || 'COFFEE & EATERY'"></span>
                             </div>
                         </div>
