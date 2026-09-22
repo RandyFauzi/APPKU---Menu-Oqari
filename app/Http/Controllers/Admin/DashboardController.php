@@ -485,7 +485,15 @@ class DashboardController extends Controller
                     ->storeShopBranding($request->file("banner_{$i}"), $shopId, "banner_{$i}");
                 $banners[] = $path;
             } elseif ($request->filled("existing_banner_{$i}")) {
-                $banners[] = $request->input("existing_banner_{$i}");
+                $existingUrl = $request->input("existing_banner_{$i}");
+                $storageUrl = rtrim(Storage::disk(env('MEDIA_DISK', 'public'))->url(''), '/');
+                if ($storageUrl) {
+                    while (\Illuminate\Support\Str::startsWith($existingUrl, $storageUrl)) {
+                        $existingUrl = substr($existingUrl, strlen($storageUrl));
+                    }
+                }
+                $existingUrl = ltrim($existingUrl, '/');
+                $banners[] = $existingUrl;
             }
         }
 

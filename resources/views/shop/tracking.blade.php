@@ -14,6 +14,7 @@
     @endif
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
+        html { background-color: #f1f5f9; }
         :root {
             --color-primary: {{ $shop->primary_color ?? '#1c4532' }};
             --color-secondary: {{ $shop->primary_color ?? '#2d6a4f' }};
@@ -21,7 +22,7 @@
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body data-page="tracking" class="antialiased max-w-md mx-auto bg-white min-h-screen relative flex flex-col justify-center items-center p-6 text-center shadow-xl">
+<body data-page="tracking" class="antialiased w-full max-w-[420px] mx-auto bg-white min-h-screen relative flex flex-col justify-center items-center p-6 text-center shadow-2xl">
 
     <!-- Animasi Ilustrasi -->
     <div class="mb-6 relative">

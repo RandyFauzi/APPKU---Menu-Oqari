@@ -13,6 +13,7 @@
     @endif
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
+        html { background-color: #f1f5f9; }
         :root {
             --color-primary: {{ $shop->primary_color ?? '#1E5A7A' }};
             --color-secondary: {{ $shop->primary_color ?? '#2d6a4f' }};
@@ -20,7 +21,7 @@
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body data-page="cart" class="antialiased w-full max-w-2xl mx-auto md:px-6 bg-gray-50 min-h-screen relative shadow-xl md:shadow-none pb-28 page-transition">
+<body data-page="cart" class="antialiased w-full max-w-[420px] mx-auto bg-gray-50 min-h-screen relative shadow-2xl pb-28 page-transition">
 
     <header class="bg-white p-4 sticky top-0 z-30 shadow-sm flex items-center gap-4 border-b border-gray-100">
         <a href="#" onclick="goBackHome(event)" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">

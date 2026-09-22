@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     
     <style>
+        html { background-color: #f1f5f9; }
         :root {
             --color-primary: {{ $shop->primary_color ?? '#1c4532' }};
             --color-secondary: {{ $shop->primary_color ?? '#2d6a4f' }};
@@ -44,7 +45,7 @@
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body data-page="home" class="antialiased w-full max-w-7xl mx-auto md:px-6 bg-gray-50 min-h-screen relative shadow-xl md:shadow-none overflow-x-hidden pb-24 page-transition">
+<body data-page="home" class="antialiased w-full max-w-[420px] mx-auto bg-gray-50 min-h-screen relative shadow-2xl overflow-x-hidden pb-24 page-transition">
 
     @if(!($shop->is_open ?? true))
     <!-- TOKO TUTUP OVERLAY -->
