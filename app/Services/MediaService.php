@@ -78,13 +78,13 @@ class MediaService
             }
         }
 
-        $image = $this->imageManager->decode($file->getRealPath());
+        $image = $this->imageManager->read($file->getRealPath());
 
         // Scale down to max dimensions, keeping aspect ratio
         $image->scaleDown(width: $maxWidth, height: $maxHeight);
 
         // Encode to WebP with 80% quality (implicitly strips EXIF)
-        $encodedImage = $image->encodeUsingMediaType('image/webp', quality: 80);
+        $encodedImage = $image->toWebp(80);
 
         $path = "{$directory}/{$filename}";
 
