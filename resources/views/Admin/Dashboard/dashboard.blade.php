@@ -151,9 +151,11 @@
                     <input type="text" x-model="searchQuery" placeholder="Search..." class="bg-gray-50 border border-gray-200 rounded-full pl-11 pr-4 py-2 text-sm focus:outline-none focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen w-64 transition-all">
                 </div>
 
-                <div class="relative cursor-pointer group">
+                <div class="relative cursor-pointer group" @click="currentTab = 'orders'">
                     <i class="fas fa-bell text-[#777873] text-lg md:text-xl group-hover:text-[#164A35] transition-colors"></i>
-                    <span class="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">3</span>
+                    <template x-if="(orders || []).filter(o => o.status === 'Masuk' || o.status === 'CONFIRMED' || o.order_status === 'CONFIRMED').length > 0">
+                        <span class="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white" x-text="(orders || []).filter(o => o.status === 'Masuk' || o.status === 'CONFIRMED' || o.order_status === 'CONFIRMED').length"></span>
+                    </template>
                 </div>
                 
                 <div class="relative pl-3 md:pl-6 border-l border-gray-200" x-data="{ open: false }">
