@@ -18,7 +18,8 @@ class ReceiptData
         public string $orderNumber,
         public string $date,
         public ?string $webUrl = null,
-        public ?string $pdfUrl = null
+        public ?string $pdfUrl = null,
+        public ?string $logoPath = null
     ) {}
 
     public function toArray(): array

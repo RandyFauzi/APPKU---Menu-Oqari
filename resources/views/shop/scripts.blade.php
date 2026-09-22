@@ -89,7 +89,7 @@
 
         const DB = {
             get: function(tableName) {
-                if (tableName === 'oqari_menu') {
+                if (tableName === window.SHOP_SLUG + '_menu') {
                     return window.SHOP_DATA.map(item => ({
                         id: item.id,
                         name: item.name,
@@ -104,7 +104,7 @@
                 return localStorage.getItem(tableName) ? JSON.parse(localStorage.getItem(tableName)) : [];
             },
             createOrder: function(table, name, email, phone, paymentMethod, items, total) {
-                let orders = this.get('oqari_orders') || [];
+                let orders = this.get(window.SHOP_SLUG + '_orders') || [];
                 const newOrder = {
                     id: 'ORD-' + Date.now(),
                     table: table,
@@ -118,7 +118,7 @@
                     timestamp: new Date().toISOString()
                 };
                 orders.push(newOrder);
-                localStorage.setItem('oqari_orders', JSON.stringify(orders));
+                localStorage.setItem(window.SHOP_SLUG + '_orders', JSON.stringify(orders));
 
                 return fetch('/' + window.SHOP_SLUG + '/order', {
                     method: 'POST',
@@ -145,7 +145,7 @@
                         throw new Error(data.message || 'Server error');
                     }
                     if (data.success && data.order) {
-                        localStorage.setItem('gw_last_order', JSON.stringify(data.order));
+                        localStorage.setItem(window.SHOP_SLUG + '_last_order', JSON.stringify(data.order));
                     }
                     return data;
                 })

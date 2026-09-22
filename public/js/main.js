@@ -6,7 +6,7 @@ function initApp() {
     // 1. Deteksi Meja dari URL (QR Code)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('table')) {
-        localStorage.setItem('oqari_table_qr', urlParams.get('table'));
+        localStorage.setItem((window.SHOP_SLUG || 'default') + '_table_qr', urlParams.get('table'));
     }
 
     const page = document.body ? document.body.dataset.page : null;
@@ -209,7 +209,7 @@ function renderMenu() {
         container.className = 'p-4 grid grid-cols-2 gap-4';
     }
     
-    let filteredMenu = typeof DB !== 'undefined' ? DB.get('oqari_menu') : apiData.menu;
+    let filteredMenu = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : apiData.menu;
     
     const activeCatObj = (typeof apiData !== 'undefined' && apiData.categories) ? 
         apiData.categories.find(c => String(c.id).toLowerCase() === String(activeCategory).toLowerCase()) : null;
@@ -293,7 +293,7 @@ function renderMenuItem(item) {
 
 function quickAddToCart(itemId, event) {
     event.stopPropagation();
-    const menuData = typeof DB !== 'undefined' ? DB.get('oqari_menu') : apiData.menu;
+    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : apiData.menu;
     currentSelectedItem = menuData.find(m => m.id == itemId);
     if(currentSelectedItem) {
         confirmAddToCart(); // Adds defaults
@@ -302,7 +302,7 @@ function quickAddToCart(itemId, event) {
 
 // Fitur Detail Produk & Customization
 function openItemDetail(itemId) {
-    const menuData = typeof DB !== 'undefined' ? DB.get('oqari_menu') : apiData.menu;
+    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : apiData.menu;
     currentSelectedItem = menuData.find(m => m.id == itemId);
     if(!currentSelectedItem) return;
 
@@ -417,7 +417,7 @@ function renderCartDetail() {
     document.getElementById('summary-section').classList.remove('hidden');
     
     // Logika QR Table
-    const detectedTable = localStorage.getItem('oqari_table_qr');
+    const detectedTable = localStorage.getItem((window.SHOP_SLUG || 'default') + '_table_qr');
     const badgeTable = document.getElementById('table-detected-badge');
     const manualInput = document.getElementById('manual-table-input');
     
@@ -472,7 +472,7 @@ function openCustomerInfoModal() {
     if (CartStore.get().length === 0) return;
     
     // Auto-fill table from QR if exists
-    let qrTable = localStorage.getItem('oqari_table_qr');
+    let qrTable = localStorage.getItem((window.SHOP_SLUG || 'default') + '_table_qr');
     const tableInput = document.getElementById('customer-table');
     if (qrTable && tableInput) {
         tableInput.value = qrTable;
@@ -494,7 +494,7 @@ function triggerPaymentGateway() {
     const email = document.getElementById('customer-email')?.value.trim();
     const phone = document.getElementById('customer-phone')?.value.trim();
     
-    let table = localStorage.getItem('oqari_table_qr');
+    let table = localStorage.getItem((window.SHOP_SLUG || 'default') + '_table_qr');
     if (!table) {
         table = document.getElementById('customer-table')?.value.trim();
     }
@@ -519,10 +519,10 @@ function triggerPaymentGateway() {
         return; 
     }
 
-    localStorage.setItem('gw_customer_name', name);
-    localStorage.setItem('gw_customer_table', table);
-    localStorage.setItem('gw_customer_email', email);
-    localStorage.setItem('gw_customer_phone', phone);
+    localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_name', name);
+    localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_table', table);
+    localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_email', email);
+    localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_phone', phone);
     
     // Tutup modal customer info dan buka payment modal
     closeCustomerInfoModal();
@@ -538,18 +538,18 @@ function processSimulatedPayment() {
     btn.disabled = true;
 
     const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'QRIS';
-    const name = localStorage.getItem('gw_customer_name') || 'Guest';
-    const email = localStorage.getItem('gw_customer_email') || '';
-    const phone = localStorage.getItem('gw_customer_phone') || '';
-    const table = localStorage.getItem('gw_customer_table') || 'TA';
+    const name = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_name') || 'Guest';
+    const email = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_email') || '';
+    const phone = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_phone') || '';
+    const table = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_table') || 'TA';
     const items = CartStore.get();
     const total = window.currentGrandTotal;
     
     // Create order using database.js engine
     DB.createOrder(table, name, email, phone, paymentMethod, items, total)
         .then(() => {
-            localStorage.setItem('gw_last_order_type', paymentMethod);
-            localStorage.setItem('gw_last_order_total', total);
+            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_type', paymentMethod);
+            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_total', total);
             CartStore.clear(); 
             window.location.href = window.SHOP_TRACKING_URL;
         })
@@ -561,8 +561,8 @@ function processSimulatedPayment() {
 }
 
 function initTrackingPage() {
-    document.getElementById('track-type').innerText = localStorage.getItem('gw_last_order_type') || 'Dine-in';
-    document.getElementById('track-total').innerText = formatRp(Number(localStorage.getItem('gw_last_order_total') || '0'));
+    document.getElementById('track-type').innerText = localStorage.getItem((window.SHOP_SLUG || 'default') + '_last_order_type') || 'Dine-in';
+    document.getElementById('track-total').innerText = formatRp(Number(localStorage.getItem((window.SHOP_SLUG || 'default') + '_last_order_total') || '0'));
     setTimeout(() => { const modal = document.getElementById('modal-rating'); if(modal) modal.classList.remove('hidden'); }, 3000);
 }
 
@@ -580,7 +580,7 @@ function closeRating() { document.getElementById('modal-rating').classList.add('
 
 function goBackHome(event) {
     if (event) event.preventDefault();
-    let qrTable = localStorage.getItem('oqari_table_qr');
+    let qrTable = localStorage.getItem((window.SHOP_SLUG || 'default') + '_table_qr');
     if (qrTable) {
         window.location.href = window.SHOP_HOME_URL + '?table=' + qrTable;
     } else {

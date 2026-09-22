@@ -3,6 +3,7 @@
 namespace App\Services\Receipt;
 
 use App\Models\Order;
+use App\Services\MediaService;
 use Illuminate\Support\Facades\URL;
 
 class ReceiptService
@@ -21,6 +22,8 @@ class ReceiptService
             'email' => $shop->email,
             'slogan' => $shop->slogan,
             'primary_color' => $shop->primary_color ?? '#000000',
+            'receipt_header' => $shop->receipt_header,
+            'receipt_footer' => $shop->receipt_footer,
         ];
 
         $customerData = [
@@ -41,6 +44,8 @@ class ReceiptService
 
         $webUrl = URL::signedRoute('receipt.web', ['order' => $order->id]);
         $pdfUrl = URL::signedRoute('receipt.pdf', ['order' => $order->id]);
+        
+        $logoPath = app(MediaService::class)->emailSafeLogoPath($shop->logo_path);
 
         return new ReceiptData(
             shop: $shopData,
@@ -56,7 +61,8 @@ class ReceiptService
             orderNumber: 'OQR-' . $order->created_at->format('Ymd') . '-' . str_pad($order->id, 4, '0', STR_PAD_LEFT),
             date: $order->created_at->format('d M Y, H:i'),
             webUrl: $webUrl,
-            pdfUrl: $pdfUrl
+            pdfUrl: $pdfUrl,
+            logoPath: $logoPath
         );
     }
 }

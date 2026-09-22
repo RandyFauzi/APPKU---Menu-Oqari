@@ -85,6 +85,10 @@ class ShopController extends Controller
             
             OrderCreated::dispatch($order);
 
+            if ($order->customer_email) {
+                dispatch(new \App\Jobs\SendOrderReceiptEmail($order->id));
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order placed successfully',

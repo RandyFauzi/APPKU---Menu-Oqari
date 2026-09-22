@@ -21,8 +21,16 @@ class OrderReceiptMail extends Mailable
     {
         $shopName = $this->receiptData->shop['name'];
         $orderNo = $this->receiptData->orderNumber;
+        $shopEmail = $this->receiptData->shop['email'];
         
+        $replyTo = [];
+        if (!empty($shopEmail)) {
+            $replyTo[] = new \Illuminate\Mail\Mailables\Address($shopEmail, $shopName);
+        }
+
         return new Envelope(
+            from: new \Illuminate\Mail\Mailables\Address(config('mail.from.address'), $shopName),
+            replyTo: $replyTo,
             subject: "Receipt {$shopName} - Order #{$orderNo}",
         );
     }
@@ -31,6 +39,7 @@ class OrderReceiptMail extends Mailable
     {
         return new Content(
             view: 'emails.order-receipt',
+            text: 'emails.order-receipt-text',
         );
     }
 }

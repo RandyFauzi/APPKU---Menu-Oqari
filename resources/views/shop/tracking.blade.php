@@ -115,7 +115,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Check if there is an order number generated
-            const lastOrderStr = localStorage.getItem('gw_last_order');
+            const lastOrderStr = localStorage.getItem((window.SHOP_SLUG || 'default') + '_last_order');
             if (lastOrderStr) {
                 try {
                     const order = JSON.parse(lastOrderStr);

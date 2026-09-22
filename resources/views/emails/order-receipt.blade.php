@@ -5,178 +5,161 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <style>
         @media only screen and (max-width: 620px) {
-            table.body h1 {
-                font-size: 24px !important;
-                margin-bottom: 10px !important;
-            }
-            table.body .wrapper,
-            table.body .article {
-                padding: 10px !important;
-            }
-            table.body .content {
-                padding: 0 !important;
-            }
-            table.body .container {
-                padding: 0 !important;
-                width: 100% !important;
-            }
-            table.body .main {
-                border-left-width: 0 !important;
-                border-radius: 0 !important;
-                border-right-width: 0 !important;
-            }
-            table.body .btn table {
-                width: 100% !important;
-            }
-            table.body .btn a {
-                width: 100% !important;
-            }
+            table.body .container { width: 100% !important; padding: 0 !important; }
+            table.body .main { border-radius: 0 !important; }
         }
     </style>
 </head>
-<body style="background-color: #f6f6f6; font-family: sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
-    <table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background-color: #f6f6f6;">
+<body style="background-color: #f4f4f5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 40px 0; -webkit-font-smoothing: antialiased;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
-            <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; Margin: 0 auto; max-width: 580px; padding: 10px; width: 580px;">
-                <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
-                    <!-- START CENTERED WHITE CONTAINER -->
-                    <table class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; background: #ffffff; border-radius: 3px; overflow: hidden;">
-                        
-                        <!-- Header -->
-                        <tr>
-                            <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; background-color: {{ $receiptData->shop['primary_color'] }}; color: #ffffff; text-align: center; padding: 20px;">
-                                <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-                                    <tr>
-                                        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; text-align: center;">
-                                            @if($receiptData->shop['logo_url'])
-                                                <img src="{{ $receiptData->shop['logo_url'] }}" alt="{{ $receiptData->shop['name'] }}" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%; max-height: 60px; margin-bottom: 10px;">
-                                            @endif
-                                            <h1 style="color: #ffffff; font-family: sans-serif; line-height: 1.4; margin: 0; font-size: 20px; text-transform: uppercase;">{{ $receiptData->shop['name'] }}</h1>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" class="main"
+                       style="background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
 
-                        <!-- Details -->
-                        <tr>
-                            <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;">
-                                <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
-                                    <tr>
-                                        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
-                                            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Halo <strong>{{ $receiptData->customer['name'] }}</strong>,</p>
-                                            <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Berikut adalah struk tanda terima untuk pesanan Anda.</p>
-                                            
-                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
-                                                <tr>
-                                                    <td style="padding: 5px 0; color: #666;">No. Pesanan:</td>
-                                                    <td style="padding: 5px 0; text-align: right; font-weight: bold;">{{ $receiptData->orderNumber }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 5px 0; color: #666;">Tanggal:</td>
-                                                    <td style="padding: 5px 0; text-align: right;">{{ $receiptData->date }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 5px 0; color: #666;">Status Pembayaran:</td>
-                                                    <td style="padding: 5px 0; text-align: right; color: {{ $receiptData->paymentStatus === 'PAID' ? 'green' : '#ff9900' }}; font-weight: bold;">{{ $receiptData->paymentStatus }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 5px 0; color: #666; border-bottom: 1px solid #eee;">Metode:</td>
-                                                    <td style="padding: 5px 0; text-align: right; border-bottom: 1px solid #eee;">{{ $receiptData->paymentMethod ?? '-' }}</td>
-                                                </tr>
-                                            </table>
-
-                                            <!-- Items -->
-                                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="text-align: left; padding: 10px 0; border-bottom: 2px solid #eee; font-size: 13px; color: #666;">Item</th>
-                                                        <th style="text-align: right; padding: 10px 0; border-bottom: 2px solid #eee; font-size: 13px; color: #666;">Total</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach($receiptData->items as $item)
-                                                    <tr>
-                                                        <td style="padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px;">
-                                                            <strong>{{ $item['name'] }}</strong><br>
-                                                            <span style="color: #666; font-size: 12px;">{{ $item['quantity'] }} x Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
-                                                        </td>
-                                                        <td style="text-align: right; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px;">
-                                                            Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
-                                                        </td>
-                                                    </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-
-                                            <!-- Totals -->
-                                            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                                                <tr>
-                                                    <td style="padding: 5px 0; color: #666;">Subtotal</td>
-                                                    <td style="padding: 5px 0; text-align: right;">Rp {{ number_format($receiptData->subtotal, 0, ',', '.') }}</td>
-                                                </tr>
-                                                @if($receiptData->discount > 0)
-                                                <tr>
-                                                    <td style="padding: 5px 0; color: #666;">Diskon</td>
-                                                    <td style="padding: 5px 0; text-align: right; color: red;">-Rp {{ number_format($receiptData->discount, 0, ',', '.') }}</td>
-                                                </tr>
-                                                @endif
-                                                @if($receiptData->tax > 0)
-                                                <tr>
-                                                    <td style="padding: 5px 0; color: #666;">Pajak (PB1)</td>
-                                                    <td style="padding: 5px 0; text-align: right;">Rp {{ number_format($receiptData->tax, 0, ',', '.') }}</td>
-                                                </tr>
-                                                @endif
-                                                <tr>
-                                                    <td style="padding: 10px 0; border-top: 2px solid #333; font-weight: bold; font-size: 16px;">TOTAL</td>
-                                                    <td style="padding: 10px 0; border-top: 2px solid #333; text-align: right; font-weight: bold; font-size: 16px;">Rp {{ number_format($receiptData->grandTotal, 0, ',', '.') }}</td>
-                                                </tr>
-                                            </table>
-
-                                            <!-- Call to action (Web Receipt URL) -->
-                                            @if($receiptData->webUrl)
-                                            <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box; margin-top: 20px;">
-                                                <tbody>
-                                                    <tr>
-                                                        <td align="center" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;">
-                                                            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
-                                                                <tbody>
-                                                                    <tr>
-                                                                        <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-color: {{ $receiptData->shop['primary_color'] }}; border-radius: 5px; text-align: center;">
-                                                                            <a href="{{ $receiptData->webUrl }}" target="_blank" style="display: inline-block; color: #ffffff; background-color: {{ $receiptData->shop['primary_color'] }}; border: solid 1px {{ $receiptData->shop['primary_color'] }}; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize;">View Receipt in Browser</a>
-                                                                        </td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
-                        
-                        <!-- Shop Info Footer -->
-                        <tr>
-                            <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px; background: #f9f9f9; text-align: center; border-top: 1px solid #eee;">
-                                <p style="margin: 0; font-size: 12px; color: #999;">Terima kasih atas pesanan Anda.</p>
-                                @if($receiptData->shop['address'])
-                                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">{{ $receiptData->shop['address'] }}</p>
+                    {{-- HERO SECTION --}}
+                    <tr>
+                        <td style="background-color: #FFF8E7; padding: 40px 30px; text-align: center; border-bottom: 1px solid #f0e6d3;">
+                            {{-- Logo & Shop Name --}}
+                            <div style="margin-bottom: 24px;">
+                                @if($receiptData->logoPath)
+                                    <img src="{{ $message->embed($receiptData->logoPath) }}"
+                                         alt="{{ $receiptData->shop['name'] }}"
+                                         style="height: 40px; vertical-align: middle; margin-right: 10px; display: inline-block;">
+                                @elseif($receiptData->shop['logo_url'])
+                                    <img src="{{ $receiptData->shop['logo_url'] }}"
+                                         alt="{{ $receiptData->shop['name'] }}"
+                                         style="height: 40px; vertical-align: middle; margin-right: 10px; display: inline-block;">
                                 @endif
-                                @if($receiptData->shop['phone'] || $receiptData->shop['email'])
-                                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #999;">{{ $receiptData->shop['phone'] }} | {{ $receiptData->shop['email'] }}</p>
+                                <span style="font-size: 24px; font-weight: bold; color: #333; vertical-align: middle; display: inline-block;">
+                                    {{ $receiptData->shop['name'] }}
+                                </span>
+                            </div>
+
+                            {{-- Greeting --}}
+                            <h1 style="color: #222; margin: 0 0 12px; font-size: 26px; font-weight: 800;">
+                                Pesanan Anda Berhasil!
+                            </h1>
+                            
+                            @if($receiptData->shop['receipt_header'])
+                                <p style="color: #555; margin: 0; font-size: 14px; line-height: 1.5; max-width: 80%; margin: 0 auto;">
+                                    {{ $receiptData->shop['receipt_header'] }}
+                                </p>
+                            @else
+                                <p style="color: #555; margin: 0; font-size: 14px; line-height: 1.5; max-width: 80%; margin: 0 auto;">
+                                    Halo <strong>{{ $receiptData->customer['name'] }}</strong>, pesanan Anda telah kami terima dan sedang diproses.
+                                </p>
+                            @endif
+                        </td>
+                    </tr>
+
+                    {{-- ORDER NUMBER & BUTTON --}}
+                    <tr>
+                        <td style="padding: 35px 30px 25px; text-align: center;">
+                            <p style="margin: 0 0 5px; font-size: 16px; color: #333;">
+                                Nomor Pesanan: <strong style="color: {{ $receiptData->shop['primary_color'] }}; font-size: 20px;">{{ $receiptData->orderNumber }}</strong>
+                            </p>
+                            <p style="margin: 0 0 25px; font-size: 13px; color: #888;">
+                                Tanggal: {{ $receiptData->date }} &nbsp;|&nbsp; Status: <strong style="color: {{ $receiptData->paymentStatus === 'PAID' ? '#16a34a' : '#d97706' }};">{{ $receiptData->paymentStatus === 'PAID' ? 'LUNAS' : 'BELUM BAYAR' }}</strong>
+                            </p>
+
+                            @if($receiptData->webUrl)
+                            <a href="{{ $receiptData->webUrl }}" target="_blank"
+                               style="display: inline-block; background-color: {{ $receiptData->shop['primary_color'] }}; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 14px 32px; border-radius: 30px;">
+                                Lihat Struk Browser
+                            </a>
+                            @endif
+                        </td>
+                    </tr>
+
+                    {{-- ORDER SUMMARY --}}
+                    <tr>
+                        <td style="padding: 0 40px 30px;">
+                            <h3 style="margin: 0 0 15px; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                                Ringkasan Pesanan
+                            </h3>
+
+                            <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; color: #333;">
+                                @foreach($receiptData->items as $item)
+                                <tr>
+                                    <td style="padding: 12px 0; border-bottom: 1px solid #f5f5f5;">
+                                        <div style="font-weight: 600;">{{ $item['name'] }}</div>
+                                        @if($item['notes'])
+                                            <div style="color: #999; font-size: 12px; margin-top: 2px;">Catatan: {{ $item['notes'] }}</div>
+                                        @endif
+                                    </td>
+                                    <td style="padding: 12px 0; border-bottom: 1px solid #f5f5f5; text-align: center; color: #666; width: 60px;">
+                                        QTY {{ $item['quantity'] }}
+                                    </td>
+                                    <td style="padding: 12px 0; border-bottom: 1px solid #f5f5f5; text-align: right; font-weight: 500;">
+                                        Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </table>
+
+                            {{-- TOTALS --}}
+                            <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; margin-top: 15px;">
+                                <tr>
+                                    <td style="padding: 6px 0; color: #666;">Subtotal</td>
+                                    <td style="padding: 6px 0; text-align: right; color: #333;">Rp {{ number_format($receiptData->subtotal, 0, ',', '.') }}</td>
+                                </tr>
+                                @if($receiptData->discount > 0)
+                                <tr>
+                                    <td style="padding: 6px 0; color: #666;">Diskon</td>
+                                    <td style="padding: 6px 0; text-align: right; color: #dc2626;">-Rp {{ number_format($receiptData->discount, 0, ',', '.') }}</td>
+                                </tr>
                                 @endif
-                            </td>
-                        </tr>
-                        
-                    </table>
-                </div>
+                                @if($receiptData->tax > 0)
+                                <tr>
+                                    <td style="padding: 6px 0; color: #666;">Pajak (PB1)</td>
+                                    <td style="padding: 6px 0; text-align: right; color: #333;">Rp {{ number_format($receiptData->tax, 0, ',', '.') }}</td>
+                                </tr>
+                                @endif
+                                <tr>
+                                    <td style="padding: 15px 0 0; font-weight: bold; font-size: 16px; color: #111;">Total</td>
+                                    <td style="padding: 15px 0 0; text-align: right; font-weight: bold; font-size: 18px; color: #111;">
+                                        Rp {{ number_format($receiptData->grandTotal, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    {{-- FOOTER / CONTACT --}}
+                    <tr>
+                        <td style="background-color: #F9F9F9; padding: 35px 40px; text-align: center; border-top: 1px solid #eee;">
+                            <h3 style="margin: 0 0 10px; font-size: 18px; color: #333;">Ada Pertanyaan?</h3>
+                            
+                            @if($receiptData->shop['receipt_footer'])
+                                <p style="margin: 0 0 15px; font-size: 13px; color: #666; line-height: 1.5; white-space: pre-wrap;">{{ $receiptData->shop['receipt_footer'] }}</p>
+                            @else
+                                <p style="margin: 0 0 15px; font-size: 13px; color: #666; line-height: 1.5;">
+                                    Jika Anda butuh bantuan mengenai pesanan ini, jangan ragu untuk menghubungi kami.
+                                </p>
+                            @endif
+
+                            @if($receiptData->shop['phone'] || $receiptData->shop['email'])
+                                <p style="margin: 0; font-size: 13px; color: {{ $receiptData->shop['primary_color'] }}; font-weight: bold;">
+                                    {{ $receiptData->shop['email'] }} @if($receiptData->shop['email'] && $receiptData->shop['phone']) &nbsp;|&nbsp; @endif {{ $receiptData->shop['phone'] }}
+                                </p>
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+                
+                {{-- COPYRIGHT --}}
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td style="padding: 20px 0; text-align: center;">
+                            <p style="margin: 0; font-size: 12px; color: #999;">
+                                Copyright &copy; {{ date('Y') }} {{ $receiptData->shop['name'] }}. All rights reserved.<br>
+                                Powered by Menu Oqari
+                            </p>
+                        </td>
+                    </tr>
+                </table>
             </td>
-            <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">&nbsp;</td>
         </tr>
     </table>
 </body>

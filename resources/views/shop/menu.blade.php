@@ -283,7 +283,7 @@
             if (table) {
                 const shopName = "{{ $shop->name }}";
                 document.getElementById('header-table-number').innerHTML = 'Meja ' + table + ', ' + shopName + ' <i class="fas fa-chevron-down text-[9px] text-gray-400 ml-1"></i>';
-                localStorage.setItem('bitten_table_qr', table);
+                localStorage.setItem((window.SHOP_SLUG || 'default') + '_table_qr', table);
                 document.getElementById('modal-table-selector').classList.add('hidden');
             }
         }

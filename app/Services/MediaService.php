@@ -34,12 +34,17 @@ class MediaService
             return null;
         }
 
-        // If it's already an absolute URL, return it directly
         if (Str::startsWith($path, ['http://', 'https://'])) {
             return $path;
         }
 
-        return Storage::disk($this->disk)->url($path);
+        $url = Storage::disk($this->disk)->url($path);
+
+        if (Str::startsWith($url, '/')) {
+            $url = rtrim(config('app.url'), '/') . $url;
+        }
+
+        return $url;
     }
 
     /**
@@ -94,5 +99,32 @@ class MediaService
         Storage::disk($this->disk)->put($path, $encodedImage->toString());
 
         return $path;
+    }
+
+    /**
+     * Mengambil path filesystem lokal untuk logo, dikonversi ke PNG
+     * (bukan WebP) khusus untuk konteks yang tidak render WebP,
+     * seperti sebagian besar email client. Hasil konversi di-cache
+     * di disk yang sama supaya tidak convert ulang tiap kirim email.
+     */
+    public function emailSafeLogoPath(?string $logoPath): ?string
+    {
+        if (! $logoPath || Str::startsWith($logoPath, ['http://', 'https://'])) {
+            return null; // logo dari URL eksternal (mis. S3/CDN lain) dilewati, biarkan fallback ke URL
+        }
+
+        if (! Storage::disk($this->disk)->exists($logoPath)) {
+            return null;
+        }
+
+        $cachedPath = preg_replace('/\.\w+$/', '', $logoPath) . '_email.png';
+
+        if (! Storage::disk($this->disk)->exists($cachedPath)) {
+            $bytes = Storage::disk($this->disk)->get($logoPath);
+            $png = $this->imageManager->read($bytes)->toPng();
+            Storage::disk($this->disk)->put($cachedPath, $png->toString());
+        }
+
+        return Storage::disk($this->disk)->path($cachedPath);
     }
 }
