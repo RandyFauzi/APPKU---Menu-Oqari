@@ -35,8 +35,10 @@
             return iconMap[lower] || 'fa-utensils';
         };
         
-        // Build categories from actual DB categories
         window.apiData.categories = [{ id: 'all', name: 'All Menu', icon: 'fa-star' }];
+        const existingCatIds = new Set(['all']);
+        const existingCatNames = new Set(['all menu']);
+
         if (window.SHOP_CATEGORIES && window.SHOP_CATEGORIES.length > 0) {
             window.SHOP_CATEGORIES.forEach(cat => {
                 window.apiData.categories.push({
@@ -44,17 +46,22 @@
                     name: cat.name,
                     icon: getIcon(cat.name)
                 });
+                existingCatIds.add(String(cat.id));
+                existingCatNames.add(cat.name.toLowerCase());
             });
-        } else if (window.SHOP_DATA && window.SHOP_DATA.length > 0) {
-            // Fallback from products category info if categories table is not yet seeded
-            const existingNames = new Set();
+        }
+        
+        // Always extract any missing categories from products (in case a product has a category not in SHOP_CATEGORIES)
+        if (window.SHOP_DATA && window.SHOP_DATA.length > 0) {
             window.SHOP_DATA.forEach(item => {
-                const cName = item.category ? item.category.name : (item.category_name || null);
+                const cName = item.category ? item.category.name : (item.category_name || 'Lainnya');
                 const cId = item.category ? item.category.id : (item.category_id || cName);
-                if (cName && !existingNames.has(cName)) {
-                    existingNames.add(cName);
+                
+                if (!existingCatIds.has(String(cId)) && !existingCatNames.has(cName.toLowerCase())) {
+                    existingCatIds.add(String(cId));
+                    existingCatNames.add(cName.toLowerCase());
                     window.apiData.categories.push({
-                        id: cId || cName,
+                        id: cId,
                         name: cName,
                         icon: getIcon(cName)
                     });

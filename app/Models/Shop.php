@@ -37,6 +37,8 @@ class Shop extends Model
         'slogan',
         'font_family',
         'title_font_family',
+        'receipt_header',
+        'receipt_footer',
         'instagram_link',
         'email',
         'whatsapp_number',

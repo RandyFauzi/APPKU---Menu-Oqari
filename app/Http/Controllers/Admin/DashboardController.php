@@ -411,6 +411,8 @@ class DashboardController extends Controller
             'slogan' => 'nullable|string|max:255',
             'font_family' => 'nullable|string|max:50',
             'title_font_family' => 'nullable|string|max:50',
+            'receipt_header' => 'nullable|string|max:500',
+            'receipt_footer' => 'nullable|string|max:500',
             'instagram_link' => 'nullable|string|max:255',
             'whatsapp_number' => 'nullable|string|max:50',
             'maps_link' => 'nullable|string|max:500',
@@ -427,14 +429,7 @@ class DashboardController extends Controller
             abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
         }
 
-        if (! $user->shop_id) {
-            $user->update(['shop_id' => $shopId]);
-        }
-
-        $shop = Shop::find($shopId);
-        if (! $shop) {
-            return response()->json(['success' => false, 'message' => 'Shop not found.']);
-        }
+        $shop = Shop::findOrFail($shopId);
 
         $shop->name = $request->name;
 
@@ -452,6 +447,12 @@ class DashboardController extends Controller
         }
         if ($request->has('title_font_family')) {
             $shop->title_font_family = $request->title_font_family;
+        }
+        if ($request->has('receipt_header')) {
+            $shop->receipt_header = $request->receipt_header;
+        }
+        if ($request->has('receipt_footer')) {
+            $shop->receipt_footer = $request->receipt_footer;
         }
         if ($request->has('instagram_link')) {
             $shop->instagram_link = $request->instagram_link;

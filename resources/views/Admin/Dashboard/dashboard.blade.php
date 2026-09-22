@@ -193,6 +193,7 @@
         @include('Admin.Dashboard.tabs.shifts')
         @include('Admin.Dashboard.tabs.logs')
         @include('Admin.Dashboard.tabs.settings')
+        @include('Admin.Dashboard.tabs.receipt')
         @include('Admin.Dashboard.tabs.profile')
 
 
@@ -813,6 +814,8 @@ handleDraftImageUpload(event, index) {
                     theme_style: ['list', 'grid'].includes(window.INITIAL_DATA.shop?.theme_style) ? window.INITIAL_DATA.shop?.theme_style : 'list',
                     font_family: window.INITIAL_DATA.shop?.font_family || 'poppins',
                     title_font_family: window.INITIAL_DATA.shop?.title_font_family || 'poppins',
+                    receipt_header: window.INITIAL_DATA.shop?.receipt_header || '',
+                    receipt_footer: window.INITIAL_DATA.shop?.receipt_footer || 'Terima kasih atas kunjungan Anda!\nSilakan datang kembali.',
                     instagram_link: window.INITIAL_DATA.shop?.instagram_link || '',
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
                     maps_link: window.INITIAL_DATA.shop?.maps_link || '',
@@ -917,6 +920,7 @@ handleDraftImageUpload(event, index) {
                     { id: 'shifts', name: 'Jadwal Shift', icon: 'fas fa-calendar-alt' },
                     { id: 'logs', name: 'Log Aktivitas', icon: 'fas fa-history' },
                     { id: 'settings', name: 'Toko Saya', icon: 'fas fa-store' },
+                    { id: 'receipt', name: 'Pengaturan Struk', icon: 'fas fa-print' },
                 ],
                                 tables: [],
                 reportPeriod: 'all',
@@ -1792,6 +1796,8 @@ if (res.ok) {
                     formData.append('theme_style', this.settings.theme_style || '');
                     formData.append('font_family', this.settings.font_family || '');
                     formData.append('title_font_family', this.settings.title_font_family || '');
+                    formData.append('receipt_header', this.settings.receipt_header || '');
+                    formData.append('receipt_footer', this.settings.receipt_footer || '');
                     formData.append('instagram_link', this.settings.instagram_link || '');
                     formData.append('whatsapp_number', this.settings.whatsapp_number || '');
                     formData.append('maps_link', this.settings.maps_link || '');
