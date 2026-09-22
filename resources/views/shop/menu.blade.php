@@ -259,7 +259,7 @@
                 </a>
             @endif
             @if($shop->whatsapp_number)
-                <a href="https://wa.me/{{ $shop->whatsapp_number }}" target="_blank" class="w-10 h-10 rounded-full bg-green-100 text-green-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
+                <a href="{{ $shop->whatsapp_url }}" target="_blank" class="w-10 h-10 rounded-full bg-green-100 text-green-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
                     <i class="fab fa-whatsapp"></i>
                 </a>
             @endif

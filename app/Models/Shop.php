@@ -173,4 +173,22 @@ class Shop extends Model
 
         return 'https://www.instagram.com/' . ltrim($link, '/@');
     }
+
+    public function getWhatsappUrlAttribute()
+    {
+        $phone = $this->whatsapp_number;
+        if (empty($phone)) {
+            return null;
+        }
+
+        // Clean up the phone number (remove spaces, dashes, plus, parentheses)
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+
+        // Replace leading 0 with 62
+        if (str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        return 'https://wa.me/' . $phone;
+    }
 }
