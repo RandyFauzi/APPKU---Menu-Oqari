@@ -54,14 +54,14 @@
     </div>
 
     <!-- CHECKOUT FOOTER -->
-    <div class="fixed bottom-0 max-w-md w-full bg-white border-t border-gray-100 p-4 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.05)] z-40 mx-auto left-0 right-0">
+    <div class="fixed bottom-0 max-w-[420px] w-full bg-white border-t border-gray-100 p-4 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.05)] z-40 mx-auto left-0 right-0">
         <button id="btn-trigger-pay" onclick="openCustomerInfoModal()" class="w-full bg-primary text-white py-3.5 rounded-xl font-bold text-base shadow-lg hover:shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
             <span id="btn-pay-text">Lanjut Pembayaran</span> <i class="fas fa-chevron-right text-xs opacity-80"></i>
         </button>
     </div>
 
     <!-- CUSTOMER INFO MODAL (Bottom Sheet -> Center Modal) -->
-    <div id="modal-customer-info" class="fixed inset-0 z-50 hidden flex flex-col justify-end p-0">
+    <div id="modal-customer-info" class="fixed inset-0 max-w-[420px] mx-auto z-50 hidden flex flex-col justify-end p-0">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeCustomerInfoModal()"></div>
         
         <div class="relative bg-white w-full rounded-t-3xl p-6 flex flex-col max-h-[90vh] overflow-hidden overflow-y-auto">
@@ -99,7 +99,7 @@
     </div>
 
     <!-- PAYMENT METHOD MODAL -->
-    <div id="modal-payment" class="fixed inset-0 z-50 hidden flex flex-col justify-end p-0">
+    <div id="modal-payment" class="fixed inset-0 max-w-[420px] mx-auto z-50 hidden flex flex-col justify-end p-0">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="cancelPayment()"></div>
         <div class="relative bg-white w-full rounded-t-3xl p-6 flex flex-col max-h-[90vh] overflow-hidden overflow-y-auto">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-5"></div>

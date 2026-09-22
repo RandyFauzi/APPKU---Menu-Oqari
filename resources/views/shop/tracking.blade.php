@@ -55,7 +55,7 @@
     </a>
 
     <!-- RATING MODAL (Alpine.js) -->
-    <div id="modal-rating" class="fixed inset-0 z-50 hidden flex flex-col justify-end max-w-md mx-auto">
+    <div id="modal-rating" class="fixed inset-0 max-w-[420px] mx-auto z-50 hidden flex flex-col justify-end">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeRating()"></div>
         
         <div x-data="{ 

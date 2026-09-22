@@ -49,7 +49,7 @@
 
     @if(!($shop->is_open ?? true))
     <!-- TOKO TUTUP OVERLAY -->
-    <div class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[200] flex flex-col items-center justify-center p-6 text-center">
+    <div class="fixed inset-0 max-w-[420px] mx-auto bg-white/80 backdrop-blur-sm z-[200] flex flex-col items-center justify-center p-6 text-center">
         <i class="fas fa-store-slash text-6xl text-gray-400 mb-4"></i>
         <h2 class="text-2xl font-bold text-gray-800 mb-2">Toko Sedang Tutup</h2>
         <p class="text-gray-500 font-medium">Mohon maaf, toko kami saat ini sedang tidak menerima pesanan.</p>
@@ -58,7 +58,7 @@
     @endif
 
     <!-- SPLASH SCREEN -->
-    <div id="splash-screen" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div id="splash-screen" class="fixed inset-0 max-w-[420px] mx-auto bg-white z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-28 h-28 flex items-center justify-center p-2 mb-4 animate-bounce">
             <img src="{{ $shop->logo_url ? $shop->logo_url : asset('logo-oqari.webp') }}" alt="Logo" class="w-full h-full object-contain">
         </div>
@@ -162,7 +162,7 @@
     </main>
 
     <!-- CART BAR FLOATING -->
-    <div id="cart-bar" class="fixed bottom-0 w-full max-w-md bg-primary text-white p-4 flex justify-between items-center rounded-t-3xl shadow-[0_-10px_20px_rgba(0,0,0,0.1)] transform translate-y-full opacity-0 transition-all duration-300 z-40 mx-auto left-0 right-0">
+    <div id="cart-bar" class="fixed bottom-0 w-full max-w-[420px] bg-primary text-white p-4 flex justify-between items-center rounded-t-3xl shadow-[0_-10px_20px_rgba(0,0,0,0.1)] transform translate-y-full opacity-0 transition-all duration-300 z-40 mx-auto left-0 right-0">
         <div class="flex flex-col">
             <span class="text-xs text-white/70">Total Pesanan</span>
             <span class="font-bold text-lg" id="cart-total">Rp 0</span>
@@ -174,7 +174,7 @@
     </div>
 
     <!-- ITEM DETAIL MODAL (BOTTOM SHEET / CENTER MODAL) -->
-    <div id="modal-item-detail" class="fixed inset-0 z-50 hidden flex flex-col justify-end p-0">
+    <div id="modal-item-detail" class="fixed inset-0 max-w-[420px] mx-auto z-50 hidden flex flex-col justify-end p-0">
         <div class="absolute inset-0 modal-overlay bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeItemDetail()"></div>
         
         <div class="relative bg-white w-full rounded-t-3xl bottom-sheet flex flex-col max-h-[85vh][90vh]">
@@ -213,7 +213,7 @@
     <div id="toast-container" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none"></div>
 
     <!-- Blocking Table Selection Modal -->
-    <div id="modal-table-selector" class="fixed inset-0 bg-black/75 z-[200] flex-col items-center justify-center p-4 backdrop-blur-md hidden w-full h-full">
+    <div id="modal-table-selector" class="fixed inset-0 max-w-[420px] mx-auto bg-black/75 z-[200] flex-col items-center justify-center p-4 backdrop-blur-md hidden w-full h-full">
         <div class="bg-white rounded-[24px] w-full max-w-[320px][400px] text-center shadow-2xl overflow-hidden relative mx-auto mt-[20vh]">
             <div class="h-32 bg-primary relative flex items-center justify-center">
                 <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay">
