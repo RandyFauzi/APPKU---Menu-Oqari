@@ -18,8 +18,9 @@ class MediaService
         // Using GD Driver by default
         $this->imageManager = new ImageManager(new Driver());
         
-        // In the future, this can be swapped to 's3' or 'r2' via config
-        $this->disk = config('filesystems.default', 'public');
+        // We force 'public' disk for media files to ensure they are accessible,
+        // unless explicitly overridden by a specific media disk env variable.
+        $this->disk = env('MEDIA_DISK', 'public');
     }
 
     /**
