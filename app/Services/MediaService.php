@@ -5,22 +5,23 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class MediaService
 {
     protected ImageManager $imageManager;
+
     protected string $disk;
 
     public function __construct()
     {
         // Using GD Driver by default
-        $this->imageManager = new ImageManager(new Driver());
-        
+        $this->imageManager = new ImageManager(new Driver);
+
         // We force 'public' disk for media files to ensure they are accessible,
-        // unless explicitly overridden by a specific media disk env variable.
-        $this->disk = env('MEDIA_DISK', 'public');
+        // unless explicitly overridden by a specific media disk config.
+        $this->disk = config('filesystems.media_disk', 'public');
     }
 
     /**
@@ -29,7 +30,7 @@ class MediaService
      */
     public function url(?string $path): ?string
     {
-        if (!$path) {
+        if (! $path) {
             return null;
         }
 
@@ -48,8 +49,8 @@ class MediaService
     public function storeProductImage(UploadedFile $file, string $shopId, string $productId): string
     {
         $directory = "media/shops/{$shopId}/products/{$productId}";
-        $filename = 'image_' . Str::random(10) . '.webp';
-        
+        $filename = 'image_'.Str::random(10).'.webp';
+
         return $this->processAndStore($file, $directory, $filename, 800, 800);
     }
 
@@ -59,11 +60,11 @@ class MediaService
     public function storeShopBranding(UploadedFile $file, string $shopId, string $prefix): string
     {
         $directory = "media/shops/{$shopId}/branding";
-        $filename = "{$prefix}_" . Str::random(10) . '.webp';
-        
+        $filename = "{$prefix}_".Str::random(10).'.webp';
+
         // Banners might need different dimensions, but for now we cap at 1200 max dimension
         $maxSize = $prefix === 'logo' ? 800 : 1200;
-        
+
         return $this->processAndStore($file, $directory, $filename, $maxSize, $maxSize);
     }
 
@@ -74,7 +75,7 @@ class MediaService
     {
         // Ensure the directory exists if using local disk
         if ($this->disk === 'public') {
-            if (!Storage::disk($this->disk)->exists($directory)) {
+            if (! Storage::disk($this->disk)->exists($directory)) {
                 Storage::disk($this->disk)->makeDirectory($directory);
             }
         }
