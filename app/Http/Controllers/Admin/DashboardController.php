@@ -57,9 +57,17 @@ class DashboardController extends Controller
 
         // JIKA USER BARU DAFTAR & BELUM PUNYA SHOP
         if (! $user->shop_id) {
+            $baseSlug = Str::slug($user->name);
+            $slug = $baseSlug;
+            $counter = 1;
+            while (Shop::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
             $newShop = Shop::create([
                 'name' => $user->name.' Shop',
-                'slug' => Str::slug($user->name.'-'.uniqid()),
+                'slug' => $slug,
                 'primary_color' => '#1E5A7A', // Default color
                 'onboarding_status' => 'pending',
                 'onboarding_step' => 'welcome',
@@ -396,7 +404,6 @@ class DashboardController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
             'primary_color' => 'nullable|string|max:20',
             'logo' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
             'theme_style' => 'nullable|string|in:grid,list',
@@ -430,7 +437,6 @@ class DashboardController extends Controller
         }
 
         $shop->name = $request->name;
-        $shop->slug = Str::slug($request->slug);
 
         if ($request->has('theme_style')) {
             $shop->theme_style = $request->theme_style;

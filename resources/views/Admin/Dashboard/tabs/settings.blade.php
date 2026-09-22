@@ -93,9 +93,9 @@
                             <label class="block text-sm font-bold text-[#202522] mb-2">URL Slug Toko</label>
                             <div class="flex items-center">
                                 <span class="bg-[#F8F7F3] border border-[#E3E1DC] border-r-0 rounded-l-xl px-4 py-3 text-sm text-[#777873] font-mono flex-shrink-0" x-text="window.location.host + '/'"></span>
-                                <input type="text" x-model="settings.slug" class="w-full border border-[#E3E1DC] rounded-r-xl px-4 py-3 text-sm font-mono focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] focus:outline-none transition-all" placeholder="bitten-coffee" required>
+                                <input type="text" x-model="settings.slug" class="w-full border border-[#E3E1DC] rounded-r-xl px-4 py-3 text-sm font-mono bg-[#F8F7F3] text-[#777873] cursor-not-allowed focus:outline-none" readonly>
                             </div>
-                            <p class="text-xs text-[#777873] mt-2">Alamat web unik untuk menu pelanggan Anda.</p>
+                            <p class="text-xs text-[#777873] mt-2"><i class="fas fa-lock mr-1"></i> Alamat unik menu pelanggan Anda bersifat permanen untuk mencegah rusaknya QR Code.</p>
                         </div>
                     </div>
                 </div>
