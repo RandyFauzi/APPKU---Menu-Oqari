@@ -970,133 +970,190 @@
         </div>
     </section>
 
-    <!-- 9. PRICING PLANS (Majoo-style transparent comparison) -->
-    <section id="harga" class="py-20 bg-stone-50 border-b border-stone-200" x-data="{ isAnnual: true }">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <div class="text-center max-w-3xl mx-auto mb-12 space-y-4">
-                <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
-                    Investasi Transparan
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
-                    Harga Bersahabat untuk Mendukung <br class="hidden sm:inline">
-                    Pertumbuhan Coffee Shop Anda
-                </h2>
-                <p class="text-base text-stone-600">
-                    Semua paket sudah termasuk update fitur berkala, penyimpanan cloud aman, dan dukungan teknis.
-                </p>
+    <!-- 9. PRICING PLANS (Desain Sama Persis sesuai Master Mockup OQARI) -->
+    <section id="harga" class="py-20 sm:py-28 bg-[#252525] border-b border-stone-800 relative overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                <!-- Billing Switcher Toggle -->
-                <div class="pt-4 flex items-center justify-center gap-3">
-                    <span :class="!isAnnual ? 'font-bold text-stone-900' : 'text-stone-500'" class="text-sm">Tagihan Bulanan</span>
-                    <button @click="isAnnual = !isAnnual" type="button" class="w-14 h-8 rounded-full bg-stone-900 p-1 flex items-center transition-colors relative" aria-label="Toggle Billing">
-                        <span :class="isAnnual ? 'translate-x-6 bg-amber-400' : 'translate-x-0 bg-white'" class="w-6 h-6 rounded-full transition-transform shadow-md"></span>
-                    </button>
-                    <span :class="isAnnual ? 'font-bold text-stone-900' : 'text-stone-500'" class="text-sm flex items-center gap-1.5">
-                        <span>Tagihan Tahunan</span>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                            Hemat 20%
-                        </span>
-                    </span>
-                </div>
-            </div>
-
-            <!-- Pricing Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+            <!-- Outer Relative Wrapper for Overlapping 3D Elements -->
+            <div class="relative">
                 
-                <!-- Plan 1: Starter Barista -->
-                <div class="bg-white rounded-3xl p-8 border border-stone-200 flex flex-col justify-between card-soft-shadow">
-                    <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Starter Barista</div>
-                        <h3 class="text-2xl font-bold text-stone-900 mb-2">Coffee Kiosk / Booth</h3>
-                        <p class="text-xs text-stone-500 mb-6">Cocok untuk gerai kecil atau kedai kopi take-away 1 outlet.</p>
+                <!-- Top Right Overlapping Decoration: Pastry / Bakery Plate -->
+                <img src="{{ asset('pricing_plate_trans.png') }}" alt="Pastry plate" class="absolute -top-10 -right-4 sm:-top-14 sm:-right-8 lg:-top-16 lg:-right-10 w-28 sm:w-36 lg:w-44 z-30 pointer-events-none drop-shadow-2xl">
+
+                <!-- Bottom Left Overlapping Decoration: 3D Wooden QR Code Stand -->
+                <img src="{{ asset('pricing_qr_stand_trans.png') }}" alt="QR Stand" class="absolute -bottom-8 -left-4 sm:-bottom-12 sm:-left-8 lg:-bottom-14 lg:-left-10 w-24 sm:w-32 lg:w-36 z-30 pointer-events-none drop-shadow-2xl">
+
+                <!-- Central Big Rounded Canvas Card -->
+                <div class="rounded-[36px] sm:rounded-[48px] p-6 sm:p-12 lg:p-16 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] relative z-10 border border-white/20"
+                     style="background: radial-gradient(circle at 0% 0%, rgba(165, 140, 135, 0.28) 0%, rgba(255, 255, 255, 0.98) 40%), radial-gradient(circle at 100% 100%, rgba(170, 145, 138, 0.28) 0%, rgba(255, 255, 255, 0.98) 40%), #FFFFFF;">
+                    
+                    <!-- Center Header: Oqari Brand -->
+                    <div class="text-center mb-10 sm:mb-12">
+                        <div class="inline-flex items-center justify-center gap-2.5">
+                            <img src="{{ asset('pricing_brand_logo_trans.png') }}" alt="Oqari" class="h-8 sm:h-9 object-contain">
+                        </div>
+                    </div>
+
+                    <!-- 3 Pricing Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7 items-stretch max-w-5xl mx-auto">
                         
-                        <div class="mb-6 pb-6 border-b border-stone-100">
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-4xl font-extrabold text-stone-950" x-text="isAnnual ? 'Rp 79.000' : 'Rp 99.000'"></span>
-                                <span class="text-xs text-stone-500">/ bulan</span>
+                        <!-- Card 1: Monthly Starter -->
+                        <div class="bg-white rounded-2xl sm:rounded-3xl p-7 sm:p-8 border border-stone-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div>
+                                <!-- Icon -->
+                                <div class="mb-4">
+                                    <img src="{{ asset('pricing_icon1_trans.png') }}" alt="Monthly Starter Icon" class="w-6 h-6 object-contain">
+                                </div>
+
+                                <!-- Title -->
+                                <h3 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+                                    Monthly Starter
+                                </h3>
+
+                                <!-- Subtitle -->
+                                <p class="text-xs text-stone-500 font-normal leading-relaxed mt-1.5 mb-5 min-h-[36px]">
+                                    Pilihan low-risk untuk tes efektivitas sistem di operasional.
+                                </p>
+
+                                <!-- Price -->
+                                <div class="flex items-baseline mb-6">
+                                    <span class="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">Rp80.000</span>
+                                    <span class="text-xs text-stone-400 font-normal ml-1.5">per month</span>
+                                </div>
+
+                                <!-- Features List -->
+                                <ul class="space-y-3 text-xs text-stone-700 font-normal mb-8">
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>Akses Penuh Core System</span>
+                                    </li>
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>System pay-as-you-go</span>
+                                    </li>
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>Bebas Cancel kapan saja</span>
+                                    </li>
+                                </ul>
                             </div>
-                            <div class="text-[11px] text-stone-400 mt-1" x-text="isAnnual ? 'Ditagih tahunan (Rp 948.000 / thn)' : 'Ditagih per bulan'"></div>
+
+                            <!-- Button -->
+                            <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-stone-900 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
+                                Coba Langganan Bulanan
+                            </a>
                         </div>
 
-                        <ul class="space-y-3 text-xs text-stone-700 font-medium mb-8">
-                            <li class="flex items-center gap-2">✓ 1 Outlet & 2 Akun Kasir</li>
-                            <li class="flex items-center gap-2">✓ POS Kasir Tablet & Smartphone</li>
-                            <li class="flex items-center gap-2">✓ Cetak Struk Bluetooth 58mm/80mm</li>
-                            <li class="flex items-center gap-2">✓ QR Menu Katalog Online</li>
-                            <li class="flex items-center gap-2">✓ Laporan Penjualan Harian & Kas Shift</li>
-                            <li class="flex items-center gap-2 text-stone-400">✗ KDS Barista Realtime</li>
-                            <li class="flex items-center gap-2 text-stone-400">✗ Resep Gramasi & HPP Otomatis</li>
-                        </ul>
-                    </div>
+                        <!-- Card 2: Lifetime Basic -->
+                        <div class="bg-white rounded-2xl sm:rounded-3xl p-7 sm:p-8 border border-stone-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between transition-transform hover:-translate-y-1">
+                            <div>
+                                <!-- Icon -->
+                                <div class="mb-4">
+                                    <img src="{{ asset('pricing_icon2_trans.png') }}" alt="Lifetime Basic Icon" class="w-6 h-6 object-contain">
+                                </div>
 
-                    <a href="{{ route('register') }}" class="w-full py-3 rounded-xl font-bold text-sm text-center text-stone-800 bg-stone-100 hover:bg-stone-200 transition-colors">
-                        Pilih Starter
-                    </a>
-                </div>
+                                <!-- Title -->
+                                <h3 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+                                    Lifetime Basic
+                                </h3>
 
-                <!-- Plan 2: Pro Coffee House (Popular Badge) -->
-                <div class="bg-stone-900 text-white rounded-3xl p-8 border-2 border-amber-500 flex flex-col justify-between shadow-2xl relative">
-                    <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 font-black text-[11px] uppercase tracking-wider shadow">
-                        Paling Banyak Dipilih
-                    </div>
+                                <!-- Subtitle -->
+                                <p class="text-xs text-stone-500 font-normal leading-relaxed mt-1.5 mb-5 min-h-[36px]">
+                                    Potong overhead cost. Bayar sekali untuk akses selamanya.
+                                </p>
 
-                    <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-amber-400 mb-2">Pro Coffee House</div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Cafe & Dine-In Resto</h3>
-                        <p class="text-xs text-stone-400 mb-6">Solusi lengkap untuk kedai kopi dengan meja dine-in & pesanan dinamis.</p>
-                        
-                        <div class="mb-6 pb-6 border-b border-stone-800">
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-4xl font-extrabold text-amber-400" x-text="isAnnual ? 'Rp 159.000' : 'Rp 199.000'"></span>
-                                <span class="text-xs text-stone-400">/ bulan</span>
+                                <!-- Price -->
+                                <div class="flex items-baseline mb-6">
+                                    <span class="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">Rp1.500.000</span>
+                                    <span class="text-xs text-stone-400 font-normal ml-1.5">lifetime</span>
+                                </div>
+
+                                <!-- Features List -->
+                                <ul class="space-y-3 text-xs text-stone-700 font-normal mb-8">
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>Mencakup semua benefit Monthly.</span>
+                                    </li>
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>Prioritas support & pendampingan setup</span>
+                                    </li>
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>100% pangkas biaya software (Rp0/bulan)</span>
+                                    </li>
+                                </ul>
                             </div>
-                            <div class="text-[11px] text-stone-500 mt-1" x-text="isAnnual ? 'Ditagih tahunan (Rp 1.908.000 / thn)' : 'Ditagih per bulan'"></div>
+
+                            <!-- Button -->
+                            <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-stone-900 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
+                                Beli Akses Permanen
+                            </a>
                         </div>
 
-                        <ul class="space-y-3 text-xs text-stone-200 font-medium mb-8">
-                            <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Semua Fitur Paket Starter</li>
-                            <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> <strong>QR Table Self-Ordering Tanpa Batas</strong></li>
-                            <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> <strong>Kitchen Display System (KDS Barista)</strong></li>
-                            <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> <strong>Kalkulasi HPP & Resep Gramasi Kopi</strong></li>
-                            <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Manajemen Denah Meja & Split Bill</li>
-                            <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Notifikasi Audio Pesanan Otomatis</li>
-                            <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> Support Prioritas via WhatsApp</li>
-                        </ul>
-                    </div>
+                        <!-- Card 3: Lifetime Custom (Peach/Coral Aura Glow on Top Right) -->
+                        <div class="relative bg-white rounded-2xl sm:rounded-3xl p-7 sm:p-8 border border-stone-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between transition-transform hover:-translate-y-1 overflow-hidden">
+                            
+                            <!-- Top-Right Aesthetic Peach Glow Curve -->
+                            <div class="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-rose-200/50 via-orange-100/30 to-transparent rounded-bl-[120px] pointer-events-none"></div>
 
-                    <a href="{{ route('register') }}" class="w-full py-3.5 rounded-xl font-bold text-sm text-center text-stone-950 bg-amber-400 hover:bg-amber-300 transition-colors shadow-lg shadow-amber-500/20">
-                        Coba Gratis 14 Hari
-                    </a>
-                </div>
+                            <div class="relative z-10">
+                                <!-- Icon -->
+                                <div class="mb-4">
+                                    <img src="{{ asset('pricing_icon3_trans.png') }}" alt="Lifetime Custom Icon" class="w-6 h-6 object-contain">
+                                </div>
 
-                <!-- Plan 3: Enterprise Multi-Outlet -->
-                <div class="bg-white rounded-3xl p-8 border border-stone-200 flex flex-col justify-between card-soft-shadow">
-                    <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Enterprise</div>
-                        <h3 class="text-2xl font-bold text-stone-900 mb-2">Franchise & Chain</h3>
-                        <p class="text-xs text-stone-500 mb-6">Untuk brand dengan banyak cabang, central kitchen, atau franchise.</p>
-                        
-                        <div class="mb-6 pb-6 border-b border-stone-100">
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-3xl font-extrabold text-stone-950">Custom Plan</span>
+                                <!-- Title -->
+                                <h3 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+                                    Lifetime Custom
+                                </h3>
+
+                                <!-- Subtitle -->
+                                <p class="text-xs text-stone-500 font-normal leading-relaxed mt-1.5 mb-5 min-h-[36px]">
+                                    Sistem yang adaptasi dengan flow bisnis anda, bukan sebaliknya.
+                                </p>
+
+                                <!-- Price -->
+                                <div class="flex items-baseline mb-6">
+                                    <span class="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">Rp2.500.000</span>
+                                    <span class="text-xs text-stone-400 font-normal ml-1.5">lifetime</span>
+                                </div>
+
+                                <!-- Features List -->
+                                <ul class="space-y-3 text-xs text-stone-700 font-normal mb-8">
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>Mencakup semua benefit Lifetime Basic.</span>
+                                    </li>
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>Custom Feature; bebas request fitur khusus</span>
+                                    </li>
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>Prioritas support & pendampingan setup</span>
+                                    </li>
+                                    <li class="flex items-center gap-2.5">
+                                        <span class="text-stone-700 font-bold text-xs">✓</span>
+                                        <span>Lifetime update</span>
+                                    </li>
+                                </ul>
                             </div>
-                            <div class="text-[11px] text-stone-400 mt-1">Konsultasikan kebutuhan spesifik cabang Anda</div>
+
+                            <!-- Button -->
+                            <a href="https://wa.me/6281234567890?text=Halo%20OQARI,%20saya%20ingin%20konsultasi%20fitur%20custom%20Paket%20Lifetime%20Custom" target="_blank" class="w-full py-2.5 rounded-xl bg-stone-950 hover:bg-stone-800 text-white font-medium text-xs sm:text-sm text-center block transition-colors shadow relative z-10">
+                                Konsultasi & Custom Fitur
+                            </a>
                         </div>
 
-                        <ul class="space-y-3 text-xs text-stone-700 font-medium mb-8">
-                            <li class="flex items-center gap-2">✓ Multi-Outlet Tak Terbatas</li>
-                            <li class="flex items-center gap-2">✓ Dashboard Konsolidasi SuperAdmin</li>
-                            <li class="flex items-center gap-2">✓ Central Kitchen & Warehouse Transfer</li>
-                            <li class="flex items-center gap-2">✓ Hak Akses Multi-Level (Owner, Spv, Barista)</li>
-                            <li class="flex items-center gap-2">✓ Integrasi API & Custom Domain URL</li>
-                            <li class="flex items-center gap-2">✓ Dedicated Account Manager & Onsite Training</li>
-                        </ul>
                     </div>
 
-                    <a href="https://wa.me/6281234567890?text=Halo%20OQARI,%20saya%20tertarik%20dengan%20Paket%20Enterprise%20Multi-Outlet" target="_blank" class="w-full py-3 rounded-xl font-bold text-sm text-center text-stone-800 bg-stone-100 hover:bg-stone-200 transition-colors">
-                        Hubungi Tim Sales
-                    </a>
+                    <!-- Footer Text in Canvas -->
+                    <div class="mt-12 text-center text-xs text-stone-600 font-normal max-w-2xl mx-auto space-y-1">
+                        <p class="font-semibold text-stone-800">Semua paket sudah termasuk All Core System:</p>
+                        <p class="text-[11px] text-stone-500">POS Kasir, Table & QR Order, Live Order Dashboard, Laporan Keuangan, Crew Management, dan Menu CMS.</p>
+                    </div>
+
                 </div>
 
             </div>

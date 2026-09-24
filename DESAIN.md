@@ -149,12 +149,34 @@ Didukung Alpine.js (`x-data="{ activeTab: 'coffeeshop' }"`):
   - Smartphone Android & iPhone (akses kasir mobile / owner dashboard).
   - Cash Drawer elektrik otomatis buka saat cetak struk tunai.
 
-### 9. Transparent Pricing Matrix
-- Switch toggle: **Tagihan Bulanan** vs **Tagihan Tahunan (Hemat 20% + 2 Bulan Gratis)**.
-- 3 Tier Paket:
-  1. **Starter Barista** (Rp 99.000/bln): Cocok untuk 1 outlet booth / coffee kiosk.
-  2. **Pro Coffee House** (Rp 199.000/bln) [POPULAR BADGE]: Semua fitur Starter + QR Meja Unlimited + Barista KDS + Manajemen Resep & HPP.
-  3. **Enterprise Multi-Outlet** (Hubungi Sales): Multi-cabang tak terbatas + API Access + Dedicated Account Manager + Onsite Training.
+### 9. Master Pricing Canvas (Sama Persis sesuai Desain Resmi)
+- **Container Canvas**:
+  - Background luar: Charcoal matte `#252525`.
+  - Kartu kanvas utama: `rounded-[48px]`, dengan radial gradient halus abu-latte di pojok kiri atas dan kanan bawah, background putih di tengah.
+  - Elemen 3D Dekoratir: Piring keramik dengan pastry/croissant di pojok kanan atas, dan stand kayu QR code di pojok kiri bawah.
+- **3 Kartu Pilihan**:
+  1. **Monthly Starter** (`Rp80.000 / month`):
+     - *Subtitle*: Pilihan low-risk untuk tes efektivitas sistem di operasional.
+     - `✓ Akses Penuh Core System`
+     - `✓ System pay-as-you-go`
+     - `✓ Bebas Cancel kapan saja`
+     - *CTA*: Coba Langganan Bulanan (Button White Outlined)
+  2. **Lifetime Basic** (`Rp1.500.000 lifetime`):
+     - *Subtitle*: Potong overhead cost. Bayar sekali untuk akses selamanya.
+     - `✓ Mencakup semua benefit Monthly.`
+     - `✓ Prioritas support & pendampingan setup`
+     - `✓ 100% pangkas biaya software (Rp0/bulan)`
+     - *CTA*: Beli Akses Permanen (Button White Outlined)
+  3. **Lifetime Custom** (`Rp2.500.000 lifetime`) [Featured Card]:
+     - *Aura Glow*: Sudut kanan atas bergradasi peach/coral lembut (`rounded-bl-[120px]`).
+     - *Subtitle*: Sistem yang adaptasi dengan flow bisnis anda, bukan sebaliknya.
+     - `✓ Mencakup semua benefit Lifetime Basic.`
+     - `✓ Custom Feature; bebas request fitur khusus`
+     - `✓ Prioritas support & pendampingan setup`
+     - `✓ Lifetime update`
+     - *CTA*: Konsultasi & Custom Fitur (Solid Black Button)
+- **Core System Inclusions (Footer)**:
+  - POS Kasir, Table & QR Order, Live Order Dashboard, Laporan Keuangan, Crew Management, dan Menu CMS.
 
 ### 10. Testimoni Pemilik Usaha Nyata
 - Card testimoni dengan foto pemilik, nama coffee shop, rating 5 bintang, dan kutipan dampak nyata ("Omzet kami naik 35% karena pelanggan tidak kabur melihat antrean panjang di kasir").

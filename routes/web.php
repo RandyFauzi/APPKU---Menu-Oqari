@@ -36,6 +36,10 @@ Route::get('/', function () {
     return view('landing', compact('dashboardUrl'));
 })->name('landing');
 
+Route::get('/harga', function () {
+    return view('harga');
+})->name('harga');
+
 Route::middleware(['auth'])->group(function () {
     // Onboarding
     Route::get('/admin/onboarding/fix-db', [OnboardingController::class, 'fixDb'])->name('admin.onboarding.fix-db');
