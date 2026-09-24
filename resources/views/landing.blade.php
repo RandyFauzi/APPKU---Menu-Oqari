@@ -93,30 +93,6 @@
 </head>
 <body class="antialiased selection:bg-orange-100 selection:text-orange-900" x-data="{ mobileMenuOpen: false }">
 
-    <!-- 1. TOP ANNOUNCEMENT BAR (Inspired by Majoo Promo Bar) -->
-    <div class="bg-white border-orange-200 text-orange-950 text-orange-800 text-xs py-2 px-4 border-b border-orange-200">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                    <span class="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>
-                    PROMO KHUSUS COFFEE SHOP
-                </span>
-                <span class="font-medium text-orange-700 hidden md:inline">Diskon 30% Paket Tahunan + Free Setup Onboarding Menu & Meja</span>
-            </div>
-            <div class="flex items-center gap-4 text-orange-600">
-                <a href="https://wa.me/6281234567890?text=Halo%20OQARI,%20saya%20ingin%20konsultasi%20POS%20Coffee%20Shop" target="_blank" class="hover:text-orange-400 transition-colors flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.2.662.589 1.221.771 1.394.857.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.12.553 4.11 1.521 5.836l-1.616 5.908 6.069-1.591c1.666.911 3.578 1.428 5.626 1.428 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg>
-                    <span>OQARI Care: <strong>0812-8888-OQARI</strong></span>
-                </a>
-                <span class="hidden sm:inline text-gray-600">|</span>
-                <span class="hidden sm:flex items-center gap-1.5 text-[11px]">
-                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                    Sistem Cloud Aktif 99.98%
-                </span>
-            </div>
-        </div>
-    </div>
-
     <!-- 2. STICKY NAVBAR -->
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-orange-100/80 transition-all">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
