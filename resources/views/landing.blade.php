@@ -174,181 +174,85 @@
         </div>
     </header>
 
-    <!-- 3. HERO SECTION (High-Impact Value Proposition) -->
-    <section data-aos="fade-up" class="hero-mesh-gradient pt-12 pb-20 lg:pt-16 lg:pb-28 border-b border-orange-100/80 relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-                
-                <!-- Left Column (Copy & CTA) -->
-                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+    <!-- 3. HERO SECTION (Redesigned with Split Background) -->
+    <section data-aos="fade-in" class="relative w-full min-h-[600px] flex items-center bg-[#e4e3df] overflow-hidden border-b border-gray-300">
+        <!-- Background Image with Gradient Fade -->
+        <div class="absolute inset-0 w-full h-full lg:w-3/5">
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#e4e3df]/80 to-[#e4e3df]"></div>
+            <img src="{{ asset('Assests/Hero.webp') }}" alt="Barista and Customer" class="w-full h-full object-cover object-left" />
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <!-- Empty left column for spacing -->
+                <div class="hidden lg:block lg:col-span-5"></div>
+
+                <!-- Right Column (Text Content) -->
+                <div class="lg:col-span-7 py-20 lg:py-28 space-y-6 text-center lg:text-left">
                     
                     <!-- Pill Tag -->
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold text-orange-900 orange-gradient-badge shadow-sm">
-                        <span class="flex h-2 w-2 rounded-full bg-orange-600 animate-ping"></span>
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold text-orange-900 border border-orange-300 shadow-sm" style="background-color: #f6ebd8;">
                         <span>#1 Ekosistem Kasir POS & Smart QR Menu untuk Coffee Shop</span>
                     </div>
 
                     <!-- Headline -->
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-stone-950 tracking-tight leading-[1.12]">
-                        POS & Smart Menu <br class="hidden sm:inline"><span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-700">Coffee Shop</span>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-[1.12]">
+                        POS & Smart Menu
                     </h1>
 
                     <!-- Subtitle -->
-                    <p class="text-lg sm:text-xl text-gray-600 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    <p class="text-lg sm:text-xl text-gray-700 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
                         QR Menu, POS, & Kitchen Display dalam satu platform. Lebih cepat, hemat, dan efisien.
                     </p>
 
-                    <!-- Feature Capsules (Inspired by Majoo Feature Badges) -->
+                    <!-- Feature Capsules -->
                     <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-1">
-                        <span class="px-3 py-1 bg-white border border-orange-100 rounded-lg text-xs font-semibold text-gray-700 shadow-sm flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> QR Order Meja
+                        <span class="px-3 py-1 bg-transparent border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> QR Order Meja
                         </span>
-                        <span class="px-3 py-1 bg-white border border-orange-100 rounded-lg text-xs font-semibold text-gray-700 shadow-sm flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Kasir POS Tablet
+                        <span class="px-3 py-1 bg-transparent border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> Kasir POS Tablet
                         </span>
-                        <span class="px-3 py-1 bg-white border border-orange-100 rounded-lg text-xs font-semibold text-gray-700 shadow-sm flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> KDS Barista Realtime
+                        <span class="px-3 py-1 bg-transparent border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> KDS Barista Realtime
                         </span>
-                        <span class="px-3 py-1 bg-white border border-orange-100 rounded-lg text-xs font-semibold text-gray-700 shadow-sm flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> HPP & Gramasi Kopi
+                        <span class="px-3 py-1 bg-transparent border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> HPP & Gramasi Kopi
                         </span>
-                        <span class="px-3 py-1 bg-white border border-orange-100 rounded-lg text-xs font-semibold text-gray-700 shadow-sm flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Shift & Cash Drawer
+                        <span class="px-3 py-1 bg-transparent border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> Shift & Cash Drawer
                         </span>
                     </div>
 
                     <!-- Dual CTAs -->
-                    <div class="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                        <a href="{{ route('register') }}" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-base text-white primary-btn-gradient flex items-center justify-center gap-3">
+                    <div class="pt-6 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <a href="{{ route('register') }}" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-3 transition-transform hover:-translate-y-0.5" style="background-color: #894b15; box-shadow: 0 4px 14px -2px rgba(137, 75, 21, 0.4);">
                             <span>Mulai Coba Gratis 14 Hari</span>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                         </a>
-                        <a href="#demo-qr" class="w-full sm:w-auto px-7 py-4 rounded-xl font-bold text-base text-gray-800 bg-white hover:bg-stone-50 border border-stone-300 shadow-sm transition-all flex items-center justify-center gap-2 group">
-                            <svg class="w-5 h-5 text-orange-600 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                        <a href="#demo-qr" class="w-full sm:w-auto px-7 py-3.5 rounded-xl font-bold text-sm text-gray-800 bg-transparent border border-gray-400 hover:bg-gray-300/30 transition-all flex items-center justify-center gap-2 group">
+                            <svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
                             <span>Lihat Demo Interaktif</span>
                         </a>
                     </div>
 
                     <!-- Micro-trust signals -->
-                    <div class="pt-2 text-xs text-gray-500 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-5">
+                    <div class="pt-4 text-[11px] font-medium text-green-700 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-5">
                         <span class="flex items-center gap-1">
-                            <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             Tanpa Kartu Kredit
                         </span>
                         <span class="flex items-center gap-1">
-                            <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             Setup Instan 5 Menit
                         </span>
                         <span class="flex items-center gap-1">
-                            <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             Bantuan Pendampingan Tim Ahli
                         </span>
                     </div>
 
                 </div>
-
-                <!-- Right Column (High-End Live Mockup / Visual Showcase) -->
-                <div class="lg:col-span-5 relative">
-                    
-                    <!-- Decorative Backdrop Glow -->
-                    <div class="absolute -top-10 -right-10 w-72 h-72 bg-orange-400/20 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-green-400/15 rounded-full blur-3xl pointer-events-none"></div>
-
-                    <!-- Main POS Tablet Shell Container -->
-                    <div class="relative bg-white border-orange-200 text-orange-950 p-3 sm:p-4 rounded-3xl shadow-2xl border-4 border-orange-200">
-                        
-                        <!-- Top Tablet Bezel Bar -->
-                        <div class="flex items-center justify-between pb-3 px-2 text-orange-600 text-xs border-b border-orange-200">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                                <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-                                <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
-                                <span class="font-bold text-orange-800 ml-2">OQARI POS Terminal</span>
-                            </div>
-                            <span class="text-[11px] font-mono text-green-400 flex items-center gap-1">
-                                <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span>
-                                Live Sync (Barista & Kasir)
-                            </span>
-                        </div>
-
-                        <!-- Mockup Body Content -->
-                        <div class="bg-orange-50 rounded-2xl p-4 mt-3 space-y-4 text-white">
-                            
-                            <!-- Header Info -->
-                            <div class="flex items-center justify-between bg-white border-orange-200 text-orange-950/80 p-3 rounded-xl border border-orange-200">
-                                <div>
-                                    <div class="text-xs text-orange-600">Outlet Aktif</div>
-                                    <div class="font-bold text-sm text-stone-100">Kopi Senja Utama (Meja 01 - 24)</div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-xs text-orange-600">Total Transaksi Hari Ini</div>
-                                    <div class="font-bold text-sm text-orange-400">Rp 4.850.000 <span class="text-[10px] text-green-400">(↑ 24%)</span></div>
-                                </div>
-                            </div>
-
-                            <!-- Live Ticket 1 (Preparing in Barista) -->
-                            <div class="bg-white border-orange-200 text-orange-950/90 p-3.5 rounded-xl border border-orange-500/30 relative overflow-hidden">
-                                <div class="flex items-center justify-between text-xs mb-2">
-                                    <span class="font-bold px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/40">
-                                        Meja #04 • QR Self-Order
-                                    </span>
-                                    <span class="text-orange-600 font-mono text-[11px]">10:32 WIB</span>
-                                </div>
-                                <div class="space-y-1.5 text-xs text-orange-800">
-                                    <div class="flex justify-between font-medium">
-                                        <span>2x Spanish Aren Latte (Oatmilk, Less Sugar)</span>
-                                        <span class="text-orange-600">Rp 64.000</span>
-                                    </div>
-                                    <div class="flex justify-between font-medium">
-                                        <span>1x Almond Croissant (Warm)</span>
-                                        <span class="text-orange-600">Rp 28.000</span>
-                                    </div>
-                                </div>
-                                <div class="mt-3 pt-2.5 border-t border-orange-200 flex items-center justify-between text-xs">
-                                    <span class="text-green-400 font-semibold flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                        Lunas via QRIS Meja
-                                    </span>
-                                    <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 text-[10px] font-bold">
-                                        KDS: Sedang Diracik (Barista)
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Live Ticket 2 (Ready to Serve) -->
-                            <div class="bg-white border-orange-200 text-orange-950/50 p-3 rounded-xl border border-orange-200 text-xs">
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <span class="font-semibold text-orange-700">Meja #09 • Kasir POS</span>
-                                    <span class="text-[10px] px-2 py-0.5 bg-green-500/20 text-green-400 font-bold rounded">
-                                        Siap Disajikan
-                                    </span>
-                                </div>
-                                <div class="text-orange-600 text-[11px]">
-                                    1x V60 Gayo Anaerob (Hot) • 1x Cinnamon Roll
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <!-- Floating Customer Smartphone Mockup (Overlapping right bottom) -->
-                        <div class="hidden sm:block absolute -bottom-6 -right-6 w-52 bg-white rounded-2xl shadow-2xl border-4 border-stone-900 p-2.5 text-orange-950 animate-bounce" style="animation-duration: 4s;">
-                            <div class="flex items-center gap-2 pb-2 border-b border-stone-100">
-                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                                <span class="text-[10px] font-bold text-gray-700">Scan QR Menu Meja</span>
-                            </div>
-                            <div class="pt-2 text-center">
-                                <div class="text-[11px] font-bold text-orange-950">Spanish Latte</div>
-                                <div class="text-[10px] text-orange-700 font-bold">Rp 32.000</div>
-                                <div class="mt-2 py-1 px-2 rounded-lg bg-orange-700 text-white text-[10px] font-bold">
-                                    + Tambah ke Keranjang
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
             </div>
         </div>
     </section>
