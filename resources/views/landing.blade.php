@@ -504,7 +504,7 @@
     </section>
 
     <!-- 6. INTERACTIVE SOLUTION TABS (Segmentasi Industri ala Majoo Solusi Bisnis) -->
-    <section data-aos="fade-up" id="solusi" class="py-20 bg-white border-b border-orange-100" x-data="{ activeTab: 'specialty' }">
+    <section data-aos="fade-up" id="solusi" class="py-24 bg-gray-50 border-b border-gray-200" x-data="{ activeTab: 'specialty' }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div class="text-center max-w-3xl mx-auto mb-12 space-y-3">
@@ -521,22 +521,22 @@
 
             <!-- Tab Buttons -->
             <div class="flex flex-wrap items-center justify-center gap-2 mb-12">
-                <button @click="activeTab = 'specialty'" :class="activeTab === 'specialty' ? 'bg-white border-orange-200 text-orange-950 text-white shadow-md' : 'bg-stone-100 text-gray-700 hover:bg-stone-200'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
+                <button @click="activeTab = 'specialty'" :class="activeTab === 'specialty' ? 'bg-gradient-to-r from-orange-600 to-amber-700 text-white shadow-lg shadow-orange-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
                     ☕ Specialty Coffee & Roastery
                 </button>
-                <button @click="activeTab = 'cafe'" :class="activeTab === 'cafe' ? 'bg-white border-orange-200 text-orange-950 text-white shadow-md' : 'bg-stone-100 text-gray-700 hover:bg-stone-200'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
+                <button @click="activeTab = 'cafe'" :class="activeTab === 'cafe' ? 'bg-gradient-to-r from-orange-600 to-amber-700 text-white shadow-lg shadow-orange-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
                     🍽️ Cafe & Casual Dining
                 </button>
-                <button @click="activeTab = 'booth'" :class="activeTab === 'booth' ? 'bg-white border-orange-200 text-orange-950 text-white shadow-md' : 'bg-stone-100 text-gray-700 hover:bg-stone-200'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
+                <button @click="activeTab = 'booth'" :class="activeTab === 'booth' ? 'bg-gradient-to-r from-orange-600 to-amber-700 text-white shadow-lg shadow-orange-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
                     🚀 Coffee Booth & Grab-and-Go
                 </button>
-                <button @click="activeTab = 'chain'" :class="activeTab === 'chain' ? 'bg-white border-orange-200 text-orange-950 text-white shadow-md' : 'bg-stone-100 text-gray-700 hover:bg-stone-200'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
+                <button @click="activeTab = 'chain'" :class="activeTab === 'chain' ? 'bg-gradient-to-r from-orange-600 to-amber-700 text-white shadow-lg shadow-orange-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
                     🏢 Multi-Outlet & Franchise
                 </button>
             </div>
 
             <!-- Tab Content Panels -->
-            <div class="bg-stone-50 rounded-3xl p-8 sm:p-12 border border-orange-100 card-soft-shadow">
+            <div class="bg-white rounded-[2rem] p-8 sm:p-12 border border-gray-100 card-soft-shadow shadow-xl shadow-gray-200/50">
                 
                 <!-- Panel 1: Specialty Coffee -->
                 <div x-show="activeTab === 'specialty'" x-cloak class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
