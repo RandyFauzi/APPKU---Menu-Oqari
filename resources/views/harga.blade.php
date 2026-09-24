@@ -36,21 +36,21 @@
 <body class="antialiased flex flex-col justify-between p-4 sm:p-8 lg:p-12">
 
     <!-- Top Floating Back / Navigation Bar -->
-    <div class="max-w-6xl mx-auto w-full flex items-center justify-between pb-8 text-stone-300">
-        <a href="{{ url('/') }}" class="inline-flex items-center gap-2 text-xs font-semibold text-stone-300 hover:text-white transition-colors bg-stone-800/80 hover:bg-stone-800 px-4 py-2 rounded-full border border-stone-700">
+    <div class="max-w-6xl mx-auto w-full flex items-center justify-between pb-8 text-orange-700">
+        <a href="{{ url('/') }}" class="inline-flex items-center gap-2 text-xs font-semibold text-orange-700 hover:text-white transition-colors bg-orange-100/80 hover:bg-orange-100 px-4 py-2 rounded-full border border-stone-700">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             <span>Kembali ke Beranda</span>
         </a>
         <div class="flex items-center gap-3">
             @if(auth()->check())
-                <a href="{{ route('admin.dashboard') }}" class="text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-full transition-colors">
+                <a href="{{ route('admin.dashboard') }}" class="text-xs font-bold text-white bg-orange-600 hover:bg-orange-500 px-4 py-2 rounded-full transition-colors">
                     Dashboard
                 </a>
             @else
-                <a href="{{ route('login') }}" class="text-xs font-semibold text-stone-300 hover:text-white transition-colors">
+                <a href="{{ route('login') }}" class="text-xs font-semibold text-orange-700 hover:text-white transition-colors">
                     Masuk
                 </a>
-                <a href="{{ route('register') }}" class="text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-full transition-colors">
+                <a href="{{ route('register') }}" class="text-xs font-bold text-white bg-orange-600 hover:bg-orange-500 px-4 py-2 rounded-full transition-colors">
                     Daftar Akun
                 </a>
             @endif
@@ -91,40 +91,40 @@
                             </div>
 
                             <!-- Title -->
-                            <h3 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+                            <h3 class="text-xl sm:text-2xl font-bold text-orange-950 tracking-tight">
                                 Monthly Starter
                             </h3>
 
                             <!-- Subtitle -->
-                            <p class="text-xs text-stone-500 font-normal leading-relaxed mt-1.5 mb-5 min-h-[36px]">
+                            <p class="text-xs text-gray-500 font-normal leading-relaxed mt-1.5 mb-5 min-h-[36px]">
                                 Pilihan low-risk untuk tes efektivitas sistem di operasional.
                             </p>
 
                             <!-- Price -->
                             <div class="flex items-baseline mb-6">
-                                <span class="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">Rp80.000</span>
-                                <span class="text-xs text-stone-400 font-normal ml-1.5">per month</span>
+                                <span class="text-2xl sm:text-3xl font-extrabold text-orange-950 tracking-tight">Rp80.000</span>
+                                <span class="text-xs text-orange-600 font-normal ml-1.5">per month</span>
                             </div>
 
                             <!-- Features List -->
-                            <ul class="space-y-3 text-xs text-stone-700 font-normal mb-8">
+                            <ul class="space-y-3 text-xs text-gray-700 font-normal mb-8">
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>Akses Penuh Core System</span>
                                 </li>
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>System pay-as-you-go</span>
                                 </li>
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>Bebas Cancel kapan saja</span>
                                 </li>
                             </ul>
                         </div>
 
                         <!-- Button -->
-                        <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-stone-900 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
+                        <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-orange-950 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
                             Coba Langganan Bulanan
                         </a>
                     </div>
@@ -138,40 +138,40 @@
                             </div>
 
                             <!-- Title -->
-                            <h3 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+                            <h3 class="text-xl sm:text-2xl font-bold text-orange-950 tracking-tight">
                                 Lifetime Basic
                             </h3>
 
                             <!-- Subtitle -->
-                            <p class="text-xs text-stone-500 font-normal leading-relaxed mt-1.5 mb-5 min-h-[36px]">
+                            <p class="text-xs text-gray-500 font-normal leading-relaxed mt-1.5 mb-5 min-h-[36px]">
                                 Potong overhead cost. Bayar sekali untuk akses selamanya.
                             </p>
 
                             <!-- Price -->
                             <div class="flex items-baseline mb-6">
-                                <span class="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">Rp1.500.000</span>
-                                <span class="text-xs text-stone-400 font-normal ml-1.5">lifetime</span>
+                                <span class="text-2xl sm:text-3xl font-extrabold text-orange-950 tracking-tight">Rp1.500.000</span>
+                                <span class="text-xs text-orange-600 font-normal ml-1.5">lifetime</span>
                             </div>
 
                             <!-- Features List -->
-                            <ul class="space-y-3 text-xs text-stone-700 font-normal mb-8">
+                            <ul class="space-y-3 text-xs text-gray-700 font-normal mb-8">
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>Mencakup semua benefit Monthly.</span>
                                 </li>
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>Prioritas support & pendampingan setup</span>
                                 </li>
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>100% pangkas biaya software (Rp0/bulan)</span>
                                 </li>
                             </ul>
                         </div>
 
                         <!-- Button -->
-                        <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-stone-900 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
+                        <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-orange-950 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
                             Beli Akses Permanen
                         </a>
                     </div>
@@ -189,44 +189,44 @@
                             </div>
 
                             <!-- Title -->
-                            <h3 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+                            <h3 class="text-xl sm:text-2xl font-bold text-orange-950 tracking-tight">
                                 Lifetime Custom
                             </h3>
 
                             <!-- Subtitle -->
-                            <p class="text-xs text-stone-500 font-normal leading-relaxed mt-1.5 mb-5 min-h-[36px]">
+                            <p class="text-xs text-gray-500 font-normal leading-relaxed mt-1.5 mb-5 min-h-[36px]">
                                 Sistem yang adaptasi dengan flow bisnis anda, bukan sebaliknya.
                             </p>
 
                             <!-- Price -->
                             <div class="flex items-baseline mb-6">
-                                <span class="text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">Rp2.500.000</span>
-                                <span class="text-xs text-stone-400 font-normal ml-1.5">lifetime</span>
+                                <span class="text-2xl sm:text-3xl font-extrabold text-orange-950 tracking-tight">Rp2.500.000</span>
+                                <span class="text-xs text-orange-600 font-normal ml-1.5">lifetime</span>
                             </div>
 
                             <!-- Features List -->
-                            <ul class="space-y-3 text-xs text-stone-700 font-normal mb-8">
+                            <ul class="space-y-3 text-xs text-gray-700 font-normal mb-8">
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>Mencakup semua benefit Lifetime Basic.</span>
                                 </li>
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>Custom Feature; bebas request fitur khusus</span>
                                 </li>
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>Prioritas support & pendampingan setup</span>
                                 </li>
                                 <li class="flex items-center gap-2.5">
-                                    <span class="text-stone-700 font-bold text-xs">✓</span>
+                                    <span class="text-gray-700 font-bold text-xs">✓</span>
                                     <span>Lifetime update</span>
                                 </li>
                             </ul>
                         </div>
 
                         <!-- Button -->
-                        <a href="https://wa.me/6281234567890?text=Halo%20OQARI,%20saya%20ingin%20konsultasi%20fitur%20custom%20Paket%20Lifetime%20Custom" target="_blank" class="w-full py-2.5 rounded-xl bg-stone-950 hover:bg-stone-800 text-white font-medium text-xs sm:text-sm text-center block transition-colors shadow relative z-10">
+                        <a href="https://wa.me/6281234567890?text=Halo%20OQARI,%20saya%20ingin%20konsultasi%20fitur%20custom%20Paket%20Lifetime%20Custom" target="_blank" class="w-full py-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-white font-medium text-xs sm:text-sm text-center block transition-colors shadow relative z-10">
                             Konsultasi & Custom Fitur
                         </a>
                     </div>
@@ -234,9 +234,9 @@
                 </div>
 
                 <!-- Footer Text in Canvas -->
-                <div class="mt-12 text-center text-xs text-stone-600 font-normal max-w-2xl mx-auto space-y-1">
-                    <p class="font-semibold text-stone-800">Semua paket sudah termasuk All Core System:</p>
-                    <p class="text-[11px] text-stone-500">POS Kasir, Table & QR Order, Live Order Dashboard, Laporan Keuangan, Crew Management, dan Menu CMS.</p>
+                <div class="mt-12 text-center text-xs text-gray-600 font-normal max-w-2xl mx-auto space-y-1">
+                    <p class="font-semibold text-gray-800">Semua paket sudah termasuk All Core System:</p>
+                    <p class="text-[11px] text-gray-500">POS Kasir, Table & QR Order, Live Order Dashboard, Laporan Keuangan, Crew Management, dan Menu CMS.</p>
                 </div>
 
             </div>
@@ -246,9 +246,19 @@
     </main>
 
     <!-- Simple Bottom Footer -->
-    <footer class="max-w-6xl mx-auto w-full text-center pt-8 text-[11px] text-stone-500">
+    <footer class="max-w-6xl mx-auto w-full text-center pt-8 text-[11px] text-gray-500">
         © {{ date('Y') }} OQARI Indonesia. All rights reserved.
     </footer>
 
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+    </script>
 </body>
+
 </html>
