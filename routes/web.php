@@ -21,20 +21,20 @@ use App\Models\Order;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    $dashboardUrl = null;
     if (auth()->check()) {
         $role = auth()->user()->role;
-
-        return match ($role) {
-            'cashier' => redirect()->route('admin.pos.index'),
-            'barista', 'kitchen' => redirect()->route('admin.kitchen.index'),
-            'crew' => redirect()->route('admin.my-schedule'),
-            'superadmin' => redirect()->route('superadmin.dashboard'),
-            default => redirect()->route('admin.dashboard'),
+        $dashboardUrl = match ($role) {
+            'cashier' => route('admin.pos.index'),
+            'barista', 'kitchen' => route('admin.kitchen.index'),
+            'crew' => route('admin.my-schedule'),
+            'superadmin' => route('superadmin.dashboard'),
+            default => route('admin.dashboard'),
         };
     }
 
-    return redirect()->route('login');
-});
+    return view('landing', compact('dashboardUrl'));
+})->name('landing');
 
 Route::middleware(['auth'])->group(function () {
     // Onboarding
