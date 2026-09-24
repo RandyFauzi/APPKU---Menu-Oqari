@@ -175,83 +175,82 @@
     </header>
 
     <!-- 3. HERO SECTION (Redesigned with Split Background) -->
-    <section data-aos="fade-in" class="relative w-full min-h-[600px] flex items-center bg-[#e4e3df] overflow-hidden border-b border-gray-300">
+    <section data-aos="fade-in" class="relative w-full min-h-[600px] lg:min-h-[80vh] flex items-center bg-[#e4e3df] overflow-hidden">
         
-        <!-- Background Image with Gradient Fade -->
-        <div class="absolute inset-y-0 left-0 w-full lg:w-[55%] h-full">
-            <img src="{{ asset('hero.webp') }}" alt="Barista and Customer" class="w-full h-full object-cover object-[center_left]" />
-            <!-- Gradient Overlay to blend the right edge of the image into the background color -->
-            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#e4e3df]/60 to-[#e4e3df] lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-[#e4e3df]"></div>
+        <!-- Background Image Layer -->
+        <div class="absolute inset-0 w-full h-full">
+            <!-- The image covers the left side -->
+            <img src="{{ asset('hero.webp') }}" alt="Barista and Customer" class="absolute inset-y-0 left-0 w-full lg:w-[65%] h-full object-cover object-[30%_center]" />
+            <!-- Heavy Gradient to mask the right side and blend perfectly into the solid background color -->
+            <div class="absolute inset-0 bg-gradient-to-t from-[#e4e3df] via-[#e4e3df]/80 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-[#e4e3df]/50 lg:to-[#e4e3df] lg:w-[65%]"></div>
         </div>
 
         <!-- Content Container -->
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center h-full">
-                <!-- Spacer to push text to the right -->
-                <div class="hidden lg:block lg:col-span-6"></div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full h-full flex items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
+                
+                <!-- Spacer to push text far to the right, safely away from the barista -->
+                <div class="hidden lg:block lg:col-span-7"></div>
 
                 <!-- Text Content on the Right -->
-                <div class="lg:col-span-6 py-16 lg:py-28 space-y-6 text-center lg:text-left lg:pl-4">
+                <div class="lg:col-span-5 py-20 space-y-6 text-center lg:text-left bg-white/40 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none p-6 lg:p-0 rounded-3xl lg:rounded-none shadow-xl lg:shadow-none border border-white/50 lg:border-none mt-32 lg:mt-0">
                     
                     <!-- Pill Tag -->
                     <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold text-orange-900 border border-orange-300 shadow-sm" style="background-color: #f6ebd8;">
-                        <span>#1 Ekosistem Kasir POS & Smart QR Menu untuk Coffee Shop</span>
+                        <span>#1 Ekosistem Kasir POS & Smart QR Menu</span>
                     </div>
 
                     <!-- Headline -->
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-[1.15]">
+                    <h1 class="text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-gray-900 tracking-tight leading-[1.15]">
                         POS & Smart Menu
                     </h1>
 
                     <!-- Subtitle -->
-                    <p class="text-base sm:text-lg text-gray-700 font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
+                    <p class="text-base sm:text-lg text-gray-800 font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
                         QR Menu, POS, & Kitchen Display dalam satu platform. Lebih cepat, hemat, dan efisien.
                     </p>
 
                     <!-- Feature Capsules -->
                     <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2">
-                        <span class="px-3 py-1.5 bg-white/50 backdrop-blur-sm border border-gray-400 rounded-lg text-xs font-semibold text-gray-800 flex items-center gap-2 shadow-sm">
+                        <span class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[11px] font-bold text-gray-700 flex items-center gap-2 shadow-sm">
                             <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> QR Order Meja
                         </span>
-                        <span class="px-3 py-1.5 bg-white/50 backdrop-blur-sm border border-gray-400 rounded-lg text-xs font-semibold text-gray-800 flex items-center gap-2 shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> Kasir POS Tablet
+                        <span class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[11px] font-bold text-gray-700 flex items-center gap-2 shadow-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> POS Tablet
                         </span>
-                        <span class="px-3 py-1.5 bg-white/50 backdrop-blur-sm border border-gray-400 rounded-lg text-xs font-semibold text-gray-800 flex items-center gap-2 shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> KDS Barista Realtime
+                        <span class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[11px] font-bold text-gray-700 flex items-center gap-2 shadow-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> KDS Realtime
                         </span>
-                        <span class="px-3 py-1.5 bg-white/50 backdrop-blur-sm border border-gray-400 rounded-lg text-xs font-semibold text-gray-800 flex items-center gap-2 shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> HPP & Gramasi Kopi
-                        </span>
-                        <span class="px-3 py-1.5 bg-white/50 backdrop-blur-sm border border-gray-400 rounded-lg text-xs font-semibold text-gray-800 flex items-center gap-2 shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> Shift & Cash Drawer
+                        <span class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[11px] font-bold text-gray-700 flex items-center gap-2 shadow-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> HPP & Gramasi
                         </span>
                     </div>
 
                     <!-- Dual CTAs -->
-                    <div class="pt-6 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                        <a href="{{ route('register') }}" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-3 transition-transform hover:-translate-y-0.5" style="background-color: #894b15; box-shadow: 0 8px 20px -4px rgba(137, 75, 21, 0.4);">
-                            <span>Mulai Coba Gratis 14 Hari</span>
+                    <div class="pt-6 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+                        <a href="{{ route('register') }}" class="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 transition-transform hover:-translate-y-0.5" style="background-color: #894b15; box-shadow: 0 8px 20px -4px rgba(137, 75, 21, 0.4);">
+                            <span>Coba Gratis 14 Hari</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                         </a>
-                        <a href="#demo-qr" class="w-full sm:w-auto px-7 py-3.5 rounded-xl font-bold text-sm text-gray-900 bg-white/40 border border-gray-500 hover:bg-white/70 transition-all flex items-center justify-center gap-2 shadow-sm group backdrop-blur-sm">
-                            <svg class="w-5 h-5 text-gray-800" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
-                            <span>Lihat Demo Interaktif</span>
+                        <a href="#demo-qr" class="w-full sm:w-auto px-6 py-3.5 rounded-xl font-bold text-sm text-gray-900 bg-white border border-gray-400 hover:bg-gray-100 transition-all flex items-center justify-center gap-2 shadow-sm group">
+                            <svg class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                            <span>Demo Interaktif</span>
                         </a>
                     </div>
 
                     <!-- Micro-trust signals -->
-                    <div class="pt-4 text-[11px] font-bold text-green-700 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-5">
-                        <span class="flex items-center gap-1.5">
+                    <div class="pt-4 text-[10px] font-bold text-green-700 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-4">
+                        <span class="flex items-center gap-1">
                             <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             Tanpa Kartu Kredit
                         </span>
-                        <span class="flex items-center gap-1.5">
+                        <span class="flex items-center gap-1">
                             <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             Setup Instan 5 Menit
                         </span>
-                        <span class="flex items-center gap-1.5">
+                        <span class="flex items-center gap-1">
                             <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                            Bantuan Pendampingan Tim Ahli
+                            Bantuan Ahli
                         </span>
                     </div>
 
