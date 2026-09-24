@@ -186,9 +186,12 @@
 
         <!-- Content Container -->
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div class="flex justify-end">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center h-full">
+                <!-- Spacer to push text to the right -->
+                <div class="hidden lg:block lg:col-span-6"></div>
+
                 <!-- Text Content on the Right -->
-                <div class="w-full lg:w-[55%] py-16 lg:py-24 space-y-6 text-center lg:text-left lg:pl-10">
+                <div class="lg:col-span-6 py-16 lg:py-28 space-y-6 text-center lg:text-left lg:pl-4">
                     
                     <!-- Pill Tag -->
                     <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold text-orange-900 border border-orange-300 shadow-sm" style="background-color: #f6ebd8;">
