@@ -179,7 +179,7 @@
         <!-- Background Image with Gradient Fade -->
         <div class="absolute inset-0 w-full h-full lg:w-3/5">
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-[#e4e3df]/80 to-[#e4e3df]"></div>
-            <img src="{{ asset('Assests/Hero.webp') }}" alt="Barista and Customer" class="w-full h-full object-cover object-left" />
+            <img src="{{ asset('hero.webp') }}" alt="Barista and Customer" class="w-full h-full object-cover object-left" />
         </div>
 
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
