@@ -14,6 +14,7 @@ class IsSuperAdmin
         if (Auth::check() && Auth::user()->role === 'superadmin') {
             return $next($request);
         }
+
         return redirect()->route('admin.dashboard')->with('error', 'Akses ditolak. Anda bukan Super Admin.');
     }
 }

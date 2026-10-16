@@ -190,6 +190,7 @@
         <!-- VIEW: ANALYTICS (OWNER) -->
         @include('Admin.Dashboard.tabs.analytics')
         @include('Admin.Dashboard.tabs.report')
+        @include('Admin.Dashboard.tabs.inventory')
         @include('Admin.Dashboard.tabs.qr')
         @include('Admin.Dashboard.tabs.crew')
         @include('Admin.Dashboard.tabs.shifts')
@@ -277,6 +278,59 @@
                                     reader.readAsDataURL(file);
                                 }
                             }" class="w-full text-sm text-[#777873] file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-[#DDEBDD] file:text-[#164A35] hover:file:bg-[#C5DBC5] cursor-pointer outline-none" accept="image/*">
+                        </div>
+                    </div>
+
+                    <!-- Resep Bahan Baku & HPP Otomatis -->
+                    <div class="mt-2 p-5 bg-[#F8F7F3] rounded-[20px] border border-[#E3E1DC]">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-blender text-[#164A35]"></i>
+                                <span class="text-xs font-bold text-[#202522] uppercase tracking-wider">Komposisi Resep & HPP Otomatis</span>
+                            </div>
+                            <button type="button" @click="addMenuRecipeRow()" class="px-3 py-1 bg-white border border-[#E3E1DC] text-[#164A35] rounded-lg text-xs font-bold hover:bg-[#DDEBDD] transition flex items-center gap-1.5">
+                                <i class="fas fa-plus"></i> Tambah Bahan
+                            </button>
+                        </div>
+
+                        <!-- Recipe Rows -->
+                        <div class="flex flex-col gap-2 max-h-48 overflow-y-auto hide-scroll py-1">
+                            <template x-for="(rec, rIdx) in newMenu.recipes" :key="rIdx">
+                                <div class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-[#E3E1DC]">
+                                    <select x-model="rec.raw_material_id" class="w-1/2 bg-[#F8F7F3] border border-[#E3E1DC] rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#202522] outline-none">
+                                        <option value="" disabled>-- Pilih Bahan --</option>
+                                        <template x-for="m in rawMaterials" :key="m.id">
+                                            <option :value="m.id" x-text="m.name + ' (' + m.unit + ')'"></option>
+                                        </template>
+                                    </select>
+                                    <div class="relative w-1/3">
+                                        <input type="number" step="0.01" x-model="rec.amount" placeholder="Takaran" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#202522] outline-none">
+                                        <span class="absolute right-2 top-1.5 text-[10px] text-gray-400 font-medium" x-text="getMaterialUnit(rec.raw_material_id)"></span>
+                                    </div>
+                                    <div class="text-[11px] font-mono font-bold text-[#164A35] w-20 text-right shrink-0" x-text="formatRp(calculateSingleRecipeCost(rec))"></div>
+                                    <button type="button" @click="removeMenuRecipeRow(rIdx)" class="w-6 h-6 rounded-lg text-red-500 hover:bg-red-50 transition flex items-center justify-center shrink-0">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </button>
+                                </div>
+                            </template>
+
+                            <template x-if="newMenu.recipes.length === 0">
+                                <div class="text-center py-3 text-xs text-[#777873]">
+                                    Belum ada resep bahan baku. Klik <strong>+ Tambah Bahan</strong> untuk hitung HPP otomatis.
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- HPP Calculation Summary -->
+                        <div class="mt-3 pt-3 border-t border-dashed border-[#E3E1DC] flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-[#777873] block">Total Modal HPP</span>
+                                <span class="text-base font-black text-[#164A35] font-mono" x-text="formatRp(calculatedMenuHpp)">Rp 0</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-[#777873] block">Estimasi Margin Laba</span>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-full" :class="estimatedProfitMargin > 0 ? 'bg-[#DDEBDD] text-[#164A35]' : 'bg-gray-100 text-gray-600'" x-text="estimatedProfitMargin.toFixed(1) + '% (Untung ' + formatRp(estimatedProfitAmount) + ')'">0%</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -685,7 +739,210 @@
                 activeMenuFilter: 'all',
                 activeOrderFilter: 'process',
                 searchQuery: '',
-                newMenu: { id: null, name: '', price: '', desc: '', categoryId: '', imagePreview: null },
+                newMenu: { id: null, name: '', price: '', desc: '', categoryId: '', imagePreview: null, cogs: 0, recipes: [] },
+                
+                // Inventory & Recipes State
+                rawMaterials: [],
+                stockMutations: [],
+                inventoryMetrics: { total_materials: 0, low_stock_count: 0, total_asset_value: 0 },
+                inventorySubTab: 'materials',
+                materialSearch: '',
+                isLoadingInventory: false,
+                showMaterialModal: false,
+                isSavingMaterial: false,
+                materialForm: { id: null, name: '', sku: '', unit: 'ml', current_stock: 0, minimum_stock: 0, cost_per_unit: 0 },
+                showAdjustModal: false,
+                isSavingAdjustment: false,
+                adjustForm: { raw_material_id: '', type: 'in', amount: '', notes: '', new_cost_per_unit: '' },
+
+                get filteredMaterials() {
+                    if (!this.materialSearch) return this.rawMaterials;
+                    const q = this.materialSearch.toLowerCase();
+                    return this.rawMaterials.filter(m => (m.name && m.name.toLowerCase().includes(q)) || (m.sku && m.sku.toLowerCase().includes(q)));
+                },
+
+                getMaterialUnit(materialId) {
+                    const m = this.rawMaterials.find(x => x.id == materialId);
+                    return m ? m.unit : '';
+                },
+
+                calculateSingleRecipeCost(rec) {
+                    if (!rec.raw_material_id || !rec.amount) return 0;
+                    const m = this.rawMaterials.find(x => x.id == rec.raw_material_id);
+                    return m ? Math.round(Number(m.cost_per_unit || 0) * Number(rec.amount || 0)) : 0;
+                },
+
+                get calculatedMenuHpp() {
+                    if (!this.newMenu.recipes || this.newMenu.recipes.length === 0) return Number(this.newMenu.cogs || 0);
+                    return this.newMenu.recipes.reduce((sum, r) => sum + this.calculateSingleRecipeCost(r), 0);
+                },
+
+                get estimatedProfitAmount() {
+                    const price = Number(this.newMenu.price || 0);
+                    return Math.max(0, price - this.calculatedMenuHpp);
+                },
+
+                get estimatedProfitMargin() {
+                    const price = Number(this.newMenu.price || 0);
+                    if (price <= 0) return 0;
+                    return (this.estimatedProfitAmount / price) * 100;
+                },
+
+                addMenuRecipeRow() {
+                    if (!this.newMenu.recipes) this.newMenu.recipes = [];
+                    const defaultMat = this.rawMaterials.length > 0 ? this.rawMaterials[0].id : '';
+                    this.newMenu.recipes.push({ raw_material_id: defaultMat, amount: 1 });
+                },
+
+                removeMenuRecipeRow(index) {
+                    this.newMenu.recipes.splice(index, 1);
+                },
+
+                fetchInventory() {
+                    this.isLoadingInventory = true;
+                    fetch('/admin/api/inventory', {
+                        headers: { 'Accept': 'application/json' }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isLoadingInventory = false;
+                        this.rawMaterials = data.materials || [];
+                        this.stockMutations = data.mutations || [];
+                        this.inventoryMetrics = data.metrics || { total_materials: 0, low_stock_count: 0, total_asset_value: 0 };
+                    })
+                    .catch(err => {
+                        this.isLoadingInventory = false;
+                    });
+                },
+
+                openAddMaterialModal() {
+                    this.materialForm = { id: null, name: '', sku: '', unit: 'ml', current_stock: 0, minimum_stock: 10, cost_per_unit: 0 };
+                    this.showMaterialModal = true;
+                },
+
+                editMaterial(item) {
+                    this.materialForm = {
+                        id: item.id,
+                        name: item.name,
+                        sku: item.sku || '',
+                        unit: item.unit || 'pcs',
+                        current_stock: Number(item.current_stock),
+                        minimum_stock: Number(item.minimum_stock),
+                        cost_per_unit: Number(item.cost_per_unit)
+                    };
+                    this.showMaterialModal = true;
+                },
+
+                saveMaterial() {
+                    if (!this.materialForm.name || !this.materialForm.unit) {
+                        this.addToast('Nama bahan dan satuan wajib diisi', 'error');
+                        return;
+                    }
+                    this.isSavingMaterial = true;
+                    fetch('/admin/api/inventory/material', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(this.materialForm)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isSavingMaterial = false;
+                        if (data.success) {
+                            this.addToast(data.message, 'success');
+                            this.showMaterialModal = false;
+                            this.fetchInventory();
+                        } else {
+                            this.addToast(data.message || 'Gagal menyimpan bahan', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        this.isSavingMaterial = false;
+                        this.addToast('Terjadi kesalahan koneksi', 'error');
+                    });
+                },
+
+                deleteMaterial(id) {
+                    Swal.fire({
+                        title: 'Hapus Bahan Baku?',
+                        text: 'Bahan ini akan dihapus dari daftar inventori.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#777873',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch('/admin/api/inventory/material/' + id, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    this.addToast(data.message, 'success');
+                                    this.fetchInventory();
+                                }
+                            });
+                        }
+                    });
+                },
+
+                openStockAdjustModal(materialId = null) {
+                    this.adjustForm = {
+                        raw_material_id: materialId || (this.rawMaterials.length > 0 ? this.rawMaterials[0].id : ''),
+                        type: 'in',
+                        amount: '',
+                        notes: '',
+                        new_cost_per_unit: ''
+                    };
+                    this.showAdjustModal = true;
+                },
+
+                quickRestock(item) {
+                    this.openStockAdjustModal(item.id);
+                },
+
+                submitStockAdjustment() {
+                    if (!this.adjustForm.raw_material_id || !this.adjustForm.amount || Number(this.adjustForm.amount) <= 0) {
+                        this.addToast('Pilih bahan dan masukkan jumlah yang valid', 'error');
+                        return;
+                    }
+                    this.isSavingAdjustment = true;
+                    fetch('/admin/api/inventory/adjust', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(this.adjustForm)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isSavingAdjustment = false;
+                        if (data.success) {
+                            this.addToast(data.message, 'success');
+                            this.showAdjustModal = false;
+                            this.fetchInventory();
+                            this.loadMenu();
+                        } else {
+                            this.addToast(data.message || 'Gagal menyesuaikan stok', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        this.isSavingAdjustment = false;
+                        this.addToast('Terjadi kesalahan koneksi', 'error');
+                    });
+                },
+
                 showBulkUpload: false,
                 draftMenus: [],
                 categories: window.INITIAL_DATA.categories || [],
@@ -914,9 +1171,10 @@ handleDraftImageUpload(event, index) {
                 },
                 tabs: [
                     { id: 'analytics', name: 'Dashboard Analytics', icon: 'fas fa-chart-pie' },
-                      { id: 'report', name: 'Laporan Keuangan', icon: 'fas fa-book' },
+                    { id: 'report', name: 'Laporan Keuangan', icon: 'fas fa-book' },
                     { id: 'orders', name: 'Live Orders', icon: 'fas fa-receipt' },
                     { id: 'menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
+                    { id: 'inventory', name: 'Bahan & Stok', icon: 'fas fa-boxes-stacked' },
                     { id: 'qr', name: 'Table & QR', icon: 'fas fa-qrcode' },
                     { id: 'crew', name: 'Crew Management', icon: 'fas fa-users' },
                     { id: 'shifts', name: 'Jadwal Shift', icon: 'fas fa-calendar-alt' },
@@ -1086,6 +1344,7 @@ handleDraftImageUpload(event, index) {
                     this.initSummary();
                     this.initAnalytics();
                     this.loadMenu();
+                    this.fetchInventory();
                     if (window.INITIAL_DATA.shop) {
                         this.settings.name = window.INITIAL_DATA.shop.name || '';
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
@@ -1139,7 +1398,23 @@ handleDraftImageUpload(event, index) {
                         const found = this.categories.find(c => c.name.toLowerCase() === String(matchedCatId).toLowerCase());
                         if (found) matchedCatId = found.id;
                     }
-                    this.newMenu = { id: item.id, name: item.name, price: item.price, desc: item.desc || item.description || '', categoryId: matchedCatId, imagePreview: item.image || item.image_url || null };
+
+                    // Format recipes array
+                    const existingRecipes = (item.recipes || []).map(r => ({
+                        raw_material_id: r.raw_material_id,
+                        amount: Number(r.amount)
+                    }));
+
+                    this.newMenu = { 
+                        id: item.id, 
+                        name: item.name, 
+                        price: item.price, 
+                        desc: item.desc || item.description || '', 
+                        categoryId: matchedCatId, 
+                        imagePreview: item.image || item.image_url || null,
+                        cogs: Number(item.cogs || 0),
+                        recipes: existingRecipes
+                    };
                     this.showAddMenuModal = true;
                 },
                 async deleteMenu(id) {
@@ -1182,6 +1457,8 @@ handleDraftImageUpload(event, index) {
                     formData.append('price', this.newMenu.price);
                     formData.append('categoryId', this.newMenu.categoryId);
                     formData.append('desc', this.newMenu.desc || '');
+                    formData.append('cogs', this.calculatedMenuHpp || 0);
+                    formData.append('recipes', JSON.stringify(this.newMenu.recipes || []));
                     if (this.$refs.menuImageInput && this.$refs.menuImageInput.files[0]) {
                         formData.append('image', this.$refs.menuImageInput.files[0]);
                     }

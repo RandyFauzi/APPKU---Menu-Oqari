@@ -12,14 +12,14 @@ class ProductApiController extends Controller
     public function index(Request $request)
     {
         $shopId = Auth::user()->shop_id;
-        if (!$shopId) {
+        if (! $shopId) {
             return response()->json([]);
         }
 
         $perPage = $request->query('per_page', 25);
 
         $products = Product::where('shop_id', $shopId)
-            ->with(['category', 'variants', 'modifierGroups.modifiers'])
+            ->with(['category', 'variants', 'modifierGroups.modifiers', 'recipes.rawMaterial'])
             ->orderBy('id', 'desc')
             ->paginate($perPage);
 

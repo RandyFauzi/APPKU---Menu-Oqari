@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // OQARI API BOUNDARIES (v1)
 Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
-    
+
     // 1. Tablet POS Endpoints
     Route::prefix('pos')->group(function () {
         // e.g., Route::get('/menu', [PosController::class, 'menu'])->can('access-pos');

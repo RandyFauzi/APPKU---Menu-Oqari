@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Services\MediaService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Shop extends Model
 {
@@ -115,6 +116,16 @@ class Shop extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function rawMaterials()
+    {
+        return $this->hasMany(RawMaterial::class);
+    }
+
+    public function stockMutations()
+    {
+        return $this->hasMany(StockMutation::class);
+    }
+
     public function suspendedBy()
     {
         return $this->belongsTo(User::class, 'suspended_by');
@@ -167,11 +178,11 @@ class Shop extends Model
             return null;
         }
 
-        if (\Illuminate\Support\Str::startsWith($link, ['http://', 'https://'])) {
+        if (Str::startsWith($link, ['http://', 'https://'])) {
             return $link;
         }
 
-        return 'https://www.instagram.com/' . ltrim($link, '/@');
+        return 'https://www.instagram.com/'.ltrim($link, '/@');
     }
 
     public function getWhatsappUrlAttribute()
@@ -186,9 +197,9 @@ class Shop extends Model
 
         // Replace leading 0 with 62
         if (str_starts_with($phone, '0')) {
-            $phone = '62' . substr($phone, 1);
+            $phone = '62'.substr($phone, 1);
         }
 
-        return 'https://wa.me/' . $phone;
+        return 'https://wa.me/'.$phone;
     }
 }

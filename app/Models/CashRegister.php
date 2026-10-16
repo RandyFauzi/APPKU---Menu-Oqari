@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CashRegister extends Model
 {
-    use HasFactory, BelongsToShop;
+    use BelongsToShop, HasFactory;
 
     protected $fillable = ['shop_id', 'name', 'is_active'];
 

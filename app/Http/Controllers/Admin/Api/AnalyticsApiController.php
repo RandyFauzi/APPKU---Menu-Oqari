@@ -12,7 +12,7 @@ class AnalyticsApiController extends Controller
     public function index(Request $request, ReportingService $reportingService)
     {
         $shopId = Auth::user()->shop_id;
-        if (!$shopId) {
+        if (! $shopId) {
             return response()->json(['error' => 'No shop assigned'], 403);
         }
 

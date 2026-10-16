@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\IsSuperAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,12 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo('/admin/login');
         $middleware->redirectUsersTo(function (Request $request) {
-            return (auth()->check() && auth()->user()->role === 'superadmin') 
-                ? '/superadmin/dashboard' 
+            return (auth()->check() && auth()->user()->role === 'superadmin')
+                ? '/superadmin/dashboard'
                 : '/admin/dashboard';
         });
         $middleware->alias([
-            'superadmin' => \App\Http\Middleware\IsSuperAdmin::class,
+            'superadmin' => IsSuperAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

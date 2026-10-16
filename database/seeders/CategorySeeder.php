@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Category;
+use App\Models\Shop;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -12,20 +14,20 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $shops = \App\Models\Shop::all();
+        $shops = Shop::all();
         $defaultCategories = ['Coffee', 'Tea', 'Beverages', 'Foods', 'Snacks', 'Sweets'];
 
         foreach ($shops as $shop) {
             // Check if shop already has categories to avoid duplication
-            if (\App\Models\Category::where('shop_id', $shop->id)->exists()) {
+            if (Category::where('shop_id', $shop->id)->exists()) {
                 continue;
             }
 
             foreach ($defaultCategories as $index => $categoryName) {
-                \App\Models\Category::create([
+                Category::create([
                     'shop_id' => $shop->id,
                     'name' => $categoryName,
-                    'slug' => \Illuminate\Support\Str::slug($categoryName),
+                    'slug' => Str::slug($categoryName),
                     'sort_order' => $index + 1,
                     'is_active' => true,
                 ]);

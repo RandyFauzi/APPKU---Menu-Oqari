@@ -9,10 +9,13 @@ use App\Models\Category;
 use App\Models\CrewShift;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductRecipe;
 use App\Models\Shop;
 use App\Models\Table;
 use App\Models\User;
+use App\Services\InventoryService;
 use App\Services\MediaService;
+use App\Services\Receipt\ReceiptService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -61,7 +64,7 @@ class DashboardController extends Controller
             $slug = $baseSlug;
             $counter = 1;
             while (Shop::where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter;
+                $slug = $baseSlug.'-'.$counter;
                 $counter++;
             }
 
@@ -159,7 +162,7 @@ class DashboardController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $receiptData = app(\App\Services\Receipt\ReceiptService::class)->build($order);
+        $receiptData = app(ReceiptService::class)->build($order);
 
         return view('receipts.thermal', compact('receiptData'));
     }
@@ -235,6 +238,10 @@ class DashboardController extends Controller
             'description' => $request->desc,
         ];
 
+        if ($request->has('cogs')) {
+            $data['cogs'] = $request->cogs;
+        }
+
         // Ensure we have a product ID for the directory
         $productId = $request->id ?: Str::uuid()->toString();
 
@@ -248,7 +255,26 @@ class DashboardController extends Controller
             $data
         );
 
-        $menu->load('category');
+        // Simpan resep bahan baku jika dikirim
+        if ($request->has('recipes')) {
+            $recipes = is_string($request->recipes) ? json_decode($request->recipes, true) : $request->recipes;
+            if (is_array($recipes)) {
+                ProductRecipe::where('product_id', $menu->id)->delete();
+                foreach ($recipes as $r) {
+                    if (! empty($r['raw_material_id']) && ! empty($r['amount'])) {
+                        ProductRecipe::create([
+                            'product_id' => $menu->id,
+                            'raw_material_id' => $r['raw_material_id'],
+                            'amount' => $r['amount'],
+                        ]);
+                    }
+                }
+                app(InventoryService::class)->syncProductHpp($menu);
+                $menu->refresh();
+            }
+        }
+
+        $menu->load(['category', 'recipes.rawMaterial']);
 
         $duplicateExists = Product::where('shop_id', $shopId)
             ->where('name', $request->name)
@@ -499,7 +525,7 @@ class DashboardController extends Controller
                 $existingUrl = $request->input("existing_banner_{$i}");
                 $storageUrl = rtrim(Storage::disk(env('MEDIA_DISK', 'public'))->url(''), '/');
                 if ($storageUrl) {
-                    while (\Illuminate\Support\Str::startsWith($existingUrl, $storageUrl)) {
+                    while (Str::startsWith($existingUrl, $storageUrl)) {
                         $existingUrl = substr($existingUrl, strlen($storageUrl));
                     }
                 }

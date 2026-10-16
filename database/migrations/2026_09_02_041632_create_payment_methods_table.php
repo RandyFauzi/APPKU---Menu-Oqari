@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('type'); // CASH, EWALLET, TRANSFER, EDC, QRIS
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             $table->unique(['shop_id', 'code']);
         });
     }

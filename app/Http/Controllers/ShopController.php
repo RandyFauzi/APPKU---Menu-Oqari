@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Actions\Orders\CreateOrderAction;
 use App\Events\OrderCreated;
+use App\Jobs\SendOrderReceiptEmail;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Shop;
+use App\Models\ShopSlugHistory;
+use App\Models\Table;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 
 class ShopController extends Controller
@@ -13,14 +18,15 @@ class ShopController extends Controller
     protected function resolveShop($slug)
     {
         $shop = Shop::where('slug', $slug)->first();
-        if (!$shop) {
-            $history = \App\Models\ShopSlugHistory::where('old_slug', $slug)->first();
+        if (! $shop) {
+            $history = ShopSlugHistory::where('old_slug', $slug)->first();
             if ($history && $history->shop) {
-                $newUrl = str_replace("/{$slug}", "/" . $history->shop->slug, request()->fullUrl());
-                throw new \Illuminate\Http\Exceptions\HttpResponseException(redirect($newUrl, 301));
+                $newUrl = str_replace("/{$slug}", '/'.$history->shop->slug, request()->fullUrl());
+                throw new HttpResponseException(redirect($newUrl, 301));
             }
             abort(404);
         }
+
         return $shop;
     }
 
@@ -28,10 +34,10 @@ class ShopController extends Controller
     {
         $shop = $this->resolveShop($slug);
         $menuItems = Product::where('shop_id', $shop->id)->where('is_sold_out', false)->with('category')->get();
-        
+
         $table = null;
         if ($request->filled('t')) {
-            $tableModel = \App\Models\Table::where('shop_id', $shop->id)
+            $tableModel = Table::where('shop_id', $shop->id)
                 ->where('public_token', $request->query('t'))
                 ->first();
             $table = $tableModel ? $tableModel->name : null;
@@ -39,7 +45,7 @@ class ShopController extends Controller
             // Fallback for legacy QR codes (temporary backward compatibility)
             $table = $request->query('table');
         }
-        $categories = \App\Models\Category::where('shop_id', $shop->id)->orderBy('sort_order')->get();
+        $categories = Category::where('shop_id', $shop->id)->orderBy('sort_order')->get();
 
         return view('shop.menu', compact('shop', 'menuItems', 'table', 'categories'));
     }
@@ -82,11 +88,11 @@ class ShopController extends Controller
             $order = $createOrder->execute($shop, $validated, 'DINE_IN');
 
             $paymentUrl = null;
-            
+
             OrderCreated::dispatch($order);
 
             if ($order->customer_email) {
-                dispatch(new \App\Jobs\SendOrderReceiptEmail($order->id));
+                dispatch(new SendOrderReceiptEmail($order->id));
             }
 
             return response()->json([

@@ -10,7 +10,7 @@ class Modifier extends Model
     use HasFactory;
 
     protected $fillable = ['modifier_group_id', 'name', 'price_adjustment', 'is_active',
-        'cogs_adjustment',];
+        'cogs_adjustment', ];
 
     public function group()
     {

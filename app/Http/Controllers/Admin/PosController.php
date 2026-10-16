@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Order\CreateOrder;
 use App\Actions\Payment\ProcessPayment;
 use App\Actions\POS\CalculateCart;
+use App\Events\OrderCreated;
 use App\Http\Controllers\Controller;
 use App\Models\CashRegister;
 use App\Models\CashRegisterSession;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Table;
+use App\Services\InventoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PosController extends Controller
 {
@@ -55,7 +59,7 @@ class PosController extends Controller
             ->get();
 
         $registers = CashRegister::where('shop_id', $shop->id)->where('is_active', true)->get();
-        $tables = \App\Models\Table::where('shop_id', $shop->id)->get();
+        $tables = Table::where('shop_id', $shop->id)->get();
 
         return view('Admin.pos.index', compact(
             'products', 'categories', 'activeSession', 'heldOrders', 'registers', 'shop', 'tables'
@@ -84,23 +88,26 @@ class PosController extends Controller
 
         $shop = Auth::user()->shop;
 
-        $result = \Illuminate\Support\Facades\DB::transaction(function () use ($shop, $validated, $createOrder, $processPayment) {
+        $result = DB::transaction(function () use ($shop, $validated, $createOrder, $processPayment) {
             // Reuse CalculateCart + CreateOrder + ProcessPayment pipeline
-            $calcCart = app(\App\Actions\POS\CalculateCart::class);
+            $calcCart = app(CalculateCart::class);
             $cart = $calcCart->execute($shop, $validated['items']);
 
             $order = $createOrder->execute($shop, $cart, $validated);
-            
+
             $payment = $processPayment->execute(
                 $order,
                 $validated['payment_method'],
                 (float) $validated['amount_paid']
             );
 
+            // Deduct inventory stock based on recipes
+            app(InventoryService::class)->deductStockForOrder($order);
+
             return $order;
         });
-        
-        \App\Events\OrderCreated::dispatch($result);
+
+        OrderCreated::dispatch($result);
 
         return response()->json([
             'success' => true,
@@ -139,8 +146,8 @@ class PosController extends Controller
 
         $order = $createOrder->execute($shop, $cart, $data);
         $order->update(['order_status' => 'HOLD', 'payment_status' => 'UNPAID']);
-        
-        \App\Events\OrderCreated::dispatch($order);
+
+        OrderCreated::dispatch($order);
 
         return response()->json([
             'success' => true,

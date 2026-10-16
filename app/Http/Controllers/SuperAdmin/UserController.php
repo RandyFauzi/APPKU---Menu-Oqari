@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Shop;
 use App\Models\SuperAdminAuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -31,6 +31,7 @@ class UserController extends Controller
     public function create()
     {
         $shops = Shop::orderBy('name')->get();
+
         return view('SuperAdmin.users.create', compact('shops'));
     }
 
@@ -54,6 +55,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $shops = Shop::orderBy('name')->get();
+
         return view('SuperAdmin.users.edit', compact('user', 'shops'));
     }
 
@@ -61,13 +63,13 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:8',
             'role' => ['required', Rule::in(['superadmin', 'owner', 'admin', 'crew', 'kitchen', 'cashier', 'barista'])],
             'shop_id' => 'nullable|exists:shops,id',
         ]);
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);

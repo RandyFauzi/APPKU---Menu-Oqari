@@ -18,15 +18,13 @@ class SendOrderReceiptEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public int $orderId)
-    {
-    }
+    public function __construct(public int $orderId) {}
 
     public function handle(ReceiptService $receiptService): void
     {
         $order = Order::with('shop')->find($this->orderId);
-        
-        if (!$order || !$order->customer_email) {
+
+        if (! $order || ! $order->customer_email) {
             return;
         }
 
@@ -51,7 +49,7 @@ class SendOrderReceiptEmail implements ShouldQueue
 
         try {
             Mail::to($order->customer_email)->send(new OrderReceiptMail($receiptData = $receiptService->build($order)));
-            
+
             $delivery->update([
                 'status' => 'sent',
                 'sent_at' => now(),

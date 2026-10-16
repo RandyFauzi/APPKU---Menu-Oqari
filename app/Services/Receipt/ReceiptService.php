@@ -11,9 +11,9 @@ class ReceiptService
     public function build(Order $order): ReceiptData
     {
         $order->loadMissing(['shop', 'items.product']);
-        
+
         $shop = $order->shop;
-        
+
         $shopData = [
             'name' => $shop->name ?? 'OQARI',
             'logo_url' => $shop->logo_url,
@@ -44,7 +44,7 @@ class ReceiptService
 
         $webUrl = URL::signedRoute('receipt.web', ['order' => $order->id]);
         $pdfUrl = URL::signedRoute('receipt.pdf', ['order' => $order->id]);
-        
+
         $logoPath = app(MediaService::class)->emailSafeLogoPath($shop->logo_path);
 
         return new ReceiptData(
@@ -58,7 +58,7 @@ class ReceiptService
             paymentMethod: $order->payment_method,
             paymentStatus: $order->payment_status,
             orderStatus: $order->order_status,
-            orderNumber: 'OQR-' . $order->created_at->format('Ymd') . '-' . str_pad($order->id, 4, '0', STR_PAD_LEFT),
+            orderNumber: 'OQR-'.$order->created_at->format('Ymd').'-'.str_pad($order->id, 4, '0', STR_PAD_LEFT),
             date: $order->created_at->format('d M Y, H:i'),
             webUrl: $webUrl,
             pdfUrl: $pdfUrl,

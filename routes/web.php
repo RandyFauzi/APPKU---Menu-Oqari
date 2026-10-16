@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Api\ProductApiController;
 use App\Http\Controllers\Admin\CashRegisterController;
 use App\Http\Controllers\Admin\CrewController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\KitchenController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\PosController;
@@ -76,6 +77,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
         Route::delete('/admin/api/menu/{id}', [DashboardController::class, 'deleteMenu']);
         Route::post('/admin/api/category', [DashboardController::class, 'saveCategory']);
+
+        // Inventory & Recipes Management
+        Route::get('/admin/api/inventory', [InventoryController::class, 'index']);
+        Route::post('/admin/api/inventory/material', [InventoryController::class, 'saveMaterial']);
+        Route::delete('/admin/api/inventory/material/{id}', [InventoryController::class, 'deleteMaterial']);
+        Route::post('/admin/api/inventory/adjust', [InventoryController::class, 'adjustStock']);
+        Route::get('/admin/api/inventory/recipes/{productId}', [InventoryController::class, 'getProductRecipes']);
+        Route::post('/admin/api/inventory/recipes/{productId}', [InventoryController::class, 'saveProductRecipes']);
     });
 
     // Settings

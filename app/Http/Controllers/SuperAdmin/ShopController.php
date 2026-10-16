@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\SuperAdmin;
 
-use App\Http\Controllers\Controller;
-use App\Models\Shop;
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Actions\SuperAdmin\ActivateShopAction;
 use App\Actions\SuperAdmin\DeleteShopAction;
 use App\Actions\SuperAdmin\SuspendShopAction;
+use App\Http\Controllers\Controller;
+use App\Models\Shop;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Hash;
 
 class ShopController extends Controller
 {
@@ -30,6 +28,7 @@ class ShopController extends Controller
     {
         $shop->loadCount(['users', 'orders']);
         $users = $shop->users()->latest()->get();
+
         return view('SuperAdmin.shops.show', compact('shop', 'users'));
     }
 
@@ -42,7 +41,7 @@ class ShopController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:shops,slug,' . $shop->id,
+            'slug' => 'required|string|max:255|unique:shops,slug,'.$shop->id,
             'whatsapp_number' => 'nullable|string|max:255',
             'slogan' => 'nullable|string|max:255',
         ]);
@@ -56,12 +55,14 @@ class ShopController extends Controller
     {
         $request->validate(['reason' => 'required|string|max:255']);
         $action->execute($shop, $request->string('reason'));
+
         return back()->with('success', "{$shop->name} berhasil di-suspend.");
     }
 
     public function activate(Shop $shop, ActivateShopAction $action)
     {
         $action->execute($shop);
+
         return back()->with('success', "{$shop->name} berhasil diaktifkan kembali.");
     }
 

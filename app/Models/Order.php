@@ -29,11 +29,11 @@ class Order extends Model
         'fulfillment_type',
         'payment_reference',
         'paid_at',
-    
+
         'total_cogs',
         'cancelled_at',
         'cancelled_by',
-        'cancellation_reason',];
+        'cancellation_reason', ];
 
     protected $casts = [
         'paid_at' => 'datetime',

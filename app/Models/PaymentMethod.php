@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentMethod extends Model
 {
-    use HasFactory, BelongsToShop;
+    use BelongsToShop, HasFactory;
 
     protected $fillable = [
         'shop_id',
         'name',
         'code',
         'type',
-        'is_active'
+        'is_active',
     ];
 }

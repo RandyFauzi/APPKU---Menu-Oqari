@@ -2,6 +2,7 @@
 
 namespace App\Actions\Payment;
 
+use App\Jobs\SendOrderReceiptEmail;
 use App\Models\CashRegisterSession;
 use App\Models\Order;
 use App\Models\Payment;
@@ -78,7 +79,7 @@ class ProcessPayment
 
             if ($order->customer_email) {
                 DB::afterCommit(function () use ($order) {
-                    dispatch(new \App\Jobs\SendOrderReceiptEmail($order->id));
+                    dispatch(new SendOrderReceiptEmail($order->id));
                 });
             }
 

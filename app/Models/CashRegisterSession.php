@@ -13,7 +13,7 @@ class CashRegisterSession extends Model
         'cash_register_id', 'user_id', 'opened_at', 'closed_at',
         'opening_cash', 'expected_cash', 'actual_cash', 'difference',
         'total_cash_sales', 'total_qris_sales', 'total_other_sales',
-        'status', 'notes'
+        'status', 'notes',
     ];
 
     protected $casts = [

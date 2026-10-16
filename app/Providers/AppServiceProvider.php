@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Gate;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,17 +28,17 @@ class AppServiceProvider extends ServiceProvider
             'manager' => [
                 'access-pos', 'view-orders', 'manage-orders', 'manage-menu',
                 'manage-crew', 'manage-settings', 'view-reports', 'manage-reports',
-                'manage-shifts', 'manage-register', 'manage-payments', 'manage-inventory'
+                'manage-shifts', 'manage-register', 'manage-payments', 'manage-inventory',
             ],
             'cashier' => [
-                'access-pos', 'view-orders', 'manage-orders', 'manage-register', 'manage-payments'
+                'access-pos', 'view-orders', 'manage-orders', 'manage-register', 'manage-payments',
             ],
             'barista' => [
-                'view-kitchen', 'update-kitchen-status', 'view-orders'
+                'view-kitchen', 'update-kitchen-status', 'view-orders',
             ],
             'crew' => [
-                'view-own-schedule'
-            ]
+                'view-own-schedule',
+            ],
         ];
 
         // Superadmin bypass (Platform Level)
@@ -53,18 +53,22 @@ class AppServiceProvider extends ServiceProvider
             'access-pos', 'view-orders', 'manage-orders', 'manage-menu', 'manage-crew',
             'manage-settings', 'view-reports', 'manage-reports', 'manage-shifts',
             'manage-register', 'manage-payments', 'manage-inventory', 'manage-integrations',
-            'view-kitchen', 'update-kitchen-status', 'view-own-schedule'
+            'view-kitchen', 'update-kitchen-status', 'view-own-schedule',
         ];
 
         foreach ($allPermissions as $permission) {
             Gate::define($permission, function (User $user) use ($permission, $rolePermissions) {
                 $role = strtolower($user->role);
-                if (!isset($rolePermissions[$role])) return false;
-                if (in_array('*', $rolePermissions[$role])) return true;
+                if (! isset($rolePermissions[$role])) {
+                    return false;
+                }
+                if (in_array('*', $rolePermissions[$role])) {
+                    return true;
+                }
+
                 return in_array($permission, $rolePermissions[$role]);
             });
         }
         //
     }
 }
-

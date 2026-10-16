@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('shops', 'is_banner_active')) {
+        if (! Schema::hasColumn('shops', 'is_banner_active')) {
             Schema::table('shops', function (Blueprint $table) {
                 $table->boolean('is_banner_active')->default(true)->after('banners');
             });

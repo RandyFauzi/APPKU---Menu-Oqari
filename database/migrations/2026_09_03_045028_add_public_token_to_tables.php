@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Table;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,12 +15,12 @@ return new class extends Migration
         });
 
         // Fill existing tables with tokens
-        $tables = \App\Models\Table::all();
+        $tables = Table::all();
         foreach ($tables as $t) {
             $t->public_token = strtolower(Str::random(8));
             $t->save();
         }
-        
+
         Schema::table('tables', function (Blueprint $table) {
             $table->string('public_token')->nullable(false)->change();
             $table->dropColumn('qr_code_url');

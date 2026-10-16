@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -17,7 +17,7 @@ class ReportController extends Controller
     {
         $shopId = Auth::user()->shop_id;
         $date = $request->input('date', Carbon::today()->toDateString());
-        
+
         $startOfDay = Carbon::parse($date)->startOfDay();
         $endOfDay = Carbon::parse($date)->endOfDay();
 
@@ -27,27 +27,27 @@ class ReportController extends Controller
             ->where('payment_status', 'PAID') // Strict cash-basis accounting
             ->get();
 
-                $transactionsCount = $orders->count();
-        
+        $transactionsCount = $orders->count();
+
         // Accurate Financial Metrics Definition
         // Gross merchandise sales (Subtotal of all items sold)
         $grossSales = $orders->sum('subtotal');
         $totalDiscount = $orders->sum('discount_amount');
-        
+
         // Gross - Discount = Net sales before tax
         $netSales = $grossSales - $totalDiscount;
-        
+
         $totalTax = $orders->sum('tax_amount');
         $totalServiceCharge = $orders->sum('service_charge_amount');
-        
+
         // Grand Total collected from customers
         $grandTotal = $orders->sum('grand_total');
-        
+
         // AOV typically uses Grand Total because it's what the customer actually pays
         $aov = $transactionsCount > 0 ? $grandTotal / $transactionsCount : 0;
-        
+
         // Ensure variables are defined for the view if it expects them
-        
+
         // 2. Split by Payment Methods
         $payments = Payment::where('shop_id', $shopId)
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
@@ -82,8 +82,8 @@ class ReportController extends Controller
             ->get();
 
         // 4. Time Analytics (Hourly) - DB Agnostic mapping
-        $chartData = array_fill_keys(array_map(fn($i) => str_pad($i, 2, '0', STR_PAD_LEFT).':00', range(0, 23)), 0);
-        
+        $chartData = array_fill_keys(array_map(fn ($i) => str_pad($i, 2, '0', STR_PAD_LEFT).':00', range(0, 23)), 0);
+
         foreach ($orders as $order) {
             $hour = $order->created_at->format('H:00');
             $chartData[$hour] += $order->grand_total;

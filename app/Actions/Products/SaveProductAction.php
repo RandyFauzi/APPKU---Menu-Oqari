@@ -13,9 +13,9 @@ class SaveProductAction
         return DB::transaction(function () use ($shopId, $data, $imagePath) {
             // 1. Resolve Category
             $categoryId = null;
-            if (!empty($data['category_id'])) {
+            if (! empty($data['category_id'])) {
                 $categoryId = $data['category_id'];
-            } elseif (!empty($data['category_name']) || !empty($data['categoryId'])) {
+            } elseif (! empty($data['category_name']) || ! empty($data['categoryId'])) {
                 $categoryName = $data['category_name'] ?? $data['categoryId'];
                 $category = Category::firstOrCreate(
                     ['shop_id' => $shopId, 'name' => $categoryName],
@@ -61,8 +61,10 @@ class SaveProductAction
     {
         $keepIds = [];
         foreach ($variants as $v) {
-            if (empty($v['name'])) continue;
-            
+            if (empty($v['name'])) {
+                continue;
+            }
+
             $variant = $product->variants()->updateOrCreate(
                 ['id' => $v['id'] ?? null],
                 [
@@ -74,7 +76,7 @@ class SaveProductAction
             );
             $keepIds[] = $variant->id;
         }
-        
+
         // Delete variants not in the request
         $product->variants()->whereNotIn('id', $keepIds)->delete();
     }
@@ -83,7 +85,9 @@ class SaveProductAction
     {
         $keepGroupIds = [];
         foreach ($groups as $g) {
-            if (empty($g['name'])) continue;
+            if (empty($g['name'])) {
+                continue;
+            }
 
             $group = $product->modifierGroups()->updateOrCreate(
                 ['id' => $g['id'] ?? null],
@@ -101,7 +105,9 @@ class SaveProductAction
             if (isset($g['modifiers']) && is_array($g['modifiers'])) {
                 $keepModIds = [];
                 foreach ($g['modifiers'] as $m) {
-                    if (empty($m['name'])) continue;
+                    if (empty($m['name'])) {
+                        continue;
+                    }
 
                     $mod = $group->modifiers()->updateOrCreate(
                         ['id' => $m['id'] ?? null],
@@ -117,7 +123,7 @@ class SaveProductAction
                 $group->modifiers()->whereNotIn('id', $keepModIds)->delete();
             }
         }
-        
+
         $product->modifierGroups()->whereNotIn('id', $keepGroupIds)->delete();
     }
 }

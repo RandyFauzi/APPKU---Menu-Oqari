@@ -28,27 +28,29 @@ class CreateSuperAdmin extends Command
      */
     public function handle()
     {
-        $this->info("Creating Oqari Super Admin Account");
+        $this->info('Creating Oqari Super Admin Account');
 
         $email = $this->ask('Enter super admin email');
-        
+
         $validator = Validator::make(['email' => $email], [
-            'email' => 'required|email'
+            'email' => 'required|email',
         ]);
 
         if ($validator->fails()) {
             $this->error('Invalid email format.');
+
             return Command::FAILURE;
         }
 
         if (User::where('email', $email)->exists()) {
             $this->error("A user with email {$email} already exists!");
-            if (!$this->confirm('Do you want to elevate this existing user to superadmin?')) {
+            if (! $this->confirm('Do you want to elevate this existing user to superadmin?')) {
                 return Command::FAILURE;
             }
             $user = User::where('email', $email)->first();
             $user->update(['role' => 'superadmin', 'shop_id' => null]);
             $this->info('User successfully elevated to Super Admin.');
+
             return Command::SUCCESS;
         }
 
@@ -57,6 +59,7 @@ class CreateSuperAdmin extends Command
 
         if (strlen($password) < 8) {
             $this->error('Password must be at least 8 characters long.');
+
             return Command::FAILURE;
         }
 
@@ -69,6 +72,7 @@ class CreateSuperAdmin extends Command
         ]);
 
         $this->info("Super Admin account successfully created for {$email}!");
+
         return Command::SUCCESS;
     }
 }

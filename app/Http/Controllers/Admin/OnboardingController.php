@@ -31,10 +31,10 @@ class OnboardingController extends Controller
                 DB::statement("ALTER TABLE `shops` ADD COLUMN `onboarding_step` VARCHAR(50) NOT NULL DEFAULT 'welcome'");
             }
             if (! in_array('address', $existing)) {
-                DB::statement("ALTER TABLE `shops` ADD COLUMN `address` TEXT NULL");
+                DB::statement('ALTER TABLE `shops` ADD COLUMN `address` TEXT NULL');
             }
             if (! in_array('email', $existing)) {
-                DB::statement("ALTER TABLE `shops` ADD COLUMN `email` VARCHAR(255) NULL");
+                DB::statement('ALTER TABLE `shops` ADD COLUMN `email` VARCHAR(255) NULL');
             }
         } catch (\Throwable $e) {
             Log::error('Direct ALTER TABLE in OnboardingController failed: '.$e->getMessage());

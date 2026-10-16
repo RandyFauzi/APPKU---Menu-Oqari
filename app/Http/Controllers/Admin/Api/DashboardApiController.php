@@ -14,14 +14,14 @@ class DashboardApiController extends Controller
     public function getSummary(Request $request)
     {
         $shopId = Auth::user()->shop_id;
-        if (!$shopId) {
+        if (! $shopId) {
             return response()->json(['error' => 'No shop assigned'], 403);
         }
 
         $categories = Category::where('shop_id', $shopId)->orderBy('sort_order')->get();
         $tables = Table::where('shop_id', $shopId)->get();
         $users = User::where('shop_id', $shopId)->get();
-        
+
         return response()->json([
             'categories' => $categories,
             'tables' => $tables,

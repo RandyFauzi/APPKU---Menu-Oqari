@@ -1,10 +1,13 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up(): void {
+return new class extends Migration
+{
+    public function up(): void
+    {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('shop_id')->constrained()->cascadeOnDelete();
@@ -12,16 +15,18 @@ return new class extends Migration {
             $table->string('payment_method');
             $table->decimal('amount', 12, 2);
             $table->string('reference_number')->nullable();
-            
+
             // Cancellation fields
             $table->timestamp('cancelled_at')->nullable();
             $table->foreignId('cancelled_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('cancellation_reason')->nullable();
-            
+
             $table->timestamps();
         });
     }
-    public function down(): void {
+
+    public function down(): void
+    {
         Schema::dropIfExists('payments');
     }
 };

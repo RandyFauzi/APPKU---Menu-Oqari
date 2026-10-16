@@ -41,7 +41,7 @@ class MediaService
         $url = Storage::disk($this->disk)->url($path);
 
         if (Str::startsWith($url, '/')) {
-            $url = rtrim(config('app.url'), '/') . $url;
+            $url = rtrim(config('app.url'), '/').$url;
         }
 
         return $url;
@@ -117,7 +117,7 @@ class MediaService
             return null;
         }
 
-        $cachedPath = preg_replace('/\.\w+$/', '', $logoPath) . '_email.png';
+        $cachedPath = preg_replace('/\.\w+$/', '', $logoPath).'_email.png';
 
         if (! Storage::disk($this->disk)->exists($cachedPath)) {
             $bytes = Storage::disk($this->disk)->get($logoPath);

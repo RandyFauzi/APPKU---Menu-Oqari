@@ -2,16 +2,16 @@
 
 namespace App\Actions\Orders;
 
+use App\Models\Modifier;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
-use App\Models\Modifier;
-use App\Models\Table;
 use App\Models\Shop;
-use App\Events\OrderCreated;
-use Illuminate\Support\Facades\DB;
+use App\Models\Table;
+use App\Services\InventoryService;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class CreateOrderAction
 {
@@ -21,10 +21,10 @@ class CreateOrderAction
     public function execute(Shop $shop, array $data, $fulfillmentType = 'DINE_IN'): Order
     {
         return DB::transaction(function () use ($shop, $data, $fulfillmentType) {
-            
+
             // 1. Resolve Table
             $tableModel = Table::where('shop_id', $shop->id)->where('name', $data['table_id'])->first();
-            if (!$tableModel) {
+            if (! $tableModel) {
                 $tableModel = Table::create(['shop_id' => $shop->id, 'name' => $data['table_id']]);
             }
 
@@ -39,48 +39,48 @@ class CreateOrderAction
                     ->where('is_sold_out', false)
                     ->first();
 
-                if (!$product) {
-                    throw new Exception("Produk tidak tersedia: " . $item['id']);
+                if (! $product) {
+                    throw new Exception('Produk tidak tersedia: '.$item['id']);
                 }
 
                 $price = $product->price;
                 $cogs = $product->cogs;
-                
+
                 $variantId = $item['variant_id'] ?? null;
                 $variantName = null;
-                
+
                 if ($variantId) {
                     $variant = ProductVariant::where('id', $variantId)
                         ->where('product_id', $product->id)
                         ->where('is_active', true)
                         ->first();
-                        
-                    if (!$variant) {
-                        throw new Exception("Varian produk tidak valid.");
+
+                    if (! $variant) {
+                        throw new Exception('Varian produk tidak valid.');
                     }
-                    
+
                     $variantName = $variant->name;
                     $price += $variant->price_adjustment;
                     $cogs += $variant->cogs_adjustment;
                 }
-                
+
                 $modifiersSnapshot = [];
-                if (!empty($item['modifiers']) && is_array($item['modifiers'])) {
+                if (! empty($item['modifiers']) && is_array($item['modifiers'])) {
                     foreach ($item['modifiers'] as $modId) {
                         $modifier = Modifier::where('id', $modId)
-                            ->whereHas('group', function($q) use ($product) {
+                            ->whereHas('group', function ($q) use ($product) {
                                 $q->where('product_id', $product->id);
                             })
                             ->where('is_active', true)
                             ->first();
-                            
+
                         if ($modifier) {
                             $price += $modifier->price_adjustment;
                             $cogs += $modifier->cogs_adjustment;
                             $modifiersSnapshot[] = [
                                 'id' => $modifier->id,
                                 'name' => $modifier->name,
-                                'price_adjustment' => $modifier->price_adjustment
+                                'price_adjustment' => $modifier->price_adjustment,
                             ];
                         }
                     }
@@ -88,7 +88,7 @@ class CreateOrderAction
 
                 $subtotal = $price * $item['qty'];
                 $itemCogs = $cogs * $item['qty'];
-                
+
                 $total += $subtotal;
                 $totalCogs += $itemCogs;
 
@@ -107,7 +107,7 @@ class CreateOrderAction
             }
 
             if (empty($orderItems)) {
-                throw new Exception("Keranjang pesanan tidak valid.");
+                throw new Exception('Keranjang pesanan tidak valid.');
             }
 
             // 3. Create the Order Parent
@@ -133,7 +133,10 @@ class CreateOrderAction
             }
 
             $order->load('items.product');
-            
+
+            // Deduct inventory stock based on recipes
+            app(InventoryService::class)->deductStockForOrder($order);
+
             return $order;
         });
     }

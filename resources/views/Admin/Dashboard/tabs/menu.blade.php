@@ -103,6 +103,7 @@
                                 <th class="p-4 font-semibold">Item</th>
                                 <th class="p-4 font-semibold">Category</th>
                                 <th class="p-4 font-semibold">Price</th>
+                                <th class="p-4 font-semibold">HPP (Modal)</th>
                                 <th class="p-4 font-semibold">Status</th>
                                 <th class="p-4 font-semibold">Actions</th>
                             </tr>
@@ -122,6 +123,14 @@
                                         <span class="px-3 py-1 bg-brewlylightgreen text-brewlygreen text-xs font-bold rounded-full capitalize" x-text="item.categoryName || '-'"></span>
                                     </td>
                                     <td class="p-4 font-semibold text-sm font-mono" x-text="formatRp(item.price)"></td>
+                                    <td class="p-4 font-mono text-xs">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-[#164A35]" x-text="formatRp(item.cogs || 0)"></span>
+                                            <template x-if="item.price > 0 && item.cogs > 0">
+                                                <span class="text-[10px] text-gray-500 font-semibold" x-text="'Margin: ' + Math.round(((item.price - item.cogs)/item.price)*100) + '%'"></span>
+                                            </template>
+                                        </div>
+                                    </td>
                                     <td class="p-4">
                                         <div class="flex items-center gap-2">
                                             <div class="w-2 h-2 rounded-full" :class="item.is_sold_out ? 'bg-red-500' : 'bg-brewlygreen'"></div>

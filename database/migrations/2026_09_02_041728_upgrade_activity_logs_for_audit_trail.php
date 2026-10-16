@@ -14,7 +14,7 @@ return new class extends Migration
             $table->json('old_values')->nullable()->after('description');
             $table->json('new_values')->nullable()->after('old_values');
             $table->string('user_agent')->nullable()->after('ip_address');
-            
+
             $table->index(['entity_type', 'entity_id']);
         });
     }

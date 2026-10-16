@@ -77,9 +77,9 @@ class ReportingService
             ->distinct()
             ->pluck('identifier')
             ->toArray();
-            
+
         $returningIdentifiers = [];
-        if (!empty($todayCustomers)) {
+        if (! empty($todayCustomers)) {
             $placeholders = implode(',', array_fill(0, count($todayCustomers), '?'));
             $returningIdentifiers = DB::table('orders')
                 ->where('shop_id', $shopId)
@@ -90,11 +90,11 @@ class ReportingService
                 ->pluck('identifier')
                 ->toArray();
         }
-        
+
         $returningCount = count($returningIdentifiers);
         $newCount = count($todayCustomers) - $returningCount;
         $totalCustomers = count($todayCustomers);
-        
+
         $returningCustomersPct = $totalCustomers > 0 ? round(($returningCount / $totalCustomers) * 100) : null;
         $newCustomersPct = $totalCustomers > 0 ? round(($newCount / $totalCustomers) * 100) : null;
 

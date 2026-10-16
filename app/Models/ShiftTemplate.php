@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Traits\BelongsToShop;
@@ -7,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShiftTemplate extends Model
 {
-    use HasFactory, BelongsToShop;
+    use BelongsToShop, HasFactory;
 
     protected $fillable = [
         'shop_id',
