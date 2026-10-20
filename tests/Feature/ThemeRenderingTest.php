@@ -34,8 +34,8 @@ class ThemeRenderingTest extends TestCase
         $this->assertSame('Cafe Sparta', $shop->fresh()->name);
     }
 
-    #[TestWith(['#1E5A7A', '#641d35'])]
-    #[TestWith(['#846322', '#846322'])]
+    #[TestWith(['#1E5A7A', '#1e5a7a'])]
+    #[TestWith(['#276749', '#276749'])]
     public function test_customer_pages_use_palette_without_overwriting_saved_branding(string $stored, string $effective): void
     {
         $shop = Shop::factory()->create(['status' => 'active', 'primary_color' => $stored]);

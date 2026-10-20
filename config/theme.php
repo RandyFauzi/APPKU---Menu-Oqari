@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'primary' => '#641d35',
+    'primary' => '#1e5a7a',
     'primary_options' => [
-        '#641d35' => 'Burgundy', '#481526' => 'Burgundy Gelap', '#87304f' => 'Burgundy Lembut', '#846322' => 'Gold Tua',
+        '#1e5a7a' => 'Biru', '#164a35' => 'Hijau Kopi', '#276749' => 'Hijau', '#744210' => 'Cokelat',
     ],
 ];

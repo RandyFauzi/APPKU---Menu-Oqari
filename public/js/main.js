@@ -91,7 +91,7 @@ function renderCarousel() {
         <div class="min-w-full h-full snap-center bg-gray-900 relative">
             <img src="${safeImageUrl(h.img)}" class="w-full h-full object-cover">
             <!-- Gradasi Biru hanya di bawah -->
-            <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#641d35] via-[#641d35]/60 to-transparent"></div>
+            <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#1E5A7A] via-[#1E5A7A]/60 to-transparent"></div>
             <div class="absolute inset-0 p-5 flex flex-col justify-end w-full text-white z-10 pb-8">
                 <h2 class="text-3xl font-black font-heading leading-[1.1] uppercase text-white drop-shadow-md">${escapeHtml(h.title)}</h2>
                 ${h.desc ? `<p class="text-xs opacity-90 font-medium mt-1">${escapeHtml(h.desc)}</p>` : ''}

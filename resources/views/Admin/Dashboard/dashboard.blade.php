@@ -52,83 +52,52 @@
     <audio id="chime-sound" src="{{ asset('Assest/notif_orderan_masuk.mp3') }}" preload="auto"></audio>
 
     <!-- Sidebar -->
-    <aside :class="isMinimized ? 'w-20 px-4' : 'w-64 px-6'" class="transition-all duration-300 ease-in-out z-[110] flex flex-col shrink-0 border-r border-brewlyborder py-6 gap-6 h-full bg-brewlybg overflow-y-auto hide-scroll">
-        <!-- Brand & Collapse Toggle -->
-        <div class="flex items-center justify-between mb-2 shrink-0">
-            <div class="flex items-center gap-3 w-full" :class="isMinimized ? 'justify-center' : ''">
-                @if(isset($shop) && $shop->logo_url)
-                    <img src="{{ $shop->logo_url }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 rounded-md object-cover shadow-sm shrink-0">
-                @else
-                    <img src="{{ asset('logo-oqari.webp') }}" alt="Logo" id="sidebar-logo" class="w-10 h-10 object-contain shrink-0">
-                @endif
-                <div class="flex flex-col" x-show="!isMinimized" x-transition>
-                    <span class="font-bold text-lg leading-tight truncate w-32">{{ $shop->name ?? 'Oqari' }}</span>
-                    <span class="text-[10px] text-brewlymuted uppercase tracking-wider truncate"><x-hellenic-emblem class="inline-block w-3 h-3 mr-1 align-middle" />Coffee Shops. Stronger.</span>
-                </div>
-            </div>
+    <aside id="app-sidebar" class="app-sidebar h-full flex flex-col shrink-0 transition-[width] duration-200 z-[110] overflow-hidden" :class="{ 'is-collapsed': isMinimized }" aria-label="Navigasi aplikasi">
+        <div class="h-24 shrink-0 flex items-center px-5 gap-3 border-b border-gray-200/70" :class="isMinimized ? 'justify-center px-3' : ''">
+            <img src="{{ $shop->logo_url ?: asset('logo-oqari.webp') }}" alt="Logo {{ $shop->name }}" id="sidebar-logo" class="w-10 h-10 rounded-lg object-contain shrink-0">
+            <div x-show="!isMinimized" class="min-w-0"><p class="font-bold text-sm text-gray-900 truncate">{{ $shop->name }}</p><p class="text-[11px] text-gray-500 mt-1">Cafe Management</p></div>
         </div>
-        
-        <nav class="flex-grow shrink-0 space-y-1">
-        @can('manage-users')<a href="{{ route('admin.users.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">User &amp; Hak Akses</a>@endcan
-        @can('manage-hpp')
-            <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
-        @endcan
-        @can('manage-register')
-            <a href="{{ route('admin.register.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Rekonsiliasi Kas</a>
-        @endcan
-        @can('record-attendance')
-            <a href="{{ route('admin.attendance.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-gold-600 hover:bg-gray-100">Absensi Karyawan</a>
-        @endcan
-
-            <a href="{{ route('admin.pos.index') }}" class="w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors text-left text-brewlymuted hover:bg-gray-100 hover:text-primary font-medium group" :class="isMinimized ? 'justify-center px-0' : 'gap-3'">
-                <i class="fas fa-cash-register text-center text-lg shrink-0"></i>
-                <span x-show="!isMinimized" x-transition>POS (Kasir)</span>
-            </a>
-            <template x-for="tab in tabs" :key="tab.id">
-                <button @click="currentTab = tab.id" 
-                        class="w-full flex items-center py-2.5 rounded-xl text-sm transition-colors text-left group"
-                        :class="[(isMinimized ? 'justify-center px-0' : 'px-4 gap-3'), (currentTab === tab.id ? 'bg-brand-100 text-primary font-bold' : 'text-brewlymuted hover:bg-gray-100 hover:text-primary font-medium')]">
-                    <i :class="tab.icon" class="text-center text-lg shrink-0"></i>
-                    <span x-show="!isMinimized" x-text="tab.name" x-transition class="truncate"></span>
-                </button>
+        <nav class="sidebar-scroll flex-1 min-h-0 overflow-y-auto px-3 pb-4" aria-label="Menu utama">
+            <p class="sidebar-heading" x-show="!isMinimized">Operasional</p>
+            @can('access-pos')<a href="{{ route('admin.pos.index') }}" class="sidebar-link" title="POS (Kasir)" aria-label="POS (Kasir)"><i class="fas fa-cash-register" aria-hidden="true"></i><span x-show="!isMinimized">POS (Kasir)</span></a>@endcan
+            @php
+                $featureLinks = [
+                    ['ability' => 'manage-register', 'route' => 'admin.register.index', 'icon' => 'fa-wallet', 'label' => 'Rekonsiliasi Kas'],
+                    ['ability' => 'record-attendance', 'route' => 'admin.attendance.index', 'icon' => 'fa-user-clock', 'label' => 'Absensi Karyawan'],
+                ];
+            @endphp
+            @foreach($featureLinks as $link) @can($link['ability'])<a href="{{ route($link['route']) }}" class="sidebar-link" title="{{ $link['label'] }}" aria-label="{{ $link['label'] }}"><i class="fas {{ $link['icon'] }}" aria-hidden="true"></i><span x-show="!isMinimized">{{ $link['label'] }}</span></a>@endcan @endforeach
+            <template x-for="group in navigationGroups" :key="group.label">
+                <div x-show="tabs.some(tab => group.ids.includes(tab.id))">
+                    <p class="sidebar-heading" x-show="!isMinimized" x-text="group.label"></p>
+                    <div class="my-3 border-t border-gray-200" x-show="isMinimized" aria-hidden="true"></div>
+                    <template x-for="tab in tabs.filter(tab => group.ids.includes(tab.id))" :key="tab.id">
+                        <button type="button" @click="currentTab = tab.id" class="sidebar-link" :class="{ 'is-active': currentTab === tab.id }" :title="tab.name" :aria-label="tab.name" :aria-current="currentTab === tab.id ? 'page' : null">
+                            <i :class="tab.icon" aria-hidden="true"></i><span x-show="!isMinimized" x-text="tab.name" class="truncate"></span>
+                        </button>
+                    </template>
+                </div>
             </template>
+            @can('manage-hpp')<a href="{{ route('admin.hpp.index') }}" class="sidebar-link" title="Kalkulator HPP" aria-label="Kalkulator HPP"><i class="fas fa-calculator" aria-hidden="true"></i><span x-show="!isMinimized">Kalkulator HPP</span></a>@endcan
+            @can('manage-users')<a href="{{ route('admin.users.index') }}" class="sidebar-link" title="User & Hak Akses" aria-label="User & Hak Akses"><i class="fas fa-user-shield" aria-hidden="true"></i><span x-show="!isMinimized">User &amp; Hak Akses</span></a>@endcan
         </nav>
-        
-        <!-- Store Status Toggle -->
-        <div class="mt-auto shrink-0 mb-2 bg-ivory rounded-2xl border border-line flex flex-col transition-all" :class="isMinimized ? 'p-3 items-center' : 'p-4 gap-2'">
-            <div x-show="!isMinimized" x-transition>
-                <label class="block text-[13px] font-bold text-ink">Toko Buka Sekarang?</label>
-                <p class="text-[10px] text-muted leading-tight mt-0.5">Matikan untuk menutup toko manual.</p>
-            </div>
-            <div @click="settings.is_open = !settings.is_open; saveSettings()" class="relative inline-flex items-center cursor-pointer" :class="isMinimized ? '' : 'mt-1'">
-                <div class="w-10 h-5 rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_open ? 'bg-primary' : 'bg-gray-300'">
-                    <div class="w-3.5 h-3.5 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out absolute top-[3px] left-[3px]" :class="settings.is_open ? 'translate-x-5' : 'translate-x-0'"></div>
-                </div>
-                <span x-show="!isMinimized" class="ml-2 text-xs font-bold" :class="settings.is_open ? 'text-primary' : 'text-gray-400'" x-text="settings.is_open ? 'Buka' : 'Tutup'"></span>
-            </div>
+        <div class="shrink-0 border-t border-gray-200 p-3 space-y-2">
+            @can('manage-settings')
+            <button type="button" @click="settings.is_open = !settings.is_open; saveSettings()" class="sidebar-link" :title="settings.is_open ? 'Tutup toko' : 'Buka toko'" :aria-label="settings.is_open ? 'Tutup toko' : 'Buka toko'" :aria-pressed="settings.is_open">
+                <i class="fas fa-store" aria-hidden="true"></i><span x-show="!isMinimized" class="flex-1">Status Toko</span><span x-show="!isMinimized" class="text-xs font-bold" :class="settings.is_open ? 'text-green-700' : 'text-gray-500'" x-text="settings.is_open ? 'Buka' : 'Tutup'"></span>
+            </button>
+            @endcan
+            <button type="button" @click="logout()" class="sidebar-link text-red-600 hover:text-red-700 hover:bg-red-50" title="Keluar" aria-label="Keluar"><i class="fas fa-sign-out-alt" aria-hidden="true"></i><span x-show="!isMinimized">Keluar</span></button>
         </div>
-
-        <!-- Promo Card -->
-        <div x-show="!isMinimized" x-transition class="shrink-0 bg-ivory rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mb-2 border border-line">
-            <h4 class="font-bold text-[16px] leading-tight z-10 text-primary">Brew Better Days</h4>
-            <p class="text-[12px] text-muted z-10 leading-snug w-4/5">Track, analyze and grow your cafe effortlessly.</p>
-            <img src="https://images.unsplash.com/photo-1550133730-695473e544be?w=100&fit=crop" class="absolute -bottom-4 -right-4 w-20 h-20 object-cover rounded-full opacity-70 border-4 border-white shadow-sm">
-        </div>
-        
-        <!-- Logout Button -->
-        <button @click="logout()" class="shrink-0 w-full flex items-center justify-center rounded-xl text-sm font-bold text-red-500 bg-red-50 hover:bg-red-100 transition-colors mt-2" :class="isMinimized ? 'py-3' : 'py-3 gap-2 px-4'">
-            <i class="fas fa-sign-out-alt text-lg shrink-0"></i>
-            <span x-show="!isMinimized" x-transition>Logout</span>
-        </button>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-grow flex flex-col h-full bg-white rounded-l-[40px] shadow-[-10px_0_30px_rgba(0,0,0,0.02)] border-l border-brewlyborder overflow-hidden">
+    <main class="flex-grow min-w-0 flex flex-col h-full bg-white rounded-l-[24px] shadow-[-10px_0_30px_rgba(0,0,0,0.02)] border-l border-brewlyborder overflow-hidden">
         
         <!-- Top Header for Main Area -->
         <header class="h-20 md:h-24 flex justify-between items-center px-4 md:px-10 shrink-0 border-b border-brewlyborder/50 bg-white relative z-50">
             <div class="flex items-center gap-3">
-                <button @click="isMinimized = !isMinimized" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
+                <button type="button" @click="isMinimized = !isMinimized" aria-label="Ubah ukuran sidebar" aria-controls="app-sidebar" :aria-expanded="!isMinimized" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
                     <i class="fas fa-bars text-lg"></i>
                 </button>
                 <div x-show="currentTab !== 'analytics'">
@@ -1170,6 +1139,12 @@ handleDraftImageUpload(event, index) {
                     }
                     return filtered;
                 },
+                navigationGroups: [
+                    { label: 'Pesanan & Produk', ids: ['orders', 'menu', 'inventory'] },
+                    { label: 'Tim Cafe', ids: ['crew', 'shifts'] },
+                    { label: 'Laporan', ids: ['analytics', 'report', 'logs'] },
+                    { label: 'Pengaturan', ids: ['qr', 'settings', 'receipt'] },
+                ],
                 tabs: [
                     { id: 'analytics', ability: 'view-reports', name: 'Dashboard Analytics', icon: 'fas fa-chart-pie' },
                     { id: 'report', ability: 'view-reports', name: 'Laporan Keuangan', icon: 'fas fa-book' },

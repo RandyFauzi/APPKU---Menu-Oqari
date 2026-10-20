@@ -1,17 +1,17 @@
 @layer base {
     :root {
         color-scheme: light;
-        --oq-burgundy-50: 251 240 243;
-        --oq-burgundy-100: 244 223 229;
-        --oq-burgundy-200: 232 189 203;
-        --oq-burgundy-300: 215 147 168;
-        --oq-burgundy-400: 192 101 133;
-        --oq-burgundy-500: 164 65 101;
-        --oq-burgundy-600: 135 48 79;
-        --oq-burgundy-700: 117 37 64;
-        --oq-burgundy-800: 100 29 53;
-        --oq-burgundy-900: 72 21 38;
-        --oq-burgundy-950: 46 13 24;
+        --oq-burgundy-50: 240 249 255;
+        --oq-burgundy-100: 224 242 254;
+        --oq-burgundy-200: 186 230 253;
+        --oq-burgundy-300: 125 211 252;
+        --oq-burgundy-400: 56 189 248;
+        --oq-burgundy-500: 14 165 233;
+        --oq-burgundy-600: 2 132 199;
+        --oq-burgundy-700: 3 105 161;
+        --oq-burgundy-800: 30 90 122;
+        --oq-burgundy-900: 22 65 89;
+        --oq-burgundy-950: 12 41 58;
         --oq-gold-50: 252 248 235;
         --oq-gold-100: 245 236 210;
         --oq-gold-200: 228 202 140;
@@ -28,20 +28,20 @@
         --oq-primary-dark: rgb(var(--oq-burgundy-900));
         --oq-gold: rgb(var(--oq-gold-400));
         --oq-gold-ink: rgb(var(--oq-gold-600));
-        --oq-ivory: #fffaf0;
-        --oq-surface: #fffdf8;
-        --oq-surface-muted: #f6eedf;
-        --oq-line: #e4d7bd;
-        --oq-ink: #38242b;
-        --oq-muted: #6c5b60;
+        --oq-ivory: #fdfbf7;
+        --oq-surface: #ffffff;
+        --oq-surface-muted: #f4f6f8;
+        --oq-line: #e5e7eb;
+        --oq-ink: #222222;
+        --oq-muted: #64748b;
         --oq-font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
-        --oq-font-heading: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+        --oq-font-heading: 'Inter', 'Segoe UI', system-ui, sans-serif;
         --color-primary: var(--oq-primary);
         --color-secondary: var(--oq-primary-dark);
     }
     html { background-color: var(--oq-ivory); accent-color: var(--oq-primary); }
     body { background-color: var(--oq-ivory); color: var(--oq-ink); font-family: var(--oq-font-body); }
-    h1, h2, h3, .font-heading { font-family: var(--oq-font-heading); font-weight: 700; letter-spacing: .015em; }
+    h1, h2, h3, .font-heading { font-family: var(--oq-font-heading); font-weight: 700; letter-spacing: -.015em; }
     :is(input, select, textarea) { accent-color: var(--oq-primary); }
     :is(input, textarea)::placeholder { color: var(--oq-muted); opacity: .85; }
     :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--oq-gold-ink); outline-offset: 3px; }
@@ -51,7 +51,7 @@
 }
 
 @layer components {
-    .oq-frieze { height: 8px; flex-shrink: 0; background-color: var(--oq-primary-dark); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='8' viewBox='0 0 40 8'%3E%3Cpath d='M0 6h8V2h8v4h8V2h8v4h8' fill='none' stroke='%23b6924b' stroke-width='1'/%3E%3C/svg%3E"); }
+    .oq-frieze { display: none; }
     .oq-hero { background-image: radial-gradient(ellipse at 80% 20%, rgb(var(--oq-gold-200) / .3), transparent 55%), linear-gradient(135deg, var(--oq-ivory), var(--oq-surface)); }
     .oq-seal { color: var(--oq-gold-ink); }
     .oq-rule { border-color: var(--oq-line); border-top: 1px solid var(--oq-line); }
@@ -63,7 +63,7 @@
 @media (forced-colors: active) { :is(a, button, input, select, textarea):focus-visible { outline-color: Highlight; } }
 @media print {
     html, body { background: #fff !important; color: #000 !important; }
-    .oq-frieze { display: none !important; }
+    .oq-frieze { display: none; }
     .oq-receipt-header { background: #fff !important; color: #000 !important; border-bottom: 1px solid #000; }
     body { background-image: none !important; }
 }
@@ -76,3 +76,15 @@
     outline-color: rgb(var(--oq-gold-200));
 }
 .dark { color-scheme: dark; }
+
+@layer components {
+    .app-sidebar { width: 264px; background: #fdfbf7; border-right: 1px solid #e5e7eb; }
+    .app-sidebar.is-collapsed { width: 80px; }
+    .sidebar-link { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 10px; color: #526071; font-size: 13px; font-weight: 500; text-align: left; transition: background-color 150ms, color 150ms; }
+    .sidebar-link:hover { background: #edf2f5; color: #1e5a7a; }
+    .sidebar-link.is-active { background: #e7f2eb; color: #245b3a; font-weight: 700; }
+    .sidebar-link i { width: 20px; flex-shrink: 0; text-align: center; font-size: 16px; }
+    .is-collapsed .sidebar-link { justify-content: center; padding-left: 0; padding-right: 0; }
+    .sidebar-heading { padding: 0 12px; margin: 18px 0 7px; color: #64748b; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .sidebar-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+}
