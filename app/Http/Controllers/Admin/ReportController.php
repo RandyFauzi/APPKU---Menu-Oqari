@@ -54,7 +54,8 @@ class ReportController extends Controller
         // 2. Split by Payment Methods
         $payments = Payment::where('shop_id', $shopId)
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->where('status', 'SUCCESS')
+            ->whereNull('cancelled_at')
+            ->whereHas('order', fn ($query) => $query->where('shop_id', $shopId)->where('payment_status', 'PAID'))
             ->select('payment_method', DB::raw('SUM(amount) as total'))
             ->groupBy('payment_method')
             ->pluck('total', 'payment_method');

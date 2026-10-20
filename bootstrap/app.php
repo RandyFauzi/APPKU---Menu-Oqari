@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureFeatureSchemaIsReady;
 use App\Http\Middleware\EnsureShopIsNotSuspended;
 use App\Http\Middleware\IsSuperAdmin;
 use Illuminate\Foundation\Application;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
         $middleware->alias([
             'superadmin' => IsSuperAdmin::class,
+            'schema' => EnsureFeatureSchemaIsReady::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Services\SchemaCompatibility;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->scoped(SchemaCompatibility::class);
     }
 
     /**
@@ -21,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (! is_array(config('database_schema.groups'))) {
+            config(['database_schema' => require config_path('database_schema.php')]);
+        }
         if (! is_array(config('access.permissions'))) {
             config(['access' => require config_path('access.php')]);
         }

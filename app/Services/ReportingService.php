@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -39,14 +40,19 @@ class ReportingService
 
         // 2. Get Hourly Sales for Today in a single query
         // Grouping by hour
+        $hourExpression = match (DB::connection()->getDriverName()) {
+            'sqlite' => "CAST(strftime('%H', created_at) AS INTEGER)",
+            'pgsql' => 'EXTRACT(HOUR FROM created_at)',
+            default => 'HOUR(created_at)',
+        };
         $hourlyData = Order::where('shop_id', $shopId)
             ->where('payment_status', 'PAID')
             ->whereDate('created_at', $today)
             ->select(
-                DB::raw('HOUR(created_at) as hour'),
+                DB::raw($hourExpression.' as hour'),
                 DB::raw('COUNT(id) as count')
             )
-            ->groupBy(DB::raw('HOUR(created_at)'))
+            ->groupBy(DB::raw($hourExpression))
             ->pluck('count', 'hour');
 
         $hourlySales = [];
@@ -59,13 +65,14 @@ class ReportingService
         // 3. Top Product Today
         $topItem = DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->leftJoin('products', 'order_items.product_id', '=', 'products.id')
             ->where('orders.shop_id', $shopId)
             ->whereDate('orders.created_at', $today)
-            ->select('order_items.product_name', 'products.image_url', 'products.description', DB::raw('SUM(order_items.quantity) as total_sold'))
-            ->groupBy('order_items.product_name', 'products.image_url', 'products.description')
+            ->select('order_items.product_id', 'order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->groupBy('order_items.product_id', 'order_items.product_name')
             ->orderByDesc('total_sold')
             ->first();
+
+        $topProduct = $topItem?->product_id ? Product::where('shop_id', $shopId)->find($topItem->product_id) : null;
 
         // 4. Customer Retention Today
         // Identify customers who ordered today
@@ -107,8 +114,8 @@ class ReportingService
                 'name' => $topItem->product_name,
                 'sold' => (int) $topItem->total_sold,
                 'change' => 0,
-                'image' => $topItem->image_url ?? null,
-                'description' => $topItem->description ?? 'Tidak ada deskripsi',
+                'image' => $topProduct?->image_url,
+                'description' => $topProduct?->description ?? 'Tidak ada deskripsi',
             ] : [
                 'name' => 'Belum ada',
                 'sold' => 0,

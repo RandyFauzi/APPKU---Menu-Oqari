@@ -22,9 +22,7 @@ class InventoryController extends Controller
 {
     public function __construct(
         protected InventoryService $inventoryService
-    ) {
-        $this->inventoryService->ensureTablesExist();
-    }
+    ) {}
 
     /**
      * Ambil data ringkasan inventori (daftar bahan, metrik, & riwayat mutasi).
