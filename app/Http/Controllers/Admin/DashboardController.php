@@ -89,7 +89,7 @@ class DashboardController extends Controller
         }
 
         // Dashboard shell: only essential layout data
-        $activeSession = CashRegisterSession::where('shop_id', $shopId)->where('user_id', $user->id)->where('status', 'OPEN')->first();
+        $activeSession = CashRegisterSession::whereHas('register', fn ($query) => $query->where('shop_id', $shopId))->where('user_id', $user->id)->where('status', 'OPEN')->first();
         $categories = $user->can('manage-menu') ? Category::where('shop_id', $shopId)->orderBy('sort_order')->get() : collect();
         $dashboardShop = $user->can('manage-settings') ? $shop->toArray() : $shop->only(['id', 'name', 'slug', 'logo_url', 'primary_color', 'sales_modes']);
 

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\CashRegister;
+use App\Models\CashRegisterSession;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,5 +63,20 @@ class AdminDashboardTest extends TestCase
 
         $response->assertRedirect('/admin/dashboard');
         $this->assertAuthenticated();
+    }
+
+    public function test_dashboard_loads_active_session_through_register_and_excludes_other_cafes(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $otherShop = Shop::factory()->create();
+        $owner = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+        $otherRegister = CashRegister::create(['shop_id' => $otherShop->id, 'name' => 'Cafe Lain']);
+        $ownRegister = CashRegister::create(['shop_id' => $shop->id, 'name' => 'Cafe Sendiri']);
+        CashRegisterSession::create(['cash_register_id' => $otherRegister->id, 'user_id' => $owner->id, 'status' => 'OPEN', 'opening_cash' => 0, 'opened_at' => now()]);
+        $session = CashRegisterSession::create(['cash_register_id' => $ownRegister->id, 'user_id' => $owner->id, 'status' => 'OPEN', 'opening_cash' => 100000, 'opened_at' => now()]);
+        $this->actingAs($owner)->get('/admin/dashboard')->assertOk()
+            ->assertViewHas('activeSession', fn ($active): bool => $active?->id === $session->id);
+        $session->update(['status' => 'CLOSED']);
+        $this->get('/admin/dashboard')->assertOk()->assertViewHas('activeSession', null);
     }
 }
