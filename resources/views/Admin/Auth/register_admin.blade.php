@@ -85,7 +85,7 @@
 
                     <!-- Register Button -->
                     <div class="pt-4">
-                        <button type="submit" class="w-full flex items-center justify-center px-5 py-3.5 text-white font-medium bg-gold-600 rounded-xl hover:bg-gold-700 transition-colors shadow-lg shadow-[#846322]/30">
+                        <button type="submit" class="w-full flex items-center justify-center px-5 py-3.5 text-white font-medium bg-gold-600 rounded-xl hover:bg-gold-700 transition-colors shadow-lg shadow-[#34714c]/30">
                             Create Account
                         </button>
                     </div>

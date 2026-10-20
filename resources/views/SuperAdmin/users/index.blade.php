@@ -41,7 +41,7 @@
                         <th class="py-4 px-5 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#e4d7bd]/50">
+                <tbody class="divide-y divide-[#e5e7eb]/50">
                     @forelse($users as $user)
                     <tr class="hover:bg-ivory/50 transition duration-150">
                         <td class="py-4 px-5">

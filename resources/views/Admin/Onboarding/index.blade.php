@@ -16,6 +16,7 @@
     <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="bg-gray-50 h-screen w-full overflow-hidden text-gray-800" x-data="onboardingApp()">
+<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     <!-- TOP NAV -->
@@ -533,5 +534,6 @@
             }
         }
     </script>
+</div></div>
 </body>
 </html>

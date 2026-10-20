@@ -1,31 +1,31 @@
 @layer base {
     :root {
         color-scheme: light;
-        --oq-burgundy-50: 240 249 255;
-        --oq-burgundy-100: 224 242 254;
-        --oq-burgundy-200: 186 230 253;
-        --oq-burgundy-300: 125 211 252;
-        --oq-burgundy-400: 56 189 248;
-        --oq-burgundy-500: 14 165 233;
-        --oq-burgundy-600: 2 132 199;
-        --oq-burgundy-700: 3 105 161;
-        --oq-burgundy-800: 30 90 122;
-        --oq-burgundy-900: 22 65 89;
-        --oq-burgundy-950: 12 41 58;
-        --oq-gold-50: 252 248 235;
-        --oq-gold-100: 245 236 210;
-        --oq-gold-200: 228 202 140;
-        --oq-gold-300: 211 178 105;
-        --oq-gold-400: 182 146 75;
-        --oq-gold-500: 163 124 53;
-        --oq-gold-600: 132 99 34;
-        --oq-gold-700: 108 76 27;
-        --oq-gold-800: 80 56 23;
-        --oq-gold-900: 56 39 16;
-        --oq-gold-950: 39 27 12;
-        --oq-primary-rgb: var(--oq-burgundy-800);
+        --oq-blue-50: 240 249 255;
+        --oq-blue-100: 224 242 254;
+        --oq-blue-200: 186 230 253;
+        --oq-blue-300: 125 211 252;
+        --oq-blue-400: 56 189 248;
+        --oq-blue-500: 14 165 233;
+        --oq-blue-600: 2 132 199;
+        --oq-blue-700: 3 105 161;
+        --oq-blue-800: 30 90 122;
+        --oq-blue-900: 22 65 89;
+        --oq-blue-950: 12 41 58;
+        --oq-gold-50: 240 249 255;
+        --oq-gold-100: 224 242 254;
+        --oq-gold-200: 186 230 253;
+        --oq-gold-300: 125 211 252;
+        --oq-gold-400: 140 184 201;
+        --oq-gold-500: 52 113 76;
+        --oq-gold-600: 36 91 58;
+        --oq-gold-700: 30 78 50;
+        --oq-gold-800: 22 74 53;
+        --oq-gold-900: 18 56 41;
+        --oq-gold-950: 9 34 25;
+        --oq-primary-rgb: var(--oq-blue-800);
         --oq-primary: rgb(var(--oq-primary-rgb));
-        --oq-primary-dark: rgb(var(--oq-burgundy-900));
+        --oq-primary-dark: rgb(var(--oq-blue-900));
         --oq-gold: rgb(var(--oq-gold-400));
         --oq-gold-ink: rgb(var(--oq-gold-600));
         --oq-ivory: #fdfbf7;
@@ -52,7 +52,7 @@
 
 @layer components {
     .oq-frieze { display: none; }
-    .oq-hero { background-image: radial-gradient(ellipse at 80% 20%, rgb(var(--oq-gold-200) / .3), transparent 55%), linear-gradient(135deg, var(--oq-ivory), var(--oq-surface)); }
+    .oq-hero { background-image: linear-gradient(135deg, var(--oq-ivory), var(--oq-surface)); }
     .oq-seal { color: var(--oq-gold-ink); }
     .oq-rule { border-color: var(--oq-line); border-top: 1px solid var(--oq-line); }
 }
@@ -88,3 +88,18 @@
     .sidebar-heading { padding: 0 12px; margin: 18px 0 7px; color: #64748b; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
     .sidebar-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
 }
+
+@layer components {
+    .cafe-page-shell { display: flex; height: 100dvh; width: 100%; overflow: hidden; }
+    .cafe-page-content { flex: 1; min-width: 0; height: 100%; overflow: auto; position: relative; }
+    .app-sidebar { height: 100dvh; flex-shrink: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .cafe-nav-mobile { display: none; }
+    .cafe-nav-backdrop { position: fixed; inset: 0; background: rgb(15 23 42 / .4); z-index: 115; }
+    @media (max-width: 767px) {
+        .app-sidebar { position: fixed; top: 0; bottom: 0; left: 0; z-index: 120; transform: translateX(-100%); transition: transform 180ms; }
+        .app-sidebar.is-mobile-open { transform: translateX(0); width: min(280px, 85vw); }
+        .cafe-nav-mobile { display: inline-flex; position: fixed; bottom: 18px; left: 16px; z-index: 114; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px; border-radius: 12px; background: #1e5a7a; color: #fff; box-shadow: 0 3px 12px rgb(0 0 0 / .15); }
+        .cafe-page-content { padding-bottom: 72px; }
+    }
+}
+@media print { .app-sidebar, .cafe-nav-mobile, .cafe-nav-backdrop { display: none !important; } .cafe-page-shell, .cafe-page-content { display: block; height: auto; overflow: visible; } }

@@ -6,26 +6,7 @@
     <title>@yield('title', 'Oqari Super Admin')</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="icon" type="image/webp" href="{{ asset('logo-oqari.webp') }}">
-    <style>
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            color: #4b5563; /* text-gray-600 */
-            transition: all 0.2s;
-        }
-        .sidebar-link:hover {
-            background-color: #f6eedf; /* bg-gray-100 */
-            color: var(--oq-primary);
-        }
-        .sidebar-link.active {
-            background-color: var(--oq-primary);
-            color: white;
-        }
-    </style>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <x-theme-head :shop="$shop ?? null" />
 </head>
@@ -33,33 +14,7 @@
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-line flex flex-col hidden md:flex shrink-0 h-full overflow-y-auto">
-        <div class="p-6 flex items-center gap-3 border-b border-line shrink-0">
-            <img src="{{ asset('logo-oqari.webp') }}" alt="Oqari Logo" class="w-10 h-10 object-contain">
-            <div class="font-black text-xl text-primary">Oqari</div>
-        </div>
-        
-        <nav class="p-4 flex-1 space-y-1">
-            <a href="{{ route('superadmin.dashboard') }}" class="sidebar-link {{ request()->routeIs('superadmin.dashboard') ? 'active' : '' }}">
-                <i class="fas fa-chart-pie w-5"></i> Dashboard
-            </a>
-            <a href="{{ route('superadmin.shops.index') }}" class="sidebar-link {{ request()->routeIs('superadmin.shops.*') ? 'active' : '' }}">
-                <i class="fas fa-store w-5"></i> Manajemen Toko
-            </a>
-            <a href="{{ route('superadmin.users.index') }}" class="sidebar-link {{ request()->routeIs('superadmin.users.*') ? 'active' : '' }}">
-                <i class="fas fa-users w-5"></i> Manajemen Pengguna
-            </a>
-        </nav>
-
-        <div class="p-4 border-t border-line shrink-0">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="w-full px-4 py-2 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition flex items-center justify-center gap-2">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </form>
-        </div>
-    </aside>
+    <x-cafe-sidebar />
 
     <!-- Main Content -->
     <main class="flex-1 h-full overflow-y-auto overflow-x-hidden">

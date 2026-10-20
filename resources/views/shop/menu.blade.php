@@ -34,7 +34,7 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     
     <style>
-        html { background-color: #fffaf0; }
+        html { background-color: #fdfbf7; }
         :root {
             --color-primary: var(--oq-primary);
             --color-secondary: var(--oq-primary-dark);

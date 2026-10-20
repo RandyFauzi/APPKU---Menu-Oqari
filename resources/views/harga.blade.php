@@ -21,7 +21,7 @@
         body {
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             background-color: #252525;
-            color: #38242b;
+            color: #222222;
             min-height: 100vh;
         }
 

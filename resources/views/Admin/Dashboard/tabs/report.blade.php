@@ -9,7 +9,7 @@
             <button @click="exportCSV" class="px-4 py-2 bg-ivory border border-line text-muted rounded-xl font-bold hover:bg-gray-100 transition-colors flex items-center gap-2">
                 <i class="fas fa-file-csv"></i> Export CSV
             </button>
-            <button onclick="window.print()" class="px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark transition-colors shadow-[0_4px_12px_rgba(100,29,53,0.2)] flex items-center gap-2">
+            <button onclick="window.print()" class="px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary-dark transition-colors shadow-[0_4px_12px_rgba(30,90,122,0.2)] flex items-center gap-2">
                 <i class="fas fa-print"></i> Cetak Jurnal
             </button>
         </div>
@@ -18,7 +18,7 @@
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Harian -->
-        <div class="bg-gradient-to-br from-primary to-brand-700 rounded-[24px] p-8 text-white shadow-[0_12px_32px_rgba(100,29,53,0.15)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+        <div class="bg-gradient-to-br from-primary to-brand-700 rounded-[24px] p-8 text-white shadow-[0_12px_32px_rgba(30,90,122,0.15)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
             <div class="absolute -right-8 -top-8 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
             <div class="absolute -left-8 -bottom-8 w-32 h-32 bg-white opacity-5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex flex-col gap-4 relative z-10">
@@ -56,7 +56,7 @@
         </div>
 
         <!-- Bulanan -->
-        <div class="bg-gradient-to-br from-primary to-primary-dark rounded-[24px] p-8 text-white shadow-[0_12px_32px_rgba(100,29,53,0.15)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+        <div class="bg-gradient-to-br from-primary to-primary-dark rounded-[24px] p-8 text-white shadow-[0_12px_32px_rgba(30,90,122,0.15)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
             <div class="absolute -right-8 -top-8 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
             <div class="absolute -left-8 -bottom-8 w-32 h-32 bg-white opacity-5 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex flex-col gap-4 relative z-10">
@@ -123,7 +123,7 @@
                         <th class="px-6 md:px-8 py-5 text-right">Total Pendapatan</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#e4d7bd] bg-white">
+                <tbody class="divide-y divide-[#e5e7eb] bg-white">
                     <template x-for="order in filteredReportOrders" :key="order.id">
                         <tr class="hover:bg-ivory transition-colors group">
                             <td class="px-6 md:px-8 py-5 text-muted whitespace-nowrap">

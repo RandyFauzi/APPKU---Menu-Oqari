@@ -15,7 +15,7 @@
         }
     </style>
 </head>
-<body style="background-color: #fffaf0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 40px 0; -webkit-font-smoothing: antialiased;">
+<body style="background-color: #fdfbf7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 40px 0; -webkit-font-smoothing: antialiased;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td align="center">
@@ -69,20 +69,20 @@
                     {{-- ORDER DETAILS INFO --}}
                     <tr>
                         <td style="padding: 0 40px 20px;" class="mobile-padding">
-                            <div style="background-color: #fffaf0; border-radius: 12px; padding: 20px; border: 1px solid #fffaf0;">
+                            <div style="background-color: #fdfbf7; border-radius: 12px; padding: 20px; border: 1px solid #fdfbf7;">
                                 <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px;">
                                     <tr>
-                                        <td style="color: #6c5b60; padding-bottom: 8px; width: 40%;">Nomor Pesanan</td>
-                                        <td style="color: #38242b; padding-bottom: 8px; font-weight: 600; text-align: right;">{{ $receiptData->orderNumber }}</td>
+                                        <td style="color: #64748b; padding-bottom: 8px; width: 40%;">Nomor Pesanan</td>
+                                        <td style="color: #222222; padding-bottom: 8px; font-weight: 600; text-align: right;">{{ $receiptData->orderNumber }}</td>
                                     </tr>
                                     <tr>
-                                        <td style="color: #6c5b60; padding-bottom: 8px;">Tanggal</td>
-                                        <td style="color: #38242b; padding-bottom: 8px; font-weight: 500; text-align: right;">{{ $receiptData->date }}</td>
+                                        <td style="color: #64748b; padding-bottom: 8px;">Tanggal</td>
+                                        <td style="color: #222222; padding-bottom: 8px; font-weight: 500; text-align: right;">{{ $receiptData->date }}</td>
                                     </tr>
                                     @if($receiptData->paymentMethod)
                                     <tr>
-                                        <td style="color: #6c5b60;">Metode Pembayaran</td>
-                                        <td style="color: #38242b; font-weight: 500; text-align: right;">{{ $receiptData->paymentMethod }}</td>
+                                        <td style="color: #64748b;">Metode Pembayaran</td>
+                                        <td style="color: #222222; font-weight: 500; text-align: right;">{{ $receiptData->paymentMethod }}</td>
                                     </tr>
                                     @endif
                                 </table>
@@ -107,14 +107,14 @@
                             <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; color: #1e293b;">
                                 @foreach($receiptData->items as $item)
                                 <tr>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #fffaf0;">
-                                        <div style="font-weight: 600; color: #38242b;">{{ $item['name'] }}</div>
-                                        <div style="color: #6c5b60; font-size: 13px; margin-top: 4px;">{{ $item['quantity'] }} x Rp {{ number_format($item['price'], 0, ',', '.') }}</div>
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #fdfbf7;">
+                                        <div style="font-weight: 600; color: #222222;">{{ $item['name'] }}</div>
+                                        <div style="color: #64748b; font-size: 13px; margin-top: 4px;">{{ $item['quantity'] }} x Rp {{ number_format($item['price'], 0, ',', '.') }}</div>
                                         @if($item['notes'])
                                             <div style="color: #79666e; font-size: 12px; margin-top: 2px; font-style: italic;">Catatan: {{ $item['notes'] }}</div>
                                         @endif
                                     </td>
-                                    <td style="padding: 10px 0; border-bottom: 1px solid #fffaf0; text-align: right; font-weight: 600; color: #38242b; vertical-align: top;">
+                                    <td style="padding: 10px 0; border-bottom: 1px solid #fdfbf7; text-align: right; font-weight: 600; color: #222222; vertical-align: top;">
                                         Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
                                     </td>
                                 </tr>
@@ -124,19 +124,19 @@
                             {{-- SUBTOTALS --}}
                             <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; margin-top: 15px;">
                                 <tr>
-                                    <td style="padding: 6px 0; color: #6c5b60;">Subtotal</td>
-                                    <td style="padding: 6px 0; text-align: right; color: #38242b; font-weight: 500;">Rp {{ number_format($receiptData->subtotal, 0, ',', '.') }}</td>
+                                    <td style="padding: 6px 0; color: #64748b;">Subtotal</td>
+                                    <td style="padding: 6px 0; text-align: right; color: #222222; font-weight: 500;">Rp {{ number_format($receiptData->subtotal, 0, ',', '.') }}</td>
                                 </tr>
                                 @if($receiptData->discount > 0)
                                 <tr>
-                                    <td style="padding: 6px 0; color: #6c5b60;">Diskon</td>
+                                    <td style="padding: 6px 0; color: #64748b;">Diskon</td>
                                     <td style="padding: 6px 0; text-align: right; color: #ef4444; font-weight: 500;">-Rp {{ number_format($receiptData->discount, 0, ',', '.') }}</td>
                                 </tr>
                                 @endif
                                 @if($receiptData->tax > 0)
                                 <tr>
-                                    <td style="padding: 6px 0; color: #6c5b60;">Pajak (PB1)</td>
-                                    <td style="padding: 6px 0; text-align: right; color: #38242b; font-weight: 500;">Rp {{ number_format($receiptData->tax, 0, ',', '.') }}</td>
+                                    <td style="padding: 6px 0; color: #64748b;">Pajak (PB1)</td>
+                                    <td style="padding: 6px 0; text-align: right; color: #222222; font-weight: 500;">Rp {{ number_format($receiptData->tax, 0, ',', '.') }}</td>
                                 </tr>
                                 @endif
                             </table>
@@ -157,11 +157,11 @@
 
                     {{-- FOOTER --}}
                     <tr>
-                        <td style="background-color: #fffaf0; padding: 30px 40px; text-align: center; border-top: 1px solid #fffaf0;" class="mobile-padding">
+                        <td style="background-color: #fdfbf7; padding: 30px 40px; text-align: center; border-top: 1px solid #fdfbf7;" class="mobile-padding">
                             @if($receiptData->shop['receipt_footer'])
-                                <p style="margin: 0 0 15px; font-size: 13px; color: #6c5b60; line-height: 1.6; white-space: pre-wrap;">{{ $receiptData->shop['receipt_footer'] }}</p>
+                                <p style="margin: 0 0 15px; font-size: 13px; color: #64748b; line-height: 1.6; white-space: pre-wrap;">{{ $receiptData->shop['receipt_footer'] }}</p>
                             @else
-                                <p style="margin: 0 0 15px; font-size: 13px; color: #6c5b60; line-height: 1.6;">
+                                <p style="margin: 0 0 15px; font-size: 13px; color: #64748b; line-height: 1.6;">
                                     Terima kasih telah berbelanja di {{ $receiptData->shop['name'] }}.
                                 </p>
                             @endif

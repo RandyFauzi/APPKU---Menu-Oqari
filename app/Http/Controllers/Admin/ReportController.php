@@ -36,6 +36,9 @@ class ReportController extends Controller
 
         // Gross - Discount = Net sales before tax
         $netSales = $grossSales - $totalDiscount;
+        $totalCogs = $orders->sum('total_cogs');
+        $grossProfit = $netSales - $totalCogs;
+        $margin = $netSales > 0 ? round($grossProfit / $netSales * 100, 2) : 0;
 
         $totalTax = $orders->sum('tax_amount');
         $totalServiceCharge = $orders->sum('service_charge_amount');
@@ -62,7 +65,7 @@ class ReportController extends Controller
             ->where('orders.shop_id', $shopId)
             ->whereBetween('orders.created_at', [$startOfDay, $endOfDay])
             ->where('orders.order_status', '!=', 'CANCELLED')
-            ->select('product_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(price * quantity) as total_revenue'))
+            ->select('product_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(order_items.unit_price * order_items.quantity) as total_revenue'))
             ->groupBy('product_id')
             ->orderBy('total_qty', 'desc')
             ->with('product')
@@ -90,7 +93,7 @@ class ReportController extends Controller
         }
 
         return view('Admin.reports.index', compact(
-            'date', 'transactionsCount', 'grossSales', 'netSales', 'aov',
+            'date', 'transactionsCount', 'grossSales', 'netSales', 'aov', 'totalCogs', 'grossProfit', 'margin',
             'payments', 'bestSellers', 'cancelledItems', 'chartData'
         ));
     }

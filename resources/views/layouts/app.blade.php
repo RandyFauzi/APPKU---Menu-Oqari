@@ -23,14 +23,6 @@
 
             <!-- Main Content Area -->
             <div class="flex-1 flex flex-col overflow-hidden">
-                <!-- Mobile top bar -->
-                <header class="md:hidden bg-white dark:bg-gray-800 shadow z-10 flex items-center p-4 border-b border-gray-200 dark:border-gray-700">
-                    <button @click="sidebarOpen = !sidebarOpen" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    </button>
-                    <div class="ml-4 font-bold text-lg text-gray-900 dark:text-white">Brand</div>
-                </header>
-
                 <!-- Page Heading (Optional, inside main area) -->
                 @isset($header)
                     <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">

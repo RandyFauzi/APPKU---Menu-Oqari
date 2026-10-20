@@ -32,6 +32,8 @@
 </head>
 <body class="font-sans antialiased text-gray-900 bg-gray-100 min-h-screen">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
+    @auth<div class="cafe-page-shell"><x-cafe-sidebar /><main class="cafe-page-content">@endauth
     @yield('content')
+    @auth</main></div>@endauth
 </body>
 </html>

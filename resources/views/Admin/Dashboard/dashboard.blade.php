@@ -51,45 +51,7 @@
     <!-- Audio untuk notifikasi pesanan masuk -->
     <audio id="chime-sound" src="{{ asset('Assest/notif_orderan_masuk.mp3') }}" preload="auto"></audio>
 
-    <!-- Sidebar -->
-    <aside id="app-sidebar" class="app-sidebar h-full flex flex-col shrink-0 transition-[width] duration-200 z-[110] overflow-hidden" :class="{ 'is-collapsed': isMinimized }" aria-label="Navigasi aplikasi">
-        <div class="h-24 shrink-0 flex items-center px-5 gap-3 border-b border-gray-200/70" :class="isMinimized ? 'justify-center px-3' : ''">
-            <img src="{{ $shop->logo_url ?: asset('logo-oqari.webp') }}" alt="Logo {{ $shop->name }}" id="sidebar-logo" class="w-10 h-10 rounded-lg object-contain shrink-0">
-            <div x-show="!isMinimized" class="min-w-0"><p class="font-bold text-sm text-gray-900 truncate">{{ $shop->name }}</p><p class="text-[11px] text-gray-500 mt-1">Cafe Management</p></div>
-        </div>
-        <nav class="sidebar-scroll flex-1 min-h-0 overflow-y-auto px-3 pb-4" aria-label="Menu utama">
-            <p class="sidebar-heading" x-show="!isMinimized">Operasional</p>
-            @can('access-pos')<a href="{{ route('admin.pos.index') }}" class="sidebar-link" title="POS (Kasir)" aria-label="POS (Kasir)"><i class="fas fa-cash-register" aria-hidden="true"></i><span x-show="!isMinimized">POS (Kasir)</span></a>@endcan
-            @php
-                $featureLinks = [
-                    ['ability' => 'manage-register', 'route' => 'admin.register.index', 'icon' => 'fa-wallet', 'label' => 'Rekonsiliasi Kas'],
-                    ['ability' => 'record-attendance', 'route' => 'admin.attendance.index', 'icon' => 'fa-user-clock', 'label' => 'Absensi Karyawan'],
-                ];
-            @endphp
-            @foreach($featureLinks as $link) @can($link['ability'])<a href="{{ route($link['route']) }}" class="sidebar-link" title="{{ $link['label'] }}" aria-label="{{ $link['label'] }}"><i class="fas {{ $link['icon'] }}" aria-hidden="true"></i><span x-show="!isMinimized">{{ $link['label'] }}</span></a>@endcan @endforeach
-            <template x-for="group in navigationGroups" :key="group.label">
-                <div x-show="tabs.some(tab => group.ids.includes(tab.id))">
-                    <p class="sidebar-heading" x-show="!isMinimized" x-text="group.label"></p>
-                    <div class="my-3 border-t border-gray-200" x-show="isMinimized" aria-hidden="true"></div>
-                    <template x-for="tab in tabs.filter(tab => group.ids.includes(tab.id))" :key="tab.id">
-                        <button type="button" @click="currentTab = tab.id" class="sidebar-link" :class="{ 'is-active': currentTab === tab.id }" :title="tab.name" :aria-label="tab.name" :aria-current="currentTab === tab.id ? 'page' : null">
-                            <i :class="tab.icon" aria-hidden="true"></i><span x-show="!isMinimized" x-text="tab.name" class="truncate"></span>
-                        </button>
-                    </template>
-                </div>
-            </template>
-            @can('manage-hpp')<a href="{{ route('admin.hpp.index') }}" class="sidebar-link" title="Kalkulator HPP" aria-label="Kalkulator HPP"><i class="fas fa-calculator" aria-hidden="true"></i><span x-show="!isMinimized">Kalkulator HPP</span></a>@endcan
-            @can('manage-users')<a href="{{ route('admin.users.index') }}" class="sidebar-link" title="User & Hak Akses" aria-label="User & Hak Akses"><i class="fas fa-user-shield" aria-hidden="true"></i><span x-show="!isMinimized">User &amp; Hak Akses</span></a>@endcan
-        </nav>
-        <div class="shrink-0 border-t border-gray-200 p-3 space-y-2">
-            @can('manage-settings')
-            <button type="button" @click="settings.is_open = !settings.is_open; saveSettings()" class="sidebar-link" :title="settings.is_open ? 'Tutup toko' : 'Buka toko'" :aria-label="settings.is_open ? 'Tutup toko' : 'Buka toko'" :aria-pressed="settings.is_open">
-                <i class="fas fa-store" aria-hidden="true"></i><span x-show="!isMinimized" class="flex-1">Status Toko</span><span x-show="!isMinimized" class="text-xs font-bold" :class="settings.is_open ? 'text-green-700' : 'text-gray-500'" x-text="settings.is_open ? 'Buka' : 'Tutup'"></span>
-            </button>
-            @endcan
-            <button type="button" @click="logout()" class="sidebar-link text-red-600 hover:text-red-700 hover:bg-red-50" title="Keluar" aria-label="Keluar"><i class="fas fa-sign-out-alt" aria-hidden="true"></i><span x-show="!isMinimized">Keluar</span></button>
-        </div>
-    </aside>
+    <x-cafe-sidebar :dashboard="true" />
 
     <!-- Main Content -->
     <main class="flex-grow min-w-0 flex flex-col h-full bg-white rounded-l-[24px] shadow-[-10px_0_30px_rgba(0,0,0,0.02)] border-l border-brewlyborder overflow-hidden">
@@ -97,7 +59,7 @@
         <!-- Top Header for Main Area -->
         <header class="h-20 md:h-24 flex justify-between items-center px-4 md:px-10 shrink-0 border-b border-brewlyborder/50 bg-white relative z-50">
             <div class="flex items-center gap-3">
-                <button type="button" @click="isMinimized = !isMinimized" aria-label="Ubah ukuran sidebar" aria-controls="app-sidebar" :aria-expanded="!isMinimized" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
+                <button type="button" @click="window.innerWidth < 768 ? mobileNavOpen = !mobileNavOpen : isMinimized = !isMinimized" aria-label="Ubah ukuran sidebar" aria-controls="app-sidebar" :aria-expanded="!isMinimized" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
                     <i class="fas fa-bars text-lg"></i>
                 </button>
                 <div x-show="currentTab !== 'analytics'">
@@ -310,7 +272,7 @@
         <!-- MODAL: ADD TABLE -->
         <!-- MODAL: ADD CATEGORY -->
         <div x-show="showAddCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-primary/40 backdrop-blur-sm" x-transition.opacity>
-            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(100,29,53,0.15)] relative overflow-hidden" @click.away="showAddCategoryModal = false" x-transition>
+            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(30,90,122,0.15)] relative overflow-hidden" @click.away="showAddCategoryModal = false" x-transition>
                 
                 <div class="absolute top-4 right-4 z-10">
                     <button @click="showAddCategoryModal = false" class="text-muted hover:text-ink bg-ivory hover:bg-line transition-colors w-8 h-8 flex items-center justify-center rounded-full">
@@ -345,7 +307,7 @@
 
         <!-- MODAL: ADD TABLE -->
         <div x-show="showAddTableModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-primary/40 backdrop-blur-sm" x-transition.opacity>
-            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(100,29,53,0.15)] relative overflow-hidden" @click.away="showAddTableModal = false" x-transition>
+            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(30,90,122,0.15)] relative overflow-hidden" @click.away="showAddTableModal = false" x-transition>
                 
                 <!-- Decorative Circle -->
                 <div class="absolute -top-16 -right-16 w-32 h-32 bg-ivory rounded-full pointer-events-none"></div>
@@ -377,7 +339,7 @@
 
                 <div class="flex gap-3 relative z-10">
                     <button @click="showAddTableModal = false" class="w-1/3 py-3.5 rounded-[14px] text-[14px] font-bold text-muted bg-white border border-line hover:bg-ivory transition-colors text-center">Batal</button>
-                    <button @click="addTableFromModal" class="flex-grow py-3.5 rounded-[14px] text-[14px] font-bold bg-primary text-white shadow-[0_4px_12px_rgba(100,29,53,0.2)] hover:bg-primary-dark hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                    <button @click="addTableFromModal" class="flex-grow py-3.5 rounded-[14px] text-[14px] font-bold bg-primary text-white shadow-[0_4px_12px_rgba(30,90,122,0.2)] hover:bg-primary-dark hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
                         Generate QR <i class="fas fa-arrow-right text-[12px]"></i>
                     </button>
                 </div>
@@ -386,7 +348,7 @@
 
         <!-- MODAL: RESET QR CONFIRM -->
         <div x-show="showResetQRModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-primary/40 backdrop-blur-sm" x-transition.opacity>
-            <div class="bg-white rounded-[24px] w-full max-w-[400px] p-8 shadow-[0_20px_60px_rgba(100,29,53,0.15)] relative overflow-hidden" @click.away="showResetQRModal = false" x-transition>
+            <div class="bg-white rounded-[24px] w-full max-w-[400px] p-8 shadow-[0_20px_60px_rgba(30,90,122,0.15)] relative overflow-hidden" @click.away="showResetQRModal = false" x-transition>
                 <div class="absolute -top-16 -right-16 w-32 h-32 bg-gold-600/10 rounded-full blur-2xl"></div>
                 <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-primary/5 rounded-full blur-2xl"></div>
                 
@@ -608,7 +570,7 @@
                         <button @click="incomingOrderState = 'reject_confirm'" class="w-[140px] shrink-0 py-4 rounded-[14px] font-bold text-[14px] bg-transparent border border-line text-muted hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors">
                             Tolak Pesanan
                         </button>
-                        <button @click="acceptOrder()" class="flex-1 py-4 rounded-[14px] font-bold text-[15px] bg-primary text-white hover:bg-primary-dark transition-colors shadow-[0_4px_12px_rgba(100,29,53,0.2)] flex items-center justify-center gap-2">
+                        <button @click="acceptOrder()" class="flex-1 py-4 rounded-[14px] font-bold text-[15px] bg-primary text-white hover:bg-primary-dark transition-colors shadow-[0_4px_12px_rgba(30,90,122,0.2)] flex items-center justify-center gap-2">
                             <i class="fas fa-coffee"></i> Terima & Siapkan
                         </button>
                     </div>
@@ -663,6 +625,7 @@
                 user: window.INITIAL_DATA.user || {},
                 can(ability) { return window.INITIAL_DATA.permissions.includes(ability); },
                 isMinimized: window.innerWidth < 1024,
+                mobileNavOpen: false,
                 isLoadingSummary: true,
                 isLoadingMenus: true,
                 isLoadingAnalytics: true,
@@ -841,7 +804,7 @@
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
-                        cancelButtonColor: '#6c5b60',
+                        cancelButtonColor: '#64748b',
                         confirmButtonText: 'Ya, hapus!',
                         cancelButtonText: 'Batal'
                     }).then((result) => {
@@ -1139,12 +1102,6 @@ handleDraftImageUpload(event, index) {
                     }
                     return filtered;
                 },
-                navigationGroups: [
-                    { label: 'Pesanan & Produk', ids: ['orders', 'menu', 'inventory'] },
-                    { label: 'Tim Cafe', ids: ['crew', 'shifts'] },
-                    { label: 'Laporan', ids: ['analytics', 'report', 'logs'] },
-                    { label: 'Pengaturan', ids: ['qr', 'settings', 'receipt'] },
-                ],
                 tabs: [
                     { id: 'analytics', ability: 'view-reports', name: 'Dashboard Analytics', icon: 'fas fa-chart-pie' },
                     { id: 'report', ability: 'view-reports', name: 'Laporan Keuangan', icon: 'fas fa-book' },
@@ -1402,7 +1359,7 @@ handleDraftImageUpload(event, index) {
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
-                        cancelButtonColor: '#6c5b60',
+                        cancelButtonColor: '#64748b',
                         confirmButtonText: 'Ya, hapus!',
                         cancelButtonText: 'Batal'
                     });
@@ -1785,7 +1742,7 @@ if (res.ok) {
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
-                        cancelButtonColor: '#6c5b60',
+                        cancelButtonColor: '#64748b',
                         confirmButtonText: 'Ya, hapus!',
                         cancelButtonText: 'Batal'
                     });
@@ -2020,7 +1977,7 @@ if (res.ok) {
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
-                        cancelButtonColor: '#6c5b60',
+                        cancelButtonColor: '#64748b',
                         confirmButtonText: 'Ya, hapus!',
                         cancelButtonText: 'Batal'
                     });

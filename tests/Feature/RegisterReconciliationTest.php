@@ -6,8 +6,10 @@ use App\Models\CashRegister;
 use App\Models\CashRegisterSession;
 use App\Models\Shop;
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
@@ -169,6 +171,21 @@ class RegisterReconciliationTest extends TestCase
         [$cashier, $session] = $this->scenario();
         $this->actingAs($cashier)->post(route('shift.close'), ['actual_cash' => 150000])->assertRedirect(route('admin.register.index'))->assertSessionHas('success');
         $this->get(route('admin.register.index'))->assertOk()->assertSee('Shift berhasil ditutup')->assertSee('Kas sesuai');
+    }
+
+    public function test_legacy_cash_movements_without_shop_column_use_session_register_scope(): void
+    {
+        [$cashier, $session] = $this->scenario();
+        $this->movement($cashier, $session, 'CASH_IN', 25000);
+        $this->movement($cashier, $session, 'CASH_OUT', 10000);
+        $this->movement($cashier, $session, 'CASH_IN', 50000, true);
+        [$otherCashier, $otherSession] = $this->scenario();
+        $this->movement($otherCashier, $otherSession, 'CASH_IN', 900000);
+        Schema::table('cash_drawer_transactions', fn (Blueprint $table) => $table->dropConstrainedForeignId('shop_id'));
+        $this->actingAs($cashier)->get(route('admin.register.index'))->assertOk()->assertSee('165.000,00');
+        $this->postJson(route('shift.close'), ['actual_cash' => 165000])->assertOk()->assertJsonPath('session.reconciliation_status', 'BALANCED');
+        $this->assertSame('165000.00', $session->fresh()->expected_cash);
+        $this->assertSame('OPEN', $otherSession->fresh()->status);
     }
 
     /** @return array{User, CashRegisterSession} */

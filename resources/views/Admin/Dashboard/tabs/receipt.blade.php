@@ -4,7 +4,7 @@
         <div>
             <p class="text-muted font-medium text-sm"><i class="fas fa-print mr-1"></i> Sesuaikan tampilan struk yang akan dicetak untuk pelanggan Anda.</p>
         </div>
-        <button @click="saveSettings" type="button" class="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-[0_8px_20px_-6px_rgba(100,29,53,0.5)] hover:bg-brand-700 hover:-translate-y-0.5 transition-all flex items-center gap-2 justify-center" :disabled="isSavingSettings">
+        <button @click="saveSettings" type="button" class="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-[0_8px_20px_-6px_rgba(30,90,122,0.5)] hover:bg-brand-700 hover:-translate-y-0.5 transition-all flex items-center gap-2 justify-center" :disabled="isSavingSettings">
             <i class="fas fa-spinner fa-spin" x-show="isSavingSettings"></i>
             <i class="fas fa-save" x-show="!isSavingSettings"></i>
             <span x-text="isSavingSettings ? 'Menyimpan...' : 'Simpan Perubahan'"></span>

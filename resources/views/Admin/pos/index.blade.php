@@ -27,6 +27,7 @@
     <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="bg-gray-100 h-screen w-full overflow-hidden font-sans fixed inset-0" x-data="posApp()" @keydown.window="handleKey($event)" @refresh-live-orders.window="fetchIncoming()">
+<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
@@ -892,5 +893,6 @@ function posApp() {
 <script>
     window.SHOP_ID = {{ $shop->id ?? 'null' }};
 </script>
+</div></div>
 </body>
 </html>

@@ -272,12 +272,12 @@
                                 type: 'line',
                                 label: 'Pesanan (Line)',
                                 data: this.data.hourlySales,
-                                borderColor: '#641d35',
-                                backgroundColor: '#641d35',
+                                borderColor: '#1e5a7a',
+                                backgroundColor: '#1e5a7a',
                                 borderWidth: 3,
                                 tension: 0.4,
                                 pointBackgroundColor: '#FFFFFF',
-                                pointBorderColor: '#641d35',
+                                pointBorderColor: '#1e5a7a',
                                 pointBorderWidth: 2,
                                 pointRadius: 4,
                                 pointHoverRadius: 6,
@@ -305,7 +305,7 @@
                         plugins: {
                             legend: { display: false },
                             tooltip: {
-                                backgroundColor: '#38242b',
+                                backgroundColor: '#222222',
                                 titleFont: { size: 13, family: 'Inter' },
                                 bodyFont: { size: 14, weight: 'bold', family: 'Inter' },
                                 padding: 12,
@@ -321,12 +321,12 @@
                             y: {
                                 beginAtZero: true,
                                 max: 60,
-                                ticks: { stepSize: 15, color: '#6c5b60', font: { family: 'Inter', size: 11 } },
+                                ticks: { stepSize: 15, color: '#64748b', font: { family: 'Inter', size: 11 } },
                                 grid: { color: '#F0F0F0', drawBorder: false }
                             },
                             x: {
                                 grid: { display: false, drawBorder: false },
-                                ticks: { color: '#6c5b60', font: { family: 'Inter', size: 11 } }
+                                ticks: { color: '#64748b', font: { family: 'Inter', size: 11 } }
                             }
                         }
                     }
@@ -346,7 +346,7 @@
                         labels: this.data.newCustomersPct !== null ? ['Pelanggan Baru', 'Pelanggan Kembali'] : ['Belum Ada Data'],
                         datasets: [{
                             data: this.data.newCustomersPct !== null ? [this.data.newCustomersPct, this.data.returningCustomers] : [100],
-                            backgroundColor: this.data.newCustomersPct !== null ? ['#641d35', '#846322'] : ['#e4d7bd'],
+                            backgroundColor: this.data.newCustomersPct !== null ? ['#1e5a7a', '#34714c'] : ['#e5e7eb'],
                             borderWidth: 0,
                             hoverOffset: this.data.newCustomersPct !== null ? 4 : 0
                         }]
@@ -358,7 +358,7 @@
                         plugins: {
                             legend: { display: false },
                             tooltip: {
-                                backgroundColor: '#38242b',
+                                backgroundColor: '#222222',
                                 titleFont: { size: 13, family: 'Inter' },
                                 bodyFont: { size: 14, weight: 'bold', family: 'Inter' },
                                 padding: 10,

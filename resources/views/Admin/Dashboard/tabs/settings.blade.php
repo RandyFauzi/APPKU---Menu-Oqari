@@ -5,7 +5,7 @@
         <div>
             <p class="text-muted font-medium text-sm"><i class="fas fa-info-circle mr-1"></i> Kelola identitas, tampilan, dan operasional toko Anda.</p>
         </div>
-        <button @click="saveSettings" type="button" class="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-[0_8px_20px_-6px_rgba(100,29,53,0.5)] hover:bg-brand-700 hover:-translate-y-0.5 transition-all flex items-center gap-2 justify-center" :disabled="isSavingSettings">
+        <button @click="saveSettings" type="button" class="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-[0_8px_20px_-6px_rgba(30,90,122,0.5)] hover:bg-brand-700 hover:-translate-y-0.5 transition-all flex items-center gap-2 justify-center" :disabled="isSavingSettings">
             <i class="fas fa-spinner fa-spin" x-show="isSavingSettings"></i>
             <i class="fas fa-save" x-show="!isSavingSettings"></i>
             <span x-text="isSavingSettings ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
@@ -138,7 +138,7 @@
                                 <span aria-hidden="true" class="w-12 h-12 rounded-full border-2 border-gold-400 shrink-0" :style="'background-color: ' + settings.primary_color"></span>
                                 <select id="brand-color" x-model="settings.primary_color" class="w-full border border-line rounded-xl px-4 py-3 text-sm font-bold focus:border-primary focus:ring-primary" aria-describedby="brand-color-help"><template x-for="(label, color) in brandColorOptions" :key="color"><option :value="color" x-text="label"></option></template></select>
                             </div>
-                            <p id="brand-color-help" class="text-xs text-muted mt-2">Aksen cafe tetap dapat dipilih dalam palet burgundy/gold. Logo, foto, dan identitas cafe tetap milik Anda.</p>
+                            <p id="brand-color-help" class="text-xs text-muted mt-2">Aksen cafe tetap dapat dipilih dalam palet warna cafe. Logo, foto, dan identitas cafe tetap milik Anda.</p>
                         </div>
                     </div>
                 </div>
@@ -204,7 +204,7 @@
                 <div class="absolute top-0 inset-x-0 h-6 bg-ink rounded-b-3xl w-40 mx-auto z-50"></div>
 
                 <!-- Template Customer Menu Real Structure -->
-                <div class="flex-1 overflow-y-auto hide-scroll pb-24 relative" style="background-image: radial-gradient(circle, #e4d7bd 1.5px, transparent 1.5px); background-size: 24px 24px;">
+                <div class="flex-1 overflow-y-auto hide-scroll pb-24 relative" style="background-image: radial-gradient(circle, #e5e7eb 1.5px, transparent 1.5px); background-size: 24px 24px;">
                     
                     <!-- Toko Tutup Overlay -->
                     <div x-show="!settings.is_open" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-[200] flex flex-col items-center justify-center p-6 text-center">
@@ -220,12 +220,12 @@
                                 <img :src="settings.logoPreview" alt="Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg shrink-0">
                             </template>
                             <template x-if="!settings.logoPreview">
-                                <div class="h-10 w-10 rounded-lg flex items-center justify-center shrink-0" :style="'background-color: ' + (settings.primary_color || '#641d35')">
+                                <div class="h-10 w-10 rounded-lg flex items-center justify-center shrink-0" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-store text-white text-sm"></i>
                                 </div>
                             </template>
                             <div class="flex flex-col">
-                                <span class="font-extrabold text-[15px] leading-tight tracking-tight uppercase" :style="'color: ' + (settings.primary_color || '#641d35') + '; ' + (settings.title_font_family === 'poppins' ? 'font-family: Poppins, sans-serif;' : (settings.title_font_family === 'playfair' ? 'font-family: Playfair Display, serif;' : 'font-family: Nunito, sans-serif;'))" x-text="settings.name || 'BITTEN COFFEE'"></span>
+                                <span class="font-extrabold text-[15px] leading-tight tracking-tight uppercase" :style="'color: ' + (settings.primary_color || '#1e5a7a') + '; ' + (settings.title_font_family === 'poppins' ? 'font-family: Poppins, sans-serif;' : (settings.title_font_family === 'playfair' ? 'font-family: Playfair Display, serif;' : 'font-family: Nunito, sans-serif;'))" x-text="settings.name || 'BITTEN COFFEE'"></span>
                                 <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase" x-text="settings.slogan || 'COFFEE & EATERY'"></span>
                             </div>
                         </div>
@@ -236,7 +236,7 @@
                         <div class="bg-white rounded-full p-1.5 flex items-center shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] border border-gray-200">
                             <div class="flex items-center gap-2 pl-2 pr-3 border-r border-gray-200 rounded-l-full py-1.5 shrink-0 max-w-[55%]">
                                 <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0" :style="'background-color: ' + (settings.primary_color ? settings.primary_color + '15' : '#1c453215')">
-                                    <i class="fas fa-map-marker-alt text-[11px]" :style="'color: ' + (settings.primary_color || '#641d35')"></i>
+                                    <i class="fas fa-map-marker-alt text-[11px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')"></i>
                                 </div>
                                 <div class="flex flex-col leading-tight min-w-0">
                                     <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider truncate">Deliver To / Meja</span>
@@ -254,7 +254,7 @@
 
                     <!-- Promo Carousel Section -->
                     <div x-show="settings.is_banner_active" class="px-4 mt-5 mb-8">
-                        <div class="relative rounded-[20px] overflow-hidden shadow-lg h-40 group flex items-center justify-center" :style="'background-color: ' + (settings.primary_color || '#641d35')">
+                        <div class="relative rounded-[20px] overflow-hidden shadow-lg h-40 group flex items-center justify-center" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                             <template x-if="settings.banners.filter(b => b !== null).length > 0">
                                 <!-- Just show the first active banner as preview -->
                                 <img :src="settings.banners.find(b => b !== null)" class="w-full h-full object-cover">
@@ -274,10 +274,10 @@
                     <div class="sticky top-0 bg-white/90 backdrop-blur-md z-20 pt-3 pb-3 border-y border-gray-100 shadow-sm">
                         <div class="flex overflow-x-auto px-4 gap-3 hide-scroll">
                             <div class="flex flex-col items-center gap-1 min-w-[70px]">
-                                <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2" :style="'border-color: ' + (settings.primary_color || '#641d35') + '; background-color: ' + (settings.primary_color ? settings.primary_color + '10' : '#1c453210')">
-                                    <i class="fas fa-star text-lg" :style="'color: ' + (settings.primary_color || '#641d35')"></i>
+                                <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2" :style="'border-color: ' + (settings.primary_color || '#1e5a7a') + '; background-color: ' + (settings.primary_color ? settings.primary_color + '10' : '#1c453210')">
+                                    <i class="fas fa-star text-lg" :style="'color: ' + (settings.primary_color || '#1e5a7a')"></i>
                                 </div>
-                                <span class="text-[10px] font-bold" :style="'color: ' + (settings.primary_color || '#641d35')">All Menu</span>
+                                <span class="text-[10px] font-bold" :style="'color: ' + (settings.primary_color || '#1e5a7a')">All Menu</span>
                             </div>
                             <div class="flex flex-col items-center gap-1 min-w-[70px]">
                                 <div class="w-14 h-14 rounded-2xl flex items-center justify-center border border-gray-200 bg-white shadow-sm">
@@ -291,10 +291,10 @@
                     <!-- Menu List Header -->
                     <div class="px-4 mt-5 flex justify-between items-center mb-1">
                         <h2 class="font-extrabold text-[19px] text-gray-800">Popular Picks</h2>
-                        <span class="text-[11px] font-bold cursor-pointer" :style="'color: ' + (settings.primary_color || '#641d35')">View All &rarr;</span>
+                        <span class="text-[11px] font-bold cursor-pointer" :style="'color: ' + (settings.primary_color || '#1e5a7a')">View All &rarr;</span>
                     </div>
                     
-                    <h3 class="px-4 mt-4 mb-2 font-bold text-[15px]" :style="'color: ' + (settings.primary_color || '#641d35')">Coffee</h3>
+                    <h3 class="px-4 mt-4 mb-2 font-bold text-[15px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Coffee</h3>
                     <div class="px-4 mb-4"><div class="h-px bg-gray-200 w-full"></div></div>
 
                     <!-- Menu Items View (List vs Grid) -->
@@ -307,8 +307,8 @@
                                     <span class="text-[8px] font-bold tracking-wider">NO IMAGE</span>
                                 </div>
                                 <h4 class="font-bold text-xs text-gray-800 leading-tight">Vanilla Latte</h4>
-                                <p class="font-black text-[13px] mt-1" :style="'color: ' + (settings.primary_color || '#641d35')">Rp 25.000</p>
-                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#641d35')">
+                                <p class="font-black text-[13px] mt-1" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 25.000</p>
+                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
@@ -317,8 +317,8 @@
                                     <i class="fas fa-image text-3xl mb-1"></i>
                                 </div>
                                 <h4 class="font-bold text-xs text-gray-800 leading-tight">Americano</h4>
-                                <p class="font-black text-[13px] mt-1" :style="'color: ' + (settings.primary_color || '#641d35')">Rp 18.000</p>
-                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#641d35')">
+                                <p class="font-black text-[13px] mt-1" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 18.000</p>
+                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
@@ -333,9 +333,9 @@
                                 <div class="flex-1 flex flex-col justify-center pr-6">
                                     <h4 class="font-bold text-sm text-gray-800 leading-tight">Vanilla Latte</h4>
                                     <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">Kopi susu vanilla lezat...</p>
-                                    <p class="font-black text-sm mt-1.5" :style="'color: ' + (settings.primary_color || '#641d35')">Rp 25.000</p>
+                                    <p class="font-black text-sm mt-1.5" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 25.000</p>
                                 </div>
-                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#641d35')">
+                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
@@ -346,9 +346,9 @@
                                 <div class="flex-1 flex flex-col justify-center pr-6">
                                     <h4 class="font-bold text-sm text-gray-800 leading-tight">Americano</h4>
                                     <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">Espresso dengan air matang</p>
-                                    <p class="font-black text-sm mt-1.5" :style="'color: ' + (settings.primary_color || '#641d35')">Rp 18.000</p>
+                                    <p class="font-black text-sm mt-1.5" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 18.000</p>
                                 </div>
-                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#641d35')">
+                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
@@ -357,12 +357,12 @@
                 </div>
 
                 <!-- Floating Cart Button -->
-                <div class="absolute bottom-4 inset-x-4 h-12 rounded-full shadow-xl flex items-center justify-between px-5 text-white z-40" :style="'background-color: ' + (settings.primary_color || '#641d35')">
+                <div class="absolute bottom-4 inset-x-4 h-12 rounded-full shadow-xl flex items-center justify-between px-5 text-white z-40" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                     <div class="flex flex-col justify-center">
                         <span class="text-[9px] text-white/70 font-semibold">Total Pesanan</span>
                         <span class="font-bold text-sm leading-tight">Rp 0</span>
                     </div>
-                    <button class="bg-white px-4 py-1.5 rounded-full font-bold shadow-md flex items-center gap-2" :style="'color: ' + (settings.primary_color || '#641d35')">
+                    <button class="bg-white px-4 py-1.5 rounded-full font-bold shadow-md flex items-center gap-2" :style="'color: ' + (settings.primary_color || '#1e5a7a')">
                         <i class="fas fa-shopping-cart text-[11px]"></i>
                         <span class="bg-gray-800 text-white text-[9px] px-1.5 py-0.5 rounded-full">0</span>
                     </button>

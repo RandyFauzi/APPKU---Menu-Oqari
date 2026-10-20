@@ -14,11 +14,12 @@
     <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="min-h-screen font-sans">
+<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
     @php($labels = ['BALANCED' => 'Kas sesuai', 'SHORT' => 'Kas kurang', 'OVER' => 'Kas lebih', 'UNCOUNTED' => 'Belum dihitung'])
-    <header class="bg-primary text-ivory border-b border-gold-400">
+    <header class="bg-primary text-ivory border-b border-gray-200">
         <div class="max-w-7xl mx-auto p-4 flex flex-wrap items-center justify-between gap-4">
-            <div><strong class="tracking-widest text-gold-200"><x-hellenic-emblem class="inline-block h-5 w-5 mr-1 align-middle" />OQARI</strong><p class="text-sm">{{ auth()->user()->shop->name }}</p></div>
+            <div><strong class="tracking-widest text-white"><x-hellenic-emblem class="inline-block h-5 w-5 mr-1 align-middle" />OQARI</strong><p class="text-sm">{{ auth()->user()->shop->name }}</p></div>
             <nav aria-label="Navigasi kas" class="flex gap-4 text-sm font-bold"><a class="py-3" href="{{ route('admin.pos.index') }}">Kembali ke Kasir</a><a class="py-3" href="{{ route('admin.dashboard') }}">Dashboard</a></nav>
         </div>
     </header>
@@ -95,5 +96,6 @@
         };
     }
     </script>
+</div></div>
 </body>
 </html>

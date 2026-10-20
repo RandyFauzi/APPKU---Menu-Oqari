@@ -1,4 +1,4 @@
-@extends('Admin.Layouts.app')
+@extends('Admin.Layouts.admin-auth-master')
 
 @section('title', 'My Schedule')
 

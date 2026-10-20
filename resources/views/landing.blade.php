@@ -32,7 +32,7 @@
         body {
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             background-color: var(--oq-ivory);
-            color: #38242b;
+            color: #222222;
             overflow-x: hidden;
         }
 
@@ -45,7 +45,7 @@
         }
 
         .cta-gradient-bg {
-            background: linear-gradient(135deg, #38242b 0%, #481526 50%, #641d35 100%);
+            background: linear-gradient(135deg, #222222 0%, #164159 50%, #1e5a7a 100%);
         }
 
         .orange-gradient-badge {

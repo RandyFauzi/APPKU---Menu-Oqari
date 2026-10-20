@@ -12,7 +12,7 @@
                 <button @click="openStockAdjustModal()" class="px-4 py-2.5 rounded-xl border border-line bg-white text-ink font-semibold text-sm hover:bg-ivory transition shadow-sm flex items-center gap-2">
                     <i class="fas fa-sliders-h text-primary"></i> Sesuaikan Stok / Opname
                 </button>
-                <button @click="openAddMaterialModal()" class="px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-brand-700 transition shadow-[0_4px_12px_rgba(100,29,53,0.2)] flex items-center gap-2">
+                <button @click="openAddMaterialModal()" class="px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-brand-700 transition shadow-[0_4px_12px_rgba(30,90,122,0.2)] flex items-center gap-2">
                     <i class="fas fa-plus"></i> Tambah Bahan Baku
                 </button>
             </div>
@@ -21,7 +21,7 @@
         <!-- Metric Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Total Bahan -->
-            <div class="bg-gradient-to-br from-primary to-brand-700 rounded-[24px] p-6 text-white shadow-[0_12px_32px_rgba(100,29,53,0.15)] relative overflow-hidden group">
+            <div class="bg-gradient-to-br from-primary to-brand-700 rounded-[24px] p-6 text-white shadow-[0_12px_32px_rgba(30,90,122,0.15)] relative overflow-hidden group">
                 <div class="absolute -right-6 -top-6 w-32 h-32 bg-white opacity-5 rounded-full blur-xl group-hover:scale-125 transition-transform"></div>
                 <div class="flex items-center gap-4 relative z-10">
                     <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10">
@@ -39,7 +39,7 @@
             </div>
 
             <!-- Bahan Menipis -->
-            <div class="bg-gradient-to-br from-gold-600 to-[#c76922] rounded-[24px] p-6 text-white shadow-[0_12px_32px_rgba(217,122,50,0.15)] relative overflow-hidden group">
+            <div class="bg-gradient-to-br from-[#D97A32] to-[#c76922] rounded-[24px] p-6 text-white shadow-[0_12px_32px_rgba(217,122,50,0.15)] relative overflow-hidden group">
                 <div class="absolute -right-6 -top-6 w-32 h-32 bg-white opacity-5 rounded-full blur-xl group-hover:scale-125 transition-transform"></div>
                 <div class="flex items-center gap-4 relative z-10">
                     <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10">
@@ -57,7 +57,7 @@
             </div>
 
             <!-- Valuasi Nilai Stok -->
-            <div class="bg-gradient-to-br from-primary to-primary-dark rounded-[24px] p-6 text-white shadow-[0_12px_32px_rgba(100,29,53,0.15)] relative overflow-hidden group">
+            <div class="bg-gradient-to-br from-primary to-primary-dark rounded-[24px] p-6 text-white shadow-[0_12px_32px_rgba(30,90,122,0.15)] relative overflow-hidden group">
                 <div class="absolute -right-6 -top-6 w-32 h-32 bg-white opacity-5 rounded-full blur-xl group-hover:scale-125 transition-transform"></div>
                 <div class="flex items-center gap-4 relative z-10">
                     <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10">

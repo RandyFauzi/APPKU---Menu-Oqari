@@ -74,7 +74,7 @@
 
                     <!-- Login Button -->
                     <div class="pt-2">
-                        <button type="submit" class="w-full flex items-center justify-center px-5 py-3.5 text-white font-medium bg-gold-600 rounded-xl hover:bg-gold-700 transition-colors shadow-lg shadow-[#846322]/30">
+                        <button type="submit" class="w-full flex items-center justify-center px-5 py-3.5 text-white font-medium bg-gold-600 rounded-xl hover:bg-gold-700 transition-colors shadow-lg shadow-[#34714c]/30">
                             Log In 
                             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
