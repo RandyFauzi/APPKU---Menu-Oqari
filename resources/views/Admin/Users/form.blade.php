@@ -5,7 +5,7 @@ $selectedRole = old('role', $target?->role ?? 'crew');
 $mode = old('permission_mode', $target && $target->permissions !== null ? 'custom' : 'role');
 $selectedPermissions = old('permissions', $target?->permissions ?? $target?->effectivePermissions() ?? config('access.defaults.crew'));
 @endphp
-<a class="text-primary underline" href="{{ route('admin.users.index') }}">Kembali ke daftar user</a><h1 class="text-3xl font-bold mt-4 mb-2">{{ $target ? 'Atur Akun & Hak Akses' : 'Tambah User Cafe' }}</h1><p class="text-sm text-gray-600 mb-6">Owner dan akun sendiri dilindungi. Perubahan akses meminta user login kembali. Tutup shift kasir user sebelum mengubah aksesnya.</p>
+<a class="text-primary underline" href="{{ route('admin.users.index') }}">Kembali ke daftar user</a><h1 class="text-2xl md:text-3xl font-bold mt-4 mb-2 text-primary">{{ $target ? 'Atur Akun & Hak Akses' : 'Tambah User Cafe' }}</h1><p class="text-sm text-gray-600 mb-6">Owner dan akun sendiri dilindungi. Perubahan akses meminta user login kembali. Tutup shift kasir user sebelum mengubah aksesnya.</p>
 <form method="POST" action="{{ $target ? route('admin.users.update', $target->id) : route('admin.users.store') }}" class="space-y-6" x-data="{ mode: {{ Illuminate\Support\Js::from($mode) }} }">
 @csrf @if($target) @method('PUT') @endif
 <section class="bg-white border border-line rounded-2xl p-5 md:p-7"><h2 class="text-xl font-bold mb-5">Identitas Akun</h2><div class="grid md:grid-cols-2 gap-5">

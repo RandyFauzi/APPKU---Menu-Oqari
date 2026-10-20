@@ -14,17 +14,11 @@
     <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="min-h-screen font-sans">
-<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content">
+<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content bg-ivory">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
     @php($labels = ['BALANCED' => 'Kas sesuai', 'SHORT' => 'Kas kurang', 'OVER' => 'Kas lebih', 'UNCOUNTED' => 'Belum dihitung'])
-    <header class="bg-primary text-ivory border-b border-gray-200">
-        <div class="max-w-7xl mx-auto p-4 flex flex-wrap items-center justify-between gap-4">
-            <div><strong class="tracking-widest text-white"><x-hellenic-emblem class="inline-block h-5 w-5 mr-1 align-middle" />OQARI</strong><p class="text-sm">{{ auth()->user()->shop->name }}</p></div>
-            <nav aria-label="Navigasi kas" class="flex gap-4 text-sm font-bold"><a class="py-3" href="{{ route('admin.pos.index') }}">Kembali ke Kasir</a><a class="py-3" href="{{ route('admin.dashboard') }}">Dashboard</a></nav>
-        </div>
-    </header>
     <main class="max-w-7xl mx-auto p-4 md:p-8">
-        <h1 class="text-2xl md:text-3xl font-bold">Rekonsiliasi Kas</h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-primary">Rekonsiliasi Kas</h1>
         <p class="text-sm text-gray-600 mt-2">Periksa kas fisik selama shift dan simpan hasil akhir saat menutup kasir.</p>
         @if(session('success'))<p role="status" class="mt-4 p-4 bg-green-50 text-green-900 rounded-xl border border-green-200">{{ session('success') }}</p>@endif
         @if($errors->any())<div role="alert" class="mt-4 p-4 bg-red-50 text-red-900 rounded-xl border border-red-200"><p class="font-bold">Penutupan belum disimpan</p><ul class="list-disc pl-5 mt-2">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif

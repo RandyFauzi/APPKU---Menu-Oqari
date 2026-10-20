@@ -17,27 +17,13 @@
     <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="min-h-screen font-sans">
-<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content">
+<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content bg-ivory">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
     <a href="#attendance-content" class="sr-only focus:not-sr-only">Lewati navigasi</a>
-    <header class="attendance-primary border-b border-gray-200">
-        <div class="max-w-7xl mx-auto p-4 flex flex-wrap items-center justify-between gap-4">
-            <div><span class="font-bold tracking-widest text-white"><x-hellenic-emblem class="inline-block h-5 w-5 mr-1 align-middle" />OQARI</span><p class="text-sm">{{ auth()->user()->shop->name }}</p></div>
-            <nav aria-label="Navigasi absensi" class="flex flex-wrap items-center gap-4 text-sm font-semibold">
-                <a href="{{ route('admin.attendance.index') }}" @if(!$isReport) aria-current="page" @endif>Absensi Saya</a>
-                @can('manage-users')<a href="{{ route('admin.users.index') }}" class="block px-3 py-2 font-semibold">User &amp; Hak Akses</a>@endcan
-@can('view-attendance')
-                    <a href="{{ route('admin.attendance.report') }}" @if($isReport) aria-current="page" @endif>Rekap Karyawan</a>
-                @endcan
-                <a href="{{ route('admin.dashboard') }}">Kembali ke Aplikasi</a>
-                <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">Keluar</button></form>
-            </nav>
-        </div>
-    </header>
     <main id="attendance-content" class="max-w-7xl mx-auto p-4 md:p-8">
         <div class="mb-6">
             <p class="attendance-accent text-xs uppercase tracking-widest font-bold">Tim &amp; Kehadiran</p>
-            <h1 class="text-2xl md:text-3xl font-bold mt-2">{{ $isReport ? 'Rekap Absensi Karyawan' : 'Absensi Saya' }}</h1>
+            <h1 class="text-2xl md:text-3xl font-bold mt-2 text-primary">{{ $isReport ? 'Rekap Absensi Karyawan' : 'Absensi Saya' }}</h1>
             <p class="text-sm text-gray-600 mt-2">{{ auth()->user()->name }} · {{ $today->format('d/m/Y H:i') }} · {{ $timezone }}</p>
         </div>
         @if(session('status'))
