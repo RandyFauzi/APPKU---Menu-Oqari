@@ -28,13 +28,11 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <!-- Alpine.js & Tailwind -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
     <style>
         body {
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-            background-color: #FAFAF9;
-            color: #1C1917;
+            background-color: var(--oq-ivory);
+            color: #38242b;
             overflow-x: hidden;
         }
 
@@ -43,11 +41,11 @@
             background: 
                 radial-gradient(ellipse 60% 50% at 85% 15%, rgba(217, 119, 6, 0.12) 0%, transparent 70%),
                 radial-gradient(ellipse 50% 40% at 15% 85%, rgba(120, 53, 15, 0.08) 0%, transparent 60%),
-                #FAFAF9;
+                var(--oq-ivory);
         }
 
         .cta-gradient-bg {
-            background: linear-gradient(135deg, #1C1917 0%, #292524 50%, #44403C 100%);
+            background: linear-gradient(135deg, #38242b 0%, #481526 50%, #641d35 100%);
         }
 
         .orange-gradient-badge {
@@ -90,22 +88,24 @@
             background: #A8A29E;
         }
     </style>
+    <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="antialiased selection:bg-orange-100 selection:text-orange-900" x-data="{ mobileMenuOpen: false }">
+<body class="antialiased selection:bg-gold-100 selection:text-gold-900" x-data="{ mobileMenuOpen: false }">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     <!-- 2. STICKY NAVBAR -->
-    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-orange-100/80 transition-all">
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gold-100/80 transition-all">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
             <!-- Brand Logo -->
             <a href="{{ url('/') }}" class="flex items-center gap-3 group">
-                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-700 via-orange-800 to-stone-900 flex items-center justify-center shadow-md shadow-orange-900/10 group-hover:scale-105 transition-transform p-1.5">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-gold-700 via-gold-800 to-stone-900 flex items-center justify-center shadow-md shadow-gold-900/10 group-hover:scale-105 transition-transform p-1.5">
                     <img src="{{ asset('logo-oqari.webp') }}" alt="OQARI Logo" class="w-full h-full object-contain">
                 </div>
                 <div>
-                    <span class="text-2xl font-black tracking-tight text-orange-950 flex items-center gap-1">
+                    <span class="text-2xl font-black tracking-tight text-gold-950 flex items-center gap-1">
                         OQARI
-                        <span class="text-[10px] font-bold px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded uppercase tracking-wider">POS</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 bg-gold-100 text-gold-800 rounded uppercase tracking-wider">POS</span>
                     </span>
                     <span class="text-[11px] block font-medium text-gray-500 -mt-1 tracking-wide">Coffee & F&B Ecosystem</span>
                 </div>
@@ -113,15 +113,15 @@
 
             <!-- Desktop Navigation -->
             <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-gray-600">
-                <a href="#fitur" class="hover:text-orange-800 transition-colors">Fitur Unggulan</a>
-                <a href="#solusi" class="hover:text-orange-800 transition-colors">Solusi Bisnis</a>
-                <a href="#demo-qr" class="hover:text-orange-800 transition-colors flex items-center gap-1.5">
+                <a href="#fitur" class="hover:text-gold-800 transition-colors">Fitur Unggulan</a>
+                <a href="#solusi" class="hover:text-gold-800 transition-colors">Solusi Bisnis</a>
+                <a href="#demo-qr" class="hover:text-gold-800 transition-colors flex items-center gap-1.5">
                     <span>Demo QR Meja</span>
                     <span class="text-[10px] font-bold px-1.5 py-0.2 bg-green-100 text-green-700 rounded-full">Live</span>
                 </a>
-                <a href="#hardware" class="hover:text-orange-800 transition-colors">Perangkat</a>
-                <a href="#harga" class="hover:text-orange-800 transition-colors">Paket & Harga</a>
-                <a href="#faq" class="hover:text-orange-800 transition-colors">FAQ</a>
+                <a href="#hardware" class="hover:text-gold-800 transition-colors">Perangkat</a>
+                <a href="#harga" class="hover:text-gold-800 transition-colors">Paket & Harga</a>
+                <a href="#faq" class="hover:text-gold-800 transition-colors">FAQ</a>
             </nav>
 
             <!-- CTA Buttons -->
@@ -132,7 +132,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="px-5 py-2.5 rounded-xl font-semibold text-sm text-gray-700 hover:text-orange-950 hover:bg-stone-100 transition-colors border border-orange-100">
+                    <a href="{{ route('login') }}" class="px-5 py-2.5 rounded-xl font-semibold text-sm text-gray-700 hover:text-gold-950 hover:bg-stone-100 transition-colors border border-gold-100">
                         Masuk
                     </a>
                     <a href="{{ route('register') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white primary-btn-gradient">
@@ -150,14 +150,14 @@
         </div>
 
         <!-- Mobile Drawer Menu -->
-        <div x-show="mobileMenuOpen" x-cloak class="lg:hidden bg-white border-b border-orange-100 px-4 pt-3 pb-6 space-y-3">
+        <div x-show="mobileMenuOpen" x-cloak class="lg:hidden bg-white border-b border-gold-100 px-4 pt-3 pb-6 space-y-3">
             <a href="#fitur" @click="mobileMenuOpen = false" class="block py-2 text-gray-700 font-semibold">Fitur Unggulan</a>
             <a href="#solusi" @click="mobileMenuOpen = false" class="block py-2 text-gray-700 font-semibold">Solusi Bisnis</a>
             <a href="#demo-qr" @click="mobileMenuOpen = false" class="block py-2 text-gray-700 font-semibold">Demo QR Meja</a>
             <a href="#hardware" @click="mobileMenuOpen = false" class="block py-2 text-gray-700 font-semibold">Perangkat Kompatibel</a>
             <a href="#harga" @click="mobileMenuOpen = false" class="block py-2 text-gray-700 font-semibold">Paket & Harga</a>
             <a href="#faq" @click="mobileMenuOpen = false" class="block py-2 text-gray-700 font-semibold">FAQ</a>
-            <div class="pt-4 border-t border-orange-100 flex flex-col gap-2.5">
+            <div class="pt-4 border-t border-gold-100 flex flex-col gap-2.5">
                 @if(auth()->check() && isset($dashboardUrl))
                     <a href="{{ $dashboardUrl }}" class="w-full text-center py-3 rounded-xl font-bold text-white primary-btn-gradient">
                         Buka Dashboard
@@ -196,7 +196,7 @@
                 <div class="lg:col-span-5 py-20 space-y-6 text-center lg:text-left bg-white/40 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none p-6 lg:p-0 rounded-3xl lg:rounded-none shadow-xl lg:shadow-none border border-white/50 lg:border-none mt-32 lg:mt-0">
                     
                     <!-- Pill Tag -->
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold text-orange-900 border border-orange-300 shadow-sm" style="background-color: #f6ebd8;">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold text-gold-900 border border-gold-300 shadow-sm" style="background-color: #f6ebd8;">
                         <span>#1 Ekosistem Kasir POS & Smart QR Menu</span>
                     </div>
 
@@ -213,16 +213,16 @@
                     <!-- Feature Capsules -->
                     <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2">
                         <span class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[11px] font-bold text-gray-700 flex items-center gap-2 shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> QR Order Meja
+                            <span class="w-1.5 h-1.5 rounded-full bg-gold-600"></span> QR Order Meja
                         </span>
                         <span class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[11px] font-bold text-gray-700 flex items-center gap-2 shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> POS Tablet
+                            <span class="w-1.5 h-1.5 rounded-full bg-gold-600"></span> POS Tablet
                         </span>
                         <span class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[11px] font-bold text-gray-700 flex items-center gap-2 shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> KDS Realtime
+                            <span class="w-1.5 h-1.5 rounded-full bg-gold-600"></span> KDS Realtime
                         </span>
                         <span class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-[11px] font-bold text-gray-700 flex items-center gap-2 shadow-sm">
-                            <span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span> HPP & Gramasi
+                            <span class="w-1.5 h-1.5 rounded-full bg-gold-600"></span> HPP & Gramasi
                         </span>
                     </div>
 
@@ -260,7 +260,7 @@
     </section>
 
     <!-- 4. SOCIAL PROOF & STATS BAR (Majoo-style trust numbers) -->
-    <section data-aos="fade-up" class="py-12 bg-white border-b border-orange-100">
+    <section data-aos="fade-up" class="py-12 bg-white border-b border-gold-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <!-- Headline -->
@@ -271,15 +271,15 @@
             <!-- 4 Metrics Counters -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-stone-200">
                 <div class="pt-4 md:pt-0">
-                    <div class="text-3xl sm:text-4xl font-extrabold text-orange-950 tracking-tight">500+</div>
+                    <div class="text-3xl sm:text-4xl font-extrabold text-gold-950 tracking-tight">500+</div>
                     <div class="text-xs sm:text-sm font-medium text-gray-500 mt-1">Outlet Cafe Aktif</div>
                 </div>
                 <div class="pt-4 md:pt-0">
-                    <div class="text-3xl sm:text-4xl font-extrabold text-orange-800 tracking-tight">3.2 Juta+</div>
+                    <div class="text-3xl sm:text-4xl font-extrabold text-gold-800 tracking-tight">3.2 Juta+</div>
                     <div class="text-xs sm:text-sm font-medium text-gray-500 mt-1">Pesanan Sukses Diproses</div>
                 </div>
                 <div class="pt-4 md:pt-0">
-                    <div class="text-3xl sm:text-4xl font-extrabold text-orange-950 tracking-tight">3x Cepat</div>
+                    <div class="text-3xl sm:text-4xl font-extrabold text-gold-950 tracking-tight">3x Cepat</div>
                     <div class="text-xs sm:text-sm font-medium text-gray-500 mt-1">Putaran Meja Saat Peak Hour</div>
                 </div>
                 <div class="pt-4 md:pt-0">
@@ -301,14 +301,14 @@
     </section>
 
     <!-- 5. CORE VALUE TRIO (Majoo-style 3 Pillars Grid) -->
-    <section data-aos="fade-up" id="fitur" class="py-20 bg-stone-50 border-b border-orange-100">
+    <section data-aos="fade-up" id="fitur" class="py-20 bg-stone-50 border-b border-gold-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                <span class="text-xs font-bold uppercase tracking-wider text-orange-800 bg-orange-100 px-3 py-1 rounded-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-gold-800 bg-gold-100 px-3 py-1 rounded-full">
                     Fitur Canggih & Komprehensif
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-orange-950 tracking-tight">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gold-950 tracking-tight">
                     Dirancang Khusus untuk Alur Kerja <br class="hidden sm:inline">
                     Bisnis Kopi & Cafe yang Cepat
                 </h2>
@@ -321,20 +321,20 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
                 <!-- Card 1: QR Self Ordering -->
-                <div class="bg-white rounded-3xl p-8 border border-orange-100 card-soft-shadow flex flex-col justify-between">
+                <div class="bg-white rounded-3xl p-8 border border-gold-100 card-soft-shadow flex flex-col justify-between">
                     <div>
                         <!-- Icon -->
-                        <div class="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-800 mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-gold-50 border border-gold-200 flex items-center justify-center text-gold-800 mb-6">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                         </div>
 
                         <!-- Capsules -->
                         <div class="flex flex-wrap gap-1.5 mb-4">
                             <span class="text-[11px] font-bold px-2.5 py-0.5 bg-stone-100 text-gray-700 rounded-md">Tanpa Install App</span>
-                            <span class="text-[11px] font-bold px-2.5 py-0.5 bg-orange-50 text-orange-800 rounded-md">QRIS Dinamis</span>
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 bg-gold-50 text-gold-800 rounded-md">QRIS Dinamis</span>
                         </div>
 
-                        <h3 class="text-xl font-bold text-orange-950 mb-3">
+                        <h3 class="text-xl font-bold text-gold-950 mb-3">
                             Smart QR E-Menu & Table Self-Order
                         </h3>
                         <p class="text-sm text-gray-600 leading-relaxed mb-6">
@@ -342,27 +342,27 @@
                         </p>
                     </div>
 
-                    <div class="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-orange-800">
+                    <div class="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-gold-800">
                         <span>Pangkas waktu tunggu tamu</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
                 </div>
 
                 <!-- Card 2: POS & Kitchen Display (KDS) -->
-                <div class="bg-white rounded-3xl p-8 border border-orange-100 card-soft-shadow flex flex-col justify-between">
+                <div class="bg-white rounded-3xl p-8 border border-gold-100 card-soft-shadow flex flex-col justify-between">
                     <div>
                         <!-- Icon -->
-                        <div class="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-800 mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-gold-50 border border-gold-200 flex items-center justify-center text-gold-800 mb-6">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                         </div>
 
                         <!-- Capsules -->
                         <div class="flex flex-wrap gap-1.5 mb-4">
                             <span class="text-[11px] font-bold px-2.5 py-0.5 bg-stone-100 text-gray-700 rounded-md">KDS Barista</span>
-                            <span class="text-[11px] font-bold px-2.5 py-0.5 bg-orange-50 text-orange-800 rounded-md">Cetak Struk Kilat</span>
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 bg-gold-50 text-gold-800 rounded-md">Cetak Struk Kilat</span>
                         </div>
 
-                        <h3 class="text-xl font-bold text-orange-950 mb-3">
+                        <h3 class="text-xl font-bold text-gold-950 mb-3">
                             POS Kasir Cepat & Kitchen Display (KDS)
                         </h3>
                         <p class="text-sm text-gray-600 leading-relaxed mb-6">
@@ -370,27 +370,27 @@
                         </p>
                     </div>
 
-                    <div class="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-orange-800">
+                    <div class="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-gold-800">
                         <span>Sinkronisasi audio & visual 0 detik</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
                 </div>
 
                 <!-- Card 3: Recipe Costing & HPP Gramasi -->
-                <div class="bg-white rounded-3xl p-8 border border-orange-100 card-soft-shadow flex flex-col justify-between">
+                <div class="bg-white rounded-3xl p-8 border border-gold-100 card-soft-shadow flex flex-col justify-between">
                     <div>
                         <!-- Icon -->
-                        <div class="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-800 mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-gold-50 border border-gold-200 flex items-center justify-center text-gold-800 mb-6">
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                         </div>
 
                         <!-- Capsules -->
                         <div class="flex flex-wrap gap-1.5 mb-4">
                             <span class="text-[11px] font-bold px-2.5 py-0.5 bg-stone-100 text-gray-700 rounded-md">Gramasi Kopi & Susu</span>
-                            <span class="text-[11px] font-bold px-2.5 py-0.5 bg-orange-50 text-orange-800 rounded-md">Cegah Kebocoran</span>
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 bg-gold-50 text-gold-800 rounded-md">Cegah Kebocoran</span>
                         </div>
 
-                        <h3 class="text-xl font-bold text-orange-950 mb-3">
+                        <h3 class="text-xl font-bold text-gold-950 mb-3">
                             Manajemen Resep & HPP Otomatis
                         </h3>
                         <p class="text-sm text-gray-600 leading-relaxed mb-6">
@@ -398,7 +398,7 @@
                         </p>
                     </div>
 
-                    <div class="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-orange-800">
+                    <div class="pt-4 border-t border-stone-100 flex items-center justify-between text-xs font-bold text-gold-800">
                         <span>Kontrol margin profit akurat</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </div>
@@ -417,7 +417,7 @@
                 <span class="text-xs font-bold uppercase tracking-wider text-gray-500">
                     Solusi Terarah
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-orange-950 tracking-tight">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gold-950 tracking-tight">
                     Cocok untuk Segala Format Bisnis Kopi & FnB
                 </h2>
                 <p class="text-base text-gray-600">
@@ -427,16 +427,16 @@
 
             <!-- Tab Buttons -->
             <div class="flex flex-wrap items-center justify-center gap-2 mb-12">
-                <button @click="activeTab = 'specialty'" :class="activeTab === 'specialty' ? 'bg-gradient-to-r from-orange-600 to-amber-700 text-white shadow-lg shadow-orange-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
+                <button @click="activeTab = 'specialty'" :class="activeTab === 'specialty' ? 'bg-gradient-to-r from-gold-600 to-amber-700 text-white shadow-lg shadow-gold-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-gold-50 hover:text-gold-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
                     ☕ Specialty Coffee & Roastery
                 </button>
-                <button @click="activeTab = 'cafe'" :class="activeTab === 'cafe' ? 'bg-gradient-to-r from-orange-600 to-amber-700 text-white shadow-lg shadow-orange-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
+                <button @click="activeTab = 'cafe'" :class="activeTab === 'cafe' ? 'bg-gradient-to-r from-gold-600 to-amber-700 text-white shadow-lg shadow-gold-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-gold-50 hover:text-gold-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
                     🍽️ Cafe & Casual Dining
                 </button>
-                <button @click="activeTab = 'booth'" :class="activeTab === 'booth' ? 'bg-gradient-to-r from-orange-600 to-amber-700 text-white shadow-lg shadow-orange-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
+                <button @click="activeTab = 'booth'" :class="activeTab === 'booth' ? 'bg-gradient-to-r from-gold-600 to-amber-700 text-white shadow-lg shadow-gold-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-gold-50 hover:text-gold-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
                     🚀 Coffee Booth & Grab-and-Go
                 </button>
-                <button @click="activeTab = 'chain'" :class="activeTab === 'chain' ? 'bg-gradient-to-r from-orange-600 to-amber-700 text-white shadow-lg shadow-orange-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-orange-50 hover:text-orange-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
+                <button @click="activeTab = 'chain'" :class="activeTab === 'chain' ? 'bg-gradient-to-r from-gold-600 to-amber-700 text-white shadow-lg shadow-gold-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-gold-50 hover:text-gold-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
                     🏢 Multi-Outlet & Franchise
                 </button>
             </div>
@@ -447,8 +447,8 @@
                 <!-- Panel 1: Specialty Coffee -->
                 <div x-show="activeTab === 'specialty'" x-cloak class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     <div class="lg:col-span-6 space-y-5">
-                        <span class="text-xs font-bold px-3 py-1 bg-orange-100 text-orange-800 rounded-md">Untuk Artisan Roaster & Specialty Cafe</span>
-                        <h3 class="text-2xl sm:text-3xl font-bold text-orange-950">
+                        <span class="text-xs font-bold px-3 py-1 bg-gold-100 text-gold-800 rounded-md">Untuk Artisan Roaster & Specialty Cafe</span>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-gold-950">
                             Kustomisasi Single Origin, Manual Brew, & Modifikasi Tanpa Batas
                         </h3>
                         <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
@@ -469,22 +469,22 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-orange-100">
-                        <div class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-3">Live Simulation: Barista Brew Bar</div>
+                    <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gold-100">
+                        <div class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-3">Live Simulation: Barista Brew Bar</div>
                         <div class="space-y-3">
-                            <div class="p-3 bg-stone-50 rounded-xl border border-orange-100 flex justify-between items-center">
+                            <div class="p-3 bg-stone-50 rounded-xl border border-gold-100 flex justify-between items-center">
                                 <div>
                                     <div class="font-bold text-gray-800 text-sm">V60 Ethiopia Guji (Natural)</div>
                                     <div class="text-xs text-gray-500">Grind: Medium-Fine • Ratio: 1:15 • Temp: 92°C</div>
                                 </div>
-                                <span class="px-2.5 py-1 bg-orange-100 text-orange-800 text-xs font-bold rounded">Barista #1</span>
+                                <span class="px-2.5 py-1 bg-gold-100 text-gold-800 text-xs font-bold rounded">Barista #1</span>
                             </div>
-                            <div class="p-3 bg-stone-50 rounded-xl border border-orange-100 flex justify-between items-center">
+                            <div class="p-3 bg-stone-50 rounded-xl border border-gold-100 flex justify-between items-center">
                                 <div>
                                     <div class="font-bold text-gray-800 text-sm">Magic (Double Ristretto + Oatmilk)</div>
                                     <div class="text-xs text-gray-500">Beans: House Blend (Brazil x Flores) • 160ml cup</div>
                                 </div>
-                                <span class="px-2.5 py-1 bg-orange-100 text-orange-800 text-xs font-bold rounded">Espresso Bar</span>
+                                <span class="px-2.5 py-1 bg-gold-100 text-gold-800 text-xs font-bold rounded">Espresso Bar</span>
                             </div>
                         </div>
                     </div>
@@ -493,8 +493,8 @@
                 <!-- Panel 2: Cafe & Casual Dining -->
                 <div x-show="activeTab === 'cafe'" x-cloak class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     <div class="lg:col-span-6 space-y-5">
-                        <span class="text-xs font-bold px-3 py-1 bg-orange-100 text-orange-800 rounded-md">Untuk Cafe Resto & Tempat Nongkrong</span>
-                        <h3 class="text-2xl sm:text-3xl font-bold text-orange-950">
+                        <span class="text-xs font-bold px-3 py-1 bg-gold-100 text-gold-800 rounded-md">Untuk Cafe Resto & Tempat Nongkrong</span>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-gold-950">
                             Manajemen Denah Meja, Split Bill, & Multi-Kitchen Printer
                         </h3>
                         <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
@@ -515,20 +515,20 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-orange-100">
-                        <div class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-3">Live Table Grid Management</div>
+                    <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gold-100">
+                        <div class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-3">Live Table Grid Management</div>
                         <div class="grid grid-cols-3 gap-3">
                             <div class="p-3 bg-green-50 border border-green-200 rounded-xl text-center">
                                 <div class="font-bold text-green-800 text-sm">Meja 01</div>
                                 <div class="text-[10px] text-green-600">Kosong (Tersedia)</div>
                             </div>
-                            <div class="p-3 bg-orange-50 border border-orange-300 rounded-xl text-center">
-                                <div class="font-bold text-orange-800 text-sm">Meja 02</div>
-                                <div class="text-[10px] text-orange-600">Terisi (Pesan QR)</div>
+                            <div class="p-3 bg-gold-50 border border-gold-300 rounded-xl text-center">
+                                <div class="font-bold text-gold-800 text-sm">Meja 02</div>
+                                <div class="text-[10px] text-gold-600">Terisi (Pesan QR)</div>
                             </div>
-                            <div class="p-3 bg-orange-50 border border-orange-300 rounded-xl text-center">
-                                <div class="font-bold text-orange-800 text-sm">Meja 03</div>
-                                <div class="text-[10px] text-orange-600">Terisi (Open Bill)</div>
+                            <div class="p-3 bg-gold-50 border border-gold-300 rounded-xl text-center">
+                                <div class="font-bold text-gold-800 text-sm">Meja 03</div>
+                                <div class="text-[10px] text-gold-600">Terisi (Open Bill)</div>
                             </div>
                         </div>
                     </div>
@@ -537,8 +537,8 @@
                 <!-- Panel 3: Coffee Booth -->
                 <div x-show="activeTab === 'booth'" x-cloak class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     <div class="lg:col-span-6 space-y-5">
-                        <span class="text-xs font-bold px-3 py-1 bg-orange-100 text-orange-800 rounded-md">Untuk Gerai Kiosk & Kopi Susu Kekinian</span>
-                        <h3 class="text-2xl sm:text-3xl font-bold text-orange-950">
+                        <span class="text-xs font-bold px-3 py-1 bg-gold-100 text-gold-800 rounded-md">Untuk Gerai Kiosk & Kopi Susu Kekinian</span>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-gold-950">
                             Cepat, Ringkas, Cukup 1 Smartphone / Tablet Android
                         </h3>
                         <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
@@ -559,16 +559,16 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-orange-100">
-                        <div class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-3">Quick Tap Fast-Checkout</div>
+                    <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gold-100">
+                        <div class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-3">Quick Tap Fast-Checkout</div>
                         <div class="grid grid-cols-2 gap-3 text-center">
-                            <div class="p-3 bg-stone-50 border border-orange-100 rounded-xl">
+                            <div class="p-3 bg-stone-50 border border-gold-100 rounded-xl">
                                 <div class="font-bold text-sm text-gray-800">Kopi Susu Aren</div>
-                                <div class="text-xs text-orange-700 font-semibold">Rp 18.000</div>
+                                <div class="text-xs text-gold-700 font-semibold">Rp 18.000</div>
                             </div>
-                            <div class="p-3 bg-stone-50 border border-orange-100 rounded-xl">
+                            <div class="p-3 bg-stone-50 border border-gold-100 rounded-xl">
                                 <div class="font-bold text-sm text-gray-800">Americano Ice</div>
-                                <div class="text-xs text-orange-700 font-semibold">Rp 15.000</div>
+                                <div class="text-xs text-gold-700 font-semibold">Rp 15.000</div>
                             </div>
                         </div>
                     </div>
@@ -577,8 +577,8 @@
                 <!-- Panel 4: Multi Outlet Chain -->
                 <div x-show="activeTab === 'chain'" x-cloak class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     <div class="lg:col-span-6 space-y-5">
-                        <span class="text-xs font-bold px-3 py-1 bg-orange-100 text-orange-800 rounded-md">Untuk Franchise & Multi-Cabang</span>
-                        <h3 class="text-2xl sm:text-3xl font-bold text-orange-950">
+                        <span class="text-xs font-bold px-3 py-1 bg-gold-100 text-gold-800 rounded-md">Untuk Franchise & Multi-Cabang</span>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-gold-950">
                             Kontrol Puluhan Cabang Terpusat dari Satu Layar SuperAdmin
                         </h3>
                         <p class="text-gray-600 leading-relaxed text-sm sm:text-base">
@@ -599,8 +599,8 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-orange-100">
-                        <div class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-3">Multi-Branch Analytics</div>
+                    <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gold-100">
+                        <div class="text-xs font-bold text-gold-600 uppercase tracking-wider mb-3">Multi-Branch Analytics</div>
                         <div class="space-y-2.5">
                             <div class="flex justify-between items-center p-2.5 bg-stone-50 rounded-xl text-xs">
                                 <span class="font-bold text-gray-800">Cabang Senopati, Jaksel</span>
@@ -624,7 +624,7 @@
     </section>
 
     <!-- 7. INTERACTIVE LIVE QR MENU DEMO (Experience OQARI Live in Browser) -->
-    <section data-aos="fade-up" id="demo-qr" class="py-20 bg-stone-100 border-b border-orange-100" x-data="{ 
+    <section data-aos="fade-up" id="demo-qr" class="py-20 bg-stone-100 border-b border-gold-100" x-data="{
         selectedItems: [
             { name: 'Spanish Aren Latte', price: 32000, qty: 1, notes: 'Oatmilk, Less Sugar' }
         ],
@@ -644,10 +644,10 @@
                 
                 <!-- Left Info -->
                 <div class="lg:col-span-6 space-y-6">
-                    <span class="text-xs font-bold uppercase tracking-wider text-orange-800 bg-orange-100 px-3 py-1 rounded-full">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gold-800 bg-gold-100 px-3 py-1 rounded-full">
                         Simulator Interaktif
                     </span>
-                    <h2 class="text-3xl sm:text-4xl font-extrabold text-orange-950 tracking-tight">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-gold-950 tracking-tight">
                         Coba Sensasi Memesan <br>
                         Langsung dari Layar Ini
                     </h2>
@@ -657,23 +657,23 @@
                     
                     <div class="space-y-4 pt-2">
                         <div class="flex items-start gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-800 flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
+                            <div class="w-8 h-8 rounded-lg bg-gold-100 text-gold-800 flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
                             <div>
-                                <h4 class="font-bold text-orange-950 text-sm">Pelanggan Duduk & Scan QR di Meja</h4>
+                                <h4 class="font-bold text-gold-950 text-sm">Pelanggan Duduk & Scan QR di Meja</h4>
                                 <p class="text-xs text-gray-500">Kamera smartphone langsung membuka daftar menu tanpa unduh aplikasi apapun.</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-800 flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
+                            <div class="w-8 h-8 rounded-lg bg-gold-100 text-gold-800 flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
                             <div>
-                                <h4 class="font-bold text-orange-950 text-sm">Pilih Kopi, Modifier Topping, & Catatan</h4>
+                                <h4 class="font-bold text-gold-950 text-sm">Pilih Kopi, Modifier Topping, & Catatan</h4>
                                 <p class="text-xs text-gray-500">Pilihan gula, es, dan susu terstruktur rapi tanpa resiko salah dengar.</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-800 flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
+                            <div class="w-8 h-8 rounded-lg bg-gold-100 text-gold-800 flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
                             <div>
-                                <h4 class="font-bold text-orange-950 text-sm">Pesanan Otomatis Masuk ke Barista</h4>
+                                <h4 class="font-bold text-gold-950 text-sm">Pesanan Otomatis Masuk ke Barista</h4>
                                 <p class="text-xs text-gray-500">Layar dapur barista langsung berbunyi 'ting!' dan menampilkan resep secara real-time.</p>
                             </div>
                         </div>
@@ -690,22 +690,22 @@
                 <!-- Right Simulator Phone Shell -->
                 <div class="lg:col-span-6 flex justify-center">
                     
-                    <div class="w-full max-w-sm bg-orange-50 p-4 rounded-[40px] shadow-2xl border-4 border-orange-200 relative">
+                    <div class="w-full max-w-sm bg-gold-50 p-4 rounded-[40px] shadow-2xl border-4 border-gold-200 relative">
                         
                         <!-- Top Phone Notch -->
-                        <div class="w-36 h-4 bg-orange-100 rounded-b-xl mx-auto mb-3"></div>
+                        <div class="w-36 h-4 bg-gold-100 rounded-b-xl mx-auto mb-3"></div>
 
                         <!-- Screen Area -->
-                        <div class="bg-white rounded-[28px] overflow-hidden text-orange-950 flex flex-col h-[520px]">
+                        <div class="bg-white rounded-[28px] overflow-hidden text-gold-950 flex flex-col h-[520px]">
                             
                             <!-- App Header -->
-                            <div class="bg-orange-950 text-white p-4">
+                            <div class="bg-gold-950 text-white p-4">
                                 <div class="flex items-center justify-between text-xs mb-1">
                                     <span class="font-bold flex items-center gap-1.5">
                                         <span class="w-2 h-2 rounded-full bg-green-400"></span>
                                         OQARI Coffee Lab
                                     </span>
-                                    <span class="bg-orange-900/80 px-2 py-0.5 rounded text-[10px] font-mono">Meja #04</span>
+                                    <span class="bg-gold-900/80 px-2 py-0.5 rounded text-[10px] font-mono">Meja #04</span>
                                 </div>
                                 <h3 class="text-base font-extrabold">E-Menu Digital</h3>
                             </div>
@@ -713,46 +713,46 @@
                             <!-- Menu Items List -->
                             <div class="p-3.5 overflow-y-auto flex-1 space-y-2.5">
                                 
-                                <div class="text-[11px] font-bold text-orange-600 uppercase tracking-wider">Pilih Menu untuk Menambah:</div>
+                                <div class="text-[11px] font-bold text-gold-600 uppercase tracking-wider">Pilih Menu untuk Menambah:</div>
 
                                 <!-- Item 1 -->
-                                <div class="p-2.5 rounded-xl border border-orange-100 hover:border-orange-500 transition-all flex items-center justify-between bg-stone-50">
+                                <div class="p-2.5 rounded-xl border border-gold-100 hover:border-gold-500 transition-all flex items-center justify-between bg-stone-50">
                                     <div>
-                                        <div class="font-bold text-xs text-orange-950">Spanish Aren Latte</div>
+                                        <div class="font-bold text-xs text-gold-950">Spanish Aren Latte</div>
                                         <div class="text-[10px] text-gray-500">Espresso + Susu Aren Creamy</div>
-                                        <div class="text-xs font-bold text-orange-800 mt-1">Rp 32.000</div>
+                                        <div class="text-xs font-bold text-gold-800 mt-1">Rp 32.000</div>
                                     </div>
-                                    <button @click="addItem('Spanish Aren Latte', 32000, 'Less Sugar, Ice')" type="button" class="px-2.5 py-1.5 rounded-lg bg-orange-800 text-white text-[11px] font-bold hover:bg-orange-900">
+                                    <button @click="addItem('Spanish Aren Latte', 32000, 'Less Sugar, Ice')" type="button" class="px-2.5 py-1.5 rounded-lg bg-gold-800 text-white text-[11px] font-bold hover:bg-gold-900">
                                         + Tambah
                                     </button>
                                 </div>
 
                                 <!-- Item 2 -->
-                                <div class="p-2.5 rounded-xl border border-orange-100 hover:border-orange-500 transition-all flex items-center justify-between bg-stone-50">
+                                <div class="p-2.5 rounded-xl border border-gold-100 hover:border-gold-500 transition-all flex items-center justify-between bg-stone-50">
                                     <div>
-                                        <div class="font-bold text-xs text-orange-950">Americano On The Rocks</div>
+                                        <div class="font-bold text-xs text-gold-950">Americano On The Rocks</div>
                                         <div class="text-[10px] text-gray-500">Double Shot Blend Specialty</div>
-                                        <div class="text-xs font-bold text-orange-800 mt-1">Rp 24.000</div>
+                                        <div class="text-xs font-bold text-gold-800 mt-1">Rp 24.000</div>
                                     </div>
-                                    <button @click="addItem('Americano On The Rocks', 24000, 'Normal Ice')" type="button" class="px-2.5 py-1.5 rounded-lg bg-orange-800 text-white text-[11px] font-bold hover:bg-orange-900">
+                                    <button @click="addItem('Americano On The Rocks', 24000, 'Normal Ice')" type="button" class="px-2.5 py-1.5 rounded-lg bg-gold-800 text-white text-[11px] font-bold hover:bg-gold-900">
                                         + Tambah
                                     </button>
                                 </div>
 
                                 <!-- Item 3 -->
-                                <div class="p-2.5 rounded-xl border border-orange-100 hover:border-orange-500 transition-all flex items-center justify-between bg-stone-50">
+                                <div class="p-2.5 rounded-xl border border-gold-100 hover:border-gold-500 transition-all flex items-center justify-between bg-stone-50">
                                     <div>
-                                        <div class="font-bold text-xs text-orange-950">Butter Croissant</div>
+                                        <div class="font-bold text-xs text-gold-950">Butter Croissant</div>
                                         <div class="text-[10px] text-gray-500">Flaky French Pastry (Warm)</div>
-                                        <div class="text-xs font-bold text-orange-800 mt-1">Rp 26.000</div>
+                                        <div class="text-xs font-bold text-gold-800 mt-1">Rp 26.000</div>
                                     </div>
-                                    <button @click="addItem('Butter Croissant', 26000, 'Dipanaskan')" type="button" class="px-2.5 py-1.5 rounded-lg bg-orange-800 text-white text-[11px] font-bold hover:bg-orange-900">
+                                    <button @click="addItem('Butter Croissant', 26000, 'Dipanaskan')" type="button" class="px-2.5 py-1.5 rounded-lg bg-gold-800 text-white text-[11px] font-bold hover:bg-gold-900">
                                         + Tambah
                                     </button>
                                 </div>
 
                                 <!-- Order Cart Preview -->
-                                <div class="pt-2 border-t border-orange-100">
+                                <div class="pt-2 border-t border-gold-100">
                                     <div class="text-[11px] font-bold text-gray-600 mb-1 flex justify-between">
                                         <span>Keranjang Pesanan:</span>
                                         <span x-text="selectedItems.length + ' Item'"></span>
@@ -761,7 +761,7 @@
                                         <div class="flex items-center justify-between py-1 text-xs border-b border-stone-100">
                                             <div>
                                                 <div class="font-semibold text-gray-800" x-text="item.name"></div>
-                                                <div class="text-[10px] text-orange-600" x-text="item.notes"></div>
+                                                <div class="text-[10px] text-gold-600" x-text="item.notes"></div>
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 <span class="font-bold text-gray-700" x-text="'Rp ' + item.price.toLocaleString('id-ID')"></span>
@@ -774,10 +774,10 @@
                             </div>
 
                             <!-- Bottom Floating Action -->
-                            <div class="p-3 bg-stone-50 border-t border-orange-100">
+                            <div class="p-3 bg-stone-50 border-t border-gold-100">
                                 <div class="flex justify-between items-center mb-2">
                                     <span class="text-xs font-medium text-gray-500">Estimasi Total:</span>
-                                    <span class="text-base font-extrabold text-orange-950" x-text="'Rp ' + cartTotal().toLocaleString('id-ID')"></span>
+                                    <span class="text-base font-extrabold text-gold-950" x-text="'Rp ' + cartTotal().toLocaleString('id-ID')"></span>
                                 </div>
                                 <button type="button" class="w-full py-2.5 rounded-xl font-bold text-xs text-white primary-btn-gradient flex items-center justify-center gap-1.5">
                                     <span>Pesan & Bayar QRIS Sekarang</span>
@@ -797,14 +797,14 @@
     </section>
 
     <!-- 8. HARDWARE COMPATIBILITY & ECOSYSTEM -->
-    <section data-aos="fade-up" id="hardware" class="py-20 bg-white border-b border-orange-100">
+    <section data-aos="fade-up" id="hardware" class="py-20 bg-white border-b border-gold-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
                 <span class="text-xs font-bold uppercase tracking-wider text-gray-500">
                     Bebas Tanpa Lock-in
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-orange-950 tracking-tight">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gold-950 tracking-tight">
                     Gunakan Perangkat yang Sudah Anda Miliki
                 </h2>
                 <p class="text-base text-gray-600">
@@ -815,35 +815,35 @@
             <!-- Hardware Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
                 
-                <div class="p-6 rounded-2xl bg-stone-50 border border-orange-100 hover:border-orange-400 transition-colors">
-                    <div class="w-12 h-12 mx-auto rounded-xl bg-orange-100 text-orange-800 flex items-center justify-center font-bold mb-4">
+                <div class="p-6 rounded-2xl bg-stone-50 border border-gold-100 hover:border-gold-400 transition-colors">
+                    <div class="w-12 h-12 mx-auto rounded-xl bg-gold-100 text-gold-800 flex items-center justify-center font-bold mb-4">
                         📱
                     </div>
-                    <h4 class="font-bold text-orange-950 mb-1">Tablet & iPad</h4>
+                    <h4 class="font-bold text-gold-950 mb-1">Tablet & iPad</h4>
                     <p class="text-xs text-gray-500">Apple iPad, Samsung Galaxy Tab, Xiaomi Pad, tablet Android apapun.</p>
                 </div>
 
-                <div class="p-6 rounded-2xl bg-stone-50 border border-orange-100 hover:border-orange-400 transition-colors">
-                    <div class="w-12 h-12 mx-auto rounded-xl bg-orange-100 text-orange-800 flex items-center justify-center font-bold mb-4">
+                <div class="p-6 rounded-2xl bg-stone-50 border border-gold-100 hover:border-gold-400 transition-colors">
+                    <div class="w-12 h-12 mx-auto rounded-xl bg-gold-100 text-gold-800 flex items-center justify-center font-bold mb-4">
                         🖨️
                     </div>
-                    <h4 class="font-bold text-orange-950 mb-1">Thermal Printer</h4>
+                    <h4 class="font-bold text-gold-950 mb-1">Thermal Printer</h4>
                     <p class="text-xs text-gray-500">Printer struk 58mm & 80mm via Bluetooth, USB, maupun Ethernet LAN.</p>
                 </div>
 
-                <div class="p-6 rounded-2xl bg-stone-50 border border-orange-100 hover:border-orange-400 transition-colors">
-                    <div class="w-12 h-12 mx-auto rounded-xl bg-orange-100 text-orange-800 flex items-center justify-center font-bold mb-4">
+                <div class="p-6 rounded-2xl bg-stone-50 border border-gold-100 hover:border-gold-400 transition-colors">
+                    <div class="w-12 h-12 mx-auto rounded-xl bg-gold-100 text-gold-800 flex items-center justify-center font-bold mb-4">
                         📟
                     </div>
-                    <h4 class="font-bold text-orange-950 mb-1">Mini POS Terminal</h4>
+                    <h4 class="font-bold text-gold-950 mb-1">Mini POS Terminal</h4>
                     <p class="text-xs text-gray-500">Kompatibel dengan perangkat all-in-one Sunmi, iMin, Advan POS.</p>
                 </div>
 
-                <div class="p-6 rounded-2xl bg-stone-50 border border-orange-100 hover:border-orange-400 transition-colors">
-                    <div class="w-12 h-12 mx-auto rounded-xl bg-orange-100 text-orange-800 flex items-center justify-center font-bold mb-4">
+                <div class="p-6 rounded-2xl bg-stone-50 border border-gold-100 hover:border-gold-400 transition-colors">
+                    <div class="w-12 h-12 mx-auto rounded-xl bg-gold-100 text-gold-800 flex items-center justify-center font-bold mb-4">
                         💻
                     </div>
-                    <h4 class="font-bold text-orange-950 mb-1">PC / Laptop / Mac</h4>
+                    <h4 class="font-bold text-gold-950 mb-1">PC / Laptop / Mac</h4>
                     <p class="text-xs text-gray-500">Akses modul POS dan analitik lengkap melalui browser Google Chrome / Safari.</p>
                 </div>
 
@@ -853,7 +853,7 @@
     </section>
 
     <!-- 9. PRICING PLANS (Desain Sama Persis sesuai Master Mockup OQARI) -->
-    <section data-aos="fade-up" id="harga" class="py-20 sm:py-28 bg-[#252525] border-b border-orange-200 relative overflow-hidden">
+    <section data-aos="fade-up" id="harga" class="py-20 sm:py-28 bg-[#252525] border-b border-gold-200 relative overflow-hidden">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Outer Relative Wrapper for Overlapping 3D Elements -->
@@ -888,7 +888,7 @@
                                 </div>
 
                                 <!-- Title -->
-                                <h3 class="text-xl sm:text-2xl font-bold text-orange-950 tracking-tight">
+                                <h3 class="text-xl sm:text-2xl font-bold text-gold-950 tracking-tight">
                                     Monthly Starter
                                 </h3>
 
@@ -899,8 +899,8 @@
 
                                 <!-- Price -->
                                 <div class="flex items-baseline mb-6">
-                                    <span class="text-2xl sm:text-3xl font-extrabold text-orange-950 tracking-tight">Rp80.000</span>
-                                    <span class="text-xs text-orange-600 font-normal ml-1.5">per month</span>
+                                    <span class="text-2xl sm:text-3xl font-extrabold text-gold-950 tracking-tight">Rp80.000</span>
+                                    <span class="text-xs text-gold-600 font-normal ml-1.5">per month</span>
                                 </div>
 
                                 <!-- Features List -->
@@ -921,7 +921,7 @@
                             </div>
 
                             <!-- Button -->
-                            <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-orange-950 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
+                            <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-gold-950 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
                                 Coba Langganan Bulanan
                             </a>
                         </div>
@@ -935,7 +935,7 @@
                                 </div>
 
                                 <!-- Title -->
-                                <h3 class="text-xl sm:text-2xl font-bold text-orange-950 tracking-tight">
+                                <h3 class="text-xl sm:text-2xl font-bold text-gold-950 tracking-tight">
                                     Lifetime Basic
                                 </h3>
 
@@ -946,8 +946,8 @@
 
                                 <!-- Price -->
                                 <div class="flex items-baseline mb-6">
-                                    <span class="text-2xl sm:text-3xl font-extrabold text-orange-950 tracking-tight">Rp1.500.000</span>
-                                    <span class="text-xs text-orange-600 font-normal ml-1.5">lifetime</span>
+                                    <span class="text-2xl sm:text-3xl font-extrabold text-gold-950 tracking-tight">Rp1.500.000</span>
+                                    <span class="text-xs text-gold-600 font-normal ml-1.5">lifetime</span>
                                 </div>
 
                                 <!-- Features List -->
@@ -968,7 +968,7 @@
                             </div>
 
                             <!-- Button -->
-                            <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-orange-950 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
+                            <a href="{{ route('register') }}" class="w-full py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 text-gold-950 bg-white font-medium text-xs sm:text-sm text-center block transition-colors">
                                 Beli Akses Permanen
                             </a>
                         </div>
@@ -977,7 +977,7 @@
                         <div class="relative bg-white rounded-2xl sm:rounded-3xl p-7 sm:p-8 border border-stone-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between transition-transform hover:-translate-y-1 overflow-hidden">
                             
                             <!-- Top-Right Aesthetic Peach Glow Curve -->
-                            <div class="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-rose-200/50 via-orange-100/30 to-transparent rounded-bl-[120px] pointer-events-none"></div>
+                            <div class="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-rose-200/50 via-gold-100/30 to-transparent rounded-bl-[120px] pointer-events-none"></div>
 
                             <div class="relative z-10">
                                 <!-- Icon -->
@@ -986,7 +986,7 @@
                                 </div>
 
                                 <!-- Title -->
-                                <h3 class="text-xl sm:text-2xl font-bold text-orange-950 tracking-tight">
+                                <h3 class="text-xl sm:text-2xl font-bold text-gold-950 tracking-tight">
                                     Lifetime Custom
                                 </h3>
 
@@ -997,8 +997,8 @@
 
                                 <!-- Price -->
                                 <div class="flex items-baseline mb-6">
-                                    <span class="text-2xl sm:text-3xl font-extrabold text-orange-950 tracking-tight">Rp2.500.000</span>
-                                    <span class="text-xs text-orange-600 font-normal ml-1.5">lifetime</span>
+                                    <span class="text-2xl sm:text-3xl font-extrabold text-gold-950 tracking-tight">Rp2.500.000</span>
+                                    <span class="text-xs text-gold-600 font-normal ml-1.5">lifetime</span>
                                 </div>
 
                                 <!-- Features List -->
@@ -1023,7 +1023,7 @@
                             </div>
 
                             <!-- Button -->
-                            <a href="https://wa.me/6281234567890?text=Halo%20OQARI,%20saya%20ingin%20konsultasi%20fitur%20custom%20Paket%20Lifetime%20Custom" target="_blank" class="w-full py-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-white font-medium text-xs sm:text-sm text-center block transition-colors shadow relative z-10">
+                            <a href="https://wa.me/6281234567890?text=Halo%20OQARI,%20saya%20ingin%20konsultasi%20fitur%20custom%20Paket%20Lifetime%20Custom" target="_blank" class="w-full py-2.5 rounded-xl bg-gold-50 hover:bg-gold-100 text-white font-medium text-xs sm:text-sm text-center block transition-colors shadow relative z-10">
                                 Konsultasi & Custom Fitur
                             </a>
                         </div>
@@ -1044,14 +1044,14 @@
     </section>
 
     <!-- 10. REAL CUSTOMER TESTIMONIALS (Quotes & Social Proof) -->
-    <section data-aos="fade-up" class="py-20 bg-white border-b border-orange-100">
+    <section data-aos="fade-up" class="py-20 bg-white border-b border-gold-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
-                <span class="text-xs font-bold uppercase tracking-wider text-orange-800 bg-orange-100 px-3 py-1 rounded-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-gold-800 bg-gold-100 px-3 py-1 rounded-full">
                     Kisah Nyata
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-orange-950 tracking-tight">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gold-950 tracking-tight">
                     Dipercaya Barista & Pemilik Coffee Shop
                 </h2>
                 <p class="text-base text-gray-600">
@@ -1063,57 +1063,57 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 
                 <!-- Testimonial 1 -->
-                <div class="p-8 rounded-3xl bg-stone-50 border border-orange-100 flex flex-col justify-between">
+                <div class="p-8 rounded-3xl bg-stone-50 border border-gold-100 flex flex-col justify-between">
                     <div class="space-y-4">
-                        <div class="flex text-orange-500 text-sm">★★★★★</div>
+                        <div class="flex text-gold-500 text-sm">★★★★★</div>
                         <p class="text-sm text-gray-700 leading-relaxed italic">
                             "Sebelum pakai OQARI, setiap sore kasir kami kewalahan menghadapi antrean orderan manual. Sejak pakai QR Order meja OQARI, tamu langsung duduk dan pesan sendiri. Barista kami lebih fokus meracik kopi dengan konsisten."
                         </p>
                     </div>
-                    <div class="pt-6 border-t border-orange-100 mt-6 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-orange-100 text-white flex items-center justify-center font-bold text-xs">
+                    <div class="pt-6 border-t border-gold-100 mt-6 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold-100 text-white flex items-center justify-center font-bold text-xs">
                             RA
                         </div>
                         <div>
-                            <div class="font-bold text-orange-950 text-xs">Rian Ardiansyah</div>
+                            <div class="font-bold text-gold-950 text-xs">Rian Ardiansyah</div>
                             <div class="text-[11px] text-gray-500">Founder, Senja Artisan Roastery</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Testimonial 2 -->
-                <div class="p-8 rounded-3xl bg-stone-50 border border-orange-100 flex flex-col justify-between">
+                <div class="p-8 rounded-3xl bg-stone-50 border border-gold-100 flex flex-col justify-between">
                     <div class="space-y-4">
-                        <div class="flex text-orange-500 text-sm">★★★★★</div>
+                        <div class="flex text-gold-500 text-sm">★★★★★</div>
                         <p class="text-sm text-gray-700 leading-relaxed italic">
                             "Fitur HPP resep gramasi OQARI luar biasa akurat. Kami langsung tahu kalau pemakaian susu atau sirup melebihi standar resep. Kebocoran stok berkurang hingga 85% di bulan pertama."
                         </p>
                     </div>
-                    <div class="pt-6 border-t border-orange-100 mt-6 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-orange-100 text-white flex items-center justify-center font-bold text-xs">
+                    <div class="pt-6 border-t border-gold-100 mt-6 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold-100 text-white flex items-center justify-center font-bold text-xs">
                             DR
                         </div>
                         <div>
-                            <div class="font-bold text-orange-950 text-xs">Dian Rahmawati</div>
+                            <div class="font-bold text-gold-950 text-xs">Dian Rahmawati</div>
                             <div class="text-[11px] text-gray-500">Operational Manager, Temu Rasa Cafe</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Testimonial 3 -->
-                <div class="p-8 rounded-3xl bg-stone-50 border border-orange-100 flex flex-col justify-between">
+                <div class="p-8 rounded-3xl bg-stone-50 border border-gold-100 flex flex-col justify-between">
                     <div class="space-y-4">
-                        <div class="flex text-orange-500 text-sm">★★★★★</div>
+                        <div class="flex text-gold-500 text-sm">★★★★★</div>
                         <p class="text-sm text-gray-700 leading-relaxed italic">
                             "Kitchen Display System-nya sangat membantu barista baru. Bunyi bel pesanan masuk keras dan jelas, keterangan oatside/almond milk tercetak mencolok sehingga tidak ada pesanan salah saji lagi."
                         </p>
                     </div>
-                    <div class="pt-6 border-t border-orange-100 mt-6 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-orange-100 text-white flex items-center justify-center font-bold text-xs">
+                    <div class="pt-6 border-t border-gold-100 mt-6 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold-100 text-white flex items-center justify-center font-bold text-xs">
                             BS
                         </div>
                         <div>
-                            <div class="font-bold text-orange-950 text-xs">Bagas Santoso</div>
+                            <div class="font-bold text-gold-950 text-xs">Bagas Santoso</div>
                             <div class="text-[11px] text-gray-500">Head Barista, Brew Lab Jakarta</div>
                         </div>
                     </div>
@@ -1125,14 +1125,14 @@
     </section>
 
     <!-- 11. FAQ ACCORDION -->
-    <section data-aos="fade-up" id="faq" class="py-20 bg-stone-50 border-b border-orange-100" x-data="{ openFaq: null }">
+    <section data-aos="fade-up" id="faq" class="py-20 bg-stone-50 border-b border-gold-100" x-data="{ openFaq: null }">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div class="text-center mb-16 space-y-3">
                 <span class="text-xs font-bold uppercase tracking-wider text-gray-500">
                     Pusat Informasi
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold text-orange-950 tracking-tight">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gold-950 tracking-tight">
                     Pertanyaan yang Sering Diajukan
                 </h2>
                 <p class="text-base text-gray-600">
@@ -1144,10 +1144,10 @@
             <div class="space-y-4">
                 
                 <!-- FAQ 1 -->
-                <div class="bg-white rounded-2xl border border-orange-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 1 ? null : 1)">
+                <div class="bg-white rounded-2xl border border-gold-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 1 ? null : 1)">
                     <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-orange-950 text-sm sm:text-base">Apakah pelanggan wajib download aplikasi untuk scan QR meja?</h4>
-                        <span class="text-xl font-bold text-orange-600" x-text="openFaq === 1 ? '−' : '+'"></span>
+                        <h4 class="font-bold text-gold-950 text-sm sm:text-base">Apakah pelanggan wajib download aplikasi untuk scan QR meja?</h4>
+                        <span class="text-xl font-bold text-gold-600" x-text="openFaq === 1 ? '−' : '+'"></span>
                     </div>
                     <div x-show="openFaq === 1" x-cloak class="mt-3 text-xs sm:text-sm text-gray-600 leading-relaxed border-t border-stone-100 pt-3">
                         Sama sekali tidak! Pelanggan cukup membuka kamera smartphone bawaan atau aplikasi scanner apapun. Menu web interaktif OQARI akan terbuka seketika tanpa perlu registrasi rumit atau download aplikasi di PlayStore/AppStore.
@@ -1155,10 +1155,10 @@
                 </div>
 
                 <!-- FAQ 2 -->
-                <div class="bg-white rounded-2xl border border-orange-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 2 ? null : 2)">
+                <div class="bg-white rounded-2xl border border-gold-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 2 ? null : 2)">
                     <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-orange-950 text-sm sm:text-base">Bagaimana jika koneksi internet di cafe saya sedang lambat atau putus?</h4>
-                        <span class="text-xl font-bold text-orange-600" x-text="openFaq === 2 ? '−' : '+'"></span>
+                        <h4 class="font-bold text-gold-950 text-sm sm:text-base">Bagaimana jika koneksi internet di cafe saya sedang lambat atau putus?</h4>
+                        <span class="text-xl font-bold text-gold-600" x-text="openFaq === 2 ? '−' : '+'"></span>
                     </div>
                     <div x-show="openFaq === 2" x-cloak class="mt-3 text-xs sm:text-sm text-gray-600 leading-relaxed border-t border-stone-100 pt-3">
                         OQARI POS dilengkapi dengan fitur toleransi jaringan lokal (*offline resilience*). Kasir tetap dapat menerima pesanan tunai dan mencetak struk secara lokal. Ketika koneksi internet pulih, seluruh data transaksi akan tersinkronisasi otomatis ke cloud.
@@ -1166,10 +1166,10 @@
                 </div>
 
                 <!-- FAQ 3 -->
-                <div class="bg-white rounded-2xl border border-orange-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 3 ? null : 3)">
+                <div class="bg-white rounded-2xl border border-gold-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 3 ? null : 3)">
                     <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-orange-950 text-sm sm:text-base">Apakah saya wajib membeli printer atau mesin POS dari OQARI?</h4>
-                        <span class="text-xl font-bold text-orange-600" x-text="openFaq === 3 ? '−' : '+'"></span>
+                        <h4 class="font-bold text-gold-950 text-sm sm:text-base">Apakah saya wajib membeli printer atau mesin POS dari OQARI?</h4>
+                        <span class="text-xl font-bold text-gold-600" x-text="openFaq === 3 ? '−' : '+'"></span>
                     </div>
                     <div x-show="openFaq === 3" x-cloak class="mt-3 text-xs sm:text-sm text-gray-600 leading-relaxed border-t border-stone-100 pt-3">
                         Tidak. OQARI adalah platform berbasis cloud yang agnostik terhadap perangkat keras. Anda bebas menggunakan tablet Android, iPad, smartphone, atau printer bluetooth standar yang sudah Anda miliki saat ini.
@@ -1177,10 +1177,10 @@
                 </div>
 
                 <!-- FAQ 4 -->
-                <div class="bg-white rounded-2xl border border-orange-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 4 ? null : 4)">
+                <div class="bg-white rounded-2xl border border-gold-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 4 ? null : 4)">
                     <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-orange-950 text-sm sm:text-base">Bagaimana cara memasukkan daftar menu dan resep gramasi pertama kali?</h4>
-                        <span class="text-xl font-bold text-orange-600" x-text="openFaq === 4 ? '−' : '+'"></span>
+                        <h4 class="font-bold text-gold-950 text-sm sm:text-base">Bagaimana cara memasukkan daftar menu dan resep gramasi pertama kali?</h4>
+                        <span class="text-xl font-bold text-gold-600" x-text="openFaq === 4 ? '−' : '+'"></span>
                     </div>
                     <div x-show="openFaq === 4" x-cloak class="mt-3 text-xs sm:text-sm text-gray-600 leading-relaxed border-t border-stone-100 pt-3">
                         Kami menyediakan fitur Onboarding Wizard yang sangat mudah, serta fitur impor Excel/CSV. Selain itu, tim onboarding OQARI siap membantu memasukkan seluruh menu dan formula resep Anda secara cuma-cuma (*free onboarding setup*).
@@ -1188,10 +1188,10 @@
                 </div>
 
                 <!-- FAQ 5 -->
-                <div class="bg-white rounded-2xl border border-orange-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 5 ? null : 5)">
+                <div class="bg-white rounded-2xl border border-gold-100 p-5 cursor-pointer" @click="openFaq = (openFaq === 5 ? null : 5)">
                     <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-orange-950 text-sm sm:text-base">Apakah ada biaya tambahan atau komisi per transaksi?</h4>
-                        <span class="text-xl font-bold text-orange-600" x-text="openFaq === 5 ? '−' : '+'"></span>
+                        <h4 class="font-bold text-gold-950 text-sm sm:text-base">Apakah ada biaya tambahan atau komisi per transaksi?</h4>
+                        <span class="text-xl font-bold text-gold-600" x-text="openFaq === 5 ? '−' : '+'"></span>
                     </div>
                     <div x-show="openFaq === 5" x-cloak class="mt-3 text-xs sm:text-sm text-gray-600 leading-relaxed border-t border-stone-100 pt-3">
                         Tidak ada biaya tersembunyi (*zero hidden fee*). Anda hanya membayar biaya langganan software sesuai paket yang dipilih. Biaya MDR QRIS mengikuti regulasi Bank Indonesia (0.3% untuk UMKM).
@@ -1207,12 +1207,12 @@
     <section data-aos="fade-up" class="cta-gradient-bg py-20 text-white relative overflow-hidden">
         
         <!-- Decorative Ambient Light -->
-        <div class="absolute -top-20 -left-20 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -top-20 -left-20 w-80 h-80 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute -bottom-20 -right-20 w-80 h-80 bg-green-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
             
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold text-orange-300 bg-orange-400/10 border border-orange-400/20">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold text-gold-300 bg-gold-400/10 border border-gold-400/20">
                 <span>⚡ Coba Gratis Sekarang Selama 14 Hari Penuh</span>
             </div>
 
@@ -1221,7 +1221,7 @@
                 Coffee Shop Anda Mulai Hari Ini.
             </h2>
 
-            <p class="text-base sm:text-lg text-orange-700 max-w-2xl mx-auto font-normal">
+            <p class="text-base sm:text-lg text-gold-700 max-w-2xl mx-auto font-normal">
                 Bergabunglah dengan ratusan barista dan pemilik cafe yang telah meninggalkan bon kertas dan antrean panjang. Setup selesai dalam 5 menit.
             </p>
 
@@ -1230,7 +1230,7 @@
                     <span>Daftar Akun OQARI Gratis</span>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </a>
-                <a href="https://wa.me/6281234567890?text=Halo%20OQARI,%20saya%20ingin%20jadwalkan%20sesi%20demo%20online" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-base text-orange-800 bg-orange-100 hover:bg-stone-700 border border-stone-700 transition-colors flex items-center justify-center gap-2">
+                <a href="https://wa.me/6281234567890?text=Halo%20OQARI,%20saya%20ingin%20jadwalkan%20sesi%20demo%20online" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-base text-gold-800 bg-gold-100 hover:bg-stone-700 border border-stone-700 transition-colors flex items-center justify-center gap-2">
                     <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.2.662.589 1.221.771 1.394.857.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.12.553 4.11 1.521 5.836l-1.616 5.908 6.069-1.591c1.666.911 3.578 1.428 5.626 1.428 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg>
                     <span>Jadwalkan Demo Langsung</span>
                 </a>
@@ -1240,7 +1240,7 @@
     </section>
 
     <!-- 13. RICH FOOTER (Majoo-style corporate + support info) -->
-    <footer class="bg-orange-50 text-orange-600 text-xs pt-16 pb-12 border-t border-orange-200">
+    <footer class="bg-gold-50 text-gold-600 text-xs pt-16 pb-12 border-t border-gold-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-12">
@@ -1248,25 +1248,25 @@
                 <!-- Col 1: Brand & Contact -->
                 <div class="lg:col-span-4 space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-orange-700 p-1 flex items-center justify-center">
+                        <div class="w-9 h-9 rounded-xl bg-gold-700 p-1 flex items-center justify-center">
                             <img src="{{ asset('logo-oqari.webp') }}" alt="OQARI Logo" class="w-full h-full object-contain">
                         </div>
-                        <span class="text-xl font-black text-white tracking-tight">OQARI</span>
+                        <span class="text-xl font-black text-white tracking-tight"><x-hellenic-emblem class="inline-block h-5 w-5 mr-1 align-middle" />OQARI</span>
                     </div>
-                    <p class="text-orange-600 text-xs leading-relaxed max-w-sm">
+                    <p class="text-gold-600 text-xs leading-relaxed max-w-sm">
                         Platform manajemen operasional, sistem kasir pintar, dan pesanan QR terpadu untuk industri Food & Beverage dan Coffee Shop di Indonesia.
                     </p>
-                    <div class="space-y-2 pt-2 text-orange-700">
+                    <div class="space-y-2 pt-2 text-gold-700">
                         <div class="flex items-center gap-2">
-                            <span class="text-orange-400">📍</span>
+                            <span class="text-gold-400">📍</span>
                             <span>Jakarta Tech Center & Kreatif Hub</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-orange-400">📞</span>
+                            <span class="text-gold-400">📞</span>
                             <span>WhatsApp: 0812-8888-OQARI</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-orange-400">✉️</span>
+                            <span class="text-gold-400">✉️</span>
                             <span>Email: halo@oqari.com</span>
                         </div>
                     </div>
@@ -1301,7 +1301,7 @@
                 <div class="lg:col-span-2 space-y-3">
                     <h4 class="text-white font-bold text-sm tracking-wide">Akses Pengguna</h4>
                     <ul class="space-y-2">
-                        <li><a href="{{ route('login') }}" class="hover:text-white transition-colors font-semibold text-orange-400">Login Kasir / Owner →</a></li>
+                        <li><a href="{{ route('login') }}" class="hover:text-white transition-colors font-semibold text-gold-400">Login Kasir / Owner →</a></li>
                         <li><a href="{{ route('register') }}" class="hover:text-white transition-colors font-semibold text-green-400">Daftar Akun Baru →</a></li>
                         <li><a href="#harga" class="hover:text-white transition-colors">Pilihan Paket Harga</a></li>
                         <li><a href="#faq" class="hover:text-white transition-colors">Pusat Bantuan & FAQ</a></li>
@@ -1311,12 +1311,12 @@
             </div>
 
             <!-- Bottom Copyright -->
-            <div class="pt-8 border-t border-orange-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-gray-500">
+            <div class="pt-8 border-t border-gold-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-gray-500">
                 <p>© {{ date('Y') }} OQARI Indonesia. Hak Cipta Dilindungi Undang-Undang.</p>
                 <div class="flex items-center gap-6">
-                    <a href="#" class="hover:text-orange-700 transition-colors">Kebijakan Privasi</a>
-                    <a href="#" class="hover:text-orange-700 transition-colors">Syarat & Ketentuan</a>
-                    <a href="#" class="hover:text-orange-700 transition-colors">Keamanan Cloud</a>
+                    <a href="#" class="hover:text-gold-700 transition-colors">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-gold-700 transition-colors">Syarat & Ketentuan</a>
+                    <a href="#" class="hover:text-gold-700 transition-colors">Keamanan Cloud</a>
                 </div>
             </div>
 
@@ -1325,7 +1325,7 @@
 
     <!-- 14. FLOATING WHATSAPP BUTTON (Direct Sales / Live Help) -->
     <div class="fixed bottom-6 right-6 z-50">
-        <a href="https://wa.me/6281234567890?text=Halo%20Tim%20OQARI,%20saya%20ingin%20tanya%20fitur%20dan%20coba%20demo%20POS%20Coffee%20Shop" target="_blank" class="flex items-center gap-2.5 bg-green-600 hover:bg-green-500 text-white font-bold text-xs py-3 px-4 rounded-full shadow-2xl transition-all hover:scale-105 group border-2 border-white/20">
+        <a href="https://wa.me/6281234567890?text=Halo%20Tim%20OQARI,%20saya%20ingin%20tanya%20fitur%20dan%20coba%20demo%20POS%20Coffee%20Shop" target="_blank" class="flex items-center gap-2.5 bg-brand-800 hover:bg-green-500 text-white font-bold text-xs py-3 px-4 rounded-full shadow-2xl transition-all hover:scale-105 group border-2 border-white/20">
             <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.2.662.589 1.221.771 1.394.857.173.086.275.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.12.553 4.11 1.521 5.836l-1.616 5.908 6.069-1.591c1.666.911 3.578 1.428 5.626 1.428 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg>
             <span class="hidden sm:inline">Tanya Sales OQARI</span>
             <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>

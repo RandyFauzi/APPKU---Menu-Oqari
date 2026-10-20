@@ -21,54 +21,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Role-Permission Matrix
-        $rolePermissions = [
-            'owner' => ['*'], // Has all access
-            'admin' => ['*'], // Has all access
-            'manager' => [
-                'access-pos', 'view-orders', 'manage-orders', 'manage-menu',
-                'manage-crew', 'manage-settings', 'view-reports', 'manage-reports',
-                'manage-shifts', 'manage-register', 'manage-payments', 'manage-inventory',
-            ],
-            'cashier' => [
-                'access-pos', 'view-orders', 'manage-orders', 'manage-register', 'manage-payments',
-            ],
-            'barista' => [
-                'view-kitchen', 'update-kitchen-status', 'view-orders',
-            ],
-            'crew' => [
-                'view-own-schedule',
-            ],
-        ];
-
-        // Superadmin bypass (Platform Level)
-        Gate::before(function (User $user, $ability) {
-            if ($user->role === 'superadmin') {
-                return true;
+        Gate::before(function (User $user): ?bool {
+            if (! $user->is_active) {
+                return false;
             }
+
+            return $user->role === 'superadmin' ? true : null;
         });
-
-        // Register Gates dynamically based on matrix
-        $allPermissions = [
-            'access-pos', 'view-orders', 'manage-orders', 'manage-menu', 'manage-crew',
-            'manage-settings', 'view-reports', 'manage-reports', 'manage-shifts',
-            'manage-register', 'manage-payments', 'manage-inventory', 'manage-integrations',
-            'view-kitchen', 'update-kitchen-status', 'view-own-schedule',
-        ];
-
-        foreach ($allPermissions as $permission) {
-            Gate::define($permission, function (User $user) use ($permission, $rolePermissions) {
-                $role = strtolower($user->role);
-                if (! isset($rolePermissions[$role])) {
-                    return false;
-                }
-                if (in_array('*', $rolePermissions[$role])) {
-                    return true;
-                }
-
-                return in_array($permission, $rolePermissions[$role]);
-            });
+        foreach (array_keys(config('access.permissions')) as $permission) {
+            Gate::define($permission, fn (User $user): bool => in_array($permission, $user->effectivePermissions(), true));
         }
-        //
+        Gate::define('view-dashboard', fn (User $user): bool => count(array_intersect(array_merge(config('access.dashboard'), ['view-orders']), $user->effectivePermissions())) > 0);
     }
 }

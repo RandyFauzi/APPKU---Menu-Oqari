@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard - {{ $shop->name ?? config('app.name', 'Oqari') }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -20,8 +19,6 @@
     </style>
     
     <!-- Alpine JS -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
     <!-- Realtime Config -->
     <script>
         window.OQARI_REALTIME = {
@@ -38,35 +35,18 @@
     <!-- Auth Guard removed, using Laravel middleware instead -->
     
     <!-- Data Scripts removed -->
-    <script>
-        tailwind.config = { 
-            theme: { 
-                extend: { 
-                    colors: { 
-                        brewlybg: '#FDFBF7',
-                        brewlygreen: '#34714C',
-                        brewlylightgreen: '#E7F2EB',
-                        brewlypeach: '#FEF0E6',
-                        brewlyorange: '#D9652A',
-                        brewlyborder: '#F0ECE4',
-                        brewlytext: '#222222',
-                        brewlymuted: '#888888',
-                        primary: '#1E5A7A', bgbase: '#F4EFE6', accent: '#8CB8C9', textdark: '#2D3748' 
-                    }, 
-                    fontFamily: { heading: ['Inter', 'sans-serif'], mono: ['Space Mono', 'monospace'], sans: ['Inter', 'sans-serif'] } 
-                } 
-            } 
-        }
-    </script>
+
     <style>
-        body { background-color: #FDFBF7; color: #222222; }
+        body { background-color: var(--oq-ivory); color: var(--oq-ink); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         [x-cloak] { display: none !important; }
         .dashed-box { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23CFCFCF' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"); border-radius: 16px; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="font-sans text-textdark h-screen flex overflow-hidden bg-brewlybg" x-data="dashboardApp()" @new-order-received.window="handleNewOrderFromSocket($event.detail)" @refresh-live-orders.window="fetchLiveOrders(false)">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
     
     <!-- Audio untuk notifikasi pesanan masuk -->
     <audio id="chime-sound" src="{{ asset('Assest/notif_orderan_masuk.mp3') }}" preload="auto"></audio>
@@ -83,20 +63,31 @@
                 @endif
                 <div class="flex flex-col" x-show="!isMinimized" x-transition>
                     <span class="font-bold text-lg leading-tight truncate w-32">{{ $shop->name ?? 'Oqari' }}</span>
-                    <span class="text-[10px] text-brewlymuted uppercase tracking-wider truncate">Coffee Shops. Stronger.</span>
+                    <span class="text-[10px] text-brewlymuted uppercase tracking-wider truncate"><x-hellenic-emblem class="inline-block w-3 h-3 mr-1 align-middle" />Coffee Shops. Stronger.</span>
                 </div>
             </div>
         </div>
         
         <nav class="flex-grow shrink-0 space-y-1">
-            <a href="{{ route('admin.pos.index') }}" class="w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors text-left text-brewlymuted hover:bg-gray-100 hover:text-[#164A35] font-medium group" :class="isMinimized ? 'justify-center px-0' : 'gap-3'">
+        @can('manage-users')<a href="{{ route('admin.users.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">User &amp; Hak Akses</a>@endcan
+        @can('manage-hpp')
+            <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
+        @endcan
+        @can('manage-register')
+            <a href="{{ route('admin.register.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Rekonsiliasi Kas</a>
+        @endcan
+        @can('record-attendance')
+            <a href="{{ route('admin.attendance.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-gold-600 hover:bg-gray-100">Absensi Karyawan</a>
+        @endcan
+
+            <a href="{{ route('admin.pos.index') }}" class="w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-colors text-left text-brewlymuted hover:bg-gray-100 hover:text-primary font-medium group" :class="isMinimized ? 'justify-center px-0' : 'gap-3'">
                 <i class="fas fa-cash-register text-center text-lg shrink-0"></i>
                 <span x-show="!isMinimized" x-transition>POS (Kasir)</span>
             </a>
             <template x-for="tab in tabs" :key="tab.id">
                 <button @click="currentTab = tab.id" 
                         class="w-full flex items-center py-2.5 rounded-xl text-sm transition-colors text-left group"
-                        :class="[(isMinimized ? 'justify-center px-0' : 'px-4 gap-3'), (currentTab === tab.id ? 'bg-[#DDEBDD] text-[#164A35] font-bold' : 'text-brewlymuted hover:bg-gray-100 hover:text-[#164A35] font-medium')]">
+                        :class="[(isMinimized ? 'justify-center px-0' : 'px-4 gap-3'), (currentTab === tab.id ? 'bg-brand-100 text-primary font-bold' : 'text-brewlymuted hover:bg-gray-100 hover:text-primary font-medium')]">
                     <i :class="tab.icon" class="text-center text-lg shrink-0"></i>
                     <span x-show="!isMinimized" x-text="tab.name" x-transition class="truncate"></span>
                 </button>
@@ -104,23 +95,23 @@
         </nav>
         
         <!-- Store Status Toggle -->
-        <div class="mt-auto shrink-0 mb-2 bg-[#F8F7F3] rounded-2xl border border-[#E3E1DC] flex flex-col transition-all" :class="isMinimized ? 'p-3 items-center' : 'p-4 gap-2'">
+        <div class="mt-auto shrink-0 mb-2 bg-ivory rounded-2xl border border-line flex flex-col transition-all" :class="isMinimized ? 'p-3 items-center' : 'p-4 gap-2'">
             <div x-show="!isMinimized" x-transition>
-                <label class="block text-[13px] font-bold text-[#202522]">Toko Buka Sekarang?</label>
-                <p class="text-[10px] text-[#777873] leading-tight mt-0.5">Matikan untuk menutup toko manual.</p>
+                <label class="block text-[13px] font-bold text-ink">Toko Buka Sekarang?</label>
+                <p class="text-[10px] text-muted leading-tight mt-0.5">Matikan untuk menutup toko manual.</p>
             </div>
             <div @click="settings.is_open = !settings.is_open; saveSettings()" class="relative inline-flex items-center cursor-pointer" :class="isMinimized ? '' : 'mt-1'">
-                <div class="w-10 h-5 rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_open ? 'bg-[#164A35]' : 'bg-gray-300'">
+                <div class="w-10 h-5 rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_open ? 'bg-primary' : 'bg-gray-300'">
                     <div class="w-3.5 h-3.5 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out absolute top-[3px] left-[3px]" :class="settings.is_open ? 'translate-x-5' : 'translate-x-0'"></div>
                 </div>
-                <span x-show="!isMinimized" class="ml-2 text-xs font-bold" :class="settings.is_open ? 'text-[#164A35]' : 'text-gray-400'" x-text="settings.is_open ? 'Buka' : 'Tutup'"></span>
+                <span x-show="!isMinimized" class="ml-2 text-xs font-bold" :class="settings.is_open ? 'text-primary' : 'text-gray-400'" x-text="settings.is_open ? 'Buka' : 'Tutup'"></span>
             </div>
         </div>
 
         <!-- Promo Card -->
-        <div x-show="!isMinimized" x-transition class="shrink-0 bg-[#F8F7F3] rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mb-2 border border-[#E3E1DC]">
-            <h4 class="font-bold text-[16px] leading-tight z-10 text-[#164A35]">Brew Better Days</h4>
-            <p class="text-[12px] text-[#777873] z-10 leading-snug w-4/5">Track, analyze and grow your cafe effortlessly.</p>
+        <div x-show="!isMinimized" x-transition class="shrink-0 bg-ivory rounded-2xl p-5 relative overflow-hidden flex flex-col gap-3 mb-2 border border-line">
+            <h4 class="font-bold text-[16px] leading-tight z-10 text-primary">Brew Better Days</h4>
+            <p class="text-[12px] text-muted z-10 leading-snug w-4/5">Track, analyze and grow your cafe effortlessly.</p>
             <img src="https://images.unsplash.com/photo-1550133730-695473e544be?w=100&fit=crop" class="absolute -bottom-4 -right-4 w-20 h-20 object-cover rounded-full opacity-70 border-4 border-white shadow-sm">
         </div>
         
@@ -141,7 +132,7 @@
                     <i class="fas fa-bars text-lg"></i>
                 </button>
                 <div x-show="currentTab !== 'analytics'">
-                    <h2 class="font-sans font-bold text-xl md:text-3xl text-[#164A35]" x-text="tabs.find(t => t.id === currentTab)?.name"></h2>
+                    <h2 class="font-sans font-bold text-xl md:text-3xl text-primary" x-text="tabs.find(t => t.id === currentTab)?.name"></h2>
                 </div>
             </div>
             
@@ -152,7 +143,7 @@
                 </div>
 
                 <div class="relative cursor-pointer group" @click="currentTab = 'orders'">
-                    <i class="fas fa-bell text-[#777873] text-lg md:text-xl group-hover:text-[#164A35] transition-colors"></i>
+                    <i class="fas fa-bell text-muted text-lg md:text-xl group-hover:text-primary transition-colors"></i>
                     <template x-if="(orders || []).filter(o => o.status === 'Masuk' || o.status === 'CONFIRMED' || o.order_status === 'CONFIRMED').length > 0">
                         <span class="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white" x-text="(orders || []).filter(o => o.status === 'Masuk' || o.status === 'CONFIRMED' || o.order_status === 'CONFIRMED').length"></span>
                     </template>
@@ -169,9 +160,9 @@
                     </div>
                     
                     <!-- Dropdown Menu -->
-                    <div x-show="open" x-cloak x-transition.opacity class="absolute right-0 mt-3 w-48 bg-white rounded-[16px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-[#E3E1DC] overflow-hidden z-50">
+                    <div x-show="open" x-cloak x-transition.opacity class="absolute right-0 mt-3 w-48 bg-white rounded-[16px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-line overflow-hidden z-50">
                         <div class="p-2">
-                            <button @click="currentTab = 'profile'; open = false" class="w-full text-left px-4 py-2.5 rounded-[10px] text-sm font-semibold text-[#202522] hover:bg-[#F8F7F3] hover:text-[#164A35] transition-colors flex items-center gap-3">
+                            <button @click="currentTab = 'profile'; open = false" class="w-full text-left px-4 py-2.5 rounded-[10px] text-sm font-semibold text-ink hover:bg-ivory hover:text-primary transition-colors flex items-center gap-3">
                                 <i class="fas fa-user w-4"></i> Profile
                             </button>
                             <div class="h-px bg-gray-100 my-1 mx-2"></div>
@@ -203,24 +194,24 @@
         <!-- MODAL: ADD/EDIT MENU -->
         <div x-show="showAddMenuModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans">
             <!-- Backdrop -->
-            <div @click="showAddMenuModal = false" class="absolute inset-0 bg-[#202522]/30 backdrop-blur-sm transition-opacity"></div>
+            <div @click="showAddMenuModal = false" class="absolute inset-0 bg-ink/30 backdrop-blur-sm transition-opacity"></div>
             
             <!-- Modal Content -->
-            <div class="relative bg-[#FFFFFF] w-full max-w-2xl rounded-[28px] p-8 shadow-[0_10px_35px_rgba(0,0,0,0.05)] flex flex-col border border-[#E3E1DC]" @keydown.escape.window="showAddMenuModal = false" x-transition>
+            <div class="relative bg-[#FFFFFF] w-full max-w-2xl rounded-[28px] p-8 shadow-[0_10px_35px_rgba(0,0,0,0.05)] flex flex-col border border-line" @keydown.escape.window="showAddMenuModal = false" x-transition>
                 
                 <!-- Header -->
-                <div class="flex justify-between items-start mb-6 pb-6 border-b border-dashed border-[#E3E1DC]">
+                <div class="flex justify-between items-start mb-6 pb-6 border-b border-dashed border-line">
                     <div class="flex gap-5">
-                        <div class="w-16 h-16 rounded-[16px] bg-[#164A35] text-white flex items-center justify-center shadow-sm">
+                        <div class="w-16 h-16 rounded-[16px] bg-primary text-white flex items-center justify-center shadow-sm">
                             <i class="fas fa-pen text-2xl" x-show="newMenu.id"></i>
                             <i class="fas fa-hamburger text-2xl" x-show="!newMenu.id"></i>
                         </div>
                         <div class="flex flex-col justify-center">
-                            <h2 class="text-[28px] text-[#164A35] leading-tight mb-1" style="font-family: 'Playfair Display', serif; font-weight: 700;" x-text="newMenu.id ? 'Edit Menu' : 'Tambah Menu Baru'"></h2>
-                            <p class="text-[#777873] text-[15px]" x-text="newMenu.id ? 'Perbarui detail, harga, dan gambar menu ini.' : 'Tambahkan menu baru ke dalam daftar toko Anda.'"></p>
+                            <h2 class="text-[28px] text-primary leading-tight mb-1" style="font-family: var(--oq-font-heading); font-weight: 700;" x-text="newMenu.id ? 'Edit Menu' : 'Tambah Menu Baru'"></h2>
+                            <p class="text-muted text-[15px]" x-text="newMenu.id ? 'Perbarui detail, harga, dan gambar menu ini.' : 'Tambahkan menu baru ke dalam daftar toko Anda.'"></p>
                         </div>
                     </div>
-                    <button @click="showAddMenuModal = false" class="text-[#777873] hover:text-[#202522] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors w-8 h-8 flex items-center justify-center rounded-full mt-1">
+                    <button @click="showAddMenuModal = false" class="text-muted hover:text-ink bg-ivory hover:bg-line transition-colors w-8 h-8 flex items-center justify-center rounded-full mt-1">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -229,8 +220,8 @@
                 <div class="flex flex-col gap-5">
                     <div class="grid grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Kategori</label>
-                            <select x-model="newMenu.categoryId" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none appearance-none">
+                            <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Kategori</label>
+                            <select x-model="newMenu.categoryId" class="w-full bg-ivory border border-line rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none">
                                 <option value="" disabled>-- Pilih Kategori --</option>
                                 <template x-for="cat in categories" :key="cat.id">
                                     <option :value="cat.id" x-text="cat.name"></option>
@@ -241,33 +232,33 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Harga (Rp)</label>
+                            <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Harga (Rp)</label>
                             <div class="relative">
-                                <span class="absolute left-4 top-3.5 text-[15px] text-[#202522] font-medium">Rp</span>
-                                <input type="number" x-model="newMenu.price" placeholder="0" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] pl-11 pr-4 py-3.5 text-[15px] font-bold text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
+                                <span class="absolute left-4 top-3.5 text-[15px] text-ink font-medium">Rp</span>
+                                <input type="number" x-model="newMenu.price" placeholder="0" class="w-full bg-ivory border border-line rounded-[14px] pl-11 pr-4 py-3.5 text-[15px] font-bold text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none">
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Nama Menu</label>
-                        <input type="text" x-model="newMenu.name" placeholder="Misal: Iced Matcha Latte" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-[#202522] placeholder:font-medium placeholder:text-[#C5DBC5] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
+                        <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Nama Menu</label>
+                        <input type="text" x-model="newMenu.name" placeholder="Misal: Iced Matcha Latte" class="w-full bg-ivory border border-line rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-ink placeholder:font-medium placeholder:text-brand-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none">
                     </div>
 
                     <div>
-                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Deskripsi Singkat</label>
-                        <textarea x-model="newMenu.desc" placeholder="Penjelasan menarik tentang menu ini..." rows="2" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-medium text-[#202522] placeholder:text-[#C5DBC5] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none"></textarea>
+                        <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Deskripsi Singkat</label>
+                        <textarea x-model="newMenu.desc" placeholder="Penjelasan menarik tentang menu ini..." rows="2" class="w-full bg-ivory border border-line rounded-[14px] px-4 py-3.5 text-[15px] font-medium text-ink placeholder:text-brand-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Upload Gambar (Opsional)</label>
+                        <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Upload Gambar (Opsional)</label>
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-[14px] bg-[#F8F7F3] border border-dashed border-[#C5DBC5] flex items-center justify-center shrink-0 overflow-hidden">
+                            <div class="w-16 h-16 rounded-[14px] bg-ivory border border-dashed border-brand-200 flex items-center justify-center shrink-0 overflow-hidden">
                                 <template x-if="newMenu.imagePreview">
                                     <img :src="newMenu.imagePreview" class="w-full h-full object-cover">
                                 </template>
                                 <template x-if="!newMenu.imagePreview">
-                                    <i class="fas fa-image text-[#C5DBC5] text-xl"></i>
+                                    <i class="fas fa-image text-brand-200 text-xl"></i>
                                 </template>
                             </div>
                             <input type="file" x-ref="menuImageInput" @change="(e) => {
@@ -277,18 +268,18 @@
                                     reader.onload = (ev) => newMenu.imagePreview = ev.target.result;
                                     reader.readAsDataURL(file);
                                 }
-                            }" class="w-full text-sm text-[#777873] file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-[#DDEBDD] file:text-[#164A35] hover:file:bg-[#C5DBC5] cursor-pointer outline-none" accept="image/*">
+                            }" class="w-full text-sm text-muted file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-brand-100 file:text-primary hover:file:bg-brand-200 cursor-pointer outline-none" accept="image/*">
                         </div>
                     </div>
 
                     <!-- Resep Bahan Baku & HPP Otomatis -->
-                    <div class="mt-2 p-5 bg-[#F8F7F3] rounded-[20px] border border-[#E3E1DC]">
+                    <div class="mt-2 p-5 bg-ivory rounded-[20px] border border-line">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-2">
-                                <i class="fas fa-blender text-[#164A35]"></i>
-                                <span class="text-xs font-bold text-[#202522] uppercase tracking-wider">Komposisi Resep & HPP Otomatis</span>
+                                <i class="fas fa-blender text-primary"></i>
+                                <span class="text-xs font-bold text-ink uppercase tracking-wider">Komposisi Resep & HPP Otomatis</span>
                             </div>
-                            <button type="button" @click="addMenuRecipeRow()" class="px-3 py-1 bg-white border border-[#E3E1DC] text-[#164A35] rounded-lg text-xs font-bold hover:bg-[#DDEBDD] transition flex items-center gap-1.5">
+                            <button type="button" @click="addMenuRecipeRow()" class="px-3 py-1 bg-white border border-line text-primary rounded-lg text-xs font-bold hover:bg-brand-100 transition flex items-center gap-1.5">
                                 <i class="fas fa-plus"></i> Tambah Bahan
                             </button>
                         </div>
@@ -296,18 +287,18 @@
                         <!-- Recipe Rows -->
                         <div class="flex flex-col gap-2 max-h-48 overflow-y-auto hide-scroll py-1">
                             <template x-for="(rec, rIdx) in newMenu.recipes" :key="rIdx">
-                                <div class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-[#E3E1DC]">
-                                    <select x-model="rec.raw_material_id" class="w-1/2 bg-[#F8F7F3] border border-[#E3E1DC] rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#202522] outline-none">
+                                <div class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-line">
+                                    <select x-model="rec.raw_material_id" class="w-1/2 bg-ivory border border-line rounded-lg px-2.5 py-1.5 text-xs font-semibold text-ink outline-none">
                                         <option value="" disabled>-- Pilih Bahan --</option>
                                         <template x-for="m in rawMaterials" :key="m.id">
                                             <option :value="m.id" x-text="m.name + ' (' + m.unit + ')'"></option>
                                         </template>
                                     </select>
                                     <div class="relative w-1/3">
-                                        <input type="number" step="0.01" x-model="rec.amount" placeholder="Takaran" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#202522] outline-none">
+                                        <input type="number" step="0.01" x-model="rec.amount" placeholder="Takaran" class="w-full bg-ivory border border-line rounded-lg px-2.5 py-1.5 text-xs font-bold text-ink outline-none">
                                         <span class="absolute right-2 top-1.5 text-[10px] text-gray-400 font-medium" x-text="getMaterialUnit(rec.raw_material_id)"></span>
                                     </div>
-                                    <div class="text-[11px] font-mono font-bold text-[#164A35] w-20 text-right shrink-0" x-text="formatRp(calculateSingleRecipeCost(rec))"></div>
+                                    <div class="text-[11px] font-mono font-bold text-primary w-20 text-right shrink-0" x-text="formatRp(calculateSingleRecipeCost(rec))"></div>
                                     <button type="button" @click="removeMenuRecipeRow(rIdx)" class="w-6 h-6 rounded-lg text-red-500 hover:bg-red-50 transition flex items-center justify-center shrink-0">
                                         <i class="fas fa-times text-xs"></i>
                                     </button>
@@ -315,30 +306,30 @@
                             </template>
 
                             <template x-if="newMenu.recipes.length === 0">
-                                <div class="text-center py-3 text-xs text-[#777873]">
+                                <div class="text-center py-3 text-xs text-muted">
                                     Belum ada resep bahan baku. Klik <strong>+ Tambah Bahan</strong> untuk hitung HPP otomatis.
                                 </div>
                             </template>
                         </div>
 
                         <!-- HPP Calculation Summary -->
-                        <div class="mt-3 pt-3 border-t border-dashed border-[#E3E1DC] flex items-center justify-between">
+                        <div class="mt-3 pt-3 border-t border-dashed border-line flex items-center justify-between">
                             <div>
-                                <span class="text-xs text-[#777873] block">Total Modal HPP</span>
-                                <span class="text-base font-black text-[#164A35] font-mono" x-text="formatRp(calculatedMenuHpp)">Rp 0</span>
+                                <span class="text-xs text-muted block">Total Modal HPP</span>
+                                <span class="text-base font-black text-primary font-mono" x-text="formatRp(calculatedMenuHpp)">Rp 0</span>
                             </div>
                             <div class="text-right">
-                                <span class="text-xs text-[#777873] block">Estimasi Margin Laba</span>
-                                <span class="text-xs font-bold px-2 py-0.5 rounded-full" :class="estimatedProfitMargin > 0 ? 'bg-[#DDEBDD] text-[#164A35]' : 'bg-gray-100 text-gray-600'" x-text="estimatedProfitMargin.toFixed(1) + '% (Untung ' + formatRp(estimatedProfitAmount) + ')'">0%</span>
+                                <span class="text-xs text-muted block">Estimasi Margin Laba</span>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-full" :class="estimatedProfitMargin > 0 ? 'bg-brand-100 text-primary' : 'bg-gray-100 text-gray-600'" x-text="estimatedProfitMargin.toFixed(1) + '% (Untung ' + formatRp(estimatedProfitAmount) + ')'">0%</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="mt-8 flex justify-end gap-3 pt-6 border-t border-[#E3E1DC]">
-                    <button @click="showAddMenuModal = false" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-white border border-[#E3E1DC] text-[#777873] hover:bg-[#F8F7F3] transition-colors">Batal</button>
-                    <button @click="saveNewMenu" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-[#164A35] text-white hover:bg-[#0f3526] transition-colors shadow-sm flex items-center gap-2">
+                <div class="mt-8 flex justify-end gap-3 pt-6 border-t border-line">
+                    <button @click="showAddMenuModal = false" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-white border border-line text-muted hover:bg-ivory transition-colors">Batal</button>
+                    <button @click="saveNewMenu" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-primary text-white hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-2">
                         <i class="fas fa-check" x-show="!newMenu.id"></i>
                         <i class="fas fa-save" x-show="newMenu.id"></i>
                         <span x-text="newMenu.id ? 'Simpan Perubahan' : 'Simpan Menu'"></span>
@@ -349,34 +340,34 @@
 
         <!-- MODAL: ADD TABLE -->
         <!-- MODAL: ADD CATEGORY -->
-        <div x-show="showAddCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-[#164A35]/40 backdrop-blur-sm" x-transition.opacity>
-            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(22,74,53,0.15)] relative overflow-hidden" @click.away="showAddCategoryModal = false" x-transition>
+        <div x-show="showAddCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-primary/40 backdrop-blur-sm" x-transition.opacity>
+            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(100,29,53,0.15)] relative overflow-hidden" @click.away="showAddCategoryModal = false" x-transition>
                 
                 <div class="absolute top-4 right-4 z-10">
-                    <button @click="showAddCategoryModal = false" class="text-[#777873] hover:text-[#202522] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors w-8 h-8 flex items-center justify-center rounded-full">
+                    <button @click="showAddCategoryModal = false" class="text-muted hover:text-ink bg-ivory hover:bg-line transition-colors w-8 h-8 flex items-center justify-center rounded-full">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
 
                 <div class="flex items-center gap-4 mb-6 relative z-10">
-                    <div class="w-12 h-12 rounded-full bg-[#DDEBDD] text-[#164A35] flex items-center justify-center text-xl shrink-0">
+                    <div class="w-12 h-12 rounded-full bg-brand-100 text-primary flex items-center justify-center text-xl shrink-0">
                         <i class="fas fa-tags"></i>
                     </div>
                     <div>
-                        <h2 class="text-[24px] text-[#164A35] leading-tight" style="font-family: 'Playfair Display', serif; font-weight: 700;">Tambah Kategori</h2>
-                        <p class="text-[14px] text-[#777873]">Buat kategori menu baru</p>
+                        <h2 class="text-[24px] text-primary leading-tight" style="font-family: var(--oq-font-heading); font-weight: 700;">Tambah Kategori</h2>
+                        <p class="text-[14px] text-muted">Buat kategori menu baru</p>
                     </div>
                 </div>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Nama Kategori</label>
-                        <input type="text" x-model="newCategoryName" placeholder="Contoh: Coffee, Pastry..." class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-[#202522] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none">
+                        <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Nama Kategori</label>
+                        <input type="text" x-model="newCategoryName" placeholder="Contoh: Coffee, Pastry..." class="w-full bg-ivory border border-line rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none">
                     </div>
                 </div>
 
                 <div class="mt-8">
-                    <button @click="saveCategory" class="w-full py-3.5 bg-[#164A35] text-white rounded-[14px] font-bold text-[15px] hover:bg-[#0f3526] transition-colors flex items-center justify-center gap-2">
+                    <button @click="saveCategory" class="w-full py-3.5 bg-primary text-white rounded-[14px] font-bold text-[15px] hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
                         <i class="fas fa-save"></i> Simpan Kategori
                     </button>
                 </div>
@@ -384,40 +375,40 @@
         </div>
 
         <!-- MODAL: ADD TABLE -->
-        <div x-show="showAddTableModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-[#164A35]/40 backdrop-blur-sm" x-transition.opacity>
-            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(22,74,53,0.15)] relative overflow-hidden" @click.away="showAddTableModal = false" x-transition>
+        <div x-show="showAddTableModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-primary/40 backdrop-blur-sm" x-transition.opacity>
+            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(100,29,53,0.15)] relative overflow-hidden" @click.away="showAddTableModal = false" x-transition>
                 
                 <!-- Decorative Circle -->
-                <div class="absolute -top-16 -right-16 w-32 h-32 bg-[#F8F7F3] rounded-full pointer-events-none"></div>
+                <div class="absolute -top-16 -right-16 w-32 h-32 bg-ivory rounded-full pointer-events-none"></div>
                 <div class="absolute top-4 right-4 z-10">
-                    <button @click="showAddTableModal = false" class="text-[#777873] hover:text-[#202522] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors w-8 h-8 flex items-center justify-center rounded-full">
+                    <button @click="showAddTableModal = false" class="text-muted hover:text-ink bg-ivory hover:bg-line transition-colors w-8 h-8 flex items-center justify-center rounded-full">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
 
                 <div class="flex items-center gap-4 mb-6 relative z-10">
-                    <div class="w-12 h-12 rounded-full bg-[#DDEBDD] text-[#164A35] flex items-center justify-center text-xl shrink-0">
+                    <div class="w-12 h-12 rounded-full bg-brand-100 text-primary flex items-center justify-center text-xl shrink-0">
                         <i class="fas fa-qrcode"></i>
                     </div>
                     <div>
-                        <h3 class="text-[24px] font-bold text-[#164A35] leading-tight" style="font-family: 'Playfair Display', serif;">Tambah Meja Baru</h3>
-                        <p class="text-[13px] text-[#777873]">Buat QR code instan untuk meja baru.</p>
+                        <h3 class="text-[24px] font-bold text-primary leading-tight" style="font-family: var(--oq-font-heading);">Tambah Meja Baru</h3>
+                        <p class="text-[13px] text-muted">Buat QR code instan untuk meja baru.</p>
                     </div>
                 </div>
 
                 <div class="mb-8 relative z-10">
-                    <label class="block text-[12px] font-bold text-[#777873] mb-2 uppercase tracking-widest">Nama / Nomor Meja</label>
+                    <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Nama / Nomor Meja</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-hashtag text-[#C5DBC5]"></i>
+                            <i class="fas fa-hashtag text-brand-200"></i>
                         </div>
-                        <input x-ref="tableInput" type="text" x-model="newTableId" @keydown.enter="addTableFromModal" placeholder="Misal: Meja 07" class="w-full bg-[#F8F7F3] border border-[#E3E1DC] rounded-[16px] pl-10 pr-4 py-3.5 text-[15px] font-bold text-[#202522] placeholder:font-medium placeholder:text-[#C5DBC5] focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] outline-none transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
+                        <input x-ref="tableInput" type="text" x-model="newTableId" @keydown.enter="addTableFromModal" placeholder="Misal: Meja 07" class="w-full bg-ivory border border-line rounded-[16px] pl-10 pr-4 py-3.5 text-[15px] font-bold text-ink placeholder:font-medium placeholder:text-brand-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
                     </div>
                 </div>
 
                 <div class="flex gap-3 relative z-10">
-                    <button @click="showAddTableModal = false" class="w-1/3 py-3.5 rounded-[14px] text-[14px] font-bold text-[#777873] bg-white border border-[#E3E1DC] hover:bg-[#F8F7F3] transition-colors text-center">Batal</button>
-                    <button @click="addTableFromModal" class="flex-grow py-3.5 rounded-[14px] text-[14px] font-bold bg-[#164A35] text-white shadow-[0_4px_12px_rgba(22,74,53,0.2)] hover:bg-[#0f3526] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                    <button @click="showAddTableModal = false" class="w-1/3 py-3.5 rounded-[14px] text-[14px] font-bold text-muted bg-white border border-line hover:bg-ivory transition-colors text-center">Batal</button>
+                    <button @click="addTableFromModal" class="flex-grow py-3.5 rounded-[14px] text-[14px] font-bold bg-primary text-white shadow-[0_4px_12px_rgba(100,29,53,0.2)] hover:bg-primary-dark hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
                         Generate QR <i class="fas fa-arrow-right text-[12px]"></i>
                     </button>
                 </div>
@@ -425,21 +416,21 @@
         </div>
 
         <!-- MODAL: RESET QR CONFIRM -->
-        <div x-show="showResetQRModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-[#164A35]/40 backdrop-blur-sm" x-transition.opacity>
-            <div class="bg-white rounded-[24px] w-full max-w-[400px] p-8 shadow-[0_20px_60px_rgba(22,74,53,0.15)] relative overflow-hidden" @click.away="showResetQRModal = false" x-transition>
-                <div class="absolute -top-16 -right-16 w-32 h-32 bg-[#D97A32]/10 rounded-full blur-2xl"></div>
-                <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-[#164A35]/5 rounded-full blur-2xl"></div>
+        <div x-show="showResetQRModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-primary/40 backdrop-blur-sm" x-transition.opacity>
+            <div class="bg-white rounded-[24px] w-full max-w-[400px] p-8 shadow-[0_20px_60px_rgba(100,29,53,0.15)] relative overflow-hidden" @click.away="showResetQRModal = false" x-transition>
+                <div class="absolute -top-16 -right-16 w-32 h-32 bg-gold-600/10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-16 -left-16 w-32 h-32 bg-primary/5 rounded-full blur-2xl"></div>
                 
                 <div class="relative z-10 flex flex-col items-center text-center">
-                    <div class="w-16 h-16 bg-[#D97A32]/10 text-[#D97A32] rounded-full flex items-center justify-center text-2xl mb-4 border-4 border-white shadow-sm">
+                    <div class="w-16 h-16 bg-gold-600/10 text-gold-600 rounded-full flex items-center justify-center text-2xl mb-4 border-4 border-white shadow-sm">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
-                    <h3 class="text-[22px] font-bold text-[#164A35] mb-2" style="font-family: 'Playfair Display', serif;">Reset QR Code?</h3>
-                    <p class="text-[14px] text-[#777873] leading-relaxed mb-6">Yakin ingin mereset/mengganti URL QR Code untuk <strong class="text-[#202522]" x-text="qrTableToReset?.id"></strong>? <br> <span class="text-red-500 font-medium">URL lama tidak akan bisa diakses lagi.</span></p>
+                    <h3 class="text-[22px] font-bold text-primary mb-2" style="font-family: var(--oq-font-heading);">Reset QR Code?</h3>
+                    <p class="text-[14px] text-muted leading-relaxed mb-6">Yakin ingin mereset/mengganti URL QR Code untuk <strong class="text-ink" x-text="qrTableToReset?.id"></strong>? <br> <span class="text-red-500 font-medium">URL lama tidak akan bisa diakses lagi.</span></p>
                     
                     <div class="flex gap-3 w-full">
-                        <button @click="showResetQRModal = false" class="w-1/2 py-3 rounded-[14px] text-[14px] font-bold text-[#777873] bg-[#F8F7F3] hover:bg-[#E3E1DC] transition-colors">Batal</button>
-                        <button @click="confirmResetQR" :disabled="isResettingQR" class="w-1/2 py-3 rounded-[14px] text-[14px] font-bold bg-[#D97A32] text-white shadow-sm hover:bg-[#b8662a] transition-all flex items-center justify-center gap-2 disabled:opacity-70">
+                        <button @click="showResetQRModal = false" class="w-1/2 py-3 rounded-[14px] text-[14px] font-bold text-muted bg-ivory hover:bg-line transition-colors">Batal</button>
+                        <button @click="confirmResetQR" :disabled="isResettingQR" class="w-1/2 py-3 rounded-[14px] text-[14px] font-bold bg-gold-600 text-white shadow-sm hover:bg-[#b8662a] transition-all flex items-center justify-center gap-2 disabled:opacity-70">
                             <i class="fas fa-spinner fa-spin" x-show="isResettingQR" x-cloak></i>
                             <span x-show="!isResettingQR">Ya, Reset</span>
                         </button>
@@ -454,7 +445,7 @@
             <div @click="showOrderDetailModal = false" class="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity"></div>
             
             <!-- Modal Content -->
-            <div class="relative bg-[#F8F7F3] w-full sm:w-[520px] rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col border border-[#E3E1DC] overflow-hidden" @keydown.escape.window="showOrderDetailModal = false" x-show="selectedOrder"
+            <div class="relative bg-ivory w-full sm:w-[520px] rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col border border-line overflow-hidden" @keydown.escape.window="showOrderDetailModal = false" x-show="selectedOrder"
                  x-transition:enter="transition ease-out duration-300 transform"
                  x-transition:enter-start="opacity-0 translate-y-8 scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 scale-100"
@@ -463,18 +454,18 @@
                  x-transition:leave-end="opacity-0 translate-y-4 scale-95">
 
                 <!-- Header -->
-                <div class="p-6 bg-[#F8F7F3] border-b border-[#E3E1DC] flex justify-between items-start">
+                <div class="p-6 bg-ivory border-b border-line flex justify-between items-start">
                     <div class="flex gap-4">
-                        <div class="w-12 h-12 rounded-[14px] bg-[#164A35] text-white flex items-center justify-center shadow-sm shrink-0">
+                        <div class="w-12 h-12 rounded-[14px] bg-primary text-white flex items-center justify-center shadow-sm shrink-0">
                             <i class="fas fa-receipt text-xl"></i>
                         </div>
                         <div class="flex flex-col justify-center">
-                            <h2 class="text-[18px] font-bold text-[#164A35] leading-tight mb-1" x-text="'Struk Pesanan #' + (selectedOrder ? selectedOrder.id : '')"></h2>
-                            <p class="text-[13px] font-mono text-[#777873]" x-text="selectedOrder ? selectedOrder.time : ''"></p>
+                            <h2 class="text-[18px] font-bold text-primary leading-tight mb-1" x-text="'Struk Pesanan #' + (selectedOrder ? selectedOrder.id : '')"></h2>
+                            <p class="text-[13px] font-mono text-muted" x-text="selectedOrder ? selectedOrder.time : ''"></p>
                         </div>
                     </div>
 
-                    <button @click="showOrderDetailModal = false" class="w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-[#E3E1DC] text-[#777873] hover:text-[#202522] hover:bg-gray-50 transition-colors shrink-0">
+                    <button @click="showOrderDetailModal = false" class="w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-line text-muted hover:text-ink hover:bg-gray-50 transition-colors shrink-0">
                         <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
@@ -483,16 +474,16 @@
                 <div class="px-6 py-5 bg-white relative">
                     <!-- Order Number & Type -->
                     <div class="flex gap-4 items-center mt-2 mb-6">
-                        <div class="w-12 h-12 rounded-[14px] bg-[#F8F7F3] border border-[#E3E1DC] text-[#202522] flex items-center justify-center shrink-0">
+                        <div class="w-12 h-12 rounded-[14px] bg-ivory border border-line text-ink flex items-center justify-center shrink-0">
                             <i class="fas fa-user text-lg"></i>
                         </div>
                         <div>
-                            <h3 class="text-[18px] font-bold text-[#202522] mb-1" x-text="selectedOrder?.customer"></h3>
-                            <p class="text-[13px] text-[#777873]" x-text="(selectedOrder?.type || 'Takeaway') + ((selectedOrder?.type === 'Dine-in' || selectedOrder?.type === 'Dine In') && selectedOrder?.table ? ' (' + selectedOrder.table + ')' : '')"></p>
+                            <h3 class="text-[18px] font-bold text-ink mb-1" x-text="selectedOrder?.customer"></h3>
+                            <p class="text-[13px] text-muted" x-text="(selectedOrder?.type || 'Takeaway') + ((selectedOrder?.type === 'Dine-in' || selectedOrder?.type === 'Dine In') && selectedOrder?.table ? ' (' + selectedOrder.table + ')' : '')"></p>
                         </div>
                     </div>
 
-                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+                    <div class="border-t border-dashed border-line my-4"></div>
 
                     <!-- Items -->
                     <div class="flex flex-col gap-4 max-h-[40vh] overflow-y-auto hide-scroll py-2">
@@ -500,41 +491,41 @@
                             <div class="flex items-center gap-4">
                                 <img :src="item.image || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-[12px] object-cover bg-gray-100 shrink-0">
                                 <div class="flex-grow min-w-0">
-                                    <h4 class="text-[14px] font-bold text-[#202522] truncate" x-text="item.name"></h4>
-                                    <p x-show="item.notes" class="text-[11px] text-[#D97A32] mt-0.5"><i class="fas fa-comment-dots mr-1"></i> <span x-text="item.notes"></span></p>
+                                    <h4 class="text-[14px] font-bold text-ink truncate" x-text="item.name"></h4>
+                                    <p x-show="item.notes" class="text-[11px] text-gold-600 mt-0.5"><i class="fas fa-comment-dots mr-1"></i> <span x-text="item.notes"></span></p>
                                 </div>
-                                <div class="text-[13px] font-bold text-[#777873] w-8 text-center shrink-0" x-text="item.qty + 'x'"></div>
-                                <div class="text-[14px] font-bold text-[#202522] w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
+                                <div class="text-[13px] font-bold text-muted w-8 text-center shrink-0" x-text="item.qty + 'x'"></div>
+                                <div class="text-[14px] font-bold text-ink w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
                             </div>
                         </template>
                     </div>
 
-                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+                    <div class="border-t border-dashed border-line my-4"></div>
 
                     <!-- Total & Payment -->
                     <div class="flex justify-between items-end mb-2 mt-4">
                         <div>
-                            <p class="text-[13px] font-bold text-[#202522] mb-1">Total Harga</p>
-                            <p class="text-[26px] font-bold text-[#164A35]" x-text="selectedOrder ? formatRp(selectedOrder.total) : '0'"></p>
+                            <p class="text-[13px] font-bold text-ink mb-1">Total Harga</p>
+                            <p class="text-[26px] font-bold text-primary" x-text="selectedOrder ? formatRp(selectedOrder.total) : '0'"></p>
                         </div>
 
                         <!-- Payment Badge -->
-                        <div class="bg-[#DDEBDD] rounded-[12px] px-4 py-2.5 flex items-start gap-2.5">
-                            <i class="fas fa-check-circle text-[#164A35] mt-0.5"></i>
+                        <div class="bg-brand-100 rounded-[12px] px-4 py-2.5 flex items-start gap-2.5">
+                            <i class="fas fa-check-circle text-primary mt-0.5"></i>
                             <div>
-                                <p class="text-[13px] font-bold text-[#164A35] leading-none mb-1.5">Pembayaran</p>
-                                <p class="text-[11px] font-medium text-[#164A35]/80 leading-none">QRIS / Online</p>
+                                <p class="text-[13px] font-bold text-primary leading-none mb-1.5">Pembayaran</p>
+                                <p class="text-[11px] font-medium text-primary/80 leading-none">QRIS / Online</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Footer Actions -->
-                <div class="p-4 bg-[#F8F7F3] border-t border-[#E3E1DC] flex gap-3">
-                    <button @click="showOrderDetailModal = false" class="w-1/3 py-3.5 rounded-[16px] text-[15px] font-bold text-[#777873] bg-white border border-[#E3E1DC] hover:text-[#202522] hover:bg-gray-50 transition-all flex justify-center items-center">
+                <div class="p-4 bg-ivory border-t border-line flex gap-3">
+                    <button @click="showOrderDetailModal = false" class="w-1/3 py-3.5 rounded-[16px] text-[15px] font-bold text-muted bg-white border border-line hover:text-ink hover:bg-gray-50 transition-all flex justify-center items-center">
                         Tutup
                     </button>
-                    <button @click="window.open('/admin/api/orders/' + selectedOrder.id + '/print', '_blank')" class="w-2/3 py-3.5 rounded-[16px] text-[15px] font-bold bg-[#164A35] text-white shadow-sm hover:bg-[#123A2A] hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
+                    <button @click="window.open('/admin/api/orders/' + selectedOrder.id + '/print', '_blank')" class="w-2/3 py-3.5 rounded-[16px] text-[15px] font-bold bg-primary text-white shadow-sm hover:bg-[#123A2A] hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
                         <i class="fas fa-print"></i> Cetak Struk
                     </button>
                 </div>
@@ -547,7 +538,7 @@
             <div class="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity"></div>
             
             <!-- Modal Content -->
-            <div class="relative bg-[#F8F7F3] w-full sm:w-[520px] rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col border border-[#E3E1DC] overflow-hidden" 
+            <div class="relative bg-ivory w-full sm:w-[520px] rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col border border-line overflow-hidden"
                  x-transition:enter="transition ease-out duration-300 transform"
                  x-transition:enter-start="opacity-0 translate-y-8 scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 scale-100"
@@ -556,21 +547,21 @@
                  x-transition:leave-end="opacity-0 translate-y-4 scale-95">
 
                 <!-- Header -->
-                <div class="p-6 bg-[#F8F7F3] border-b border-[#E3E1DC] flex justify-between items-start">
+                <div class="p-6 bg-ivory border-b border-line flex justify-between items-start">
                     <div class="flex gap-4">
-                        <div class="w-12 h-12 rounded-[14px] bg-[#D97A32] text-white flex items-center justify-center shadow-sm shrink-0">
+                        <div class="w-12 h-12 rounded-[14px] bg-gold-600 text-white flex items-center justify-center shadow-sm shrink-0">
                             <i class="fas fa-bell text-xl animate-pulse"></i>
                         </div>
                         <div class="flex flex-col justify-center">
-                            <h2 class="text-[18px] font-bold text-[#D97A32] leading-tight mb-1">Pesanan Baru Masuk!</h2>
-                            <p class="text-[13px] text-[#777873]">Baru saja</p>
+                            <h2 class="text-[18px] font-bold text-gold-600 leading-tight mb-1">Pesanan Baru Masuk!</h2>
+                            <p class="text-[13px] text-muted">Baru saja</p>
                         </div>
                     </div>
                     
                     <!-- Timer Badge -->
                     <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[15px] font-mono font-bold shrink-0 transition-colors"
                          :class="{
-                            'bg-[#D97A32] text-white': incomingTimer > 15,
+                            'bg-gold-600 text-white': incomingTimer > 15,
                             'bg-red-500 text-white animate-pulse': incomingTimer <= 15
                          }">
                         <i class="fas fa-stopwatch text-sm"></i>
@@ -581,22 +572,22 @@
                 <!-- Body -->
                 <div class="px-6 py-5 bg-white relative">
                     <!-- Queue info -->
-                    <div x-show="incomingOrderQueue.length > 0" class="absolute top-0 inset-x-0 bg-[#F7E5D2] text-[#D97A32] text-[12px] font-bold py-1 text-center">
+                    <div x-show="incomingOrderQueue.length > 0" class="absolute top-0 inset-x-0 bg-gold-100 text-gold-600 text-[12px] font-bold py-1 text-center">
                         <span x-text="incomingOrderQueue.length"></span> pesanan menunggu antrean
                     </div>
 
                     <!-- Order Number & Type -->
                     <div class="flex gap-4 items-center mt-2 mb-6">
-                        <div class="w-12 h-12 rounded-[14px] bg-[#F8F7F3] border border-[#E3E1DC] text-[#202522] flex items-center justify-center shrink-0">
+                        <div class="w-12 h-12 rounded-[14px] bg-ivory border border-line text-ink flex items-center justify-center shrink-0">
                             <i class="fas fa-shopping-bag text-lg"></i>
                         </div>
                         <div>
-                            <h3 class="text-[18px] font-bold text-[#202522] mb-1">Pesanan #<span x-text="activeIncomingOrder?.id"></span></h3>
-                            <p class="text-[13px] text-[#777873]"><span x-text="activeIncomingOrder?.type || 'Takeaway'"></span> • <span x-text="activeIncomingOrder?.customer"></span></p>
+                            <h3 class="text-[18px] font-bold text-ink mb-1">Pesanan #<span x-text="activeIncomingOrder?.id"></span></h3>
+                            <p class="text-[13px] text-muted"><span x-text="activeIncomingOrder?.type || 'Takeaway'"></span> • <span x-text="activeIncomingOrder?.customer"></span></p>
                         </div>
                     </div>
 
-                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+                    <div class="border-t border-dashed border-line my-4"></div>
 
                     <!-- Items -->
                     <div class="flex flex-col gap-4 max-h-[30vh] overflow-y-auto hide-scroll py-2">
@@ -604,68 +595,68 @@
                             <div class="flex items-center gap-4">
                                 <img :src="item.image || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-[12px] object-cover bg-gray-100 shrink-0">
                                 <div class="flex-grow min-w-0">
-                                    <h4 class="text-[14px] font-bold text-[#202522] truncate" x-text="item.name"></h4>
+                                    <h4 class="text-[14px] font-bold text-ink truncate" x-text="item.name"></h4>
                                 </div>
-                                <div class="text-[13px] font-bold text-[#777873] w-8 text-center shrink-0" x-text="item.qty + 'x'"></div>
-                                <div class="text-[14px] font-bold text-[#202522] w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
+                                <div class="text-[13px] font-bold text-muted w-8 text-center shrink-0" x-text="item.qty + 'x'"></div>
+                                <div class="text-[14px] font-bold text-ink w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
                             </div>
                         </template>
                     </div>
 
-                    <div class="border-t border-dashed border-[#E3E1DC] my-4"></div>
+                    <div class="border-t border-dashed border-line my-4"></div>
 
                     <!-- Total & Payment -->
                     <div class="flex justify-between items-end mb-2 mt-4">
                         <div>
-                            <p class="text-[13px] font-bold text-[#202522] mb-1">Total Pesanan</p>
-                            <p class="text-[26px] font-bold text-[#164A35]" x-text="activeIncomingOrder ? formatRp(activeIncomingOrder.total) : '0'"></p>
+                            <p class="text-[13px] font-bold text-ink mb-1">Total Pesanan</p>
+                            <p class="text-[26px] font-bold text-primary" x-text="activeIncomingOrder ? formatRp(activeIncomingOrder.total) : '0'"></p>
                         </div>
                         
                         <!-- Payment Badge -->
-                        <div class="bg-[#DDEBDD] rounded-[12px] px-4 py-2.5 flex items-start gap-2.5">
-                            <i class="fas fa-check-circle text-[#164A35] mt-0.5"></i>
+                        <div class="bg-brand-100 rounded-[12px] px-4 py-2.5 flex items-start gap-2.5">
+                            <i class="fas fa-check-circle text-primary mt-0.5"></i>
                             <div>
-                                <p class="text-[13px] font-bold text-[#164A35] leading-none mb-1.5">Pembayaran Lunas</p>
-                                <p class="text-[11px] font-medium text-[#164A35]/80 leading-none">Dibayar via QRIS</p>
+                                <p class="text-[13px] font-bold text-primary leading-none mb-1.5">Pembayaran Lunas</p>
+                                <p class="text-[11px] font-medium text-primary/80 leading-none">Dibayar via QRIS</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Footer Actions -->
-                <div class="p-6 bg-[#F8F7F3] border-t border-[#E3E1DC]">
+                <div class="p-6 bg-ivory border-t border-line">
                     <!-- State: Confirm Reject -->
                     <div x-show="incomingOrderState === 'reject_confirm'" class="flex flex-col gap-4">
-                        <p class="text-center text-[15px] font-bold text-[#202522]">Tolak pesanan #<span x-text="activeIncomingOrder?.id"></span>?</p>
+                        <p class="text-center text-[15px] font-bold text-ink">Tolak pesanan #<span x-text="activeIncomingOrder?.id"></span>?</p>
                         <div class="flex gap-3">
-                            <button @click="incomingOrderState = 'new'" class="flex-1 py-3.5 rounded-[14px] font-bold text-[14px] bg-white border border-[#E3E1DC] text-[#777873] hover:bg-gray-50 transition-colors">Batal</button>
+                            <button @click="incomingOrderState = 'new'" class="flex-1 py-3.5 rounded-[14px] font-bold text-[14px] bg-white border border-line text-muted hover:bg-gray-50 transition-colors">Batal</button>
                             <button @click="confirmRejectOrder(false)" class="flex-1 py-3.5 rounded-[14px] font-bold text-[14px] bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition-colors">Ya, Tolak Pesanan</button>
                         </div>
                     </div>
 
                     <!-- State: New/Normal -->
                     <div x-show="incomingOrderState === 'new'" class="flex gap-4">
-                        <button @click="incomingOrderState = 'reject_confirm'" class="w-[140px] shrink-0 py-4 rounded-[14px] font-bold text-[14px] bg-transparent border border-[#E3E1DC] text-[#777873] hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors">
+                        <button @click="incomingOrderState = 'reject_confirm'" class="w-[140px] shrink-0 py-4 rounded-[14px] font-bold text-[14px] bg-transparent border border-line text-muted hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-colors">
                             Tolak Pesanan
                         </button>
-                        <button @click="acceptOrder()" class="flex-1 py-4 rounded-[14px] font-bold text-[15px] bg-[#164A35] text-white hover:bg-[#0f3526] transition-colors shadow-[0_4px_12px_rgba(22,74,53,0.2)] flex items-center justify-center gap-2">
+                        <button @click="acceptOrder()" class="flex-1 py-4 rounded-[14px] font-bold text-[15px] bg-primary text-white hover:bg-primary-dark transition-colors shadow-[0_4px_12px_rgba(100,29,53,0.2)] flex items-center justify-center gap-2">
                             <i class="fas fa-coffee"></i> Terima & Siapkan
                         </button>
                     </div>
 
                     <!-- State: Accepting -->
                     <div x-show="incomingOrderState === 'accepting'" class="flex justify-center items-center py-4">
-                        <i class="fas fa-spinner fa-spin text-[#164A35] text-2xl"></i>
-                        <span class="ml-3 font-bold text-[#164A35]">Menerima pesanan...</span>
+                        <i class="fas fa-spinner fa-spin text-primary text-2xl"></i>
+                        <span class="ml-3 font-bold text-primary">Menerima pesanan...</span>
                     </div>
 
                     <!-- State: Accepted -->
                     <div x-show="incomingOrderState === 'accepted'" class="flex flex-col justify-center items-center py-2">
-                        <div class="w-10 h-10 bg-[#DDEBDD] text-[#164A35] rounded-full flex items-center justify-center mb-2">
+                        <div class="w-10 h-10 bg-brand-100 text-primary rounded-full flex items-center justify-center mb-2">
                             <i class="fas fa-check text-xl"></i>
                         </div>
-                        <span class="font-bold text-[#164A35]">Pesanan Diterima!</span>
-                        <span class="text-[13px] text-[#777873]">Sedang disiapkan...</span>
+                        <span class="font-bold text-primary">Pesanan Diterima!</span>
+                        <span class="text-[13px] text-muted">Sedang disiapkan...</span>
                     </div>
                     
                     <!-- State: Rejected -->
@@ -678,7 +669,7 @@
 
                     <!-- Timeout Notice -->
                     <div class="text-center mt-5" x-show="['new', 'reject_confirm'].includes(incomingOrderState)">
-                        <p class="text-[12px] font-medium text-[#777873] flex items-center justify-center gap-1.5">
+                        <p class="text-[12px] font-medium text-muted flex items-center justify-center gap-1.5">
                             <i class="far fa-clock"></i> Pesanan otomatis ditolak dalam <span x-text="incomingTimer" class="font-mono font-bold"></span> detik
                         </p>
                     </div>
@@ -690,8 +681,9 @@
 
     <script>
         window.INITIAL_DATA = {
-            shop: @json($shop ?? null),
-            user: @json(auth()->user()),
+            shop: {{ Illuminate\Support\Js::from($dashboardShop) }},
+            user: {{ Illuminate\Support\Js::from(auth()->user()->only(['id', 'name', 'email', 'role'])) }},
+            permissions: {{ Illuminate\Support\Js::from(auth()->user()->effectivePermissions()) }},
             categories: @json($categories ?? [])
         };
 
@@ -700,6 +692,7 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
                 user: window.INITIAL_DATA.user || {},
+                can(ability) { return window.INITIAL_DATA.permissions.includes(ability); },
                 isMinimized: window.innerWidth < 1024,
                 isLoadingSummary: true,
                 isLoadingMenus: true,
@@ -750,6 +743,10 @@
                 isLoadingInventory: false,
                 showMaterialModal: false,
                 isSavingMaterial: false,
+                stockUnits: {{ Illuminate\Support\Js::from(config('inventory.units')) }},
+                editingUnitLocked: false,
+                formatStock(value) { return Number(value || 0).toLocaleString('id-ID', {maximumFractionDigits: 6}); },
+                stockUnitLabel(unit) { return this.stockUnits[unit] || unit || '—'; },
                 materialForm: { id: null, name: '', sku: '', unit: 'ml', current_stock: 0, minimum_stock: 0, cost_per_unit: 0 },
                 showAdjustModal: false,
                 isSavingAdjustment: false,
@@ -763,7 +760,7 @@
 
                 getMaterialUnit(materialId) {
                     const m = this.rawMaterials.find(x => x.id == materialId);
-                    return m ? m.unit : '';
+                    return m ? (m.unit_label || this.stockUnitLabel(m.unit)) : '';
                 },
 
                 calculateSingleRecipeCost(rec) {
@@ -799,6 +796,7 @@
                 },
 
                 fetchInventory() {
+    if (!this.can('manage-inventory')) { this.isLoadingInventory = false; return; }
                     this.isLoadingInventory = true;
                     fetch('/admin/api/inventory', {
                         headers: { 'Accept': 'application/json' }
@@ -816,11 +814,13 @@
                 },
 
                 openAddMaterialModal() {
+                    this.editingUnitLocked = false;
                     this.materialForm = { id: null, name: '', sku: '', unit: 'ml', current_stock: 0, minimum_stock: 10, cost_per_unit: 0 };
                     this.showMaterialModal = true;
                 },
 
                 editMaterial(item) {
+                    this.editingUnitLocked = !!item.unit_locked;
                     this.materialForm = {
                         id: item.id,
                         name: item.name,
@@ -856,7 +856,7 @@
                             this.showMaterialModal = false;
                             this.fetchInventory();
                         } else {
-                            this.addToast(data.message || 'Gagal menyimpan bahan', 'error');
+                            this.addToast(data.errors ? Object.values(data.errors).flat().join(' ') : data.message || 'Gagal menyimpan bahan', 'error');
                         }
                     })
                     .catch(err => {
@@ -872,7 +872,7 @@
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
-                        cancelButtonColor: '#777873',
+                        cancelButtonColor: '#6c5b60',
                         confirmButtonText: 'Ya, hapus!',
                         cancelButtonText: 'Batal'
                     }).then((result) => {
@@ -911,7 +911,7 @@
                 },
 
                 submitStockAdjustment() {
-                    if (!this.adjustForm.raw_material_id || !this.adjustForm.amount || Number(this.adjustForm.amount) <= 0) {
+                    if (!this.adjustForm.raw_material_id || this.adjustForm.amount === '' || !Number.isFinite(Number(this.adjustForm.amount)) || Number(this.adjustForm.amount) < 0 || (this.adjustForm.type !== 'adjustment' && Number(this.adjustForm.amount) === 0)) {
                         this.addToast('Pilih bahan dan masukkan jumlah yang valid', 'error');
                         return;
                     }
@@ -934,7 +934,7 @@
                             this.fetchInventory();
                             this.loadMenu();
                         } else {
-                            this.addToast(data.message || 'Gagal menyesuaikan stok', 'error');
+                            this.addToast(data.errors ? Object.values(data.errors).flat().join(' ') : data.message || 'Gagal menyesuaikan stok', 'error');
                         }
                     })
                     .catch(err => {
@@ -1062,10 +1062,11 @@ handleDraftImageUpload(event, index) {
                 removeToast(id) {
                     this.toasts = this.toasts.filter(t => t.id !== id);
                 },
+                brandColorOptions: window.OQARI_THEME.primaryOptions,
                 settings: {
                     name: window.INITIAL_DATA.shop?.name || '',
                     slug: window.INITIAL_DATA.shop?.slug || '',
-                    primary_color: window.INITIAL_DATA.shop?.primary_color || '#1E5A7A',
+                    primary_color: window.OQARI_THEME.primary,
                     logoPreview: window.INITIAL_DATA.shop?.logo_url ? window.INITIAL_DATA.shop.logo_url : '',
                     logoFile: null,
                     slogan: window.INITIAL_DATA.shop?.slogan || '',
@@ -1170,18 +1171,18 @@ handleDraftImageUpload(event, index) {
                     return filtered;
                 },
                 tabs: [
-                    { id: 'analytics', name: 'Dashboard Analytics', icon: 'fas fa-chart-pie' },
-                    { id: 'report', name: 'Laporan Keuangan', icon: 'fas fa-book' },
-                    { id: 'orders', name: 'Live Orders', icon: 'fas fa-receipt' },
-                    { id: 'menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
-                    { id: 'inventory', name: 'Bahan & Stok', icon: 'fas fa-boxes-stacked' },
-                    { id: 'qr', name: 'Table & QR', icon: 'fas fa-qrcode' },
-                    { id: 'crew', name: 'Crew Management', icon: 'fas fa-users' },
-                    { id: 'shifts', name: 'Jadwal Shift', icon: 'fas fa-calendar-alt' },
-                    { id: 'logs', name: 'Log Aktivitas', icon: 'fas fa-history' },
-                    { id: 'settings', name: 'Toko Saya', icon: 'fas fa-store' },
-                    { id: 'receipt', name: 'Pengaturan Struk', icon: 'fas fa-print' },
-                ],
+                    { id: 'analytics', ability: 'view-reports', name: 'Dashboard Analytics', icon: 'fas fa-chart-pie' },
+                    { id: 'report', ability: 'view-reports', name: 'Laporan Keuangan', icon: 'fas fa-book' },
+                    { id: 'orders', ability: 'view-orders', name: 'Live Orders', icon: 'fas fa-receipt' },
+                    { id: 'menu', ability: 'manage-menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
+                    { id: 'inventory', ability: 'manage-inventory', name: 'Bahan & Stok', icon: 'fas fa-boxes-stacked' },
+                    { id: 'qr', ability: 'manage-settings', name: 'Table & QR', icon: 'fas fa-qrcode' },
+                    { id: 'crew', ability: 'manage-crew', name: 'Crew Management', icon: 'fas fa-users' },
+                    { id: 'shifts', ability: 'manage-crew', name: 'Jadwal Shift', icon: 'fas fa-calendar-alt' },
+                    { id: 'logs', ability: 'view-reports', name: 'Log Aktivitas', icon: 'fas fa-history' },
+                    { id: 'settings', ability: 'manage-settings', name: 'Toko Saya', icon: 'fas fa-store' },
+                    { id: 'receipt', ability: 'manage-settings', name: 'Pengaturan Struk', icon: 'fas fa-print' },
+                ].filter(tab => window.INITIAL_DATA.permissions.includes(tab.ability)),
                                 tables: [],
                 reportPeriod: 'all',
                 formatNum(num) {
@@ -1291,13 +1292,13 @@ handleDraftImageUpload(event, index) {
                                 datasets: [{
                                     label: 'Revenue',
                                     data: [1.2, 1.9, 1.5, 2.1, 1.8, 3.2, 4.25],
-                                    borderColor: '#8C5D3A',
+                                    borderColor: '#b6924b',
                                     backgroundColor: 'rgba(140, 93, 58, 0.1)',
                                     borderWidth: 3,
                                     fill: true,
                                     tension: 0.4,
                                     pointBackgroundColor: '#ffffff',
-                                    pointBorderColor: '#8C5D3A',
+                                    pointBorderColor: '#b6924b',
                                     pointBorderWidth: 2,
                                     pointRadius: 4
                                 }]
@@ -1341,6 +1342,7 @@ handleDraftImageUpload(event, index) {
                         window.history.replaceState({}, '', url);
                     });
                     
+                    if (!this.tabs.some(tab => tab.id === this.currentTab)) this.currentTab = this.tabs[0]?.id || 'profile';
                     this.initSummary();
                     this.initAnalytics();
                     this.loadMenu();
@@ -1348,7 +1350,7 @@ handleDraftImageUpload(event, index) {
                     if (window.INITIAL_DATA.shop) {
                         this.settings.name = window.INITIAL_DATA.shop.name || '';
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
-                        this.settings.primary_color = window.INITIAL_DATA.shop.primary_color || '#1E5A7A';
+                        this.settings.primary_color = window.OQARI_THEME.primary;
                         if (window.INITIAL_DATA.shop.logo_url) {
                             this.settings.logoPreview = window.INITIAL_DATA.shop.logo_url + '?v=' + new Date(window.INITIAL_DATA.shop.updated_at).getTime();
                         }
@@ -1367,6 +1369,7 @@ handleDraftImageUpload(event, index) {
 
                 },
                 async loadMenu(page = 1) {
+    if (!this.can('manage-menu')) { this.isLoadingMenus = false; return; }
                     this.isLoadingMenus = true;
                     try {
                         const res = await fetch('/admin/api/dashboard/products?per_page=50&page=' + page);
@@ -1424,7 +1427,7 @@ handleDraftImageUpload(event, index) {
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
-                        cancelButtonColor: '#777873',
+                        cancelButtonColor: '#6c5b60',
                         confirmButtonText: 'Ya, hapus!',
                         cancelButtonText: 'Batal'
                     });
@@ -1686,6 +1689,7 @@ handleDraftImageUpload(event, index) {
     this.isLoadingSummary = false;
 },
 async initAnalytics() {
+    if (!this.can('view-reports')) { this.isLoadingAnalytics = false; return; }
     this.isLoadingAnalytics = true;
     try {
         const res = await fetch('/admin/api/dashboard/analytics');
@@ -1698,6 +1702,7 @@ async initAnalytics() {
     this.isLoadingAnalytics = false;
 },
 async fetchLiveOrders(isInit = false) {
+    if (!this.can('view-orders')) { return; }
     try {
         let sourceOrders = [];
         if (true) {
@@ -1803,7 +1808,7 @@ if (res.ok) {
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
-                        cancelButtonColor: '#777873',
+                        cancelButtonColor: '#6c5b60',
                         confirmButtonText: 'Ya, hapus!',
                         cancelButtonText: 'Batal'
                     });
@@ -1872,10 +1877,10 @@ if (res.ok) {
                         "        @page { margin: 0; size: auto; }\n" +
                         "        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #fff; text-align: center; }\n" +
                         "        .card { border: 2px dashed #ccc; padding: 40px; border-radius: 20px; max-width: 300px; margin: 20px auto; }\n" +
-                        "        h1 { color: #164A35; margin-bottom: 10px; font-size: 28px; font-weight: 800; }\n" +
-                        "        h2 { color: #202522; font-size: 44px; margin: 0 0 20px 0; font-weight: 900; }\n" +
+                        "        h1 { color: var(--oq-primary); margin-bottom: 10px; font-size: 28px; font-weight: 800; }\n" +
+                        "        h2 { color: var(--oq-ink); font-size: 44px; margin: 0 0 20px 0; font-weight: 900; }\n" +
                         "        img { width: 220px; height: 220px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; mix-blend-mode: multiply; }\n" +
-                        "        p { color: #777873; font-size: 15px; margin: 0; font-weight: 500; }\n" +
+                        "        p { color: var(--oq-muted); font-size: 15px; margin: 0; font-weight: 500; }\n" +
                         "        @media print {\n" +
                         "            body { display: block; height: auto; align-items: flex-start; margin-top: 2cm; }\n" +
                         "            .card { border: none; padding: 20px; max-width: 100%; margin: 0 auto; border-radius: 0; }\n" +
@@ -2038,7 +2043,7 @@ if (res.ok) {
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
-                        cancelButtonColor: '#777873',
+                        cancelButtonColor: '#6c5b60',
                         confirmButtonText: 'Ya, hapus!',
                         cancelButtonText: 'Batal'
                     });
@@ -2165,7 +2170,7 @@ if (res.ok) {
     </div>
 
     <!-- Floating Action Button to Customer Menu -->
-    <a :href="'/' + settings.slug" target="_blank" class="fixed bottom-10 right-10 bg-[#1E5A7A] text-white p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:bg-[#154660] transition-all z-[100] group border-4 border-white">
+    <a :href="'/' + settings.slug" target="_blank" class="fixed bottom-10 right-10 bg-primary text-white p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 hover:bg-primary-dark transition-all z-[100] group border-4 border-white">
         <i class="fas fa-store text-xl"></i>
         <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[200px] transition-all duration-500 ease-in-out pl-0 group-hover:pl-3 font-bold text-sm">Lihat Web Pelanggan</span>
     </a>

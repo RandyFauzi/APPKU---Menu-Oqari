@@ -27,6 +27,8 @@ class ShopController extends Controller
             abort(404);
         }
 
+        abort_if($shop->isSuspended(), 404);
+
         return $shop;
     }
 

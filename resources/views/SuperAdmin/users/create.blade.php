@@ -6,7 +6,7 @@
 <div class="max-w-3xl mx-auto space-y-6">
     <!-- Header Navigation -->
     <div class="flex items-center gap-4">
-        <a href="{{ url()->previous() }}" class="w-10 h-10 bg-white border border-[#E3E1DC] rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-50 transition">
+        <a href="{{ url()->previous() }}" class="w-10 h-10 bg-white border border-line rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-50 transition">
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
@@ -16,7 +16,7 @@
     </div>
 
     <!-- Create Form -->
-    <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
         <form action="{{ route('superadmin.users.store') }}" method="POST" class="p-6 space-y-6">
             @csrf
 
@@ -24,25 +24,25 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap <span class="text-red-500">*</span></label>
                     <input type="text" name="name" value="{{ old('name') }}" required
-                           class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#164A35]">
+                           class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
                     <input type="email" name="email" value="{{ old('email') }}" required
-                           class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#164A35]">
+                           class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Password <span class="text-red-500">*</span></label>
                     <input type="password" name="password" required minlength="8"
-                           class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#164A35]">
+                           class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                     <p class="text-xs text-gray-500 mt-1">Minimal 8 karakter.</p>
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Role <span class="text-red-500">*</span></label>
-                    <select name="role" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#164A35]">
+                    <select name="role" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                         <option value="">-- Pilih Role --</option>
                         <option value="superadmin" @selected(old('role') === 'superadmin')>Super Admin (Platform)</option>
                         <option value="owner" @selected(old('role') === 'owner')>Owner (Pemilik Toko)</option>
@@ -57,7 +57,7 @@
 
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Toko Terkait</label>
-                <select name="shop_id" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#164A35]">
+                <select name="shop_id" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                     <option value="">-- Tidak ada (Khusus Super Admin) --</option>
                     @foreach($shops as $shopOption)
                         <option value="{{ $shopOption->id }}" @selected(old('shop_id', request('shop_id')) == $shopOption->id)>
@@ -69,7 +69,7 @@
             </div>
 
             <div class="pt-4 border-t border-gray-100 flex justify-end">
-                <button type="submit" class="px-6 py-2 bg-[#164A35] text-white font-bold rounded-lg hover:bg-[#113a29] transition">
+                <button type="submit" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition">
                     Buat Pengguna
                 </button>
             </div>

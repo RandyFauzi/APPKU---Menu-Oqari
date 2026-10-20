@@ -13,11 +13,11 @@ class ProductRecipe extends Model
     protected $fillable = [
         'product_id',
         'raw_material_id',
-        'amount',
+        'amount', 'batch_amount', 'notes',
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
+        'amount' => 'decimal:6', 'batch_amount' => 'decimal:6',
     ];
 
     public function product(): BelongsTo

@@ -15,7 +15,7 @@ class StockMutation extends Model
         'shop_id',
         'raw_material_id',
         'type',
-        'amount',
+        'amount', 'unit',
         'balance_after',
         'reference_type',
         'reference_id',
@@ -23,9 +23,18 @@ class StockMutation extends Model
         'user_id',
     ];
 
+    protected $appends = ['unit_label'];
+
+    public function getUnitLabelAttribute(): string
+    {
+        $unit = $this->unit ?? $this->rawMaterial?->unit;
+
+        return $unit ? config('inventory.units.'.strtolower($unit), $unit) : '—';
+    }
+
     protected $casts = [
-        'amount' => 'decimal:2',
-        'balance_after' => 'decimal:2',
+        'amount' => 'decimal:6',
+        'balance_after' => 'decimal:6',
     ];
 
     public function shop(): BelongsTo
@@ -35,7 +44,7 @@ class StockMutation extends Model
 
     public function rawMaterial(): BelongsTo
     {
-        return $this->belongsTo(RawMaterial::class);
+        return $this->belongsTo(RawMaterial::class)->withTrashed();
     }
 
     public function user(): BelongsTo

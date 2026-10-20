@@ -1,3 +1,18 @@
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
+}
+
+function safeImageUrl(value) {
+    try {
+        const url = new URL(value || '/Assests/null%20image.webp', window.location.origin);
+        return ['http:', 'https:'].includes(url.protocol) ? escapeHtml(url.href) : '/Assests/null%20image.webp';
+    } catch {
+        return '/Assests/null%20image.webp';
+    }
+}
+
 // C:\laragon\www\Menu Apps\Bitten Coffee\js\main.js
 
 const formatRp = (angka) => 'Rp ' + angka.toLocaleString('id-ID');
@@ -74,12 +89,12 @@ function renderCarousel() {
     
     track.innerHTML = highlights.map(h => `
         <div class="min-w-full h-full snap-center bg-gray-900 relative">
-            <img src="${h.img}" class="w-full h-full object-cover">
+            <img src="${safeImageUrl(h.img)}" class="w-full h-full object-cover">
             <!-- Gradasi Biru hanya di bawah -->
-            <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#1E5A7A] via-[#1E5A7A]/60 to-transparent"></div>
+            <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#641d35] via-[#641d35]/60 to-transparent"></div>
             <div class="absolute inset-0 p-5 flex flex-col justify-end w-full text-white z-10 pb-8">
-                <h2 class="text-3xl font-black font-heading leading-[1.1] uppercase text-white drop-shadow-md">${h.title}</h2>
-                ${h.desc ? `<p class="text-xs opacity-90 font-medium mt-1">${h.desc}</p>` : ''}
+                <h2 class="text-3xl font-black font-heading leading-[1.1] uppercase text-white drop-shadow-md">${escapeHtml(h.title)}</h2>
+                ${h.desc ? `<p class="text-xs opacity-90 font-medium mt-1">${escapeHtml(h.desc)}</p>` : ''}
             </div>
         </div>
     `).join('');
@@ -173,12 +188,12 @@ function renderCategories() {
         const textClass = isActive ? 'text-primary font-bold' : 'text-textdark/70';
         
         return `
-        <div onclick="filterCategory('${cat.id}')" class="flex flex-col items-center gap-2 cursor-pointer group flex-shrink-0 w-20">
+        <button type="button" data-category-id="${escapeHtml(cat.id)}" onclick="filterCategory(this.dataset.categoryId)" aria-pressed="${isActive}" class="flex flex-col items-center gap-2 cursor-pointer group flex-shrink-0 w-20">
             <div class="w-16 h-16 rounded-2xl shadow-sm flex items-center justify-center transition-all ${bgClass}">
                 <i class="fas ${cat.icon} text-2xl ${iconColor} group-hover:scale-110 transition-transform"></i>
             </div>
-            <span class="text-[10px] text-center w-full truncate ${textClass}">${cat.name}</span>
-        </div>
+            <span class="text-[10px] text-center w-full truncate ${textClass}">${escapeHtml(cat.name)}</span>
+        </button>
         `;
     }).join('');
 }
@@ -230,7 +245,7 @@ function renderMenu() {
             const itemsInCat = filteredMenu.filter(m => isItemInCategory(m, cat));
             if (itemsInCat.length > 0) {
                 const colSpan = (theme === 'list') ? 'col-span-1' : 'col-span-2';
-                htmlOutput += `<div class="${colSpan} mt-4 mb-1 border-b-2 border-primary/10 pb-1"><h3 class="font-heading font-bold text-lg text-primary">${cat.name}</h3></div>`;
+                htmlOutput += `<div class="${colSpan} mt-4 mb-1 border-b-2 border-primary/10 pb-1"><h3 class="font-heading font-bold text-lg text-primary">${escapeHtml(cat.name)}</h3></div>`;
                 htmlOutput += itemsInCat.map(item => renderMenuItem(item)).join('');
             }
         });
@@ -253,18 +268,18 @@ function renderMenuItem(item) {
         // Horizontal Layout (GoFood style)
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex hover:shadow-md transition duration-300 relative h-28">
-                <div class="w-28 flex-shrink-0 relative cursor-pointer" onclick="openItemDetail('${item.id}')">
-                    <img src="${item.image || item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${item.name}" loading="lazy" class="h-full w-full object-cover">
+                <div class="w-28 flex-shrink-0 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
+                    <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="h-full w-full object-cover">
                     ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
                 </div>
-                <div class="p-3 flex flex-col flex-grow relative cursor-pointer" onclick="openItemDetail('${item.id}')">
-                    <h3 class="font-bold text-textdark text-sm leading-tight mb-1 pr-6">${item.name}</h3>
-                    <p class="text-xs text-gray-500 line-clamp-2 leading-snug">${item.desc || ''}</p>
+                <div class="p-3 flex flex-col flex-grow relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
+                    <h3 class="font-bold text-textdark text-sm leading-tight mb-1 pr-6">${escapeHtml(item.name)}</h3>
+                    <p class="text-xs text-gray-500 line-clamp-2 leading-snug">${escapeHtml(item.desc || '')}</p>
                     <div class="mt-auto flex justify-between items-end">
                         <span class="font-bold text-primary text-sm">${formatRp(item.price)}</span>
                     </div>
                 </div>
-                <button onclick="quickAddToCart('${item.id}', event)" class="absolute bottom-3 right-3 bg-primary text-white h-8 w-8 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
+                <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="absolute bottom-3 right-3 bg-primary text-white h-8 w-8 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
                     <i class="fas fa-plus text-xs"></i>
                 </button>
             </div>
@@ -274,17 +289,17 @@ function renderMenuItem(item) {
     // Vertical Layout (Instagram style grid)
     return `
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative">
-            <div class="p-2 relative cursor-pointer" onclick="openItemDetail('${item.id}')">
-                <img src="${item.image || item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${item.name}" loading="lazy" class="h-32 w-full object-cover rounded-xl">
+            <div class="p-2 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
+                <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="h-32 w-full object-cover rounded-xl">
                 ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
             </div>
-            <div class="px-3 pb-3 pt-1 flex flex-col flex-grow relative cursor-pointer" onclick="openItemDetail('${item.id}')">
-                <h3 class="font-bold text-textdark text-xs leading-tight mb-1">${item.name}</h3>
+            <div class="px-3 pb-3 pt-1 flex flex-col flex-grow relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
+                <h3 class="font-bold text-textdark text-xs leading-tight mb-1">${escapeHtml(item.name)}</h3>
                 <div class="mt-auto flex justify-between items-end">
                     <span class="font-bold text-primary text-sm">${formatRp(item.price)}</span>
                 </div>
             </div>
-            <button onclick="quickAddToCart('${item.id}', event)" class="absolute bottom-2 right-2 bg-primary text-white h-7 w-7 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
+            <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="absolute bottom-2 right-2 bg-primary text-white h-7 w-7 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
                 <i class="fas fa-plus text-[10px]"></i>
             </button>
         </div>
@@ -436,12 +451,12 @@ function renderCartDetail() {
     btnPay.classList.remove('opacity-50', 'cursor-not-allowed');
 
     container.innerHTML = cart.map((item, index) => {
-        let notesText = item.notes ? `<p class="text-[10px] mt-1 p-1 bg-bgbase rounded text-primary">📝 ${item.notes}</p>` : '';
+        let notesText = item.notes ? `<p class="text-[10px] mt-1 p-1 bg-bgbase rounded text-primary">📝 ${escapeHtml(item.notes)}</p>` : '';
         return `
         <div class="flex items-center gap-4 bg-white p-3 rounded-xl border-2 border-primary/10 mb-3 relative">
-            <img src="${item.img}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" loading="lazy" class="w-16 h-16 rounded-lg object-cover">
+            <img src="${safeImageUrl(item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" loading="lazy" class="w-16 h-16 rounded-lg object-cover">
             <div class="flex-grow">
-                <h4 class="font-bold text-sm text-textdark leading-tight font-heading">${item.name}</h4>
+                <h4 class="font-bold text-sm text-textdark leading-tight font-heading">${escapeHtml(item.name)}</h4>
                 <p class="text-primary font-bold text-sm mt-1">${formatRp(item.price)}</p>
                 ${notesText}
             </div>
@@ -455,7 +470,7 @@ function renderCartDetail() {
     }).join('');
 
     const subtotal = CartStore.getSubtotal();
-    const tax = Math.floor(subtotal * 0.10); 
+    const tax = 0;
     const grandTotal = subtotal + tax;
 
     document.getElementById('summary-subtotal').innerText = formatRp(subtotal);
@@ -547,9 +562,9 @@ function processSimulatedPayment() {
     
     // Create order using database.js engine
     DB.createOrder(table, name, email, phone, paymentMethod, items, total)
-        .then(() => {
+        .then(data => {
             localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_type', paymentMethod);
-            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_total', total);
+            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_total', data.order.grand_total);
             CartStore.clear(); 
             window.location.href = window.SHOP_TRACKING_URL;
         })
@@ -571,7 +586,7 @@ function showToast(message) {
     if (!container) return;
     const toast = document.createElement('div');
     toast.className = 'toast-msg bg-textdark text-white text-sm px-4 py-3 rounded-full shadow-lg flex items-center gap-3 font-bold mx-auto w-max';
-    toast.innerHTML = `<i class="fas fa-check-circle text-primary"></i> <span>${message}</span>`;
+    toast.innerHTML = `<i class="fas fa-check-circle text-primary"></i> <span>${escapeHtml(message)}</span>`;
     container.appendChild(toast);
     setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; toast.style.transition = 'all 0.3s ease'; setTimeout(() => toast.remove(), 300); }, 2500);
 }

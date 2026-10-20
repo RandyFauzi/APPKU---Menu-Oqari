@@ -2,27 +2,27 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Setup Bisnis - OQARI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
     <style>
         [x-cloak] { display: none !important; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         body { font-family: ui-sans-serif, system-ui, sans-serif; }
     </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="bg-gray-50 h-screen w-full overflow-hidden text-gray-800" x-data="onboardingApp()">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     <!-- TOP NAV -->
     <div class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 absolute top-0 w-full z-10 shadow-sm">
         <div class="flex items-center gap-3">
             <img src="{{ asset('logo-oqari.webp') }}" class="h-8 w-8 object-cover rounded-md" onerror="this.src='https://ui-avatars.com/api/?name=O&color=16a34a&background=dcfce7'">
-            <span class="font-black text-lg text-gray-800 tracking-tight">OQARI</span>
+            <span class="font-black text-lg text-gray-800 tracking-tight"><x-hellenic-emblem class="inline-block h-5 w-5 mr-1 align-middle" />OQARI</span>
         </div>
         
         <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 font-semibold">
@@ -90,7 +90,7 @@
                         <p class="text-gray-500 mb-8 leading-relaxed">
                             Kami sangat senang kamu bergabung. Mari kita siapkan sistem kasir dan tokomu hanya dalam waktu kurang dari 3 menit agar kamu bisa <b>langsung berjualan</b> hari ini.
                         </p>
-                        <button @click="nextStep()" class="bg-green-600 hover:bg-green-700 text-white font-black py-4 px-8 rounded-2xl w-full sm:w-auto shadow-lg shadow-green-200 transition-all active:scale-95">
+                        <button @click="nextStep()" class="bg-brand-800 hover:bg-brand-900 text-white font-black py-4 px-8 rounded-2xl w-full sm:w-auto shadow-lg shadow-green-200 transition-all active:scale-95">
                             Mulai Setup Sekarang <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
@@ -105,7 +105,7 @@
                         
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">Nama Usaha <span class="text-red-500">*</span></label>
-                            <input type="text" x-model="form.name" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:ring-0 outline-none text-lg transition" placeholder="Contoh: Kopi Kenangan, Warung Nasi...">
+                            <input type="text" x-model="form.name" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gold-600 focus:ring-0 outline-none text-lg transition" placeholder="Contoh: Kopi Kenangan, Warung Nasi...">
                             <p x-show="errors.name" class="text-red-500 text-xs mt-1 font-semibold" x-text="errors.name"></p>
                         </div>
 
@@ -116,7 +116,7 @@
                                     <label class="cursor-pointer">
                                         <input type="radio" x-model="form.business_type" :value="type" class="sr-only">
                                         <div class="border-2 rounded-xl text-center py-3 px-2 font-bold text-sm transition"
-                                             :class="form.business_type === type ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'">
+                                             :class="form.business_type === type ? 'border-gold-600 bg-green-50 text-green-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'">
                                             <span x-text="type"></span>
                                         </div>
                                     </label>
@@ -127,7 +127,7 @@
 
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">Alamat Usaha (Opsional)</label>
-                            <textarea x-model="form.address" rows="2" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 outline-none transition resize-none" placeholder="Masukkan alamat lengkap..."></textarea>
+                            <textarea x-model="form.address" rows="2" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gold-600 outline-none transition resize-none" placeholder="Masukkan alamat lengkap..."></textarea>
                         </div>
                     </div>
 
@@ -147,8 +147,8 @@
                     <div class="grid gap-4 mb-8">
                         
                         <label class="flex items-start gap-4 bg-white p-6 rounded-2xl border-2 cursor-pointer transition shadow-sm"
-                               :class="form.sales_modes.includes('DINE_IN') ? 'border-green-500 bg-green-50/30' : 'border-gray-100 hover:border-gray-200'">
-                            <input type="checkbox" value="DINE_IN" x-model="form.sales_modes" class="mt-1 w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500">
+                               :class="form.sales_modes.includes('DINE_IN') ? 'border-gold-600 bg-green-50/30' : 'border-gray-100 hover:border-gray-200'">
+                            <input type="checkbox" value="DINE_IN" x-model="form.sales_modes" class="mt-1 w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-gold-600">
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
                                     <i class="fas fa-utensils text-green-600"></i>
@@ -159,8 +159,8 @@
                         </label>
 
                         <label class="flex items-start gap-4 bg-white p-6 rounded-2xl border-2 cursor-pointer transition shadow-sm"
-                               :class="form.sales_modes.includes('TAKEAWAY') ? 'border-green-500 bg-green-50/30' : 'border-gray-100 hover:border-gray-200'">
-                            <input type="checkbox" value="TAKEAWAY" x-model="form.sales_modes" class="mt-1 w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500">
+                               :class="form.sales_modes.includes('TAKEAWAY') ? 'border-gold-600 bg-green-50/30' : 'border-gray-100 hover:border-gray-200'">
+                            <input type="checkbox" value="TAKEAWAY" x-model="form.sales_modes" class="mt-1 w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-gold-600">
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
                                     <i class="fas fa-shopping-bag text-green-600"></i>
@@ -171,8 +171,8 @@
                         </label>
 
                         <label class="flex items-start gap-4 bg-white p-6 rounded-2xl border-2 cursor-pointer transition shadow-sm"
-                               :class="form.sales_modes.includes('DELIVERY') ? 'border-green-500 bg-green-50/30' : 'border-gray-100 hover:border-gray-200'">
-                            <input type="checkbox" value="DELIVERY" x-model="form.sales_modes" class="mt-1 w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500">
+                               :class="form.sales_modes.includes('DELIVERY') ? 'border-gold-600 bg-green-50/30' : 'border-gray-100 hover:border-gray-200'">
+                            <input type="checkbox" value="DELIVERY" x-model="form.sales_modes" class="mt-1 w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-gold-600">
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
                                     <i class="fas fa-motorcycle text-green-600"></i>
@@ -213,19 +213,19 @@
                         <div class="space-y-5">
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Nama Produk/Menu <span class="text-red-500">*</span></label>
-                                <input type="text" x-model="form.menu_name" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 outline-none font-bold text-lg" placeholder="Cth: Kopi Susu Gula Aren">
+                                <input type="text" x-model="form.menu_name" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gold-600 outline-none font-bold text-lg" placeholder="Cth: Kopi Susu Gula Aren">
                             </div>
                             
                             <div class="flex flex-col sm:flex-row gap-5">
                                 <div class="flex-1">
                                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Kategori</label>
-                                    <input type="text" x-model="form.menu_category" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 outline-none" placeholder="Cth: Minuman">
+                                    <input type="text" x-model="form.menu_category" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gold-600 outline-none" placeholder="Cth: Minuman">
                                 </div>
                                 <div class="flex-1">
                                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Harga Jual <span class="text-red-500">*</span></label>
                                     <div class="relative">
                                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rp</span>
-                                        <input type="number" x-model="form.menu_price" class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 outline-none font-bold text-lg" placeholder="0">
+                                        <input type="number" x-model="form.menu_price" class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gold-600 outline-none font-bold text-lg" placeholder="0">
                                     </div>
                                 </div>
                             </div>
@@ -254,7 +254,7 @@
                     <p class="text-gray-500 text-sm mb-6">Pilih pembayaran yang diterima di tokomu saat ini.</p>
                     
                     <div class="space-y-4 mb-8">
-                        <div class="bg-white p-5 rounded-2xl border-2 border-green-500 shadow-sm flex items-center justify-between">
+                        <div class="bg-white p-5 rounded-2xl border-2 border-gold-600 shadow-sm flex items-center justify-between">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl"><i class="fas fa-money-bill-wave"></i></div>
                                 <div>
@@ -301,7 +301,7 @@
                     <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 mb-8 flex flex-col md:flex-row gap-8">
                         <div class="flex-1">
                             <label class="block text-sm font-bold text-gray-700 mb-2">Slogan / Footer Struk</label>
-                            <textarea x-model="form.slogan" rows="4" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 outline-none transition resize-none" placeholder="Contoh: Terima kasih atas kunjungannya! Follow IG kami @tokoku"></textarea>
+                            <textarea x-model="form.slogan" rows="4" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gold-600 outline-none transition resize-none" placeholder="Contoh: Terima kasih atas kunjungannya! Follow IG kami @tokoku"></textarea>
                             <p class="text-xs text-gray-400 mt-2">Pesan ini akan dicetak di bagian paling bawah struk.</p>
                         </div>
                         
@@ -321,7 +321,7 @@
 
                     <div class="flex justify-between items-center gap-3">
                         <button @click="backStep()" class="text-gray-500 font-bold px-4 hover:text-gray-800">Kembali</button>
-                        <button @click="saveStep('receipt')" :disabled="loading" class="bg-green-600 hover:bg-green-700 text-white font-black py-3 px-8 rounded-xl shadow-lg shadow-green-200 transition disabled:opacity-50">
+                        <button @click="saveStep('receipt')" :disabled="loading" class="bg-brand-800 hover:bg-brand-900 text-white font-black py-3 px-8 rounded-xl shadow-lg shadow-green-200 transition disabled:opacity-50">
                             Selesai <i class="fas fa-check ml-1"></i>
                         </button>
                     </div>
@@ -352,7 +352,7 @@
                                 <div class="flex items-center text-xs font-bold text-gray-400 gap-3"><i class="far fa-circle"></i> Kelola Stok (Bisa nanti)</div>
                             </div>
 
-                            <button @click="completeOnboarding()" :disabled="loading" class="bg-green-600 hover:bg-green-700 text-white font-black py-4 px-12 rounded-2xl w-full sm:w-auto shadow-xl shadow-green-200 transition-all active:scale-95 disabled:opacity-50 text-lg">
+                            <button @click="completeOnboarding()" :disabled="loading" class="bg-brand-800 hover:bg-brand-900 text-white font-black py-4 px-12 rounded-2xl w-full sm:w-auto shadow-xl shadow-green-200 transition-all active:scale-95 disabled:opacity-50 text-lg">
                                 BUKA POS KASIR SEKARANG <i class="fas fa-arrow-right ml-2"></i>
                             </button>
                         </div>

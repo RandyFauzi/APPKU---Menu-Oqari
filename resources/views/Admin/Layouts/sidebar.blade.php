@@ -10,7 +10,7 @@
         <span class="ml-auto text-xs text-gray-500 uppercase">Kasir</span>
     </div>
     <div class="p-3 border-b border-gray-700/50 flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-sm">
+        <div class="w-8 h-8 rounded-full bg-brand-800 text-white flex items-center justify-center font-bold text-sm">
             {{ substr(Auth::user()->name, 0, 1) }}
         </div>
         <div class="overflow-hidden">
@@ -19,7 +19,18 @@
         </div>
     </div>
     <nav class="flex-1 p-3 space-y-1">
-        <a href="{{ route('admin.pos.index') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm transition {{ request()->routeIs('admin.pos*') ? 'bg-green-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+        @can('manage-hpp')
+            <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
+        @endcan
+        @can('manage-register')
+            <a href="{{ route('admin.register.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Rekonsiliasi Kas</a>
+        @endcan
+        @can('manage-users')<a href="{{ route('admin.users.index') }}" class="block px-3 py-2 font-semibold">User &amp; Hak Akses</a>@endcan
+@can('record-attendance')
+            <a href="{{ route('admin.attendance.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-gold-600 hover:bg-gray-100">Absensi Karyawan</a>
+        @endcan
+
+        <a href="{{ route('admin.pos.index') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm transition {{ request()->routeIs('admin.pos*') ? 'bg-brand-800 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
             <i class="fas fa-cash-register w-5"></i> POS
         </a>
         <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition">
@@ -28,7 +39,7 @@
         <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition">
             <i class="fas fa-cash-register w-5"></i> Cash Register
         </a>
-        <a href="{{ route('admin.my-schedule') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm transition {{ request()->routeIs('admin.my-schedule') ? 'bg-green-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+        <a href="{{ route('admin.my-schedule') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm transition {{ request()->routeIs('admin.my-schedule') ? 'bg-brand-800 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
             <i class="fas fa-calendar-alt w-5"></i> My Shift
         </a>
     </nav>
@@ -61,6 +72,16 @@
         </div>
     </div>
     <nav class="flex-1 p-3 space-y-1">
+        @can('manage-menu')
+            <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
+        @endcan
+        @can('manage-register')
+            <a href="{{ route('admin.register.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Rekonsiliasi Kas</a>
+        @endcan
+        @can('record-attendance')
+            <a href="{{ route('admin.attendance.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-gold-600 hover:bg-gray-100">Absensi Karyawan</a>
+        @endcan
+
         <a href="{{ route('admin.kitchen.index') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm transition {{ request()->routeIs('admin.kitchen*') ? 'bg-orange-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
             <i class="fas fa-fire-burner w-5"></i> Kitchen
             <span class="ml-auto bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">LIVE</span>
@@ -100,6 +121,16 @@
         </div>
     </div>
     <nav class="flex-1 p-3 space-y-1">
+        @can('manage-menu')
+            <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
+        @endcan
+        @can('manage-register')
+            <a href="{{ route('admin.register.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Rekonsiliasi Kas</a>
+        @endcan
+        @can('record-attendance')
+            <a href="{{ route('admin.attendance.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-gold-600 hover:bg-gray-100">Absensi Karyawan</a>
+        @endcan
+
         <a href="{{ route('admin.my-schedule') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm transition {{ request()->routeIs('admin.my-schedule') ? 'bg-primary text-white shadow' : 'text-gray-600 hover:bg-gray-50' }}">
             <i class="fas fa-calendar-check w-5"></i> Jadwal Saya
         </a>
@@ -129,6 +160,16 @@
         <span class="text-xl font-black text-white">APPKU<span class="text-accent">SaaS</span></span>
     </div>
     <nav class="flex-1 p-3 space-y-1">
+        @can('manage-menu')
+            <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
+        @endcan
+        @can('manage-register')
+            <a href="{{ route('admin.register.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Rekonsiliasi Kas</a>
+        @endcan
+        @can('record-attendance')
+            <a href="{{ route('admin.attendance.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-gold-600 hover:bg-gray-100">Absensi Karyawan</a>
+        @endcan
+
         <a href="{{ route('superadmin.dashboard') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition {{ request()->routeIs('superadmin.dashboard') ? 'bg-gray-700 text-white' : '' }}">
             <i class="fas fa-satellite w-5"></i> SaaS Center
         </a>
@@ -160,6 +201,16 @@
         </div>
     </div>
     <nav class="flex-1 overflow-y-auto py-4 hide-scroll">
+        @can('manage-menu')
+            <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
+        @endcan
+        @can('manage-register')
+            <a href="{{ route('admin.register.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Rekonsiliasi Kas</a>
+        @endcan
+        @can('record-attendance')
+            <a href="{{ route('admin.attendance.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-gold-600 hover:bg-gray-100">Absensi Karyawan</a>
+        @endcan
+
         <ul class="space-y-0.5 px-3">
             <li>
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition {{ request()->routeIs('admin.dashboard') ? 'bg-primary text-white shadow' : 'text-gray-600 hover:bg-primary/10 hover:text-primary' }}">

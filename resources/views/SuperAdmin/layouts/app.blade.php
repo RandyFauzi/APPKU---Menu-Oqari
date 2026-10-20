@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Oqari Super Admin')</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="icon" type="image/webp" href="{{ asset('logo-oqari.webp') }}">
     <style>
@@ -19,22 +18,25 @@
             transition: all 0.2s;
         }
         .sidebar-link:hover {
-            background-color: #f3f4f6; /* bg-gray-100 */
-            color: #164A35;
+            background-color: #f6eedf; /* bg-gray-100 */
+            color: var(--oq-primary);
         }
         .sidebar-link.active {
-            background-color: #164A35;
+            background-color: var(--oq-primary);
             color: white;
         }
     </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="bg-[#F8F7F3] text-gray-800 flex h-screen overflow-hidden">
+<body class="bg-ivory text-gray-800 flex h-screen overflow-hidden">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-[#E3E1DC] flex flex-col hidden md:flex shrink-0 h-full overflow-y-auto">
-        <div class="p-6 flex items-center gap-3 border-b border-[#E3E1DC] shrink-0">
+    <aside class="w-64 bg-white border-r border-line flex flex-col hidden md:flex shrink-0 h-full overflow-y-auto">
+        <div class="p-6 flex items-center gap-3 border-b border-line shrink-0">
             <img src="{{ asset('logo-oqari.webp') }}" alt="Oqari Logo" class="w-10 h-10 object-contain">
-            <div class="font-black text-xl text-[#164A35]">Oqari</div>
+            <div class="font-black text-xl text-primary">Oqari</div>
         </div>
         
         <nav class="p-4 flex-1 space-y-1">
@@ -49,7 +51,7 @@
             </a>
         </nav>
 
-        <div class="p-4 border-t border-[#E3E1DC] shrink-0">
+        <div class="p-4 border-t border-line shrink-0">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="w-full px-4 py-2 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-100 transition flex items-center justify-center gap-2">
@@ -62,10 +64,10 @@
     <!-- Main Content -->
     <main class="flex-1 h-full overflow-y-auto overflow-x-hidden">
         <!-- Mobile Header (Visible only on small screens) -->
-        <div class="md:hidden bg-white border-b border-[#E3E1DC] p-4 flex items-center justify-between">
+        <div class="md:hidden bg-white border-b border-line p-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <img src="{{ asset('logo-oqari.webp') }}" alt="Oqari Logo" class="w-8 h-8 object-contain">
-                <div class="font-black text-lg text-[#164A35]">Oqari Super Admin</div>
+                <div class="font-black text-lg text-primary">Oqari Super Admin</div>
             </div>
             <!-- Menu button could go here, but for now we keep it simple -->
             <form method="POST" action="{{ route('logout') }}" class="m-0">

@@ -97,11 +97,11 @@ class CreateOrderAction
                     'product_name' => $product->name,
                     'variant_id' => $variantId,
                     'variant_name' => $variantName,
-                    'modifiers' => empty($modifiersSnapshot) ? null : json_encode($modifiersSnapshot),
+                    'modifiers' => empty($modifiersSnapshot) ? null : $modifiersSnapshot,
                     'quantity' => $item['qty'],
-                    'price' => $price,
+                    'unit_price' => $price,
                     'subtotal' => $subtotal,
-                    'total_cogs' => $itemCogs,
+                    'cogs_total' => $itemCogs,
                     'notes' => $item['notes'] ?? null,
                 ];
             }

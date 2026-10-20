@@ -11,11 +11,11 @@
      x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
 >
     <div class="flex items-start gap-4">
-        <div class="bg-[#164A35] text-white p-3 rounded-full animate-bounce">
+        <div class="bg-primary text-white p-3 rounded-full animate-bounce">
             <i class="fas fa-bell text-xl"></i>
         </div>
         <div class="flex-1">
-            <h4 class="font-bold text-[#164A35] text-lg">PESANAN BARU</h4>
+            <h4 class="font-bold text-primary text-lg">PESANAN BARU</h4>
             <p class="text-sm font-semibold text-gray-700 mt-1">Order <span x-text="'#'+orderData?.id"></span></p>
             <p class="text-xs text-gray-500" x-text="orderData?.customer_name || 'Customer'"></p>
             
@@ -26,11 +26,11 @@
             </div>
             
             <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                <p class="font-bold text-sm text-[#164A35]" x-text="'Rp ' + (orderData?.total_amount || 0).toLocaleString('id-ID')"></p>
+                <p class="font-bold text-sm text-primary" x-text="'Rp ' + (orderData?.total_amount || 0).toLocaleString('id-ID')"></p>
             </div>
             
             <div class="mt-4 flex flex-col gap-2">
-                <button @click="acknowledgeOrder()" class="w-full bg-[#164A35] text-white text-xs font-bold py-2 rounded-lg hover:bg-opacity-90">
+                <button @click="acknowledgeOrder()" class="w-full bg-primary text-white text-xs font-bold py-2 rounded-lg hover:bg-opacity-90">
                     TERIMA PESANAN
                 </button>
                 <button @click="viewDetails()" class="w-full bg-gray-100 text-gray-700 text-xs font-bold py-2 rounded-lg hover:bg-gray-200">

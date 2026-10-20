@@ -13,8 +13,10 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
+        <x-theme-head :shop="$shop ?? null" />
+</head>
     <body class="font-sans text-gray-900 antialiased">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
             <div>
                 <a href="/">

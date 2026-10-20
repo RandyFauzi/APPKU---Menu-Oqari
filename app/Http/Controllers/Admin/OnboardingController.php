@@ -5,64 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PaymentMethod;
 use App\Models\Product;
+use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class OnboardingController extends Controller
 {
-    private function ensureOnboardingColumnsExist(): void
-    {
-        try {
-            $columns = DB::select('SHOW COLUMNS FROM `shops`');
-            $existing = array_map(fn ($col) => (string) ($col->Field ?? $col['Field'] ?? ''), $columns);
-
-            if (! in_array('business_type', $existing)) {
-                DB::statement('ALTER TABLE `shops` ADD COLUMN `business_type` VARCHAR(255) NULL');
-            }
-            if (! in_array('sales_modes', $existing)) {
-                DB::statement('ALTER TABLE `shops` ADD COLUMN `sales_modes` TEXT NULL');
-            }
-            if (! in_array('onboarding_status', $existing)) {
-                DB::statement("ALTER TABLE `shops` ADD COLUMN `onboarding_status` VARCHAR(50) NOT NULL DEFAULT 'pending'");
-            }
-            if (! in_array('onboarding_step', $existing)) {
-                DB::statement("ALTER TABLE `shops` ADD COLUMN `onboarding_step` VARCHAR(50) NOT NULL DEFAULT 'welcome'");
-            }
-            if (! in_array('address', $existing)) {
-                DB::statement('ALTER TABLE `shops` ADD COLUMN `address` TEXT NULL');
-            }
-            if (! in_array('email', $existing)) {
-                DB::statement('ALTER TABLE `shops` ADD COLUMN `email` VARCHAR(255) NULL');
-            }
-        } catch (\Throwable $e) {
-            Log::error('Direct ALTER TABLE in OnboardingController failed: '.$e->getMessage());
-        }
-    }
-
-    public function fixDb()
-    {
-        $this->ensureOnboardingColumnsExist();
-        $columns = DB::select('SHOW COLUMNS FROM `shops`');
-        $fields = array_map(fn ($col) => (string) ($col->Field ?? $col['Field'] ?? ''), $columns);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Kolom database toko berhasil diperiksa dan diperbarui.',
-            'has_business_type' => in_array('business_type', $fields),
-            'has_sales_modes' => in_array('sales_modes', $fields),
-            'has_onboarding_status' => in_array('onboarding_status', $fields),
-            'has_onboarding_step' => in_array('onboarding_step', $fields),
-        ]);
-    }
-
     public function index()
     {
-        $this->ensureOnboardingColumnsExist();
-
         $user = Auth::user();
-        if (! in_array($user->role, ['owner', 'manager'])) {
+        if (! $user->can('manage-settings')) {
             return redirect()->route('admin.dashboard');
         }
 
@@ -84,8 +37,6 @@ class OnboardingController extends Controller
 
     public function updateStep(Request $request)
     {
-        $this->ensureOnboardingColumnsExist();
-
         $user = Auth::user();
         $shop = $user->shop?->fresh() ?: $user->shop;
 
@@ -93,8 +44,16 @@ class OnboardingController extends Controller
             return response()->json(['success' => false, 'message' => 'Onboarding already completed']);
         }
 
-        $step = $request->input('step');
-        $data = $request->input('data', []);
+        $validated = $request->validate([
+            'step' => ['required', 'in:business_profile,sales_mode,menu,payment,receipt'],
+            'data' => ['sometimes', 'array'],
+            'data.address' => ['nullable', 'string', 'max:1000'],
+            'data.sales_modes' => ['sometimes', 'array', 'min:1'],
+            'data.sales_modes.*' => ['in:DINE_IN,TAKEAWAY,DELIVERY'],
+            'data.slogan' => ['nullable', 'string', 'max:255'],
+        ]);
+        $step = $validated['step'];
+        $data = $validated['data'] ?? [];
 
         // Logic per step
         switch ($step) {
@@ -147,15 +106,16 @@ class OnboardingController extends Controller
 
     public function complete(Request $request)
     {
-        $this->ensureOnboardingColumnsExist();
-
-        $shop = Auth::user()->shop;
-        if ($shop) {
+        DB::transaction(function (): void {
+            $shop = Shop::whereKey(Auth::user()->shop_id)->lockForUpdate()->firstOrFail();
+            abort_if($shop->isSuspended(), 403, 'Toko dinonaktifkan.');
             $shop->onboarding_status = 'completed';
-            $shop->status = 'active';
             $shop->onboarding_step = 'completed';
+            if ($shop->status === 'onboarding') {
+                $shop->status = 'active';
+            }
             $shop->save();
-        }
+        });
 
         return response()->json(['success' => true]);
     }

@@ -4,29 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brewly - Coffee Shop Management</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        brand: {
-                            50: '#f4f0ec',
-                            100: '#e5ddd5',
-                            500: '#8c6b5d',
-                            600: '#6f5247',
-                            900: '#2c1e16',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="bg-gray-50 font-sans text-gray-900 antialiased selection:bg-brand-500 selection:text-white">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
     <div class="min-h-screen flex">
         <!-- Left Side: Login Form -->
         <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-white shadow-2xl z-10 relative">

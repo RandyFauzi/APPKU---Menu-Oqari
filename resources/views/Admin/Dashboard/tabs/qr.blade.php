@@ -2,7 +2,7 @@
             <div class="flex justify-between items-center mb-8">
                 <!-- Removed redundant title since it's already in the top header -->
                 <p class="text-gray-500 font-medium">Kelola QR Code untuk setiap meja secara dinamis.</p>
-                <button @click="showAddTableModal = true; $nextTick(() => $refs.tableInput.focus())" class="bg-primary text-white px-5 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-sm hover:bg-[#154660] transition-colors">
+                <button @click="showAddTableModal = true; $nextTick(() => $refs.tableInput.focus())" class="bg-primary text-white px-5 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 shadow-sm hover:bg-primary-dark transition-colors">
                     <i class="fas fa-plus"></i> Tambah Meja Baru
                 </button>
             </div>

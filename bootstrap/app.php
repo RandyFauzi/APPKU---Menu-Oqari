@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureShopIsNotSuspended;
 use App\Http\Middleware\IsSuperAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,11 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->appendToGroup('web', EnsureAccountIsActive::class);
+        $middleware->appendToGroup('web', EnsureShopIsNotSuspended::class);
+        $middleware->appendToGroup('api', EnsureShopIsNotSuspended::class);
         $middleware->redirectGuestsTo('/admin/login');
         $middleware->redirectUsersTo(function (Request $request) {
-            return (auth()->check() && auth()->user()->role === 'superadmin')
-                ? '/superadmin/dashboard'
-                : '/admin/dashboard';
+            return route($request->user()?->homeRoute() ?? 'admin.login');
         });
         $middleware->alias([
             'superadmin' => IsSuperAdmin::class,

@@ -5,12 +5,21 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Crew\CreateShift;
 use App\Http\Controllers\Controller;
 use App\Models\CrewShift;
-use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ShiftController extends Controller
 {
+    public function destroy(Request $request, CrewShift $shift): JsonResponse
+    {
+        $this->authorize('manage-crew');
+        abort_unless((int) $shift->shop_id === (int) $request->user()->shop_id, 404);
+        $shift->delete();
+
+        return response()->json(['success' => true]);
+    }
+
     // ─────────────────────────────────────────────────────────────
     //  MY SCHEDULE — Crew/Barista view: their own 7-day schedule
     // ─────────────────────────────────────────────────────────────
@@ -56,15 +65,7 @@ class ShiftController extends Controller
     {
         $this->authorize('manage-crew');
 
-        $shop = $request->user()->shop;
-        $week = Carbon::now()->startOfWeek();
-
-        $crew = User::where('shop_id', $shop->id)
-            ->whereNotIn('role', ['owner', 'superadmin'])
-            ->with(['crewShifts' => fn ($q) => $q->whereBetween('date', [$week, $week->copy()->endOfWeek()])])
-            ->get();
-
-        return view('Admin.shift.index', compact('crew', 'week'));
+        return redirect()->route('admin.dashboard', ['tab' => 'shifts']);
     }
 
     public function store(Request $request, CreateShift $createShift)

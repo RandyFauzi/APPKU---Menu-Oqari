@@ -6,15 +6,15 @@
 <div class="space-y-6">
     <div class="flex items-center justify-between">
         <h1 class="text-2xl font-black text-gray-800">Manajemen Pengguna</h1>
-        <a href="{{ route('superadmin.users.create') }}" class="px-4 py-2 bg-[#164A35] text-white font-bold rounded-xl hover:bg-[#113a29] transition flex items-center gap-2">
+        <a href="{{ route('superadmin.users.create') }}" class="px-4 py-2 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition flex items-center gap-2">
             <i class="fas fa-plus"></i> Tambah Pengguna
         </a>
     </div>
 
-    <div class="bg-white rounded-[20px] shadow-sm border border-[#E3E1DC] overflow-hidden">
-        <div class="p-5 border-b border-[#E3E1DC] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="bg-white rounded-[20px] shadow-sm border border-line overflow-hidden">
+        <div class="p-5 border-b border-line bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-[#F8F7F3] text-[#164A35] flex items-center justify-center text-sm">
+                <div class="w-8 h-8 rounded-full bg-ivory text-primary flex items-center justify-center text-sm">
                     <i class="fas fa-users"></i>
                 </div>
                 Daftar Pengguna
@@ -24,15 +24,15 @@
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input type="text" name="user_search" value="{{ request('user_search') }}" placeholder="Cari nama / email..."
-                           class="pl-9 pr-4 py-2.5 text-sm border border-[#E3E1DC] bg-[#F8F7F3] rounded-xl focus:outline-none focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] w-full sm:w-64 transition-all">
+                           class="pl-9 pr-4 py-2.5 text-sm border border-line bg-ivory rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full sm:w-64 transition-all">
                 </div>
-                <button type="submit" class="px-4 py-2.5 text-sm bg-[#164A35] text-white rounded-xl font-bold hover:bg-[#113a29] transition shadow-sm">Cari</button>
+                <button type="submit" class="px-4 py-2.5 text-sm bg-primary text-white rounded-xl font-bold hover:bg-primary-dark transition shadow-sm">Cari</button>
             </form>
         </div>
         
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
-                <thead class="bg-[#F8F7F3] text-xs uppercase text-gray-500 font-bold border-b border-[#E3E1DC]">
+                <thead class="bg-ivory text-xs uppercase text-gray-500 font-bold border-b border-line">
                     <tr>
                         <th class="py-4 px-5">Profil</th>
                         <th class="py-4 px-5">Role</th>
@@ -41,12 +41,12 @@
                         <th class="py-4 px-5 text-right">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#E3E1DC]/50">
+                <tbody class="divide-y divide-[#e4d7bd]/50">
                     @forelse($users as $user)
-                    <tr class="hover:bg-[#F8F7F3]/50 transition duration-150">
+                    <tr class="hover:bg-ivory/50 transition duration-150">
                         <td class="py-4 px-5">
                             <div class="flex items-center gap-3">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=E7F2EB&color=164A35" class="w-10 h-10 rounded-full object-cover border border-[#E3E1DC]">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=E7F2EB&color=164A35" class="w-10 h-10 rounded-full object-cover border border-line">
                                 <div>
                                     <div class="font-bold text-gray-800">{{ $user->name }}</div>
                                     <div class="text-xs text-gray-500 mt-0.5">{{ $user->email }}</div>
@@ -61,7 +61,7 @@
                         </td>
                         <td class="py-4 px-5">
                             @if($user->shop)
-                                <a href="{{ route('superadmin.shops.show', $user->shop) }}" class="font-semibold text-[#164A35] hover:text-[#113a29] hover:underline flex items-center gap-1.5">
+                                <a href="{{ route('superadmin.shops.show', $user->shop) }}" class="font-semibold text-primary hover:text-primary-dark hover:underline flex items-center gap-1.5">
                                     <i class="fas fa-store text-xs opacity-70"></i> {{ $user->shop->name }}
                                 </a>
                             @else
@@ -100,7 +100,7 @@
             </table>
         </div>
         
-        <div class="p-4 border-t border-[#E3E1DC] bg-white">
+        <div class="p-4 border-t border-line bg-white">
             {{ $users->links() }}
         </div>
     </div>

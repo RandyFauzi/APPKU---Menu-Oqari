@@ -23,10 +23,17 @@ class RawMaterial extends Model
         'cost_per_unit',
     ];
 
+    protected $appends = ['unit_label'];
+
+    public function getUnitLabelAttribute(): string
+    {
+        return config('inventory.units.'.strtolower($this->unit), $this->unit);
+    }
+
     protected $casts = [
-        'current_stock' => 'decimal:2',
-        'minimum_stock' => 'decimal:2',
-        'cost_per_unit' => 'decimal:2',
+        'current_stock' => 'decimal:6',
+        'minimum_stock' => 'decimal:6',
+        'cost_per_unit' => 'decimal:6',
     ];
 
     public function shop(): BelongsTo

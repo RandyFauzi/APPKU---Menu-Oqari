@@ -6,7 +6,7 @@
 <div class="space-y-6">
     <!-- Header Navigation -->
     <div class="flex items-center gap-4">
-        <a href="{{ route('superadmin.shops.index') }}" class="w-10 h-10 bg-white border border-[#E3E1DC] rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-50 transition">
+        <a href="{{ route('superadmin.shops.index') }}" class="w-10 h-10 bg-white border border-line rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-50 transition">
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
@@ -14,7 +14,7 @@
             <p class="text-sm text-gray-500">Detail dan informasi toko</p>
         </div>
         <div class="ml-auto flex gap-2">
-            <a href="{{ route('superadmin.shops.edit', $shop) }}" class="px-4 py-2 bg-white border border-[#E3E1DC] text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition">
+            <a href="{{ route('superadmin.shops.edit', $shop) }}" class="px-4 py-2 bg-white border border-line text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition">
                 <i class="fas fa-edit mr-2"></i> Edit Profil Toko
             </a>
             
@@ -42,7 +42,7 @@
         
         <!-- Kolom Kiri: Profil -->
         <div class="space-y-6">
-            <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] p-6 space-y-4">
+            <div class="bg-white rounded-2xl shadow-sm border border-line p-6 space-y-4">
                 <div class="w-24 h-24 bg-gray-100 rounded-2xl mx-auto flex items-center justify-center overflow-hidden border border-gray-200">
                     @if($shop->logo_url)
                         <img src="{{ asset('storage/' . $shop->logo_url) }}" alt="Logo" class="w-full h-full object-cover">
@@ -85,7 +85,7 @@
             </div>
 
             <!-- Kontak Info -->
-            <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] p-6 space-y-4">
+            <div class="bg-white rounded-2xl shadow-sm border border-line p-6 space-y-4">
                 <h3 class="font-bold text-gray-800 border-b pb-2 border-gray-100">Informasi Kontak</h3>
                 
                 <div class="space-y-3 text-sm">
@@ -111,10 +111,10 @@
 
         <!-- Kolom Kanan: Daftar Karyawan -->
         <div class="md:col-span-2 space-y-6">
-            <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] overflow-hidden flex flex-col h-full">
-                <div class="p-4 border-b border-[#E3E1DC] bg-gray-50 flex items-center justify-between">
+            <div class="bg-white rounded-2xl shadow-sm border border-line overflow-hidden flex flex-col h-full">
+                <div class="p-4 border-b border-line bg-gray-50 flex items-center justify-between">
                     <h3 class="font-bold text-gray-800"><i class="fas fa-users mr-2"></i> Daftar Pengguna / Karyawan Toko</h3>
-                    <a href="{{ route('superadmin.users.create') }}?shop_id={{ $shop->id }}" class="px-3 py-1.5 bg-[#164A35] text-white rounded-lg text-xs font-bold hover:bg-[#113a29] transition">
+                    <a href="{{ route('superadmin.users.create') }}?shop_id={{ $shop->id }}" class="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-dark transition">
                         <i class="fas fa-plus mr-1"></i> Tambah Karyawan
                     </a>
                 </div>

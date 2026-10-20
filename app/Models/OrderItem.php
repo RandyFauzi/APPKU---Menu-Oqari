@@ -10,7 +10,7 @@ class OrderItem extends Model
         'order_id',
         'product_id',
         'quantity',
-        'price',
+        'unit_price',
         'product_name',
         'discount_amount',
         'tax_amount',
@@ -20,7 +20,7 @@ class OrderItem extends Model
         'variant_name',
         'modifiers',
 
-        'total_cogs', ];
+        'cogs_total', ];
 
     protected $casts = [
         'modifiers' => 'array',

@@ -48,12 +48,8 @@ class DashboardController extends Controller
             return redirect()->route('superadmin.dashboard');
         }
 
-        if (in_array($role, ['cashier', 'barista', 'kitchen', 'crew'])) {
-            return match ($role) {
-                'cashier' => redirect()->route('admin.pos.index'),
-                'barista', 'kitchen' => redirect()->route('admin.kitchen.index'),
-                'crew' => redirect()->route('admin.my-schedule'),
-            };
+        if (Auth::user()->homeRoute() !== 'admin.dashboard') {
+            return redirect()->route(Auth::user()->homeRoute());
         }
 
         $user = Auth::user();
@@ -88,15 +84,16 @@ class DashboardController extends Controller
 
         // ONBOARDING GUARD
         // Hanya Owner dan Manager yang bisa mengakses / melanjutkan onboarding.
-        if ($shop && $shop->onboarding_status !== 'completed' && in_array($role, ['owner', 'manager'])) {
+        if ($shop && $shop->onboarding_status !== 'completed' && $user->can('manage-settings')) {
             return redirect()->route('admin.onboarding');
         }
 
         // Dashboard shell: only essential layout data
-        $activeSession = CashRegisterSession::where('user_id', $user->id)->where('status', 'OPEN')->first();
-        $categories = Category::where('shop_id', $shopId)->orderBy('sort_order')->get();
+        $activeSession = CashRegisterSession::where('shop_id', $shopId)->where('user_id', $user->id)->where('status', 'OPEN')->first();
+        $categories = $user->can('manage-menu') ? Category::where('shop_id', $shopId)->orderBy('sort_order')->get() : collect();
+        $dashboardShop = $user->can('manage-settings') ? $shop->toArray() : $shop->only(['id', 'name', 'slug', 'logo_url', 'primary_color', 'sales_modes']);
 
-        return view('Admin.Dashboard.dashboard', compact('shop', 'activeSession', 'categories'));
+        return view('Admin.Dashboard.dashboard', compact('shop', 'activeSession', 'categories', 'dashboardShop'));
     }
 
     public function getLiveOrders()
@@ -206,6 +203,20 @@ class DashboardController extends Controller
         $shopId = $user->shop_id;
         if (! $shopId) {
             abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
+        }
+
+        if ($request->has('recipes')) {
+            if (is_string($request->input('recipes'))) {
+                $request->merge(['recipes' => json_decode($request->input('recipes'), true)]);
+            }
+            $request->validate([
+                'recipes' => ['required', 'array'],
+                'recipes.*.raw_material_id' => ['required', 'integer', 'distinct', Rule::exists('raw_materials', 'id')->where('shop_id', $shopId)->whereNull('deleted_at')],
+                'recipes.*.amount' => ['required', 'numeric', 'decimal:0,6', 'min:0.000001', 'max:999999.99'],
+            ]);
+        }
+        if ($request->filled('id')) {
+            Product::where('shop_id', $shopId)->findOrFail($request->input('id'));
         }
 
         $categoryId = null;
@@ -548,77 +559,6 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'shop' => $shop]);
     }
 
-    public function saveCrew(Request $request)
-    {
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'role' => 'required|string|in:manager,cashier,kitchen,barista',
-        ]);
-
-        $user = Auth::user();
-
-        $newCrew = new User;
-        $newCrew->name = $request->name;
-        $newCrew->email = $request->email;
-        $newCrew->password = Hash::make($request->password);
-        $newCrew->shop_id = $user->shop_id;
-        $newCrew->role = $request->role;
-        $newCrew->save();
-
-        return response()->json(['success' => true, 'user' => $newCrew]);
-    }
-
-    public function updateCrew(Request $request, $id)
-    {
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$id,
-            'password' => 'nullable|string|min:6',
-            'role' => 'required|string|in:manager,cashier,kitchen,barista',
-        ]);
-
-        $currentUser = Auth::user();
-        $crew = User::where('shop_id', $currentUser->shop_id)->where('id', $id)->first();
-
-        if (! $crew) {
-            return response()->json(['success' => false, 'message' => 'Crew not found'], 404);
-        }
-
-        // Prevent changing own role or deleting own account
-        if ($crew->id === Auth::id()) {
-            return response()->json(['success' => false, 'message' => 'Cannot modify yourself'], 403);
-        }
-
-        $crew->name = $request->name;
-        $crew->email = $request->email;
-        if ($request->filled('password')) {
-            $crew->password = Hash::make($request->password);
-        }
-        $crew->role = $request->role;
-        $crew->save();
-
-        return response()->json(['success' => true, 'user' => $crew]);
-    }
-
-    public function deleteCrew($id)
-    {
-
-        $user = Auth::user();
-        $crew = User::where('shop_id', $user->shop_id)->where('id', $id)->first();
-
-        if ($crew && $crew->id !== Auth::id()) {
-            $crew->delete();
-
-            return response()->json(['success' => true]);
-        }
-
-        return response()->json(['success' => false, 'message' => 'Cannot delete this user']);
-    }
-
     public function saveTable(Request $request)
     {
         $request->validate([
@@ -712,8 +652,9 @@ class DashboardController extends Controller
                 Rule::exists('users', 'id')->where('shop_id', $user->shop_id),
             ],
             'date' => 'required|date',
-            'start_time' => 'required',
-            'end_time' => 'required',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'notes' => 'nullable|string|max:255',
         ]);
 
         $data = [

@@ -6,8 +6,8 @@ use App\Jobs\SendOrderReceiptEmail;
 use App\Models\CashRegisterSession;
 use App\Models\Order;
 use App\Models\Payment;
-use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Processes payment for a confirmed, unpaid order.
@@ -26,20 +26,24 @@ class ProcessPayment
      * @param  string  $method  CASH | QRIS | TRANSFER | OTHER
      * @param  float  $amountPaid  Physical amount tendered by customer
      * @param  string|null  $reference  External reference (Xendit ID, transfer ref, etc.)
-     *
-     * @throws Exception
      */
     public function execute(Order $order, string $method, float $amountPaid, ?string $reference = null): Payment
     {
-        if ($order->payment_status === 'PAID') {
-            throw new Exception("Pesanan #{$order->id} sudah dibayar sebelumnya.");
-        }
-
-        if ($amountPaid < $order->grand_total) {
-            throw new Exception("Jumlah pembayaran kurang. Grand total: {$order->grand_total}, dibayar: {$amountPaid}");
-        }
-
         return DB::transaction(function () use ($order, $method, $amountPaid, $reference) {
+            $order = Order::whereKey($order->id)->lockForUpdate()->firstOrFail();
+            if ($order->payment_status === 'PAID') {
+                throw ValidationException::withMessages(['amount_paid' => 'Pesanan sudah dibayar.']);
+            }
+            if ($amountPaid < $order->grand_total) {
+                throw ValidationException::withMessages(['amount_paid' => 'Jumlah pembayaran kurang.']);
+            }
+
+            $session = CashRegisterSession::where('user_id', auth()->id())
+                ->whereHas('register', fn ($query) => $query->where('shop_id', $order->shop_id))
+                ->where('status', 'OPEN')->lockForUpdate()->first();
+            if (! $session) {
+                throw ValidationException::withMessages(['amount_paid' => 'Buka shift kasir Anda sebelum menerima pembayaran.']);
+            }
             $change = $amountPaid - $order->grand_total;
 
             // 1. Create Payment record
@@ -48,9 +52,7 @@ class ProcessPayment
                 'order_id' => $order->id,
                 'payment_method' => $method,
                 'amount' => $order->grand_total,
-                'status' => 'SUCCESS',
-                'reference_id' => $reference,
-                'paid_at' => now(),
+                'reference_number' => $reference,
             ]);
 
             // 2. Mark order as PAID
@@ -63,19 +65,11 @@ class ProcessPayment
                 'paid_at' => now(),
             ]);
 
-            // 3. Update active CashRegisterSession financial summary
-            $session = CashRegisterSession::whereHas('register', fn ($q) => $q->where('shop_id', $order->shop_id))
-                ->where('status', 'OPEN')
-                ->latest()
-                ->first();
-
-            if ($session) {
-                match (strtoupper($method)) {
-                    'CASH' => $session->increment('total_cash_sales', $order->grand_total),
-                    'QRIS' => $session->increment('total_qris_sales', $order->grand_total),
-                    default => $session->increment('total_other_sales', $order->grand_total),
-                };
-            }
+            match (strtoupper($method)) {
+                'CASH' => $session->increment('total_cash_sales', $order->grand_total),
+                'QRIS' => $session->increment('total_qris_sales', $order->grand_total),
+                default => $session->increment('total_other_sales', $order->grand_total),
+            };
 
             if ($order->customer_email) {
                 DB::afterCommit(function () use ($order) {

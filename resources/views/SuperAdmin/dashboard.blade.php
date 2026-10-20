@@ -10,15 +10,15 @@
 
     <!-- Stats -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-gradient-to-br from-[#164A35] to-[#1e5a42] rounded-2xl p-6 text-white shadow-md">
+        <div class="bg-gradient-to-br from-primary to-[#1e5a42] rounded-2xl p-6 text-white shadow-md">
             <p class="text-white/80 font-medium text-sm">Toko aktif</p>
             <h3 class="text-3xl font-black mt-2">{{ number_format($activeShops) }} <span class="text-base font-medium text-white/70">/ {{ number_format($totalShops) }}</span></h3>
         </div>
-        <div class="bg-gradient-to-br from-[#D97A32] to-[#e88a42] rounded-2xl p-6 text-white shadow-md">
+        <div class="bg-gradient-to-br from-gold-600 to-[#e88a42] rounded-2xl p-6 text-white shadow-md">
             <p class="text-white/80 font-medium text-sm">Total pengguna</p>
             <h3 class="text-3xl font-black mt-2">{{ number_format($totalUsers) }}</h3>
         </div>
-        <div class="bg-gradient-to-br from-[#1E5A7A] to-[#287095] rounded-2xl p-6 text-white shadow-md">
+        <div class="bg-gradient-to-br from-primary to-[#287095] rounded-2xl p-6 text-white shadow-md">
             <p class="text-white/80 font-medium text-sm">Order &middot; 30 hari terakhir</p>
             <h3 class="text-3xl font-black mt-2">{{ number_format($ordersLast30d) }}</h3>
         </div>
@@ -29,8 +29,8 @@
     </div>
 
     <!-- Activity Log -->
-    <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] overflow-hidden">
-        <div class="p-4 border-b border-[#E3E1DC] bg-gray-50 flex items-center justify-between">
+    <div class="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
+        <div class="p-4 border-b border-line bg-gray-50 flex items-center justify-between">
             <h3 class="font-bold text-gray-800"><i class="fas fa-clock-rotate-left mr-2"></i> Aktivitas Super Admin Terbaru</h3>
         </div>
         <div class="divide-y divide-gray-100">

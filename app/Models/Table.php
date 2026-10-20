@@ -4,10 +4,18 @@ namespace App\Models;
 
 use App\Traits\BelongsToShop;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Table extends Model
 {
     use BelongsToShop;
+
+    protected static function booted(): void
+    {
+        static::creating(function (Table $table): void {
+            $table->public_token ??= Str::random(32);
+        });
+    }
 
     protected $fillable = [
         'shop_id',

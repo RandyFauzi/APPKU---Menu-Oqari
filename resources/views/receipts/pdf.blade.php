@@ -14,14 +14,14 @@
     }
     .header {
         text-align: center;
-        border-bottom: 2px solid {{ $receiptData->shop['primary_color'] }};
+        border-bottom: 2px solid {{ config('theme.primary') }};
         padding-bottom: 20px;
         margin-bottom: 30px;
     }
     .header h1 {
         margin: 0;
         font-size: 24px;
-        color: {{ $receiptData->shop['primary_color'] }};
+        color: {{ config('theme.primary') }};
         text-transform: uppercase;
     }
     .header p {

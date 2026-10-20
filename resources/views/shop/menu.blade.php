@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $shop->name }}</title>
     
     <!-- Favicon -->
@@ -34,18 +34,20 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     
     <style>
-        html { background-color: #f1f5f9; }
+        html { background-color: #fffaf0; }
         :root {
-            --color-primary: {{ $shop->primary_color ?? '#1c4532' }};
-            --color-secondary: {{ $shop->primary_color ?? '#2d6a4f' }};
+            --color-primary: var(--oq-primary);
+            --color-secondary: var(--oq-primary-dark);
         }
         body { font-family: {!! $fontFamily !!}; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .page-transition { transition: all 0.3s ease; }
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <x-theme-head :shop="$shop ?? null" />
 </head>
 <body data-page="home" class="antialiased w-full max-w-[420px] mx-auto bg-gray-50 min-h-screen relative shadow-2xl overflow-x-hidden pb-24 page-transition">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     @if(!($shop->is_open ?? true))
     <!-- TOKO TUTUP OVERLAY -->
@@ -281,8 +283,8 @@
         function saveManualTable() {
             const table = document.getElementById('manual-table-input').value;
             if (table) {
-                const shopName = "{{ $shop->name }}";
-                document.getElementById('header-table-number').innerHTML = 'Meja ' + table + ', ' + shopName + ' <i class="fas fa-chevron-down text-[9px] text-gray-400 ml-1"></i>';
+                const shopName = {{ Illuminate\Support\Js::from($shop->name) }};
+                document.getElementById('header-table-number').textContent = 'Meja ' + table + ', ' + shopName;
                 localStorage.setItem((window.SHOP_SLUG || 'default') + '_table_qr', table);
                 document.getElementById('modal-table-selector').classList.add('hidden');
             }

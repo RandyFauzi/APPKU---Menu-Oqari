@@ -10,7 +10,7 @@
             <p class="text-sm text-gray-500">Overview of your shop's performance</p>
         </div>
         <form method="GET" class="flex gap-2">
-            <input type="date" name="date" value="{{ $date }}" class="rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-sm">
+            <input type="date" name="date" value="{{ $date }}" class="rounded-lg border-gray-300 shadow-sm focus:border-gold-600 focus:ring-gold-600 text-sm">
             <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-700">Filter</button>
         </form>
     </div>
@@ -54,7 +54,7 @@
                         <div class="hidden group-hover:block absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded whitespace-nowrap z-10">
                             Rp {{ number_format($total, 0, ',', '.') }}
                         </div>
-                        <div class="bg-green-500 rounded-t-sm hover:bg-green-600 transition-all w-full" style="height: {{ ($total / $max) * 100 }}%"></div>
+                        <div class="bg-green-500 rounded-t-sm hover:bg-brand-800 transition-all w-full" style="height: {{ ($total / $max) * 100 }}%"></div>
                         <div class="text-[10px] text-gray-400 text-center mt-2 rotate-45 origin-left">{{ $hour }}</div>
                     </div>
                 @endforeach

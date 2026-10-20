@@ -13,8 +13,10 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
+        <x-theme-head :shop="$shop ?? null" />
+</head>
     <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
         <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: true }">
             <!-- Sidebar -->
             @include('layouts.sidebar')

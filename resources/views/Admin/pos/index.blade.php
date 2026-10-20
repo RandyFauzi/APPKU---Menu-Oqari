@@ -2,13 +2,11 @@
 <html lang="id" class="overflow-hidden sm:overflow-auto">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>POS — {{ $shop->name }}</title>
     <link rel="icon" href="{{ $shop->logo_url ?? asset('logo-oqari.webp') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         window.OQARI_REALTIME = {
             shopId: @json(auth()->check() ? auth()->user()->shop_id : null)
@@ -26,8 +24,10 @@
         /* Prevent bounce scroll on iOS */
         body { overscroll-behavior-y: none; }
     </style>
+    <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="bg-gray-100 h-screen w-full overflow-hidden font-sans fixed inset-0" x-data="posApp()" x-init="init()" @keydown.window="handleKey($event)" @refresh-live-orders.window="fetchIncoming()">
+<body class="bg-gray-100 h-screen w-full overflow-hidden font-sans fixed inset-0" x-data="posApp()" @keydown.window="handleKey($event)" @refresh-live-orders.window="fetchIncoming()">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- SHIFT GATE — Blur overlay if no active session             --}}
@@ -45,9 +45,9 @@
             <div class="relative mb-4">
                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">Rp</span>
                 <input type="number" name="opening_cash" placeholder="0" min="0" step="1000"
-                    class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 outline-none text-lg font-bold text-right" required>
+                    class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gold-600 outline-none text-lg font-bold text-right" required>
             </div>
-            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-xl text-lg transition">
+            <button type="submit" class="w-full bg-brand-800 hover:bg-brand-900 text-white font-black py-4 rounded-xl text-lg transition">
                 Buka Shift & Mulai Kasir
             </button>
         </form>
@@ -65,7 +65,7 @@
             @if($shop->logo_url)
                 <img src="{{ $shop->logo_url }}" class="w-8 h-8 rounded-lg object-cover border border-gray-100">
             @else
-                <div class="w-8 h-8 rounded-lg bg-green-600 text-white flex items-center justify-center font-bold text-xs">
+                <div class="w-8 h-8 rounded-lg bg-brand-800 text-white flex items-center justify-center font-bold text-xs">
                     {{ substr($shop->name, 0, 1) }}
                 </div>
             @endif
@@ -91,6 +91,11 @@
             <span class="text-xs font-bold hidden sm:inline">Live Orders</span>
         </a>
 
+
+        @can('manage-users')<a href="{{ route('admin.users.index') }}" class="block px-3 py-2 font-semibold">User &amp; Hak Akses</a>@endcan
+@can('record-attendance')
+            <a href="{{ route('admin.attendance.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-gold-600 hover:bg-gray-100">Absensi Karyawan</a>
+        @endcan
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-gray-600 hover:bg-gray-100 transition">
             <i class="fas fa-chart-line"></i>
             <span class="text-xs font-bold hidden sm:inline">Dashboard</span>
@@ -110,11 +115,7 @@
         </div>
 
         @if($activeSession)
-        <form action="{{ route('shift.close') }}" method="POST" onsubmit="return confirm('Tutup shift sekarang?')">
-            @csrf
-            <input type="hidden" name="actual_cash" id="closeActualCash" value="0">
-            <button type="button" onclick="promptCloseShift()" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1.5 rounded-lg border border-red-100 font-bold ml-1">Tutup Shift</button>
-        </form>
+        <a href="{{ route('admin.register.index') }}" class="min-h-[44px] inline-flex items-center text-xs bg-primary text-ivory px-3 rounded-lg font-bold ml-1">Kas &amp; Tutup Shift</a>
         @else
         <form action="{{ route('logout') }}" method="POST">
             @csrf
@@ -138,18 +139,18 @@
             <div class="relative w-full sm:w-auto shrink-0">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
                 <input x-ref="searchInput" x-model="search" type="text" placeholder="Cari produk... (F1)"
-                    class="pl-9 pr-4 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 w-full sm:w-48 focus:outline-none focus:border-green-500 focus:bg-white transition">
+                    class="pl-9 pr-4 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 w-full sm:w-48 focus:outline-none focus:border-gold-600 focus:bg-white transition">
             </div>
             {{-- Category Pills --}}
             <div class="flex gap-2 overflow-x-auto hide-scroll w-full">
                 <button @click="activeCategory = null"
-                    :class="activeCategory === null ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                    :class="activeCategory === null ? 'bg-brand-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
                     class="shrink-0 text-xs font-bold px-4 py-2 rounded-full transition whitespace-nowrap">
                     Semua
                 </button>
                 @foreach($categories as $cat)
                 <button @click="activeCategory = {{ $cat['id'] }}"
-                    :class="activeCategory === {{ $cat['id'] }} ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                    :class="activeCategory === {{ $cat['id'] }} ? 'bg-brand-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
                     class="shrink-0 text-xs font-bold px-4 py-2 rounded-full transition whitespace-nowrap">
                     {{ $cat['name'] }}
                 </button>
@@ -205,7 +206,7 @@
     {{-- MOBILE CART TOGGLE --}}
     <div class="lg:hidden fixed bottom-0 left-0 w-full p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30 transition-transform duration-300" 
          :class="showMobileCart ? 'translate-y-full' : 'translate-y-0'">
-        <button @click="showMobileCart = true" class="w-full bg-green-600 text-white font-black py-3 rounded-xl flex items-center justify-between px-4 shadow-lg shadow-green-200">
+        <button @click="showMobileCart = true" class="w-full bg-brand-800 text-white font-black py-3 rounded-xl flex items-center justify-between px-4 shadow-lg shadow-green-200">
             <div class="flex items-center gap-2">
                 <div class="bg-white/20 px-2 py-0.5 rounded-lg text-sm"><span x-text="cart.reduce((s,i)=>s+i.qty,0)"></span> Item</div>
                 <span>Lihat Keranjang</span>
@@ -257,11 +258,21 @@
                                 <p x-show="item.modifiers && item.modifiers.length > 0" x-cloak
                                    class="text-xs text-gray-500"
                                    x-text="item.modifiers.map(m => m.name).join(' · ')"></p>
-                                <p x-show="item.notes" x-cloak class="text-xs text-amber-600 italic" x-text="'📝 ' + item.notes"></p>
                             </div>
                             <button @click="removeItem(idx)" class="text-red-400 hover:text-red-600 ml-2 shrink-0">
                                 <i class="fas fa-times text-xs"></i>
                             </button>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <label :for="'item-notes-' + idx" class="block text-xs font-bold text-primary">Catatan customer (opsional)</label>
+                            <textarea :id="'item-notes-' + idx" x-model="item.notes" maxlength="255" rows="2" :disabled="paymentPending"
+                                :aria-describedby="'item-notes-help-' + idx" placeholder="Contoh: tanpa gula, es sedikit"
+                                class="w-full rounded-xl border border-gold-400 bg-ivory p-3 text-sm text-gray-800 focus:ring-2 focus:ring-primary"></textarea>
+                            <p :id="'item-notes-help-' + idx" class="text-xs text-gray-600">Berlaku untuk semua jumlah pada baris ini. <span x-text="(item.notes || '').length + '/255 karakter'"></span></p>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" @click="item.notes = ''" :disabled="paymentPending || !item.notes" class="min-h-[44px] px-3 text-xs font-bold text-primary rounded-lg border border-gold-400 disabled:opacity-50">Hapus catatan</button>
+                                <button type="button" @click="splitItem(idx)" :disabled="paymentPending || item.qty <= 1 || cart.length >= 50" class="min-h-[44px] px-3 text-xs font-bold text-primary rounded-lg border border-gold-400 disabled:opacity-50">Pisahkan 1 item</button>
+                            </div>
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <div class="flex items-center gap-2">
@@ -303,7 +314,7 @@
                     <i class="fas fa-pause mr-1"></i> HOLD
                 </button>
                 <button @click="openPayment()" x-show="cart.length > 0" x-cloak
-                    class="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-black text-sm shadow-lg shadow-green-200 transition">
+                    class="flex-1 py-3 rounded-xl bg-brand-800 hover:bg-brand-900 text-white font-black text-sm shadow-lg shadow-green-200 transition">
                     <i class="fas fa-credit-card mr-1"></i> BAYAR
                 </button>
                 <div x-show="cart.length === 0" class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-sm text-center">
@@ -339,7 +350,7 @@
                 <div class="space-y-2">
                     <template x-for="v in modifierModal.product.variants" :key="v.id">
                         <label class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition"
-                            :class="modifierModal.selectedVariant?.id === v.id ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-gray-200'">
+                            :class="modifierModal.selectedVariant?.id === v.id ? 'border-gold-600 bg-green-50' : 'border-gray-100 hover:border-gray-200'">
                             <input type="radio" class="sr-only" :value="v.id" x-model.number="modifierModal.selectedVariantId" @change="selectVariant(v)">
                             <span class="text-sm font-semibold text-gray-700 flex-1" x-text="v.name"></span>
                             <span class="text-xs text-green-600 font-bold" x-show="v.price_adjustment > 0" x-text="'+Rp ' + formatRp(v.price_adjustment)"></span>
@@ -356,7 +367,7 @@
                 <div class="space-y-2">
                     <template x-for="mod in group.modifiers" :key="mod.id">
                         <label class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition"
-                            :class="isModifierSelected(mod.id) ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-gray-200'">
+                            :class="isModifierSelected(mod.id) ? 'border-gold-600 bg-green-50' : 'border-gray-100 hover:border-gray-200'">
                             <input type="checkbox" class="rounded text-green-600" :checked="isModifierSelected(mod.id)" @change="toggleModifier(mod)">
                             <span class="text-sm font-semibold text-gray-700 flex-1" x-text="mod.name"></span>
                             <span class="text-xs text-green-600 font-bold" x-show="mod.price_adjustment > 0" x-text="'+Rp ' + formatRp(mod.price_adjustment)"></span>
@@ -368,9 +379,9 @@
 
             {{-- Notes --}}
             <div>
-                <p class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-2">Catatan Khusus</p>
-                <textarea x-model="modifierModal.notes" rows="2" placeholder="Contoh: tanpa es, extra panas..."
-                    class="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-green-500 resize-none"></textarea>
+                <label for="modifier-notes" class="block text-xs font-extrabold text-gray-600 uppercase tracking-wider mb-2">Catatan Customer (opsional, maksimal 255 karakter)</label>
+                <textarea id="modifier-notes" maxlength="255" x-model="modifierModal.notes" rows="2" placeholder="Contoh: tanpa es, extra panas..."
+                    class="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:border-gold-600 resize-none"></textarea>
             </div>
         </div>
 
@@ -382,7 +393,7 @@
                 <button @click="modifierModal.qty++"
                     class="w-10 h-10 rounded-full bg-green-100 hover:bg-green-200 text-green-700 font-bold text-lg flex items-center justify-center">+</button>
             </div>
-            <button @click="addToCart()" class="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl shadow-lg shadow-green-200 transition">
+            <button @click="addToCart()" class="flex-1 py-3 bg-brand-800 hover:bg-brand-900 text-white font-black rounded-xl shadow-lg shadow-green-200 transition">
                 TAMBAH — Rp <span x-text="formatRp(modalTotal * modifierModal.qty)"></span>
             </button>
         </div>
@@ -439,7 +450,7 @@
                 <div class="grid grid-cols-3 gap-2">
                     <template x-for="m in ['CASH','QRIS','CARD']" :key="m">
                     <button @click="paymentModal.method = m; paymentModal.amountPaid = m === 'CASH' ? '' : subtotal"
-                        :class="paymentModal.method === m ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'"
+                        :class="paymentModal.method === m ? 'border-gold-600 bg-green-50 text-green-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'"
                         class="py-3 rounded-xl border-2 font-bold text-sm transition text-center">
                         <i :class="m === 'CASH' ? 'fas fa-money-bill' : m === 'QRIS' ? 'fas fa-qrcode' : 'fas fa-credit-card'" class="block text-xl mb-1"></i>
                         <span x-text="m === 'QRIS' ? 'QRIS Manual' : m"></span>
@@ -455,7 +466,7 @@
                 <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">Rp</span>
                     <input x-ref="cashInput" x-model.number="paymentModal.amountPaid" type="number" step="1000" min="0"
-                        class="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 outline-none text-right font-bold text-lg">
+                        class="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gold-600 outline-none text-right font-bold text-lg">
                 </div>
                 <div class="flex gap-2 mt-2 flex-wrap">
                     <template x-for="quick in quickCash" :key="quick">
@@ -482,10 +493,10 @@
             </template>
 
             <button @click="confirmPayment()"
-                :disabled="!canPay()"
-                :class="canPay() ? 'bg-green-600 hover:bg-green-700 shadow-lg shadow-green-200' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
+                :disabled="paymentPending || !canPay()"
+                :class="canPay() ? 'bg-brand-800 hover:bg-brand-900 shadow-lg shadow-green-200' : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
                 class="w-full py-4 rounded-xl text-white font-black text-lg transition">
-                KONFIRMASI BAYAR
+                <span x-text="paymentPending ? 'Memproses...' : 'KONFIRMASI BAYAR'"></span>
             </button>
         </div>
     </div>
@@ -495,7 +506,7 @@
 {{-- SUCCESS SCREEN                                             --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <div x-show="successScreen.show" x-cloak x-transition
-    class="fixed inset-0 z-50 bg-green-600 flex items-center justify-center">
+    class="fixed inset-0 z-50 bg-brand-800 flex items-center justify-center">
     <div class="text-center text-white p-8">
         <div class="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-6">
             <i class="fas fa-check text-5xl"></i>
@@ -545,12 +556,12 @@
             
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1">Nama / Nomor Meja</label>
-                <input type="text" x-model="tableSetupModal.name" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 outline-none text-center font-bold text-lg" placeholder="Contoh: Meja 1" @keydown.enter="submitTableSetup()">
+                <input type="text" x-model="tableSetupModal.name" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-gold-600 outline-none text-center font-bold text-lg" placeholder="Contoh: Meja 1" @keydown.enter="submitTableSetup()">
             </div>
         </div>
 
         <div class="p-5 bg-gray-50 border-t border-gray-100">
-            <button @click="submitTableSetup()" :disabled="!tableSetupModal.name || tableSetupModal.loading" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50">
+            <button @click="submitTableSetup()" :disabled="!tableSetupModal.name || tableSetupModal.loading" class="w-full bg-brand-800 hover:bg-brand-900 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50">
                 <span x-show="!tableSetupModal.loading"><i class="fas fa-plus mr-1"></i> Tambah Meja</span>
                 <span x-show="tableSetupModal.loading"><i class="fas fa-spinner fa-spin"></i> Memproses...</span>
             </button>
@@ -569,8 +580,10 @@ function posApp() {
         showMobileCart: false,
         activeCategory: null,
         search: '',
-        heldOrders: @json($heldOrders->map(fn($o) => ['id' => $o->id, 'total' => $o->grand_total])),
+        heldOrders: {{ Illuminate\Support\Js::from($heldOrderSummaries) }},
         recalledOrderId: null,
+        paymentPending: false,
+        checkoutRequestId: null,
 
         // Modals
         modifierModal: {
@@ -687,7 +700,7 @@ function posApp() {
             const qty = this.modifierModal.qty;
             const variant = this.modifierModal.selectedVariant;
             const mods = [...this.modifierModal.selectedModifiers];
-            const notes = this.modifierModal.notes;
+            const notes = this.modifierModal.notes.trim();
             const price = this.modalTotal;
 
             this.cart.push({
@@ -707,8 +720,16 @@ function posApp() {
             this.cart[idx].qty = Math.max(1, this.cart[idx].qty + delta);
             this.cart[idx].subtotal = this.cart[idx].price * this.cart[idx].qty;
         },
+        splitItem(idx) {
+            const item = this.cart[idx];
+            if (this.paymentPending || !item || item.qty <= 1 || this.cart.length >= 50) return;
+            item.qty--;
+            item.subtotal = item.price * item.qty;
+            this.cart.splice(idx + 1, 0, {...item, modifiers: (item.modifiers ?? []).map(modifier => ({...modifier})), qty: 1, subtotal: item.price});
+            this.$nextTick(() => document.getElementById('item-notes-' + (idx + 1))?.focus());
+        },
         removeItem(idx) { this.cart.splice(idx, 1); },
-        clearCart() { this.cart = []; this.recalledOrderId = null; },
+        clearCart() { this.cart = []; this.recalledOrderId = null; this.checkoutRequestId = null; },
 
         // ── Hold / Recall ─────────────────────
         async holdCart() {
@@ -721,7 +742,7 @@ function posApp() {
                     this.clearCart();
                     this.notify('Order ditahan', 'success');
                 }
-            } catch(e) { this.notify('Gagal menahan order', 'error'); }
+            } catch(e) { this.notify(e.message || 'Gagal menahan order', 'error'); }
         },
 
         async recallOrder(orderId) {
@@ -752,10 +773,22 @@ function posApp() {
             if (this.paymentModal.method === 'CASH') return Number(this.paymentModal.amountPaid) >= this.subtotal;
             return true; // QRIS/CARD always payable
         },
+        newCheckoutRequestId() {
+            if (crypto.randomUUID) return crypto.randomUUID();
+            const bytes = crypto.getRandomValues(new Uint8Array(16));
+            bytes[6] = (bytes[6] & 15) | 64;
+            bytes[8] = (bytes[8] & 63) | 128;
+            const hex = Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
+            return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+        },
         async confirmPayment() {
-            if (!this.canPay()) return;
+            if (this.paymentPending || !this.canPay()) return;
+            this.paymentPending = true;
+            this.checkoutRequestId ??= this.newCheckoutRequestId();
             const amountPaid = this.paymentModal.method === 'CASH' ? Number(this.paymentModal.amountPaid) : this.subtotal;
             const payload = {
+                request_id: this.checkoutRequestId,
+                recalled_order_id: this.recalledOrderId,
                 items: this.cartPayload(),
                 payment_method: this.paymentModal.method,
                 amount_paid: amountPaid,
@@ -768,6 +801,7 @@ function posApp() {
                     this.successScreen = { show: true, total: res.total, change: res.change ?? 0, orderId: res.order_id };
                 }
             } catch(e) { this.notify(e.message || 'Gagal memproses pembayaran', 'error'); }
+            finally { this.paymentPending = false; }
         },
 
         // ── Success / New Order ───────────────
@@ -800,17 +834,17 @@ function posApp() {
                 id: i.id, qty: i.qty,
                 variant_id: i.variant_id,
                 modifiers: (i.modifiers ?? []).map(m => m.id),
-                notes: i.notes,
+                notes: (i.notes || '').trim() || null,
             }));
         },
         async post(url, data) {
             const res = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
                 body: JSON.stringify(data),
             });
             const json = await res.json();
-            if (!res.ok) throw json;
+            if (!res.ok) throw new Error(json.errors ? Object.values(json.errors).flat().join(' ') : json.message || 'Permintaan gagal. Silakan coba lagi.');
             return json;
         },
         async submitTableSetup() {
@@ -850,13 +884,6 @@ function posApp() {
     };
 }
 
-function promptCloseShift() {
-    const actual = prompt('Masukkan jumlah uang tunai di laci kasir sekarang (Rp):');
-    if (actual !== null) {
-        document.getElementById('closeActualCash').value = actual;
-        document.querySelector('form[action*="shift.close"]').submit();
-    }
-}
 </script>
 
 <x-order-notification />

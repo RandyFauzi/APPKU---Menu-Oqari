@@ -5,7 +5,7 @@ namespace App\Actions\POS;
 use App\Models\Modifier;
 use App\Models\Product;
 use App\Models\Shop;
-use Exception;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Pure calculation action — no DB writes.
@@ -17,7 +17,7 @@ class CalculateCart
      * @param  array  $items  Raw cart items from the client
      * @return array{items: array, subtotal: float, total_cogs: float}
      *
-     * @throws Exception
+     * @throws ValidationException
      */
     public function execute(Shop $shop, array $items): array
     {
@@ -32,7 +32,7 @@ class CalculateCart
                 ->first();
 
             if (! $product) {
-                throw new Exception("Produk tidak tersedia atau sudah habis: {$item['id']}");
+                throw ValidationException::withMessages(['items' => 'Produk tidak tersedia atau sudah habis.']);
             }
 
             $price = (float) $product->price;
@@ -48,7 +48,7 @@ class CalculateCart
                     ->first();
 
                 if (! $variant) {
-                    throw new Exception("Varian tidak valid untuk produk: {$product->name}");
+                    throw ValidationException::withMessages(['items' => 'Varian tidak valid untuk produk ini.']);
                 }
 
                 $variantName = $variant->name;
@@ -89,15 +89,15 @@ class CalculateCart
                 'variant_name' => $variantName,
                 'modifiers' => empty($modifiersSnapshot) ? null : $modifiersSnapshot,
                 'quantity' => $qty,
-                'price' => $price,
+                'unit_price' => $price,
                 'subtotal' => $lineSale,
-                'total_cogs' => $lineCogs,
-                'notes' => $item['notes'] ?? null,
+                'cogs_total' => $lineCogs,
+                'notes' => isset($item['notes']) && trim($item['notes']) !== '' ? trim($item['notes']) : null,
             ];
         }
 
         if (empty($resolved)) {
-            throw new Exception('Keranjang pesanan kosong atau tidak valid.');
+            throw ValidationException::withMessages(['items' => 'Keranjang pesanan kosong atau tidak valid.']);
         }
 
         return [

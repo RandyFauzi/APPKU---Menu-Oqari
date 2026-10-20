@@ -41,7 +41,6 @@ class OrderCreationTest extends TestCase
             'shop_id' => $this->shop->id,
             'price' => 30000,
             'is_sold_out' => false,
-            'is_active' => true, // wait, does product have is_active?
         ]);
 
         $payload = [
@@ -56,7 +55,7 @@ class OrderCreationTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson(route('shop.submit', ['slug' => $this->shop->slug]), $payload);
+        $response = $this->postJson(route('shop.order.submit', ['slug' => $this->shop->slug]), $payload);
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
@@ -70,7 +69,7 @@ class OrderCreationTest extends TestCase
         $this->assertDatabaseHas('order_items', [
             'product_id' => $product->id,
             'quantity' => 2,
-            'price' => 30000,
+            'unit_price' => 30000,
             'subtotal' => 60000,
         ]);
     }
@@ -89,7 +88,7 @@ class OrderCreationTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson(route('shop.submit', ['slug' => $this->shop->slug]), $payload);
+        $response = $this->postJson(route('shop.order.submit', ['slug' => $this->shop->slug]), $payload);
 
         // Validation error
         $response->assertStatus(422);
@@ -109,7 +108,7 @@ class OrderCreationTest extends TestCase
             'items' => [['id' => $product->id, 'qty' => 1]],
         ];
 
-        $response = $this->postJson(route('shop.submit', ['slug' => $this->shop->slug]), $payload);
+        $response = $this->postJson(route('shop.order.submit', ['slug' => $this->shop->slug]), $payload);
 
         // Custom Domain Exception / bad request
         $response->assertStatus(400);
@@ -126,7 +125,7 @@ class OrderCreationTest extends TestCase
             'items' => [['id' => $product->id, 'qty' => -5]],
         ];
 
-        $response = $this->postJson(route('shop.submit', ['slug' => $this->shop->slug]), $payload);
+        $response = $this->postJson(route('shop.order.submit', ['slug' => $this->shop->slug]), $payload);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['items.0.qty']);

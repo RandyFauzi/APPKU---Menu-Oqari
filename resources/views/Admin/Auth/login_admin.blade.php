@@ -3,20 +3,21 @@
 @section('title', 'Login')
 
 @section('content')
-    <div class="flex min-h-screen relative bg-[#Fdfbf7]">
+    <div class="flex min-h-screen relative bg-ivory">
         
         <!-- Illustration Background -->
         <!-- Extends past 50% so it shows underneath the rounded corner of the right panel -->
         <div class="hidden lg:block absolute top-0 left-0 w-[55%] h-full">
             <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover">
                 <source src="{{ asset('Assests/Login page/Login Page Illsutration (motion).webm') }}" type="video/webm">
-            </video>
+            </video><div class="absolute inset-0 bg-brand-950/50 pointer-events-none" aria-hidden="true"></div>
         </div>
 
         <!-- Right Side (Form) -->
         <div class="w-full lg:w-1/2 ml-auto flex items-center justify-center p-6 sm:p-12 md:p-20 bg-white lg:rounded-l-[3rem] lg:shadow-[-20px_0_40px_rgba(0,0,0,0.04)] z-10 relative">
             <div class="w-full max-w-md">
                 
+                <x-hellenic-emblem class="h-12 w-12 mb-5" />
                 <!-- Header -->
                 <div class="mb-8">
                     <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome Back! 👋</h2>
@@ -37,7 +38,7 @@
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                             </div>
                             <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" 
-                                class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#A67B5B] focus:ring-2 focus:ring-[#A67B5B]/20 transition-colors placeholder-gray-400 text-gray-900"
+                                class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-gold-600 focus:ring-2 focus:ring-gold-600/20 transition-colors placeholder-gray-400 text-gray-900"
                                 placeholder="Enter your email">
                         </div>
                         <x-input-error :messages="$errors->get('email')" class="mt-2 text-sm text-red-600" />
@@ -47,7 +48,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                            <a href="{{ route('password.request') }}" class="text-sm font-medium text-[#A67B5B] hover:text-[#8a664b]">
+                            <a href="{{ route('password.request') }}" class="text-sm font-medium text-gold-600 hover:text-gold-700">
                                 Forgot password?
                             </a>
                         </div>
@@ -56,7 +57,7 @@
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                             </div>
                             <input id="password" type="password" name="password" required autocomplete="current-password"
-                                class="w-full pl-11 pr-11 py-3 rounded-xl border border-gray-200 focus:border-[#A67B5B] focus:ring-2 focus:ring-[#A67B5B]/20 transition-colors placeholder-gray-400 text-gray-900"
+                                class="w-full pl-11 pr-11 py-3 rounded-xl border border-gray-200 focus:border-gold-600 focus:ring-2 focus:ring-gold-600/20 transition-colors placeholder-gray-400 text-gray-900"
                                 placeholder="Enter your password">
                             <div class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-gray-400 hover:text-gray-600">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -67,13 +68,13 @@
 
                     <!-- Remember Me -->
                     <div class="flex items-center">
-                        <input id="remember_me" type="checkbox" name="remember" class="w-4 h-4 text-[#A67B5B] bg-gray-100 border-gray-300 rounded focus:ring-[#A67B5B]">
+                        <input id="remember_me" type="checkbox" name="remember" class="w-4 h-4 text-gold-600 bg-gray-100 border-gray-300 rounded focus:ring-gold-600">
                         <label for="remember_me" class="ml-2 text-sm font-medium text-gray-600">Remember me</label>
                     </div>
 
                     <!-- Login Button -->
                     <div class="pt-2">
-                        <button type="submit" class="w-full flex items-center justify-center px-5 py-3.5 text-white font-medium bg-[#A67B5B] rounded-xl hover:bg-[#8a664b] transition-colors shadow-lg shadow-[#A67B5B]/30">
+                        <button type="submit" class="w-full flex items-center justify-center px-5 py-3.5 text-white font-medium bg-gold-600 rounded-xl hover:bg-gold-700 transition-colors shadow-lg shadow-[#846322]/30">
                             Log In 
                             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                         </button>
@@ -99,7 +100,7 @@
                 <div class="mt-8 text-center">
                     <p class="text-sm text-gray-600">
                         Don't have an account? 
-                        <a href="{{ route('register') }}" class="font-medium text-[#A67B5B] hover:text-[#8a664b]">Sign up</a>
+                        <a href="{{ route('register') }}" class="font-medium text-gold-600 hover:text-gold-700">Sign up</a>
                     </p>
                 </div>
             </div>

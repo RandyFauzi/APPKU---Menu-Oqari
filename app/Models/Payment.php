@@ -14,9 +14,7 @@ class Payment extends Model
         'shop_id',
         'payment_method',
         'amount',
-        'status',
-        'reference_id',
-        'paid_at',
+        'reference_number',
 
         'cancelled_at',
         'cancelled_by',

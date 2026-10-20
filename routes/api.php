@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureAccountIsActive;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,12 +15,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware(['auth:sanctum', EnsureAccountIsActive::class])->get('/user', function (Request $request) {
     return $request->user();
 });
 
 // OQARI API BOUNDARIES (v1)
-Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum', EnsureAccountIsActive::class])->group(function () {
 
     // 1. Tablet POS Endpoints
     Route::prefix('pos')->group(function () {

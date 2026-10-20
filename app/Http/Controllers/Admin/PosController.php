@@ -3,19 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Order\CreateOrder;
-use App\Actions\Payment\ProcessPayment;
 use App\Actions\POS\CalculateCart;
+use App\Actions\POS\SubmitPosOrder;
 use App\Events\OrderCreated;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\HoldPosOrderRequest;
+use App\Http\Requests\SubmitPosOrderRequest;
 use App\Models\CashRegister;
 use App\Models\CashRegisterSession;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Table;
-use App\Services\InventoryService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class PosController extends Controller
 {
@@ -29,13 +30,10 @@ class PosController extends Controller
         $shop = $user->shop;
 
         $activeSession = CashRegisterSession::where('user_id', $user->id)
+            ->whereHas('register', fn ($query) => $query->where('shop_id', $shop->id))
             ->where('status', 'OPEN')
             ->latest()
-            ->first()
-            ?? CashRegisterSession::whereHas('register', fn ($q) => $q->where('shop_id', $shop->id))
-                ->where('status', 'OPEN')
-                ->latest()
-                ->first();
+            ->first();
 
         $products = Product::where('shop_id', $shop->id)
             ->where('is_sold_out', false)
@@ -58,11 +56,13 @@ class PosController extends Controller
             ->take(10)
             ->get();
 
+        $heldOrderSummaries = $heldOrders->map(fn ($order): array => ['id' => $order->id, 'total' => $order->grand_total]);
+
         $registers = CashRegister::where('shop_id', $shop->id)->where('is_active', true)->get();
         $tables = Table::where('shop_id', $shop->id)->get();
 
         return view('Admin.pos.index', compact(
-            'products', 'categories', 'activeSession', 'heldOrders', 'registers', 'shop', 'tables'
+            'products', 'categories', 'activeSession', 'heldOrders', 'heldOrderSummaries', 'registers', 'shop', 'tables'
         ));
     }
 
@@ -70,69 +70,21 @@ class PosController extends Controller
     //  API — Submit order + payment in one shot
     // ──────────────────────────────────────────────
 
-    public function submitOrder(Request $request, CreateOrder $createOrder, ProcessPayment $processPayment)
+    public function submitOrder(SubmitPosOrderRequest $request, SubmitPosOrder $submitOrder): JsonResponse
     {
-        $validated = $request->validate([
-            'items' => ['required', 'array', 'min:1'],
-            'items.*.id' => ['required', 'integer'],
-            'items.*.qty' => ['required', 'integer', 'min:1'],
-            'items.*.variant_id' => ['nullable', 'integer'],
-            'items.*.modifiers' => ['nullable', 'array'],
-            'items.*.notes' => ['nullable', 'string', 'max:255'],
-            'table' => ['nullable', 'string', 'max:50'],
-            'customer_name' => ['nullable', 'string', 'max:100'],
-            'payment_method' => ['required', 'in:CASH,QRIS,CARD,OTHER'],
-            'amount_paid' => ['required', 'numeric', 'min:0'],
-            'fulfillment_type' => ['nullable', 'in:DINE_IN,TAKEAWAY'],
-        ]);
-
-        $shop = Auth::user()->shop;
-
-        $result = DB::transaction(function () use ($shop, $validated, $createOrder, $processPayment) {
-            // Reuse CalculateCart + CreateOrder + ProcessPayment pipeline
-            $calcCart = app(CalculateCart::class);
-            $cart = $calcCart->execute($shop, $validated['items']);
-
-            $order = $createOrder->execute($shop, $cart, $validated);
-
-            $payment = $processPayment->execute(
-                $order,
-                $validated['payment_method'],
-                (float) $validated['amount_paid']
-            );
-
-            // Deduct inventory stock based on recipes
-            app(InventoryService::class)->deductStockForOrder($order);
-
-            return $order;
-        });
-
-        OrderCreated::dispatch($result);
+        $order = $submitOrder->execute($request->user(), $request->validated());
 
         return response()->json([
             'success' => true,
-            'order_id' => $result->id,
-            'change' => $result->change_amount,
-            'total' => $result->grand_total,
+            'order_id' => $order->id,
+            'change' => $order->change_amount,
+            'total' => $order->grand_total,
         ]);
     }
 
-    // ──────────────────────────────────────────────
-    //  API — Hold order (save cart to DB as HOLD)
-    // ──────────────────────────────────────────────
-
-    public function holdOrder(Request $request, CreateOrder $createOrder)
+    public function holdOrder(HoldPosOrderRequest $request, CreateOrder $createOrder)
     {
-        $validated = $request->validate([
-            'items' => ['required', 'array', 'min:1'],
-            'items.*.id' => ['required', 'integer'],
-            'items.*.qty' => ['required', 'integer', 'min:1'],
-            'items.*.variant_id' => ['nullable', 'integer'],
-            'items.*.modifiers' => ['nullable', 'array'],
-            'items.*.notes' => ['nullable', 'string'],
-            'table' => ['nullable', 'string'],
-            'customer_name' => ['nullable', 'string'],
-        ]);
+        $validated = $request->validated();
 
         $shop = Auth::user()->shop;
 
@@ -176,10 +128,10 @@ class PosController extends Controller
                 'items' => $o->items->map(fn ($i) => [
                     'name' => $i->product_name,
                     'qty' => $i->quantity,
-                    'price' => $i->price,
+                    'price' => $i->unit_price,
                     'subtotal' => $i->subtotal,
                     'variant' => $i->variant_name,
-                    'modifiers' => $i->modifiers ? json_decode($i->modifiers, true) : [],
+                    'modifiers' => $i->modifiers ?? [],
                     'notes' => $i->notes,
                 ]),
             ]);
@@ -200,8 +152,6 @@ class PosController extends Controller
             return response()->json(['error' => 'Order tidak ditemukan atau tidak bisa di-recall.'], 404);
         }
 
-        $order->update(['order_status' => 'CONFIRMED']);
-
         $order->load('items');
 
         return response()->json([
@@ -213,11 +163,11 @@ class PosController extends Controller
                     'id' => $i->product_id,
                     'name' => $i->product_name,
                     'qty' => $i->quantity,
-                    'price' => $i->price,
+                    'price' => $i->unit_price,
                     'subtotal' => $i->subtotal,
                     'variant_id' => $i->variant_id,
                     'variant' => $i->variant_name,
-                    'modifiers' => $i->modifiers ? json_decode($i->modifiers, true) : [],
+                    'modifiers' => $i->modifiers ?? [],
                     'notes' => $i->notes,
                 ]),
             ],

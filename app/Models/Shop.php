@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use App\Services\MediaService;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Shop extends Model
 {
+    use HasFactory;
+
+    protected $hidden = ['gobiz_access_token', 'gobiz_refresh_token'];
+
     protected static function booted()
     {
         static::saved(function ($shop) {

@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keranjang - {{ $shop->name }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -13,15 +13,17 @@
     @endif
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
-        html { background-color: #f1f5f9; }
+        html { background-color: #fffaf0; }
         :root {
-            --color-primary: {{ $shop->primary_color ?? '#1E5A7A' }};
-            --color-secondary: {{ $shop->primary_color ?? '#2d6a4f' }};
+            --color-primary: var(--oq-primary);
+            --color-secondary: var(--oq-primary-dark);
         }
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <x-theme-head :shop="$shop ?? null" />
 </head>
 <body data-page="cart" class="antialiased w-full max-w-[420px] mx-auto bg-gray-50 min-h-screen relative shadow-2xl pb-28 page-transition">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     <header class="bg-white p-4 sticky top-0 z-30 shadow-sm flex items-center gap-4 border-b border-gray-100">
         <a href="#" onclick="goBackHome(event)" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
@@ -43,7 +45,7 @@
                 <span id="summary-subtotal" class="font-semibold text-gray-800">Rp 0</span>
             </div>
             <div class="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Pajak Restoran (PB1 10%)</span>
+                <span>Pajak</span>
                 <span id="summary-tax" class="font-semibold text-gray-800">Rp 0</span>
             </div>
             <div class="flex justify-between items-center mt-3 pt-3 border-t border-dashed border-gray-200">
@@ -74,21 +76,21 @@
             
             <div class="space-y-4">
                 <div id="table-input-container">
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Nomor Meja <span class="text-red-500">*</span></label>
-                    <input type="text" id="customer-table" placeholder="Ketik nomor meja" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-600 font-bold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
+                    <label for="customer-table" class="block text-xs font-bold text-gray-600 mb-1">Nomor Meja <span class="text-red-500">*</span></label>
+                    <input type="text" id="customer-table" name="customer-table" autocomplete="off" placeholder="Ketik nomor meja" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-600 font-bold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Nama Pemesan <span class="text-red-500">*</span></label>
-                    <input type="text" id="customer-name" placeholder="Masukkan nama Anda" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
+                    <label for="customer-name" class="block text-xs font-bold text-gray-600 mb-1">Nama Pemesan <span class="text-red-500">*</span></label>
+                    <input type="text" id="customer-name" name="customer-name" autocomplete="name" placeholder="Masukkan nama Anda" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Alamat Email <span class="text-red-500">*</span></label>
-                    <input type="email" id="customer-email" placeholder="contoh@email.com" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
+                    <label for="customer-email" class="block text-xs font-bold text-gray-600 mb-1">Alamat Email <span class="text-red-500">*</span></label>
+                    <input type="email" id="customer-email" name="customer-email" autocomplete="email" placeholder="contoh@email.com" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">No. WhatsApp <span class="text-gray-400 font-normal">(Opsional)</span></label>
-                    <input type="tel" id="customer-phone" placeholder="08123456789" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
+                    <label for="customer-phone" class="block text-xs font-bold text-gray-600 mb-1">No. WhatsApp <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                    <input type="tel" id="customer-phone" name="customer-phone" autocomplete="tel" placeholder="08123456789" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
                 </div>
             </div>
 

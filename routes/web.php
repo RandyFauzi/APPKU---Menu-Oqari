@@ -4,9 +4,12 @@ use App\Http\Controllers\Admin\Api\AnalyticsApiController;
 use App\Http\Controllers\Admin\Api\DashboardApiController;
 use App\Http\Controllers\Admin\Api\OrderApiController;
 use App\Http\Controllers\Admin\Api\ProductApiController;
+use App\Http\Controllers\Admin\AttendanceController;
+use App\Http\Controllers\Admin\CafeUserController;
 use App\Http\Controllers\Admin\CashRegisterController;
 use App\Http\Controllers\Admin\CrewController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\HppCalculatorController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\KitchenController;
 use App\Http\Controllers\Admin\OnboardingController;
@@ -24,14 +27,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     $dashboardUrl = null;
     if (auth()->check()) {
-        $role = auth()->user()->role;
-        $dashboardUrl = match ($role) {
-            'cashier' => route('admin.pos.index'),
-            'barista', 'kitchen' => route('admin.kitchen.index'),
-            'crew' => route('admin.my-schedule'),
-            'superadmin' => route('superadmin.dashboard'),
-            default => route('admin.dashboard'),
-        };
+        $dashboardUrl = route(auth()->user()->homeRoute());
     }
 
     return view('landing', compact('dashboardUrl'));
@@ -43,32 +39,58 @@ Route::get('/harga', function () {
 
 Route::middleware(['auth'])->group(function () {
     // Onboarding
-    Route::get('/admin/onboarding/fix-db', [OnboardingController::class, 'fixDb'])->name('admin.onboarding.fix-db');
-    Route::get('/admin/onboarding', [OnboardingController::class, 'index'])->name('admin.onboarding');
-    Route::post('/admin/onboarding/step', [OnboardingController::class, 'updateStep'])->name('admin.onboarding.step');
-    Route::post('/admin/onboarding/complete', [OnboardingController::class, 'complete'])->name('admin.onboarding.complete');
+    Route::middleware('can:manage-settings')->group(function () {
+        Route::get('/admin/onboarding', [OnboardingController::class, 'index'])->name('admin.onboarding');
+        Route::post('/admin/onboarding/step', [OnboardingController::class, 'updateStep'])->name('admin.onboarding.step');
+        Route::post('/admin/onboarding/complete', [OnboardingController::class, 'complete'])->name('admin.onboarding.complete');
+    });
+
+    Route::get('/admin/attendance', [AttendanceController::class, 'index'])->name('admin.attendance.index');
+    Route::post('/admin/attendance', [AttendanceController::class, 'store'])->middleware('throttle:20,1')->name('admin.attendance.store');
+    Route::get('/admin/attendance/report', [AttendanceController::class, 'report'])->name('admin.attendance.report');
 
     // Dashboard (accessible to all authenticated users)
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+    Route::middleware('can:manage-users')->group(function () {
+        Route::get('/admin/users', [CafeUserController::class, 'index'])->name('admin.users.index');
+        Route::get('/admin/users/create', [CafeUserController::class, 'create'])->name('admin.users.create');
+        Route::post('/admin/users', [CafeUserController::class, 'store'])->name('admin.users.store');
+        Route::get('/admin/users/{cafeUser}/edit', [CafeUserController::class, 'edit'])->whereNumber('cafeUser')->name('admin.users.edit');
+        Route::put('/admin/users/{cafeUser}', [CafeUserController::class, 'update'])->whereNumber('cafeUser')->name('admin.users.update');
+        Route::patch('/admin/users/{cafeUser}/deactivate', [CafeUserController::class, 'deactivate'])->whereNumber('cafeUser')->name('admin.users.deactivate');
+        Route::post('/admin/api/crew', [CafeUserController::class, 'store']);
+        Route::put('/admin/api/crew/{id}', [CafeUserController::class, 'update'])->whereNumber('id');
+        Route::delete('/admin/api/crew/{id}', [CafeUserController::class, 'deactivate'])->whereNumber('id');
+    });
 
     // POS & Orders
     // POS Terminal + APIs
     Route::middleware('can:access-pos')->group(function () {
         Route::get('/admin/pos', [PosController::class, 'index'])->name('admin.pos.index');
-        Route::post('/admin/pos/orders', [PosController::class, 'submitOrder'])->name('admin.pos.orders.submit');
+        Route::post('/admin/pos/orders', [PosController::class, 'submitOrder'])->middleware('can:manage-payments')->name('admin.pos.orders.submit');
         Route::post('/admin/pos/orders/hold', [PosController::class, 'holdOrder'])->name('admin.pos.orders.hold');
         Route::get('/admin/pos/orders/held', [PosController::class, 'heldOrders'])->name('admin.pos.orders.held');
         Route::post('/admin/pos/orders/{order}/recall', [PosController::class, 'recallOrder'])->name('admin.pos.orders.recall');
         Route::get('/admin/pos/products', [PosController::class, 'products'])->name('admin.pos.products');
         // Legacy order status updates
-        Route::get('/admin/api/orders/live', [DashboardController::class, 'getLiveOrders']);
-        Route::post('/admin/api/orders/{order}/status', [DashboardController::class, 'updateOrderStatus']);
-        Route::get('/admin/api/orders/{order}/print', [DashboardController::class, 'printOrder']);
     });
 
+    Route::get('/admin/api/orders/live', [DashboardController::class, 'getLiveOrders'])->middleware('can:view-orders');
+    Route::post('/admin/api/orders/{order}/status', [DashboardController::class, 'updateOrderStatus'])->middleware('can:manage-orders');
+    Route::get('/admin/api/orders/{order}/print', [DashboardController::class, 'printOrder'])->middleware('can:view-orders');
+
     // Cash Register / Shift Session
-    Route::post('/shift/open', [CashRegisterController::class, 'openShift'])->name('shift.open');
-    Route::post('/shift/close', [CashRegisterController::class, 'closeShift'])->name('shift.close');
+    Route::get('/admin/cash-reconciliation', [CashRegisterController::class, 'index'])->middleware('can:manage-register')->name('admin.register.index');
+    Route::post('/shift/open', [CashRegisterController::class, 'openShift'])->middleware('can:manage-register')->name('shift.open');
+    Route::post('/shift/close', [CashRegisterController::class, 'closeShift'])->middleware('can:manage-register')->name('shift.close');
+
+    Route::middleware('can:manage-hpp')->group(function () {
+        Route::get('/admin/hpp', [HppCalculatorController::class, 'index'])->name('admin.hpp.index');
+        Route::post('/admin/hpp/materials', [HppCalculatorController::class, 'storeMaterial'])->name('admin.hpp.materials.store');
+        Route::post('/admin/hpp/calculate', [HppCalculatorController::class, 'calculate'])->name('admin.hpp.calculate');
+        Route::put('/admin/hpp/products/{product}', [HppCalculatorController::class, 'update'])->whereNumber('product')->name('admin.hpp.update');
+    });
 
     // Menu Management
     Route::middleware('can:manage-menu')->group(function () {
@@ -78,6 +100,9 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/admin/api/menu/{id}', [DashboardController::class, 'deleteMenu']);
         Route::post('/admin/api/category', [DashboardController::class, 'saveCategory']);
 
+    });
+
+    Route::middleware('can:manage-inventory')->group(function () {
         // Inventory & Recipes Management
         Route::get('/admin/api/inventory', [InventoryController::class, 'index']);
         Route::post('/admin/api/inventory/material', [InventoryController::class, 'saveMaterial']);
@@ -87,15 +112,16 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/api/inventory/recipes/{productId}', [InventoryController::class, 'saveProductRecipes']);
     });
 
+    Route::get('/admin/api/dashboard/summary', [DashboardApiController::class, 'getSummary'])->middleware('can:view-dashboard');
+    Route::get('/admin/api/dashboard/orders', [OrderApiController::class, 'index'])->middleware('can:view-orders');
+    Route::get('/admin/api/dashboard/products', [ProductApiController::class, 'index'])->middleware('can:manage-menu');
+    Route::get('/admin/api/dashboard/analytics', [AnalyticsApiController::class, 'index'])->middleware('can:view-reports');
+    Route::post('/admin/api/profile', [DashboardController::class, 'updateProfile']);
     // Settings
     Route::middleware('can:manage-settings')->group(function () {
-        Route::get('/admin/api/dashboard/summary', [DashboardApiController::class, 'getSummary']);
-        Route::get('/admin/api/dashboard/orders', [OrderApiController::class, 'index']);
-        Route::get('/admin/api/dashboard/products', [ProductApiController::class, 'index']);
-        Route::get('/admin/api/dashboard/analytics', [AnalyticsApiController::class, 'index']);
 
         Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
-        Route::post('/admin/api/profile', [DashboardController::class, 'updateProfile']);
+
         // Table & QR Management
         Route::post('/admin/api/table', [DashboardController::class, 'saveTable']);
         Route::put('/admin/api/table', [DashboardController::class, 'updateTableQR']);
@@ -103,11 +129,11 @@ Route::middleware(['auth'])->group(function () {
 
     // Crew Management (Owner/Manager)
     Route::middleware('can:manage-crew')->group(function () {
-        Route::post('/admin/api/crew', [DashboardController::class, 'saveCrew']);
-        Route::delete('/admin/api/crew/{id}', [DashboardController::class, 'deleteCrew']);
-        Route::put('/admin/api/crew/{id}', [DashboardController::class, 'updateCrew']);
         Route::get('/admin/shifts', [ShiftController::class, 'index'])->name('admin.shifts.index');
         Route::post('/admin/shifts', [ShiftController::class, 'store'])->name('admin.shifts.store');
+        Route::get('/admin/api/shifts', [DashboardController::class, 'getShifts']);
+        Route::post('/admin/api/shifts', [DashboardController::class, 'saveShift']);
+        Route::delete('/admin/api/shifts/{shift}', [ShiftController::class, 'destroy']);
     });
 
     // My Schedule (Crew/Barista — personal view only)
@@ -132,7 +158,7 @@ Route::middleware(['auth'])->group(function () {
                     'items' => $o->items->map(fn ($i) => [
                         'id' => $i->id, 'name' => $i->product_name,
                         'qty' => $i->quantity, 'variant' => $i->variant_name,
-                        'modifiers' => $i->modifiers ? json_decode($i->modifiers, true) : [],
+                        'modifiers' => $i->modifiers ?? [],
                         'notes' => $i->notes,
                     ]),
                 ])

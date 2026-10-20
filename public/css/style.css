@@ -2,10 +2,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-    --primary-blue: #1E5A7A;
-    --bg-base: #F4EFE6;
-    --accent-light: #8CB8C9;
-    --text-dark: #2D3748;
+    --primary-blue: var(--oq-primary);
+    --bg-base: var(--oq-ivory);
+    --accent-light: var(--oq-gold);
+    --text-dark: var(--oq-ink);
 }
 
 body {
@@ -13,7 +13,7 @@ body {
     -webkit-tap-highlight-color: transparent;
     background-color: var(--bg-base);
     animation: fadeIn 0.4s ease-out;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e5a7a' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b6924b' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 .app-container {
@@ -26,7 +26,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6, .font-heading {
-    font-family: 'Inter', sans-serif;
+    font-family: var(--oq-font-heading);
 }
 
 /* Utils */
@@ -103,7 +103,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 /* Radio Button Kustom */
 .custom-radio:checked + div {
     border-color: var(--primary-blue);
-    background-color: rgba(30, 90, 122, 0.1); /* --primary-blue with opacity */
+    background-color: rgb(var(--oq-primary-rgb) /  .1); /* --primary-blue with opacity */
     color: var(--primary-blue);
 }
 .custom-radio:checked + div i {
@@ -125,7 +125,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
     top: 1.5rem;
     bottom: 0;
     width: 2px;
-    background-color: #e5e7eb;
+    background-color: #e4d7bd;
 }
 .timeline-item:last-child .timeline-line {
     display: none;
@@ -141,13 +141,13 @@ h1, h2, h3, h4, h5, h6, .font-heading {
     align-items: center;
     justify-content: center;
     background: white;
-    border: 2px solid #e5e7eb;
+    border: 2px solid #e4d7bd;
     z-index: 10;
 }
 .timeline-item.active .timeline-icon {
     border-color: var(--primary-blue);
     color: var(--primary-blue);
-    background: rgba(30, 90, 122, 0.1);
+    background: rgb(var(--oq-primary-rgb) /  .1);
 }
 .timeline-item.done .timeline-icon {
     border-color: var(--primary-blue);
@@ -161,7 +161,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
     animation: pulse 1.5s infinite;
 }
 @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(30, 90, 122, 0.4); }
-    70% { box-shadow: 0 0 0 6px rgba(30, 90, 122, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(30, 90, 122, 0); }
+    0% { box-shadow: 0 0 0 0 rgb(var(--oq-primary-rgb) /  .4); }
+    70% { box-shadow: 0 0 0 6px rgb(var(--oq-primary-rgb) /  0); }
+    100% { box-shadow: 0 0 0 0 rgb(var(--oq-primary-rgb) /  0); }
 }

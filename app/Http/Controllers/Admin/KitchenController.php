@@ -20,7 +20,21 @@ class KitchenController extends Controller
             ->limit(150)
             ->get();
 
-        return view('Admin.kitchen.index', compact('orders'));
+        $kitchenOrders = $orders->map(fn ($o) => [
+            'id' => $o->id,
+            'status' => $o->order_status,
+            'time' => $o->created_at->format('H:i'),
+            'items' => $o->items->map(fn ($i) => [
+                'id' => $i->id,
+                'name' => $i->product_name,
+                'qty' => $i->quantity,
+                'variant' => $i->variant_name,
+                'modifiers' => $i->modifiers ?? [],
+                'notes' => $i->notes,
+            ]),
+        ]);
+
+        return view('Admin.kitchen.index', compact('orders', 'kitchenOrders'));
     }
 
     public function updateStatus(Request $request, Order $order)

@@ -8,20 +8,20 @@
         <h1 class="text-2xl font-black text-gray-800">Manajemen Toko</h1>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-[#E3E1DC] overflow-hidden flex flex-col">
-        <div class="p-4 border-b border-[#E3E1DC] bg-gray-50 flex flex-col sm:flex-row justify-between gap-4 sm:items-center">
+    <div class="bg-white rounded-2xl shadow-sm border border-line overflow-hidden flex flex-col">
+        <div class="p-4 border-b border-line bg-gray-50 flex flex-col sm:flex-row justify-between gap-4 sm:items-center">
             <h3 class="font-bold text-gray-800"><i class="fas fa-store mr-2"></i> Daftar toko terdaftar</h3>
             
             <form method="GET" class="flex flex-wrap gap-2">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / slug..."
-                       class="flex-1 min-w-[140px] px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#164A35]">
-                <select name="status" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#164A35]">
+                       class="flex-1 min-w-[140px] px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                <select name="status" class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                     <option value="">Semua status</option>
                     <option value="active" @selected(request('status') === 'active')>Active</option>
                     <option value="trial" @selected(request('status') === 'trial')>Trial</option>
                     <option value="suspended" @selected(request('status') === 'suspended')>Suspended</option>
                 </select>
-                <button class="px-4 py-2 text-sm bg-[#164A35] text-white rounded-lg font-bold hover:bg-[#113a29] transition">Filter</button>
+                <button class="px-4 py-2 text-sm bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition">Filter</button>
             </form>
         </div>
         <div class="overflow-x-auto">
@@ -72,7 +72,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-4 border-t border-[#E3E1DC]">
+        <div class="p-4 border-t border-line">
             {{ $shops->links() }}
         </div>
     </div>

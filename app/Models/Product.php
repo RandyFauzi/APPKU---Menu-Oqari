@@ -24,7 +24,11 @@ class Product extends Model
         'image_path',
         'is_sold_out',
         'cogs',
+        'hpp_overhead_cost',
+        'hpp_target_margin', 'hpp_settings',
     ];
+
+    protected $casts = ['hpp_settings' => 'array'];
 
     protected $appends = [
         'image_url',
@@ -69,13 +73,20 @@ class Product extends Model
     public function calculateHppFromRecipes(): float
     {
         $this->loadMissing('recipes.rawMaterial');
+        $settings = $this->hpp_settings ?? [];
+        $quantity = (float) ($settings['production_quantity'] ?? 1);
         $total = 0;
         foreach ($this->recipes as $recipe) {
             $unitCost = (float) ($recipe->rawMaterial->cost_per_unit ?? 0);
-            $total += round($unitCost * (float) $recipe->amount, 2);
+            $batchAmount = (float) ($recipe->batch_amount ?? ((float) $recipe->amount * $quantity));
+            $total += round($unitCost * $batchAmount, 2);
         }
+        $labor = (float) ($settings['labor_cost'] ?? 0);
+        $overhead = ($settings['overhead_mode'] ?? 'fixed') === 'percentage'
+            ? round(($total + $labor) * (float) ($settings['overhead_percent'] ?? 0) / 100, 2)
+            : (float) ($settings['overhead_cost'] ?? $this->hpp_overhead_cost ?? 0);
 
-        return round($total, 2);
+        return round(($total + $labor + $overhead) / $quantity, 2);
     }
 
     public function getImageUrlAttribute()

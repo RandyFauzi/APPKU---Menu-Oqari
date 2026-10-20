@@ -6,16 +6,16 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Kitchen Display — OQARI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         window.OQARI_REALTIME = {
             shopId: @json(auth()->check() ? auth()->user()->shop_id : null)
         };
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="bg-gray-900 min-h-screen font-sans" x-data="kitchenApp()" x-init="init()" @refresh-live-orders.window="fetchOrders()">
+<body class="bg-gray-900 min-h-screen font-sans" x-data="kitchenApp()" @refresh-live-orders.window="refresh()">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
 {{-- TOPBAR --}}
 <div class="flex items-center justify-between px-6 py-3 bg-gray-800 border-b border-gray-700">
@@ -31,6 +31,10 @@
             </div>
             <span>{{ Auth::user()->name }}</span>
         </div>
+
+        @can('record-attendance')
+            <a href="{{ route('admin.attendance.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-gold-400 hover:bg-gray-100">Absensi Karyawan</a>
+        @endcan
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button class="text-xs text-gray-500 hover:text-red-400"><i class="fas fa-sign-out-alt"></i></button>
@@ -67,7 +71,7 @@
                                 <template x-for="mod in (item.modifiers ?? [])" :key="mod.id ?? mod.name">
                                     <p class="text-gray-400 text-xs" x-text="'• ' + mod.name"></p>
                                 </template>
-                                <p x-show="item.notes" class="text-amber-400 text-xs italic mt-1" x-text="'📝 ' + item.notes"></p>
+                                <p x-show="item.notes" class="text-amber-400 text-sm whitespace-pre-wrap break-words mt-1" x-text="'📝 ' + item.notes"></p>
                             </div>
                         </template>
                     </div>
@@ -106,7 +110,7 @@
                                 <template x-for="mod in (item.modifiers ?? [])" :key="mod.id ?? mod.name">
                                     <p class="text-gray-400 text-xs" x-text="'• ' + mod.name"></p>
                                 </template>
-                                <p x-show="item.notes" class="text-amber-400 text-xs italic mt-1" x-text="'📝 ' + item.notes"></p>
+                                <p x-show="item.notes" class="text-amber-400 text-sm whitespace-pre-wrap break-words mt-1" x-text="'📝 ' + item.notes"></p>
                             </div>
                         </template>
                     </div>
@@ -129,7 +133,7 @@
         </div>
         <div class="flex-1 overflow-y-auto space-y-3 pr-1">
             <template x-for="order in orders.filter(o => o.status === 'READY')" :key="order.id">
-                <div class="bg-gray-800 rounded-2xl p-4 border border-green-500/30 opacity-75">
+                <div class="bg-gray-800 rounded-2xl p-4 border border-gold-600/30 opacity-75">
                     <div class="flex justify-between items-center mb-3">
                         <span class="text-white font-black text-lg">#<span x-text="order.id"></span></span>
                         <span class="text-xs text-gray-400" x-text="order.time"></span>
@@ -144,7 +148,7 @@
                         </template>
                     </div>
                     <button @click="advance(order.id, 'COMPLETED')"
-                        class="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white font-black rounded-xl transition text-sm">
+                        class="w-full py-2.5 bg-brand-800 hover:bg-green-500 text-white font-black rounded-xl transition text-sm">
                         <i class="fas fa-hand-holding mr-1"></i> DIAMBIL
                     </button>
                 </div>
@@ -157,19 +161,7 @@
 <script>
 function kitchenApp() {
     return {
-        orders: @json($orders->map(fn($o) => [
-            'id' => $o->id,
-            'status' => $o->order_status,
-            'time' => $o->created_at->format('H:i'),
-            'items' => $o->items->map(fn($i) => [
-                'id' => $i->id,
-                'name' => $i->product_name,
-                'qty' => $i->quantity,
-                'variant' => $i->variant_name,
-                'modifiers' => $i->modifiers ? json_decode($i->modifiers, true) : [],
-                'notes' => $i->notes,
-            ]),
-        ])),
+        orders: {{ Illuminate\Support\Js::from($kitchenOrders) }},
 
         init() {
             // Auto-refresh every 5 seconds

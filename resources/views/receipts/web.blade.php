@@ -7,16 +7,18 @@
     @vite(['resources/css/app.css'])
     <style>
         :root {
-            --brand-color: {{ $receiptData->shop['primary_color'] }};
+            --brand-color: var(--oq-primary);
         }
     </style>
+    <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="bg-gray-100 font-sans antialiased pb-20">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     <div class="max-w-md mx-auto mt-6 sm:mt-10 bg-white shadow-xl overflow-hidden sm:rounded-lg">
         
         <!-- Header -->
-        <div class="text-center py-8" style="background-color: var(--brand-color); color: #fff;">
+        <div class="oq-receipt-header text-center py-8" style="background-color: var(--brand-color); color: #fff;">
             @if($receiptData->shop['logo_url'])
                 <img src="{{ $receiptData->shop['logo_url'] }}" alt="{{ $receiptData->shop['name'] }}" class="mx-auto h-16 w-16 rounded-full border-2 border-white object-cover mb-3 bg-white">
             @endif

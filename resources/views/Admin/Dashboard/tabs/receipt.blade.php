@@ -1,10 +1,10 @@
-<div x-show="currentTab === 'receipt'" x-cloak class="flex-grow bg-[#FDFBF7] overflow-auto hide-scroll relative">
+<div x-show="currentTab === 'receipt'" x-cloak class="flex-grow bg-ivory overflow-auto hide-scroll relative">
     <!-- Sticky Action Bar -->
-    <div class="sticky top-0 z-40 bg-[#FDFBF7]/95 backdrop-blur-md px-8 lg:px-10 py-4 border-b border-[#E3E1DC]/50 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="sticky top-0 z-40 bg-ivory/95 backdrop-blur-md px-8 lg:px-10 py-4 border-b border-line/50 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <p class="text-[#777873] font-medium text-sm"><i class="fas fa-print mr-1"></i> Sesuaikan tampilan struk yang akan dicetak untuk pelanggan Anda.</p>
+            <p class="text-muted font-medium text-sm"><i class="fas fa-print mr-1"></i> Sesuaikan tampilan struk yang akan dicetak untuk pelanggan Anda.</p>
         </div>
-        <button @click="saveSettings" type="button" class="bg-[#164A35] text-white px-8 py-3 rounded-xl font-bold text-sm shadow-[0_8px_20px_-6px_rgba(22,74,53,0.5)] hover:bg-[#1e5f44] hover:-translate-y-0.5 transition-all flex items-center gap-2 justify-center" :disabled="isSavingSettings">
+        <button @click="saveSettings" type="button" class="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-[0_8px_20px_-6px_rgba(100,29,53,0.5)] hover:bg-brand-700 hover:-translate-y-0.5 transition-all flex items-center gap-2 justify-center" :disabled="isSavingSettings">
             <i class="fas fa-spinner fa-spin" x-show="isSavingSettings"></i>
             <i class="fas fa-save" x-show="!isSavingSettings"></i>
             <span x-text="isSavingSettings ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
@@ -15,28 +15,28 @@
         <!-- Form Settings -->
         <div class="xl:col-span-7 flex flex-col gap-8">
             <!-- Section 1: Header & Footer Struk -->
-            <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#E3E1DC] overflow-hidden">
-                <div class="p-6 border-b border-[#E3E1DC] bg-[#F8F7F3]/50">
-                    <h3 class="font-bold text-lg text-[#202522]">Informasi Struk</h3>
-                    <p class="text-xs text-[#777873]">Tambahkan pesan teks tambahan (header & footer) pada struk pembelian pelanggan.</p>
+            <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                <div class="p-6 border-b border-line bg-ivory/50">
+                    <h3 class="font-bold text-lg text-ink">Informasi Struk</h3>
+                    <p class="text-xs text-muted">Tambahkan pesan teks tambahan (header & footer) pada struk pembelian pelanggan.</p>
                 </div>
                 <div class="p-6 flex flex-col gap-6">
                     <div>
-                        <label class="block text-sm font-bold text-[#202522] mb-2">Teks Header Struk (Opsional)</label>
-                        <textarea x-model="settings.receipt_header" rows="3" class="w-full border border-[#E3E1DC] rounded-xl px-4 py-3 text-sm focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] focus:outline-none transition-all" placeholder="Contoh: Jam Buka: 08:00 - 22:00&#10;Melayani Dine-in & Takeaway"></textarea>
-                        <p class="text-xs text-[#777873] mt-2">Teks ini akan muncul di bagian atas struk, tepat di bawah nama toko dan alamat.</p>
+                        <label class="block text-sm font-bold text-ink mb-2">Teks Header Struk (Opsional)</label>
+                        <textarea x-model="settings.receipt_header" rows="3" class="w-full border border-line rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" placeholder="Contoh: Jam Buka: 08:00 - 22:00&#10;Melayani Dine-in & Takeaway"></textarea>
+                        <p class="text-xs text-muted mt-2">Teks ini akan muncul di bagian atas struk, tepat di bawah nama toko dan alamat.</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-[#202522] mb-2">Teks Footer Struk (Opsional)</label>
-                        <textarea x-model="settings.receipt_footer" rows="3" class="w-full border border-[#E3E1DC] rounded-xl px-4 py-3 text-sm focus:border-[#164A35] focus:ring-1 focus:ring-[#164A35] focus:outline-none transition-all" placeholder="Contoh: Terima kasih atas kunjungan Anda!&#10;Kritik & Saran: 0812xxxx"></textarea>
-                        <p class="text-xs text-[#777873] mt-2">Teks ini akan muncul di bagian paling bawah struk.</p>
+                        <label class="block text-sm font-bold text-ink mb-2">Teks Footer Struk (Opsional)</label>
+                        <textarea x-model="settings.receipt_footer" rows="3" class="w-full border border-line rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" placeholder="Contoh: Terima kasih atas kunjungan Anda!&#10;Kritik & Saran: 0812xxxx"></textarea>
+                        <p class="text-xs text-muted mt-2">Teks ini akan muncul di bagian paling bawah struk.</p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-[#F8F7F3] rounded-2xl p-5 border border-[#E3E1DC]">
-                <h4 class="font-bold text-[#202522] mb-2 flex items-center"><i class="fas fa-lightbulb text-amber-500 mr-2"></i>Tips Professional</h4>
-                <ul class="text-sm text-[#777873] space-y-2">
+            <div class="bg-ivory rounded-2xl p-5 border border-line">
+                <h4 class="font-bold text-ink mb-2 flex items-center"><i class="fas fa-lightbulb text-amber-500 mr-2"></i>Tips Professional</h4>
+                <ul class="text-sm text-muted space-y-2">
                     <li>&bull; Logo Toko akan otomatis diambil dari pengaturan **Toko Saya > Identitas & Branding**.</li>
                     <li>&bull; Nama akun Instagram akan otomatis tercetak jika Anda sudah mengisi *username* Instagram di profil toko Anda.</li>
                     <li>&bull; Jangan membuat Teks Header atau Footer terlalu panjang agar struk tidak boros kertas.</li>
@@ -47,7 +47,7 @@
         <!-- Live Preview -->
         <div class="xl:col-span-5 sticky top-[100px]">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-black text-[#202522]"><i class="fas fa-receipt mr-2 text-[#164A35]"></i>Live Preview Struk</h3>
+                <h3 class="font-black text-ink"><i class="fas fa-receipt mr-2 text-primary"></i>Live Preview Struk</h3>
             </div>
             
             <!-- Receipt Frame (Thermal Printer Style) -->
@@ -130,7 +130,7 @@
                 <div class="absolute bottom-0 left-0 w-full h-2 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCI+PHBvbHlnb24gcG9pbnRzPSIwLDEwIDUsMCAxMCwxMCIgZmlsbD0iI0ZERkJGNyIvPjwvc3ZnPg==')] bg-repeat-x -mb-1 z-10"></div>
             </div>
             
-            <p class="text-xs text-center text-[#777873] mt-4"><i class="fas fa-info-circle mr-1"></i> Preview ini disesuaikan untuk printer thermal Bluetooth (58mm).</p>
+            <p class="text-xs text-center text-muted mt-4"><i class="fas fa-info-circle mr-1"></i> Preview ini disesuaikan untuk printer thermal Bluetooth (58mm).</p>
         </div>
     </div>
 </div>

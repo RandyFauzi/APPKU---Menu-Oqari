@@ -28,15 +28,7 @@ class LoginAdminController extends Controller
 
         $request->session()->regenerate();
 
-        $role = $request->user()->role;
-
-        $destination = match ($role) {
-            'cashier' => route('admin.pos.index', absolute: false),
-            'barista', 'kitchen' => route('admin.kitchen.index', absolute: false),
-            'crew' => route('admin.my-schedule', absolute: false),
-            'superadmin' => route('superadmin.dashboard', absolute: false),
-            default => route('admin.dashboard', absolute: false), // owner, manager
-        };
+        $destination = route($request->user()->homeRoute(), absolute: false);
 
         return redirect()->intended($destination);
     }

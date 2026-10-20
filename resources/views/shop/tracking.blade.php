@@ -2,10 +2,9 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesanan Berhasil - {{ $shop->name }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     @if(isset($shop) && $shop->logo_url)
         <link rel="icon" type="image/png" href="{{ $shop->logo_url }}">
@@ -14,15 +13,17 @@
     @endif
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
-        html { background-color: #f1f5f9; }
+        html { background-color: #fffaf0; }
         :root {
-            --color-primary: {{ $shop->primary_color ?? '#1c4532' }};
-            --color-secondary: {{ $shop->primary_color ?? '#2d6a4f' }};
+            --color-primary: var(--oq-primary);
+            --color-secondary: var(--oq-primary-dark);
         }
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <x-theme-head :shop="$shop ?? null" />
 </head>
 <body data-page="tracking" class="antialiased w-full max-w-[420px] mx-auto bg-white min-h-screen relative flex flex-col justify-center items-center p-6 text-center shadow-2xl">
+    <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     <!-- Animasi Ilustrasi -->
     <div class="mb-6 relative">

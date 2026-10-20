@@ -48,8 +48,8 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 @foreach($order->items as $item)
 <tr>
 <td class="qty">{{ $item->quantity }}x</td>
-<td class="name">{{ $item->product ? $item->product->name : 'Produk' }}<br><small>{{ $item->notes }}</small></td>
-<td class="price">{{ number_format($item->price * $item->quantity, 0, ',', '.') }}</td>
+<td class="name">{{ $item->product ? $item->product->name : 'Produk' }}<br><small style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ $item->notes }}</small></td>
+<td class="price">{{ number_format($item->unit_price * $item->quantity, 0, ',', '.') }}</td>
 </tr>
 @endforeach
 </table>

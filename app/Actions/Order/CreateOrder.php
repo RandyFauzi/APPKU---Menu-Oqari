@@ -35,13 +35,7 @@ class CreateOrder
                     ?? Table::create(['shop_id' => $shop->id, 'name' => $data['table']]);
             }
 
-            // 2. Apply shop-level tax/service_charge config
-            $taxRate = (float) ($shop->tax_rate ?? 0);
-            $serviceChargeRate = (float) ($shop->service_charge_rate ?? 0);
             $netSales = $cart['net_sales'] ?? $cart['subtotal'];
-            $taxAmount = round($netSales * $taxRate / 100, 2);
-            $serviceAmount = round($netSales * $serviceChargeRate / 100, 2);
-            $grandTotal = $netSales + $taxAmount + $serviceAmount;
 
             // 3. Create Order header
             $order = Order::create([
@@ -53,9 +47,9 @@ class CreateOrder
                 'payment_method' => $data['payment_method'],
                 'subtotal' => $cart['subtotal'],
                 'discount_amount' => $cart['discount_amount'] ?? 0,
-                'tax_amount' => $taxAmount,
-                'service_charge_amount' => $serviceAmount,
-                'grand_total' => $grandTotal,
+                'tax_amount' => 0,
+                'service_charge_amount' => 0,
+                'grand_total' => $netSales,
                 'total_cogs' => $cart['total_cogs'],
                 'order_status' => 'CONFIRMED',
                 'payment_status' => 'UNPAID',

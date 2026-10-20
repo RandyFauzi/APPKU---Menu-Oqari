@@ -1,0 +1,78 @@
+@layer base {
+    :root {
+        color-scheme: light;
+        --oq-burgundy-50: 251 240 243;
+        --oq-burgundy-100: 244 223 229;
+        --oq-burgundy-200: 232 189 203;
+        --oq-burgundy-300: 215 147 168;
+        --oq-burgundy-400: 192 101 133;
+        --oq-burgundy-500: 164 65 101;
+        --oq-burgundy-600: 135 48 79;
+        --oq-burgundy-700: 117 37 64;
+        --oq-burgundy-800: 100 29 53;
+        --oq-burgundy-900: 72 21 38;
+        --oq-burgundy-950: 46 13 24;
+        --oq-gold-50: 252 248 235;
+        --oq-gold-100: 245 236 210;
+        --oq-gold-200: 228 202 140;
+        --oq-gold-300: 211 178 105;
+        --oq-gold-400: 182 146 75;
+        --oq-gold-500: 163 124 53;
+        --oq-gold-600: 132 99 34;
+        --oq-gold-700: 108 76 27;
+        --oq-gold-800: 80 56 23;
+        --oq-gold-900: 56 39 16;
+        --oq-gold-950: 39 27 12;
+        --oq-primary-rgb: var(--oq-burgundy-800);
+        --oq-primary: rgb(var(--oq-primary-rgb));
+        --oq-primary-dark: rgb(var(--oq-burgundy-900));
+        --oq-gold: rgb(var(--oq-gold-400));
+        --oq-gold-ink: rgb(var(--oq-gold-600));
+        --oq-ivory: #fffaf0;
+        --oq-surface: #fffdf8;
+        --oq-surface-muted: #f6eedf;
+        --oq-line: #e4d7bd;
+        --oq-ink: #38242b;
+        --oq-muted: #6c5b60;
+        --oq-font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        --oq-font-heading: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+        --color-primary: var(--oq-primary);
+        --color-secondary: var(--oq-primary-dark);
+    }
+    html { background-color: var(--oq-ivory); accent-color: var(--oq-primary); }
+    body { background-color: var(--oq-ivory); color: var(--oq-ink); font-family: var(--oq-font-body); }
+    h1, h2, h3, .font-heading { font-family: var(--oq-font-heading); font-weight: 700; letter-spacing: .015em; }
+    :is(input, select, textarea) { accent-color: var(--oq-primary); }
+    :is(input, textarea)::placeholder { color: var(--oq-muted); opacity: .85; }
+    :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--oq-gold-ink); outline-offset: 3px; }
+    button:disabled, input:disabled, select:disabled { cursor: not-allowed; }
+    ::selection { background: rgb(var(--oq-gold-200)); color: var(--oq-primary-dark); }
+    [x-cloak] { display: none !important; }
+}
+
+@layer components {
+    .oq-frieze { height: 8px; flex-shrink: 0; background-color: var(--oq-primary-dark); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='8' viewBox='0 0 40 8'%3E%3Cpath d='M0 6h8V2h8v4h8V2h8v4h8' fill='none' stroke='%23b6924b' stroke-width='1'/%3E%3C/svg%3E"); }
+    .oq-hero { background-image: radial-gradient(ellipse at 80% 20%, rgb(var(--oq-gold-200) / .3), transparent 55%), linear-gradient(135deg, var(--oq-ivory), var(--oq-surface)); }
+    .oq-seal { color: var(--oq-gold-ink); }
+    .oq-rule { border-color: var(--oq-line); border-top: 1px solid var(--oq-line); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+@media (forced-colors: active) { :is(a, button, input, select, textarea):focus-visible { outline-color: Highlight; } }
+@media print {
+    html, body { background: #fff !important; color: #000 !important; }
+    .oq-frieze { display: none !important; }
+    .oq-receipt-header { background: #fff !important; color: #000 !important; border-bottom: 1px solid #000; }
+    body { background-image: none !important; }
+}
+
+:root :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--oq-gold-ink);
+    outline-offset: 3px;
+}
+:is(.dark, .bg-gray-900, .bg-brand-950, .bg-primary) :focus-visible {
+    outline-color: rgb(var(--oq-gold-200));
+}
+.dark { color-scheme: dark; }

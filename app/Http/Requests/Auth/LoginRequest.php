@@ -50,6 +50,21 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if (! $this->user()->is_active) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages(['email' => 'Akun dinonaktifkan. Hubungi owner cafe.']);
+        }
+        $this->session()->put('account_version', $this->user()->account_version);
+
+        if ($this->user()->role !== 'superadmin' && $this->user()->shop?->isSuspended()) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Toko dinonaktifkan. Hubungi administrator platform.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

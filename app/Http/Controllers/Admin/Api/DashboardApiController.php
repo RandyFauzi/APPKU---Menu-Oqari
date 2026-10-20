@@ -18,9 +18,9 @@ class DashboardApiController extends Controller
             return response()->json(['error' => 'No shop assigned'], 403);
         }
 
-        $categories = Category::where('shop_id', $shopId)->orderBy('sort_order')->get();
-        $tables = Table::where('shop_id', $shopId)->get();
-        $users = User::where('shop_id', $shopId)->get();
+        $categories = $request->user()->can('manage-menu') ? Category::where('shop_id', $shopId)->orderBy('sort_order')->get() : collect();
+        $tables = $request->user()->canAny(['view-orders', 'manage-settings']) ? Table::where('shop_id', $shopId)->get() : collect();
+        $users = $request->user()->canAny(['manage-crew', 'manage-users']) ? User::where('shop_id', $shopId)->where('role', '!=', 'superadmin')->get(['id', 'name', 'role', 'is_active']) : collect();
 
         return response()->json([
             'categories' => $categories,

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\RawMaterial;
 use App\Models\StockMutation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -82,53 +83,31 @@ class InventoryService
      */
     public function deductStockForOrder(Order $order): void
     {
-        try {
-            $this->ensureTablesExist();
+        DB::transaction(function () use ($order): void {
+            $order->loadMissing('items.product.recipes');
 
-            DB::transaction(function () use ($order) {
-                $order->loadMissing('items.product.recipes.rawMaterial');
-
-                foreach ($order->items as $item) {
-                    $product = $item->product;
-                    if (! $product || $product->recipes->isEmpty()) {
-                        continue;
-                    }
-
-                    $orderQty = (float) $item->quantity;
-
-                    foreach ($product->recipes as $recipe) {
-                        $material = $recipe->rawMaterial;
-                        if (! $material) {
-                            continue;
-                        }
-
-                        $amountToDeduct = (float) $recipe->amount * $orderQty;
-                        $oldStock = (float) $material->current_stock;
-                        $newStock = $oldStock - $amountToDeduct;
-
-                        // Perbarui stok
-                        $material->update([
-                            'current_stock' => $newStock,
-                        ]);
-
-                        // Catat mutasi stok
-                        StockMutation::create([
-                            'shop_id' => $order->shop_id,
-                            'raw_material_id' => $material->id,
-                            'type' => 'out_order',
-                            'amount' => -$amountToDeduct,
-                            'balance_after' => $newStock,
-                            'reference_type' => 'Order',
-                            'reference_id' => $order->id,
-                            'notes' => "Pesanan #{$order->id} ({$item->product_name} x{$orderQty})",
-                            'user_id' => auth()->id() ?? null,
-                        ]);
-                    }
+            foreach ($order->items as $item) {
+                foreach ($item->product?->recipes ?? [] as $recipe) {
+                    $material = RawMaterial::where('shop_id', $order->shop_id)
+                        ->whereKey($recipe->raw_material_id)->lockForUpdate()->firstOrFail();
+                    $amountToDeduct = (float) $recipe->amount * (float) $item->quantity;
+                    $newStock = (float) $material->current_stock - $amountToDeduct;
+                    $material->update(['current_stock' => $newStock]);
+                    StockMutation::create([
+                        'shop_id' => $order->shop_id,
+                        'raw_material_id' => $material->id,
+                        'unit' => $material->unit,
+                        'type' => 'out_order',
+                        'amount' => -$amountToDeduct,
+                        'balance_after' => $newStock,
+                        'reference_type' => 'Order',
+                        'reference_id' => $order->id,
+                        'notes' => "Pesanan #{$order->id}",
+                        'user_id' => auth()->id(),
+                    ]);
                 }
-            });
-        } catch (\Throwable $e) {
-            Log::error("Failed deducting stock for order #{$order->id}: ".$e->getMessage());
-        }
+            }
+        });
     }
 
     /**
