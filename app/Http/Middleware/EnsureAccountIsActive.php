@@ -12,8 +12,8 @@ class EnsureAccountIsActive
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        $expired = $user && $request->hasSession() && (int) $request->session()->get('account_version', 0) !== $user->account_version;
-        if ($user && (! $user->is_active || $expired)) {
+        $expired = $user && $request->hasSession() && (int) $request->session()->get('account_version', 0) !== (int) $user->account_version;
+        if ($user && (! $user->isAccountActive() || $expired)) {
             Auth::guard('web')->logout();
             if ($request->hasSession()) {
                 $request->session()->invalidate();

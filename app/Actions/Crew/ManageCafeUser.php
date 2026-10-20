@@ -20,7 +20,7 @@ class ManageCafeUser
         return DB::transaction(function () use ($actor, $data, $targetId): User {
             Shop::whereKey($actor->shop_id)->lockForUpdate()->firstOrFail();
             $actor = User::where('shop_id', $actor->shop_id)->whereKey($actor->id)->firstOrFail();
-            abort_unless($actor->is_active && $actor->can('manage-users'), 403);
+            abort_unless($actor->isAccountActive() && $actor->can('manage-users'), 403);
             $target = $targetId ? User::where('shop_id', $actor->shop_id)->where('role', '!=', 'superadmin')->whereKey($targetId)->lockForUpdate()->firstOrFail() : new User(['shop_id' => $actor->shop_id]);
             if ($targetId) {
                 abort_unless($this->policy->update($actor, $target), 403);
@@ -63,7 +63,7 @@ class ManageCafeUser
             }
             $target->save();
             ActivityLog::create(['shop_id' => $actor->shop_id, 'user_id' => $actor->id, 'action' => $targetId ? 'user.access_updated' : 'user.created',
-                'entity_type' => User::class, 'entity_id' => $target->id, 'description' => $targetId ? 'Memperbarui akun dan hak akses user' : 'Membuat akun cafe',
+                'ip_address' => request()->ip(), 'user_agent' => mb_substr((string) request()->userAgent(), 0, 255), 'entity_type' => User::class, 'entity_id' => $target->id, 'description' => $targetId ? 'Memperbarui akun dan hak akses user' : 'Membuat akun cafe',
                 'old_values' => $before, 'new_values' => $target->only(['name', 'email', 'role', 'is_active', 'permissions'])]);
 
             return $target;

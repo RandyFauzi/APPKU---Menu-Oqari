@@ -21,8 +21,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (! is_array(config('access.permissions'))) {
+            config(['access' => require config_path('access.php')]);
+        }
+
         Gate::before(function (User $user): ?bool {
-            if (! $user->is_active) {
+            if (! $user->isAccountActive()) {
                 return false;
             }
 

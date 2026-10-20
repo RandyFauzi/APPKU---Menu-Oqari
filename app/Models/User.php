@@ -34,10 +34,15 @@ class User extends Authenticatable
         ];
     }
 
+    public function isAccountActive(): bool
+    {
+        return ! array_key_exists('is_active', $this->getAttributes()) || $this->is_active === true;
+    }
+
     /** @return list<string> */
     public function effectivePermissions(): array
     {
-        if (! $this->is_active || ! $this->shop_id || $this->role === 'superadmin') {
+        if (! $this->isAccountActive() || ! $this->shop_id || $this->role === 'superadmin') {
             return [];
         }
         $catalog = array_keys(config('access.permissions'));

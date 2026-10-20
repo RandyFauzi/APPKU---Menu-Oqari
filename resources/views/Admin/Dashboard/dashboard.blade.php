@@ -1761,12 +1761,14 @@ if (res.ok) {
                 showAddShiftModal: false,
                 newShift: { id: null, user_id: '', date: '', start_time: '', end_time: '', notes: '' },
                 async fetchShifts() {
+                    if (!this.can('manage-crew')) return;
                     try {
                         let res = await fetch('/admin/api/shifts');
                         if (res.ok) this.shifts = await res.json();
                     } catch (e) {}
                 },
                 async fetchLogs() {
+                    if (!this.can('view-reports')) return;
                     try {
                         let res = await fetch('/admin/api/logs');
                         if (res.ok) this.logs = await res.json();

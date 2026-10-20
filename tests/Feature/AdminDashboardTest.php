@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,7 +16,8 @@ class AdminDashboardTest extends TestCase
      */
     public function test_admin_can_access_dashboard()
     {
-        $user = User::factory()->create();
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
 
         $response = $this->actingAs($user)->get('/admin/dashboard');
 
@@ -25,9 +27,9 @@ class AdminDashboardTest extends TestCase
 
     public function test_admin_can_create_menu()
     {
-        $user = User::factory()->create();
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
 
-        // Ensure a shop is created via the dashboard
         $this->actingAs($user)->get('/admin/dashboard');
 
         $response = $this->actingAs($user)->postJson('/admin/api/menu', [

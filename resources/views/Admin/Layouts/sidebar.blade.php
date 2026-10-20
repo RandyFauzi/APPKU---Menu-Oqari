@@ -72,7 +72,7 @@
         </div>
     </div>
     <nav class="flex-1 p-3 space-y-1">
-        @can('manage-menu')
+        @can('manage-hpp')
             <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
         @endcan
         @can('manage-register')
@@ -121,7 +121,7 @@
         </div>
     </div>
     <nav class="flex-1 p-3 space-y-1">
-        @can('manage-menu')
+        @can('manage-hpp')
             <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
         @endcan
         @can('manage-register')
@@ -160,7 +160,7 @@
         <span class="text-xl font-black text-white">APPKU<span class="text-accent">SaaS</span></span>
     </div>
     <nav class="flex-1 p-3 space-y-1">
-        @can('manage-menu')
+        @can('manage-hpp')
             <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
         @endcan
         @can('manage-register')
@@ -201,7 +201,7 @@
         </div>
     </div>
     <nav class="flex-1 overflow-y-auto py-4 hide-scroll">
-        @can('manage-menu')
+        @can('manage-hpp')
             <a href="{{ route('admin.hpp.index') }}" class="block px-3 py-3 rounded-xl font-bold text-sm text-primary hover:bg-gray-100">Kalkulator HPP</a>
         @endcan
         @can('manage-register')

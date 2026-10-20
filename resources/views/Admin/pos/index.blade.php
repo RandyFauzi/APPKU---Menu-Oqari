@@ -313,10 +313,12 @@
                     class="flex-1 py-3 rounded-xl border-2 border-gray-300 text-gray-600 font-bold text-sm hover:bg-gray-50 transition">
                     <i class="fas fa-pause mr-1"></i> HOLD
                 </button>
+                @can('manage-payments')
                 <button @click="openPayment()" x-show="cart.length > 0" x-cloak
                     class="flex-1 py-3 rounded-xl bg-brand-800 hover:bg-brand-900 text-white font-black text-sm shadow-lg shadow-green-200 transition">
                     <i class="fas fa-credit-card mr-1"></i> BAYAR
                 </button>
+                @else<p class="text-sm text-gray-600 p-3">Pembayaran memerlukan izin dari Owner.</p>@endcan
                 <div x-show="cart.length === 0" class="flex-1 py-3 rounded-xl bg-gray-100 text-gray-400 font-bold text-sm text-center">
                     Pilih produk
                 </div>

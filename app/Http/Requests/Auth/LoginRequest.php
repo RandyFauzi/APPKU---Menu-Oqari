@@ -50,7 +50,7 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (! $this->user()->is_active) {
+        if (! $this->user()->isAccountActive()) {
             Auth::logout();
             RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages(['email' => 'Akun dinonaktifkan. Hubungi owner cafe.']);
