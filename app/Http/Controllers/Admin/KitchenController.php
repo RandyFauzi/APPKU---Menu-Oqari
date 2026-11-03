@@ -15,13 +15,16 @@ class KitchenController extends Controller
 
         $orders = Order::where('shop_id', $shopId)
             ->whereIn('order_status', ['CONFIRMED', 'PREPARING', 'READY'])
-            ->with('items')
+            ->with(['items', 'table'])
             ->latest()
             ->limit(150)
             ->get();
 
         $kitchenOrders = $orders->map(fn ($o) => [
             'id' => $o->id,
+            'table' => $o->table?->name ?? ($o->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : ($o->fulfillment_type === 'DELIVERY' ? 'Delivery' : 'Tanpa Meja')),
+            'customer' => $o->customer_name ?: 'Walk-in Customer',
+            'type' => $o->fulfillment_type === 'DINE_IN' ? 'Dine In' : ($o->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Delivery'),
             'status' => $o->order_status,
             'time' => $o->created_at->format('H:i'),
             'items' => $o->items->map(fn ($i) => [
