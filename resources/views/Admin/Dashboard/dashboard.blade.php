@@ -64,10 +64,10 @@
                     <i class="fas fa-bars text-base"></i>
                 </button>
                 <div x-show="currentTab === 'dashboard'">
-                    <p class="font-['DM_Sans',sans-serif] font-medium text-[13px] text-[#111827]">Dashboard</p>
+                    <p class="font-['DM_Sans',sans-serif] font-semibold text-[13px] text-[#111827]">Dashboard</p>
                 </div>
                 <div x-show="currentTab !== 'dashboard' && currentTab !== 'analytics'">
-                    <h2 class="font-sans font-bold text-lg md:text-xl text-primary" x-text="tabs.find(t => t.id === currentTab)?.name"></h2>
+                    <p class="font-['DM_Sans',sans-serif] font-semibold text-[13px] text-[#111827]" x-text="tabs.find(t => t.id === currentTab)?.name"></p>
                 </div>
             </div>
             
@@ -410,7 +410,7 @@
                         </div>
                         <div class="flex flex-col justify-center">
                             <h2 class="text-[18px] font-bold text-primary leading-tight mb-1" x-text="'Struk Pesanan #' + (selectedOrder ? selectedOrder.id : '')"></h2>
-                            <p class="text-[13px] font-mono text-muted" x-text="selectedOrder ? selectedOrder.time : ''"></p>
+                            <p class="text-[13px] font-mono text-muted" x-text="selectedOrder ? formatOrderTime(selectedOrder.time) : ''"></p>
                         </div>
                     </div>
 
@@ -438,7 +438,7 @@
                     <div class="flex flex-col gap-4 max-h-[40vh] overflow-y-auto hide-scroll py-2">
                         <template x-for="(item, idx) in selectedOrder?.items" :key="idx">
                             <div class="flex items-center gap-4">
-                                <img :src="item.image || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-[12px] object-cover bg-gray-100 shrink-0">
+                                <div class="w-12 h-12 rounded-[12px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center"><img x-show="item.image" :src="item.image" class="w-full h-full object-cover"><span x-show="!item.image" class="text-xs font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span></div>
                                 <div class="flex-grow min-w-0">
                                     <h4 class="text-[14px] font-bold text-ink truncate" x-text="item.name"></h4>
                                     <p x-show="item.notes" class="text-[11px] text-gold-600 mt-0.5"><i class="fas fa-comment-dots mr-1"></i> <span x-text="item.notes"></span></p>
@@ -542,7 +542,7 @@
                     <div class="flex flex-col gap-4 max-h-[30vh] overflow-y-auto hide-scroll py-2">
                         <template x-for="(item, idx) in activeIncomingOrder?.items" :key="idx">
                             <div class="flex items-center gap-4">
-                                <img :src="item.image || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=100&h=100&fit=crop'" class="w-12 h-12 rounded-[12px] object-cover bg-gray-100 shrink-0">
+                                <div class="w-12 h-12 rounded-[12px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center"><img x-show="item.image" :src="item.image" class="w-full h-full object-cover"><span x-show="!item.image" class="text-xs font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span></div>
                                 <div class="flex-grow min-w-0">
                                     <h4 class="text-[14px] font-bold text-ink truncate" x-text="item.name"></h4>
                                 </div>
@@ -1122,7 +1122,7 @@ handleDraftImageUpload(event, index) {
                 },
                 tabs: [
                     { id: 'dashboard', ability: null, name: 'Dashboard', icon: 'fas fa-th-large' },
-                    { id: 'orders', ability: 'view-orders', name: 'Live Orders', icon: 'fas fa-receipt' },
+                    { id: 'orders', ability: 'view-orders', name: 'Pesanan Aktif', icon: 'fas fa-receipt' },
                     { id: 'menu', ability: 'manage-menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
                     { id: 'inventory', ability: 'manage-inventory', name: 'Bahan & Stok', icon: 'fas fa-boxes-stacked' },
                     { id: 'qr', ability: 'manage-settings', name: 'Table & QR', icon: 'fas fa-qrcode' },
@@ -1272,6 +1272,17 @@ handleDraftImageUpload(event, index) {
                 },
                 orders: [],
                 menuItems: [],
+                formatOrderTime(timeStr) {
+                    if (!timeStr) return '--:--';
+                    const d = new Date(String(timeStr).replace(' ', 'T'));
+                    if (isNaN(d.getTime())) return String(timeStr);
+                    const now = new Date();
+                    const isToday = d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                    const timePart = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace('.', ':');
+                    if (isToday) return timePart;
+                    const datePart = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                    return `${datePart} • ${timePart}`;
+                },
                 formatOmzetShort(val) {
                     const num = Number(val ?? 0);
                     if (isNaN(num) || num <= 0) return 'Rp0';
@@ -1753,9 +1764,9 @@ handleDraftImageUpload(event, index) {
                         total: parseFloat(newOrder.total || newOrder.grand_total || newOrder.total_price || 0),
                         time: newOrder.created_at,
                         items: (newOrder.items || []).map(i => ({
-                            name: i.product?.name || 'Produk',
+                            name: i.product_name || i.product?.name || i.name || 'Produk',
                             qty: i.quantity,
-                            price: parseFloat(i.price),
+                            price: parseFloat(i.unit_price ?? i.price ?? i.product?.price ?? 0), notes: i.notes || '',
                             image: i.product?.image_url ? (i.product.image_url) : null,
                             desc: i.product?.description || ''
                         }))
@@ -1836,9 +1847,9 @@ if (res.ok) {
                             total: parseFloat(o.grand_total || o.total_price),
                             time: o.created_at,
                             items: (o.items || []).map(i => ({
-                                name: i.product?.name || 'Produk',
+                                name: i.product_name || i.product?.name || i.name || 'Produk',
                                 qty: i.quantity,
-                                price: parseFloat(i.price),
+                                price: parseFloat(i.unit_price ?? i.price ?? i.product?.price ?? 0), notes: i.notes || '',
                                 image: i.product?.image_url ? (i.product.image_url) : null,
                                 desc: i.product?.description || ''
                             }))

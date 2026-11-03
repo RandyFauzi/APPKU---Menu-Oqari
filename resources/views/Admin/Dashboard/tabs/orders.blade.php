@@ -1,138 +1,233 @@
-<div x-show="currentTab === 'orders'" x-cloak class="flex-grow p-4 md:p-8 pt-2 overflow-hidden flex flex-col">
-            <!-- Order Type Filters -->
-            <div class="flex flex-wrap gap-2 mb-6 shrink-0">
-                <button @click="activeOrderFilter = 'all'" :class="activeOrderFilter === 'all' ? 'bg-primary text-white shadow-sm border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">All</button>
-                <button @click="activeOrderFilter = 'process'" :class="activeOrderFilter === 'process' ? 'bg-primary text-white shadow-sm border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">On Process</button>
-                <button @click="activeOrderFilter = 'completed'" :class="activeOrderFilter === 'completed' ? 'bg-primary text-white shadow-sm border-transparent' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'" class="px-4 py-1.5 rounded-full text-xs font-bold border transition-colors">Completed</button>
+<div x-show="currentTab === 'orders'" x-cloak class="flex-grow bg-[#f6f5f2] p-4 md:p-[24px] overflow-y-auto hide-scroll font-['DM_Sans',sans-serif] text-[#1e211f]">
+
+    <!-- Page Title & Action Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div>
+            <h1 class="text-[22px] font-bold text-[#1e211f] tracking-[-0.3px] leading-tight">Pesanan Aktif</h1>
+            <p class="text-[12px] text-[#7f837e] mt-0.5">Pantau dan kelola status antrean pesanan pelanggan secara real-time.</p>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+            <a href="{{ route('admin.pos.index') }}"
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition">
+                <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
+                <span>Buat Pesanan</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter & Search Bar Card (Sparta Style) -->
+    <div class="bg-white border border-[#e6e5e0] rounded-[16px] p-[14px] mb-5 shadow-[0px_2px_8px_rgba(0,0,0,0.02)]">
+        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <!-- Status Filter Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto hide-scroll">
+                <button type="button" @click="activeOrderFilter = 'all'"
+                    :class="activeOrderFilter === 'all' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
+                    class="border rounded-[9px] px-3.5 py-2 text-[12px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap">
+                    <span>Semua</span>
+                    <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
+                          :class="activeOrderFilter === 'all' ? 'bg-[#df5826] text-white' : 'bg-[#e6e5e0] text-[#53565a]'"
+                          x-text="orders.length">0</span>
+                </button>
+
+                <button type="button" @click="activeOrderFilter = 'process'"
+                    :class="activeOrderFilter === 'process' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
+                    class="border rounded-[9px] px-3.5 py-2 text-[12px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap">
+                    <span>Sedang Diproses</span>
+                    <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
+                          :class="activeOrderFilter === 'process' ? 'bg-[#df5826] text-white' : 'bg-[#e6e5e0] text-[#53565a]'"
+                          x-text="orders.filter(o => ['Masuk','CONFIRMED','In Progress','PREPARING','Ready','READY'].includes(o.status || o.order_status)).length">0</span>
+                </button>
+
+                <button type="button" @click="activeOrderFilter = 'completed'"
+                    :class="activeOrderFilter === 'completed' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
+                    class="border rounded-[9px] px-3.5 py-2 text-[12px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap">
+                    <span>Selesai</span>
+                    <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
+                          :class="activeOrderFilter === 'completed' ? 'bg-[#df5826] text-white' : 'bg-[#e6e5e0] text-[#53565a]'"
+                          x-text="orders.filter(o => ['Completed','COMPLETED'].includes(o.status || o.order_status)).length">0</span>
+                </button>
             </div>
 
-            <!-- Kanban Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 overflow-y-auto hide-scroll pb-20 items-start">
-                <!-- Empty State -->
-                <div x-show="filteredOrders.length === 0" class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-24 text-center">
-                    <div class="w-24 h-24 bg-white border border-line rounded-full flex items-center justify-center mb-5 text-brand-200 shadow-sm">
-                        <i class="fas fa-receipt text-4xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-primary mb-2" style="font-family: var(--oq-font-heading);">Belum ada pesanan masuk</h3>
-                    <p class="text-[14px] text-muted">Tidak ada orderan pada tab status ini.</p>
-                </div>
-
-                <template x-for="order in filteredOrders" :key="order.id">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col transition-all hover:shadow-md">
-                        <!-- Card Header (Table Number Dominant) -->
-                        <div class="flex flex-col mb-4 border-b border-gray-100 pb-3">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest font-mono">Meja</span>
-                                    <span class="font-heading font-black text-4xl text-primary leading-none" x-text="order.table || 'TA'"></span>
-                                </div>
-                                <!-- Status Badge & Time -->
-                                <div class="flex flex-col items-end gap-1">
-                                    <!-- MASUK -->
-                                    <span x-show="order.status === 'Masuk'" class="px-2 py-1 rounded bg-yellow-100 text-yellow-800 text-[10px] font-bold border border-yellow-300 flex items-center gap-1 animate-pulse">
-                                        <i class="fas fa-bell"></i> New
-                                    </span>
-                                    <!-- IN PROGRESS -->
-                                    <span x-show="order.status === 'In Progress'" class="px-2 py-1 rounded bg-[#FDE68A] text-[#92400E] text-[10px] font-bold border border-[#FCD34D] flex items-center gap-1">
-                                        <i class="fas fa-clock"></i> In Progress
-                                    </span>
-                                    <!-- READY -->
-                                    <span x-show="order.status === 'Ready'" class="px-2 py-1 rounded bg-primary text-white text-[10px] font-bold shadow-sm flex items-center gap-1">
-                                        <i class="fas fa-check"></i> Ready
-                                    </span>
-                                    <!-- COMPLETED -->
-                                    <span x-show="order.status === 'Completed'" class="px-2 py-1 rounded bg-gray-100 text-gray-500 text-[10px] font-bold border border-gray-200 flex items-center gap-1">
-                                        <i class="fas fa-check-double"></i> Completed
-                                    </span>
-                                    <!-- DIBATALKAN -->
-                                    <span x-show="order.status === 'Dibatalkan'" class="px-2 py-1 rounded bg-red-100 text-red-700 text-[10px] font-bold border border-red-200 flex items-center gap-1">
-                                        <i class="fas fa-times-circle"></i> Dibatalkan
-                                    </span>
-                                    
-                                    <p class="text-[10px] font-bold text-gray-400 mt-1" x-text="order.time"></p>
-                                </div>
-                            </div>
-                            
-                            <!-- Customer Name -->
-                            <div class="flex flex-col">
-                                <h3 class="font-heading font-bold text-base text-gray-500 leading-tight"><i class="fas fa-user text-xs mr-1 opacity-50"></i> <span x-text="order.customer"></span></h3>
-                                <p class="text-[10px] text-gray-400 font-mono mt-0.5">Order <span x-text="'#'+order.id"></span> / <span x-text="order.type"></span></p>
-                            </div>
-                        </div>
-                            
-
-
-                        <!-- Card Body (Items) -->
-                        <div class="flex-grow font-mono">
-                            <div class="flex justify-between text-[10px] text-gray-400 font-bold uppercase mb-2">
-                                <span>Items</span>
-                                <div class="flex gap-4 w-24 justify-end">
-                                    <span class="w-6 text-center">Qty</span>
-                                    <span class="w-14 text-right">Price</span>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-2 mb-4 overflow-y-auto hide-scroll">
-                                <template x-for="item in order.items">
-                                    <div class="flex justify-between text-sm" :class="['Completed', 'Dibatalkan'].includes(order.status) ? 'text-gray-400 line-through' : 'text-textdark'">
-                                        <div class="flex flex-col truncate pr-2 flex-grow">
-                                            <span x-text="item.name" class="truncate font-medium"></span>
-                                            <span x-show="item.notes" class="text-[10px] text-red-500 italic mt-0.5" x-text="item.notes"></span>
-                                        </div>
-                                        <div class="flex gap-4 w-24 justify-end flex-shrink-0">
-                                            <span class="w-6 text-center" x-text="item.qty"></span>
-                                            <span class="w-14 text-right font-bold" x-text="formatRp(item.price * item.qty)"></span>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-
-                        <!-- Card Footer -->
-                        <div class="border-t border-gray-100 pt-4 flex flex-col gap-3">
-                            <div class="flex justify-between items-center font-mono">
-                                <span class="font-bold text-gray-500 uppercase text-xs">Total</span>
-                                <span class="font-extrabold text-xl text-primary" x-text="formatRp(order.total)"></span>
-                            </div>
-                            
-                            <!-- One Tap Action Button -->
-                            <div class="flex gap-2 w-full mt-2">
-                                <button @click="viewOrderDetails(order)" class="flex-grow py-2.5 rounded text-sm font-bold border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
-                                    See Details
-                                </button>
-                                
-                                <template x-if="order.status === 'Masuk' || order.status === 'CONFIRMED'">
-                                    <button @click="updateStatus(order.id, 'In Progress')" class="flex-grow py-2.5 rounded text-sm font-bold bg-yellow-500 text-yellow-900 shadow hover:bg-yellow-400 transition">
-                                        Terima & Proses
-                                    </button>
-                                </template>
-                                
-                                <template x-if="order.status === 'In Progress' || order.status === 'PREPARING'">
-                                    <button @click="updateStatus(order.id, 'Ready')" class="flex-grow py-2.5 rounded text-sm font-bold bg-primary text-white shadow hover:bg-primary-dark transition">
-                                        Mark Ready
-                                    </button>
-                                </template>
-                                
-                                <template x-if="order.status === 'Ready' || order.status === 'READY'">
-                                    <button @click="updateStatus(order.id, 'Completed')" class="flex-grow py-2.5 rounded text-sm font-bold bg-primary text-white shadow hover:bg-primary-dark transition">
-                                        Selesaikan
-                                    </button>
-                                </template>
-
-                                <template x-if="order.status === 'Completed' || order.status === 'COMPLETED'">
-                                    <button disabled class="flex-grow py-2.5 rounded text-sm font-bold bg-gray-100 text-gray-400 cursor-not-allowed">
-                                        Done
-                                    </button>
-                                </template>
-                                
-                                <template x-if="order.status === 'Dibatalkan'">
-                                    <button disabled class="flex-grow py-2.5 rounded text-sm font-bold bg-red-50 text-red-400 cursor-not-allowed border border-red-100">
-                                        Dibatalkan
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </template>
+            <!-- Inline Search Input -->
+            <div class="w-full md:w-72 bg-[#f8f9fa] border border-[#d8dce2] rounded-[9px] px-3 py-2 flex items-center gap-2 focus-within:border-[#df5826] focus-within:bg-white transition">
+                <img src="{{ asset('images/sparta/search.svg') }}" alt="" class="w-4 h-4 shrink-0">
+                <input type="text" x-model="searchQuery" placeholder="Cari nama pelanggan, meja, atau #ID..."
+                    class="w-full bg-transparent border-none outline-none text-[12px] font-medium text-[#1e211f] placeholder-[#8b8e93] p-0 focus:ring-0">
             </div>
         </div>
+    </div>
+
+    <!-- Orders Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-16 items-start">
+
+        <!-- Empty State -->
+        <div x-show="filteredOrders.length === 0" class="col-span-1 md:col-span-2 xl:col-span-3 bg-white border border-[#e6e5e0] rounded-[16px] py-16 px-6 text-center">
+            <div class="w-14 h-14 bg-[#fff6f0] border border-[#f5d5c6] rounded-[14px] flex items-center justify-center mx-auto mb-3.5 text-[#df5826]">
+                <img src="{{ asset('images/sparta/bill-check.svg') }}" alt="" class="w-6 h-6">
+            </div>
+            <h3 class="text-[15px] font-bold text-[#1e211f] mb-1">Belum ada pesanan pada kategori ini</h3>
+            <p class="text-[12px] text-[#8b8e93] max-w-sm mx-auto">Pesanan baru dari Kasir maupun QR Meja akan otomatis muncul di halaman ini secara real-time.</p>
+        </div>
+
+        <!-- Order Card -->
+        <template x-for="order in filteredOrders" :key="order.id">
+            <div class="bg-white border border-[#e6e5e0] rounded-[16px] p-4 pl-[19px] relative overflow-hidden flex flex-col justify-between shadow-[0px_3px_12px_rgba(38,39,35,0.04)] hover:border-[#df5826]/60 transition-all">
+
+                <!-- Left Accent Bar -->
+                <div class="w-[3.5px] absolute left-0 top-0 bottom-0 rounded-l-[16px]"
+                     :class="{
+                        'bg-[#df5826]': ['Masuk', 'CONFIRMED', 'In Progress', 'PREPARING'].includes(order.status),
+                        'bg-[#289e5c]': ['Ready', 'READY'].includes(order.status),
+                        'bg-[#d8dce2]': ['Completed', 'COMPLETED'].includes(order.status),
+                        'bg-red-500': order.status === 'Dibatalkan' || order.status === 'CANCELLED'
+                     }"></div>
+
+                <!-- Top Header: Table Badge + Customer/Order Info + Status Badge -->
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3 min-w-0">
+                        <!-- Table / Type Badge -->
+                        <div class="w-[38px] h-[38px] rounded-[10px] border flex items-center justify-center shrink-0 font-bold text-[13px]"
+                             :class="['Completed', 'COMPLETED'].includes(order.status) ? 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a]' : 'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]'"
+                             x-text="order.table && order.table !== '-' ? String(order.table).replace(/^meja\s*/i, '').padStart(2, '0') : 'TA'">
+                        </div>
+
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[14px] font-bold text-[#1e211f] leading-tight"
+                                      x-text="order.table && order.table !== 'TA' && order.table !== '-' ? (/^meja/i.test(order.table) ? order.table : 'Meja ' + String(order.table).padStart(2, '0')) : (order.type || 'Takeaway')"></span>
+                                <span class="text-[11.5px] font-semibold text-[#8b8e93]" x-text="'#' + order.id"></span>
+                            </div>
+                            <p class="text-[12px] font-medium text-[#53565a] truncate mt-0.5">
+                                <span x-text="order.customer || 'Walk-in Customer'"></span>
+                                <span class="text-[#d8dce2] mx-1">•</span>
+                                <span class="text-[#8b8e93]" x-text="order.type || 'Dine In'"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Status Pill & Formatted Time -->
+                    <div class="flex flex-col items-end gap-1.5 shrink-0">
+                        <span x-show="order.status === 'Masuk' || order.status === 'CONFIRMED'"
+                              class="px-2.5 py-1 rounded-[6px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] text-[10.5px] font-semibold inline-flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#df5826] animate-ping"></span>
+                            <span>Pesanan Baru</span>
+                        </span>
+
+                        <span x-show="order.status === 'In Progress' || order.status === 'PREPARING'"
+                              class="px-2.5 py-1 rounded-[6px] bg-[#fff6f0] text-[#df5826] text-[10.5px] font-semibold">
+                            Memasak
+                        </span>
+
+                        <span x-show="order.status === 'Ready' || order.status === 'READY'"
+                              class="px-2.5 py-1 rounded-[6px] bg-[#eaf7ef] text-[#289e5c] text-[10.5px] font-semibold">
+                            Siap Disajikan
+                        </span>
+
+                        <span x-show="order.status === 'Completed' || order.status === 'COMPLETED'"
+                              class="px-2.5 py-1 rounded-[6px] bg-[#f1f0ec] text-[#53565a] text-[10.5px] font-semibold">
+                            Selesai
+                        </span>
+
+                        <span x-show="order.status === 'Dibatalkan' || order.status === 'CANCELLED'"
+                              class="px-2.5 py-1 rounded-[6px] bg-red-50 text-red-600 text-[10.5px] font-semibold">
+                            Dibatalkan
+                        </span>
+
+                        <div class="flex items-center gap-1 text-[10.5px] font-medium text-[#8b8e93]">
+                            <img src="{{ asset('images/sparta/clock.svg') }}" alt="" class="w-3 h-3 opacity-80">
+                            <span x-text="formatOrderTime(order.time)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle: Items Box -->
+                <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[11px] p-3 my-3.5">
+                    <div class="flex items-center justify-between text-[10px] font-semibold text-[#8b8e93] uppercase tracking-wider pb-2 mb-2 border-b border-[#e6e5e0]">
+                        <span>Daftar Menu (<span x-text="(order.items || []).reduce((s, i) => s + Number(i.qty || 1), 0)"></span> item)</span>
+                        <span>Subtotal</span>
+                    </div>
+
+                    <div class="space-y-2 max-h-40 overflow-y-auto hide-scroll">
+                        <template x-for="(item, iIdx) in (order.items || [])" :key="iIdx">
+                            <div class="flex items-start justify-between gap-2 text-[12px]"
+                                 :class="['Completed', 'COMPLETED', 'Dibatalkan', 'CANCELLED'].includes(order.status) ? 'text-[#8b8e93] line-through' : 'text-[#1e211f]'">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-semibold text-[#df5826] shrink-0" x-text="item.qty + '×'"></span>
+                                        <span class="font-medium truncate" x-text="item.name"></span>
+                                    </div>
+                                    <p x-show="item.notes" class="text-[10.5px] text-[#df5826] bg-[#fff6f0] border border-[#f5d5c6] rounded px-1.5 py-0.5 mt-1 inline-block not-italic" x-text="'Catatan: ' + item.notes"></p>
+                                </div>
+                                <span class="font-semibold text-[#111827] shrink-0 whitespace-nowrap" x-text="'Rp' + formatRp((item.price || 0) * (item.qty || 1))"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Progress & Total Summary -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5 text-[11.5px] text-[#53565a]">
+                            <img src="{{ asset('images/sparta/bill-check.svg') }}" alt="" class="w-4 h-4">
+                            <span>Total Pembayaran</span>
+                        </div>
+                        <span class="text-[16px] font-bold text-[#111827] tracking-[-0.16px]" x-text="'Rp' + formatRp(order.total)"></span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full h-[5px] bg-[#e6e5e0] rounded-[3px] overflow-hidden">
+                        <div class="h-full rounded-[3px] transition-all duration-300"
+                             :class="['Ready', 'READY', 'Completed', 'COMPLETED'].includes(order.status) ? 'bg-[#289e5c]' : 'bg-[#df5826]'"
+                             :style="'width: ' + (['Completed', 'COMPLETED'].includes(order.status) ? '100%' : (['Ready', 'READY'].includes(order.status) ? '90%' : (['In Progress', 'PREPARING'].includes(order.status) ? '65%' : '35%')))"></div>
+                    </div>
+
+                    <!-- Action Buttons (Same Functions, Sparta Visuals) -->
+                    <div class="grid grid-cols-2 gap-2.5 pt-1">
+                        <button type="button" @click="viewOrderDetails(order)"
+                                class="py-[9px] px-3 rounded-[9px] border border-[#d8dce2] bg-white hover:bg-[#f8f9fa] text-[#1e211f] text-[12px] font-semibold transition flex items-center justify-center">
+                            Lihat Detail
+                        </button>
+
+                        <template x-if="order.status === 'Masuk' || order.status === 'CONFIRMED'">
+                            <button type="button" @click="updateStatus(order.id, 'In Progress')"
+                                    class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition flex items-center justify-center gap-1.5">
+                                <span>Terima &amp; Proses</span>
+                            </button>
+                        </template>
+
+                        <template x-if="order.status === 'In Progress' || order.status === 'PREPARING'">
+                            <button type="button" @click="updateStatus(order.id, 'Ready')"
+                                    class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition flex items-center justify-center gap-1.5">
+                                <img src="{{ asset('images/sparta/check-white.svg') }}" alt="" class="w-3.5 h-3.5">
+                                <span>Siap Disajikan</span>
+                            </button>
+                        </template>
+
+                        <template x-if="order.status === 'Ready' || order.status === 'READY'">
+                            <button type="button" @click="updateStatus(order.id, 'Completed')"
+                                    class="py-[9px] px-3 rounded-[9px] bg-[#289e5c] hover:bg-[#21854c] border border-[#289e5c] text-white text-[12px] font-semibold shadow-sm transition flex items-center justify-center gap-1.5">
+                                <img src="{{ asset('images/sparta/check-white.svg') }}" alt="" class="w-3.5 h-3.5">
+                                <span>Selesaikan</span>
+                            </button>
+                        </template>
+
+                        <template x-if="order.status === 'Completed' || order.status === 'COMPLETED'">
+                            <button type="button" disabled
+                                    class="py-[9px] px-3 rounded-[9px] bg-[#f1f0ec] border border-[#e6e5e0] text-[#8b8e93] text-[12px] font-semibold cursor-not-allowed flex items-center justify-center">
+                                Selesai
+                            </button>
+                        </template>
+
+                        <template x-if="order.status === 'Dibatalkan' || order.status === 'CANCELLED'">
+                            <button type="button" disabled
+                                    class="py-[9px] px-3 rounded-[9px] bg-red-50 border border-red-200 text-red-400 text-[12px] font-semibold cursor-not-allowed flex items-center justify-center">
+                                Dibatalkan
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>
