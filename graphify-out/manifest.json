@@ -162,9 +162,9 @@
     "semantic_hash": "2f3a26c9d7d3571350aee2b768761b8a"
   },
   "app/Http/Controllers/Admin/DashboardController.php": {
-    "mtime": 1792478026.4085836,
-    "seen": 1792478041.5283813,
-    "ast_hash": "d5479bc29723f97df051baa2f28d23db",
+    "mtime": 1793687095.0346103,
+    "seen": 1793687776.2851005,
+    "ast_hash": "8279eb987ea6e2e46210adfd9226b2d9",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/GoBizIntegrationController.php": {
@@ -180,9 +180,9 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/KitchenController.php": {
-    "mtime": 1792461694.0299807,
-    "seen": 1792461836.3164856,
-    "ast_hash": "a5998b074a12d9df8254d74c1100a724",
+    "mtime": 1793685874.9010324,
+    "seen": 1793687776.2851107,
+    "ast_hash": "cf25179a8944835b89591864cc7125f7",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/LiveOrderController.php": {
@@ -474,9 +474,9 @@
     "semantic_hash": "10b7fca1798af22ae2d4ac35e68e24d9"
   },
   "app/Models/Shop.php": {
-    "mtime": 1792119876.6207955,
-    "seen": 1792120501.3651319,
-    "ast_hash": "3a48ee79cfd0fb11c89d95d1cbdb792c",
+    "mtime": 1793687070.8999808,
+    "seen": 1793687776.2852464,
+    "ast_hash": "896a31a355c6d75f4cc09bf557759998",
     "semantic_hash": ""
   },
   "app/Models/ShopSlugHistory.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793682924.1882944,
-    "seen": 1793683066.3046927,
-    "ast_hash": "ef295a5adf41a20b35360e415d0fd30c",
+    "mtime": 1793687472.876556,
+    "seen": 1793687776.2855008,
+    "ast_hash": "ce202eac5953569c3fc5e9693a690fce",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/analytics.blade.php": {
@@ -1146,9 +1146,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
-    "mtime": 1792466407.5851736,
-    "seen": 1792466592.083135,
-    "ast_hash": "15c36bd3c8358581b935ce74a8e18847",
+    "mtime": 1793685012.540111,
+    "seen": 1793687776.2855155,
+    "ast_hash": "709ae044d78eb838c62038033efd7cf8",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/profile.blade.php": {
@@ -1176,9 +1176,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/settings.blade.php": {
-    "mtime": 1792478835.5729685,
-    "seen": 1792478940.9882066,
-    "ast_hash": "33b7b908044986bc4171e7f3c177673a",
+    "mtime": 1793687594.3917346,
+    "seen": 1793687776.2855272,
+    "ast_hash": "4155a33d0bec473997284114eaf96c74",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/shifts.blade.php": {
@@ -1224,9 +1224,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/kitchen/index.blade.php": {
-    "mtime": 1792478500.269545,
-    "seen": 1792478940.9882302,
-    "ast_hash": "50a1e2921ed279336bf0a02a650fce7b",
+    "mtime": 1793685938.8300793,
+    "seen": 1793687776.2855525,
+    "ast_hash": "ff0a32caacb49e569c4aab61a525a152",
     "semantic_hash": ""
   },
   "resources/views/Admin/orders/print.blade.php": {
@@ -1236,9 +1236,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
-    "mtime": 1793683809.3232398,
-    "seen": 1793684078.553748,
-    "ast_hash": "0f21c4f9939fcc4cebead5df9501c46b",
+    "mtime": 1793684427.3555996,
+    "seen": 1793687776.285556,
+    "ast_hash": "ad4fc4ba400f60675cddd9ad5d3c2ec8",
     "semantic_hash": ""
   },
   "resources/views/Admin/reports/index.blade.php": {
@@ -1524,9 +1524,9 @@
     "semantic_hash": ""
   },
   "resources/views/shop/menu.blade.php": {
-    "mtime": 1792478448.392279,
-    "seen": 1792478940.9883347,
-    "ast_hash": "3ec831edec64373cd3a0e0fb043113de",
+    "mtime": 1793687205.7705674,
+    "seen": 1793687776.285658,
+    "ast_hash": "8e495f1d94bf33ce7bcd00b919fc8bc8",
     "semantic_hash": ""
   },
   "resources/views/shop/scripts.blade.php": {
@@ -1572,9 +1572,9 @@
     "semantic_hash": "3c6ce2e6d16444282b24a9aa63885563"
   },
   "routes/web.php": {
-    "mtime": 1792480202.616021,
-    "seen": 1792480317.4853299,
-    "ast_hash": "52d6357b70f9ba16820b5dfa6cc8d382",
+    "mtime": 1793687105.4173105,
+    "seen": 1793687776.2856727,
+    "ast_hash": "baaef2f25d91dd01f7f5958d75fafa33",
     "semantic_hash": ""
   },
   "tailwind.config.js": {
@@ -1584,9 +1584,9 @@
     "semantic_hash": ""
   },
   "tests/Feature/AdminDashboardTest.php": {
-    "mtime": 1792478026.5199401,
-    "seen": 1792478041.5291865,
-    "ast_hash": "1b3824e8107a9776b413b4413dd35767",
+    "mtime": 1793687700.6186721,
+    "seen": 1793687776.2856762,
+    "ast_hash": "d7b9e540b32e5c794380ed01b4895f16",
     "semantic_hash": ""
   },
   "tests/Feature/Auth/AuthenticationTest.php": {
@@ -2148,9 +2148,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Attendance/index.blade.php": {
-    "mtime": 1792482218.1482558,
-    "seen": 1792482283.9054525,
-    "ast_hash": "1dd5cbca59e1b1224eb3c2e17be32cf9",
+    "mtime": 1793685707.0460622,
+    "seen": 1793687776.2854943,
+    "ast_hash": "912a9910fa649f7fe09f696373f15a44",
     "semantic_hash": ""
   },
   "tests/Feature/AttendanceTest.php": {
@@ -2448,9 +2448,9 @@
     "semantic_hash": ""
   },
   "resources/views/components/cafe-sidebar.blade.php": {
-    "mtime": 1793682117.1891174,
-    "seen": 1793682210.9422672,
-    "ast_hash": "9281a41b79454dd81e0ea4d6f410bc8e",
+    "mtime": 1793687220.1440516,
+    "seen": 1793687776.285593,
+    "ast_hash": "4c0c97fc21b4e9ecd57398b740e32f5a",
     "semantic_hash": ""
   },
   "app/Console/Commands/CheckDatabaseSchema.php": {
@@ -2769,6 +2769,12 @@
     "mtime": 1793683380.9173808,
     "seen": 1793684078.5540943,
     "ast_hash": "0a495c4a8c80b7a98caa94f2e07dfbd1",
+    "semantic_hash": ""
+  },
+  "resources/views/Admin/Dashboard/tabs/hours.blade.php": {
+    "mtime": 1793687315.7962925,
+    "seen": 1793687776.2855065,
+    "ast_hash": "3f4f4a1af8afb0f79a71e2a1fda9ad4f",
     "semantic_hash": ""
   }
 }
