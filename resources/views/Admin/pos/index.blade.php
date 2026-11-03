@@ -810,6 +810,35 @@ function posApp() {
             setInterval(() => this.fetchIncoming(), 5000);
         },
 
+        normalizeLiveOrder(o) {
+            const tableName = o.table && typeof o.table === 'object'
+                ? (o.table.name || '')
+                : (typeof o.table === 'string' ? o.table : '');
+
+            let formattedTime = o.time || '--:--';
+            if ((!o.time || o.time === '--:--') && o.created_at) {
+                const dt = new Date(o.created_at);
+                if (!isNaN(dt.getTime())) {
+                    formattedTime = dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace('.', ':');
+                }
+            }
+
+            return {
+                id: o.id,
+                table: tableName || (o.fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : (o.fulfillment_type === 'DELIVERY' ? 'Delivery' : 'Tanpa Meja')),
+                customer_name: o.customer_name || o.customer || 'Walk-in Customer',
+                total: Number(o.total ?? o.grand_total ?? o.total_price ?? 0),
+                status: o.status || o.order_status || 'CONFIRMED',
+                order_status: o.order_status || o.status || 'CONFIRMED',
+                fulfillment_type: o.fulfillment_type || 'DINE_IN',
+                time: formattedTime,
+                items: Array.isArray(o.items) ? o.items.map(i => ({
+                    name: i.name || i.product_name || i.product?.name || 'Menu',
+                    qty: Number(i.qty ?? i.quantity ?? 1),
+                })) : [],
+            };
+        },
+
         async fetchIncoming() {
             try {
                 const res = await fetch('/admin/api/orders/live?t=' + new Date().getTime(), {
@@ -819,10 +848,11 @@ function posApp() {
                 const dbOrders = await res.json();
 
                 if (Array.isArray(dbOrders)) {
-                    this.activeOrders = dbOrders.filter(o =>
+                    const normalized = dbOrders.map(o => this.normalizeLiveOrder(o));
+                    this.activeOrders = normalized.filter(o =>
                         o.status !== 'Selesai' && o.order_status !== 'COMPLETED' && o.order_status !== 'CANCELLED' && o.order_status !== 'HOLD'
                     );
-                    const newIncoming = dbOrders.filter(o =>
+                    const newIncoming = normalized.filter(o =>
                         o.status === 'Masuk' || o.order_status === 'CONFIRMED' || o.status === 'CONFIRMED'
                     );
                     this.incomingCount = newIncoming.length;
@@ -836,14 +866,16 @@ function posApp() {
         // ── Queue Formatting Helpers ──────────
         getOrderBadge(order, idx) {
             if (order && order.table) {
-                const digits = String(order.table).replace(/\D/g, '');
+                const rawTable = typeof order.table === 'object' ? (order.table.name || '') : String(order.table);
+                const digits = rawTable.replace(/\D/g, '');
                 if (digits) return digits.padStart(2, '0').slice(-2);
             }
             return String((idx ?? 0) + 1).padStart(2, '0');
         },
         formatOrderTitle(order) {
             if (!order) return 'Pesanan';
-            const t = String(order.table || '').trim();
+            const rawTable = order.table && typeof order.table === 'object' ? (order.table.name || '') : String(order.table || '');
+            const t = rawTable.trim();
             if (!t || t === 'Tanpa Meja') {
                 return order.customer_name && order.customer_name !== 'Walk-in Customer'
                     ? order.customer_name
@@ -856,7 +888,7 @@ function posApp() {
         },
         getOrderItemCount(order) {
             if (!order || !Array.isArray(order.items)) return 0;
-            return order.items.reduce((sum, item) => sum + Number(item.qty || item.quantity || 1), 0);
+            return order.items.reduce((sum, item) => sum + Number(item.qty ?? item.quantity ?? 1), 0);
         },
         getOrderStatusLabel(order) {
             const st = order?.status || order?.order_status || '';
@@ -876,7 +908,7 @@ function posApp() {
             }
             return order.items
                 .slice(0, 2)
-                .map(i => `${i.name} ×${i.qty || i.quantity || 1}`)
+                .map(i => `${i.name || i.product_name || i.product?.name || 'Menu'} ×${i.qty ?? i.quantity ?? 1}`)
                 .join(', ');
         },
 
