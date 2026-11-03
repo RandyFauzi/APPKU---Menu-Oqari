@@ -77,8 +77,8 @@ if ($member?->role === 'superadmin') {
                             title="Dashboard" 
                             aria-label="Dashboard" 
                             :aria-current="currentTab === 'dashboard' ? 'page' : null">
-                            <span x-show="currentTab === 'dashboard'" class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#f9731f] rounded-r"></span>
-                            <img src="{{ asset('images/sparta/nav-dashboard.svg') }}" class="w-[18px] h-[18px] shrink-0" alt="">
+                            <span x-show="currentTab === 'dashboard'" class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>
+                            <img src="{{ asset('images/sparta/nav-dashboard.svg') }}" class="nav-icon-dashboard w-[18px] h-[18px] shrink-0 transition-all" alt="">
                             <span x-show="!isMinimized || mobileNavOpen" class="truncate font-medium">Dashboard</span>
                         </button>
                     @else
@@ -86,9 +86,9 @@ if ($member?->role === 'superadmin') {
                             class="sidebar-link group relative transition-all {{ request()->routeIs('admin.dashboard') && (request('tab') === 'dashboard' || !request('tab')) ? 'is-active' : '' }}" 
                             title="Dashboard">
                             @if(request()->routeIs('admin.dashboard') && (request('tab') === 'dashboard' || !request('tab')))
-                                <span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#f9731f] rounded-r"></span>
+                                <span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>
                             @endif
-                            <img src="{{ asset('images/sparta/nav-dashboard.svg') }}" class="w-[18px] h-[18px] shrink-0" alt="">
+                            <img src="{{ asset('images/sparta/nav-dashboard.svg') }}" class="nav-icon-dashboard w-[18px] h-[18px] shrink-0 transition-all" alt="">
                             <span x-show="!isMinimized || mobileNavOpen" class="truncate font-medium">Dashboard</span>
                         </a>
                     @endif
@@ -103,23 +103,31 @@ if ($member?->role === 'superadmin') {
                     <div class="my-3 border-t border-gray-200" x-show="isMinimized && !mobileNavOpen" aria-hidden="true"></div>
                     @foreach($visibleLinks as [$ability, $label, $icon, $routeName, $tab, $svgIcon])
                         @php
-                            $active = $tab ? request()->routeIs('admin.dashboard') && request('tab') === $tab : request()->routeIs(str_replace('.index', '.*', $routeName));
+                            $active = $tab
+                                ? (request()->routeIs('admin.dashboard') && request('tab') === $tab)
+                                : ($routeName === 'admin.attendance.index'
+                                    ? request()->routeIs('admin.attendance.index')
+                                    : request()->routeIs($routeName, str_replace('.index', '.*', $routeName)));
                             $destination = route($routeName, $tab ? ['tab' => $tab] : []);
                             $ariaLabel = $label === 'Kasir' ? 'POS (Kasir)' : $label;
                         @endphp
                         @if($dashboard && $tab)
-                            <button type="button" class="sidebar-link" :class="{ 'is-active': currentTab === '{{ $tab }}' }" @click="currentTab = '{{ $tab }}'; mobileNavOpen = false" title="{{ $label }}" aria-label="{{ $ariaLabel }}" :aria-current="currentTab === '{{ $tab }}' ? 'page' : null">
+                            <button type="button" class="sidebar-link group relative transition-all" :class="{ 'is-active': currentTab === '{{ $tab }}' }" @click="currentTab = '{{ $tab }}'; mobileNavOpen = false" title="{{ $label }}" aria-label="{{ $ariaLabel }}" :aria-current="currentTab === '{{ $tab }}' ? 'page' : null">
+                                <span x-show="currentTab === '{{ $tab }}'" class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>
                                 @if($svgIcon)
-                                    <img src="{{ asset($svgIcon) }}" class="w-[18px] h-[18px] shrink-0 opacity-80 group-hover:opacity-100" alt="">
+                                    <img src="{{ asset($svgIcon) }}" class="nav-icon-mono w-[18px] h-[18px] shrink-0 opacity-80 group-hover:opacity-100 transition-all" alt="">
                                 @else
                                     <i class="fas {{ $icon }}" aria-hidden="true"></i>
                                 @endif
                                 <span x-show="!isMinimized || mobileNavOpen" class="truncate">{{ $label }}</span>
                             </button>
                         @else
-                            <a href="{{ $destination }}" class="sidebar-link {{ $active ? 'is-active' : '' }}" title="{{ $label }}" aria-label="{{ $ariaLabel }}" @if($active) aria-current="page" @endif>
+                            <a href="{{ $destination }}" class="sidebar-link group relative transition-all {{ $active ? 'is-active' : '' }}" title="{{ $label }}" aria-label="{{ $ariaLabel }}" @if($active) aria-current="page" @endif>
+                                @if($active)
+                                    <span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>
+                                @endif
                                 @if($svgIcon)
-                                    <img src="{{ asset($svgIcon) }}" class="w-[18px] h-[18px] shrink-0 opacity-80 group-hover:opacity-100" alt="">
+                                    <img src="{{ asset($svgIcon) }}" class="nav-icon-mono w-[18px] h-[18px] shrink-0 opacity-80 group-hover:opacity-100 transition-all" alt="">
                                 @else
                                     <i class="fas {{ $icon }}" aria-hidden="true"></i>
                                 @endif
