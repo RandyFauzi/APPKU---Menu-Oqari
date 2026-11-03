@@ -47,7 +47,7 @@ if ($member?->role === 'superadmin') {
     <aside id="app-sidebar" data-cafe-sidebar class="app-sidebar transition-[width] duration-200 bg-[#f8f9fa] border-r border-[#e9ebf0]" :class="{ 'is-collapsed': isMinimized && !mobileNavOpen, 'is-mobile-open': mobileNavOpen }" aria-label="Navigasi aplikasi">
         
         <!-- Sidebar Brand Header (Dynamic user/shop logo system maintained!) -->
-        <div class="h-20 shrink-0 flex items-center px-4 gap-3 border-b border-gray-200/70" :class="isMinimized && !mobileNavOpen ? 'justify-center' : ''">
+        <div class="shrink-0 flex items-center px-4 border-b border-gray-200/70 transition-all" :class="isMinimized && !mobileNavOpen ? 'flex-col justify-center py-3 gap-2' : 'h-20 gap-3'">
             <a href="{{ route($member->homeRoute()) }}" class="shrink-0 flex items-center justify-center" aria-label="Beranda aplikasi">
                 <img src="{{ $cafe?->logo_url ?: asset('logo-oqari.webp') }}" alt="Logo {{ $cafe?->name ?? 'OQARI' }}" class="w-10 h-10 rounded-lg object-contain">
             </a>
@@ -55,8 +55,8 @@ if ($member?->role === 'superadmin') {
                 <p class="font-bold text-sm text-gray-900 truncate leading-tight">{{ $cafe?->name ?? 'OQARI' }}</p>
                 <p class="text-[11px] text-gray-500 mt-0.5">{{ $member->role === 'superadmin' ? 'Administrasi Platform' : 'Cafe Management' }}</p>
             </div>
-            <button type="button" @click="isMinimized = !isMinimized" class="hidden md:flex p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" title="Toggle Sidebar" x-show="!isMinimized && !mobileNavOpen">
-                <img src="{{ asset('images/sparta/panel-collapse.svg') }}" class="w-4 h-4" alt="">
+            <button type="button" @click="isMinimized = !isMinimized" class="hidden md:flex p-1.5 rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-200/70 border border-transparent hover:border-gray-200 transition-all items-center justify-center" :title="isMinimized ? 'Lebarkan Sidebar' : 'Kecilkan Sidebar'" aria-label="Ubah ukuran sidebar" x-show="!mobileNavOpen">
+                <img src="{{ asset('images/sparta/panel-collapse.svg') }}" class="w-4 h-4 transition-transform duration-200" :class="isMinimized ? 'rotate-180' : ''" alt="">
             </button>
             <button type="button" @click="mobileNavOpen = false" class="md:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" title="Tutup Menu" x-show="mobileNavOpen">
                 <i class="fas fa-times text-sm"></i>
