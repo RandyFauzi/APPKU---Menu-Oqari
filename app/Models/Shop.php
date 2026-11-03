@@ -207,4 +207,89 @@ class Shop extends Model
 
         return 'https://wa.me/'.$phone;
     }
+
+    public function getNormalizedOperatingHoursAttribute(): array
+    {
+        $hours = $this->operating_hours;
+        if (empty($hours) || ! is_array($hours)) {
+            $hours = [];
+        }
+
+        $defaultWeekly = [
+            'monday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => false],
+            'tuesday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => false],
+            'wednesday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => false],
+            'thursday' => ['open' => '08:00', 'close' => '21:00', 'is_closed' => false],
+            'friday' => ['open' => '08:00', 'close' => '23:00', 'is_closed' => false],
+            'saturday' => ['open' => '08:00', 'close' => '23:00', 'is_closed' => false],
+            'sunday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => true],
+        ];
+
+        $weekly = $hours['weekly'] ?? null;
+        if (! $weekly || ! is_array($weekly)) {
+            if (isset($hours['monday']) || isset($hours['sunday'])) {
+                $weekly = array_merge($defaultWeekly, array_intersect_key($hours, $defaultWeekly));
+            } else {
+                $weekly = $defaultWeekly;
+            }
+        } else {
+            $weekly = array_merge($defaultWeekly, $weekly);
+        }
+
+        return [
+            'weekly' => $weekly,
+            'holidays' => $hours['holidays'] ?? [
+                ['date' => '2026-08-17', 'name' => 'Hari Kemerdekaan', 'is_closed' => true],
+                ['date' => '2026-12-25', 'name' => 'Hari Natal', 'is_closed' => true],
+            ],
+            'timezone' => $hours['timezone'] ?? 'Asia/Jakarta',
+            'auto_close' => (bool) ($hours['auto_close'] ?? true),
+            'allow_preorder' => (bool) ($hours['allow_preorder'] ?? false),
+        ];
+    }
+
+    public function isOpenNow(): bool
+    {
+        if (! $this->is_open) {
+            return false;
+        }
+
+        $config = $this->normalized_operating_hours;
+        if (! ($config['auto_close'] ?? true)) {
+            return (bool) $this->is_open;
+        }
+
+        $tz = $config['timezone'] ?? 'Asia/Jakarta';
+        try {
+            $now = now()->setTimezone($tz);
+        } catch (\Throwable $e) {
+            $now = now();
+        }
+
+        // Check holiday for today
+        $todayDate = $now->format('Y-m-d');
+        foreach ($config['holidays'] ?? [] as $holiday) {
+            if (($holiday['date'] ?? '') === $todayDate) {
+                return ! ($holiday['is_closed'] ?? true);
+            }
+        }
+
+        // Check day of week
+        $dayKey = strtolower($now->format('l'));
+        $daySchedule = $config['weekly'][$dayKey] ?? null;
+        if (! $daySchedule || ! empty($daySchedule['is_closed'])) {
+            return false;
+        }
+
+        $currentTime = $now->format('H:i');
+        $open = $daySchedule['open'] ?? '00:00';
+        $close = $daySchedule['close'] ?? '23:59';
+
+        if ($close < $open) {
+            // Overnight hours, e.g. 18:00 - 02:00
+            return $currentTime >= $open || $currentTime <= $close;
+        }
+
+        return $currentTime >= $open && $currentTime <= $close;
+    }
 }

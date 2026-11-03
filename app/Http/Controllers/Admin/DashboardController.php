@@ -505,7 +505,8 @@ class DashboardController extends Controller
         }
 
         if ($request->has('operating_hours')) {
-            $shop->operating_hours = json_decode($request->operating_hours, true);
+            $val = $request->operating_hours;
+            $shop->operating_hours = is_array($val) ? $val : json_decode($val, true);
         }
 
         if ($request->filled('primary_color')) {
@@ -557,6 +558,30 @@ class DashboardController extends Controller
         $shop->save();
 
         return response()->json(['success' => true, 'shop' => $shop]);
+    }
+
+    public function saveOperatingHours(Request $request)
+    {
+        $request->validate([
+            'operating_hours' => 'required',
+        ]);
+
+        $user = Auth::user();
+        $shopId = $user->shop_id;
+        if (! $shopId) {
+            return response()->json(['success' => false, 'message' => 'Toko tidak ditemukan'], 403);
+        }
+
+        $shop = Shop::findOrFail($shopId);
+        $val = $request->input('operating_hours');
+        $shop->operating_hours = is_array($val) ? $val : json_decode($val, true);
+        $shop->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jadwal operasional berhasil disimpan!',
+            'operating_hours' => $shop->operating_hours,
+        ]);
     }
 
     public function saveTable(Request $request)

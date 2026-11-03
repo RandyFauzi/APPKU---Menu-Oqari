@@ -136,6 +136,7 @@
         @include('Admin.Dashboard.tabs.shifts')
         @include('Admin.Dashboard.tabs.logs')
         @include('Admin.Dashboard.tabs.settings')
+        @include('Admin.Dashboard.tabs.hours')
         @include('Admin.Dashboard.tabs.receipt')
         @include('Admin.Dashboard.tabs.profile')
 
@@ -1044,6 +1045,153 @@ handleDraftImageUpload(event, index) {
                     }
                 },
                 isSavingSettings: false,
+                operatingHours: (() => {
+                    const raw = window.INITIAL_DATA.shop?.operating_hours;
+                    const defWeekly = {
+                        monday: { open: '08:00', close: '22:00', is_closed: false },
+                        tuesday: { open: '08:00', close: '22:00', is_closed: false },
+                        wednesday: { open: '08:00', close: '22:00', is_closed: false },
+                        thursday: { open: '08:00', close: '21:00', is_closed: false },
+                        friday: { open: '08:00', close: '23:00', is_closed: false },
+                        saturday: { open: '08:00', close: '23:00', is_closed: false },
+                        sunday: { open: '08:00', close: '22:00', is_closed: true }
+                    };
+                    let weekly = { ...defWeekly };
+                    if (raw?.weekly && typeof raw.weekly === 'object') {
+                        weekly = { ...defWeekly, ...raw.weekly };
+                    } else if (raw?.monday) {
+                        weekly = { ...defWeekly, ...raw };
+                    }
+                    return {
+                        weekly: weekly,
+                        holidays: Array.isArray(raw?.holidays) ? JSON.parse(JSON.stringify(raw.holidays)) : [
+                            { date: '2026-08-17', name: 'Hari Kemerdekaan', is_closed: true },
+                            { date: '2026-12-25', name: 'Hari Natal', is_closed: true }
+                        ],
+                        timezone: raw?.timezone || 'Asia/Jakarta',
+                        auto_close: raw?.auto_close ?? true,
+                        allow_preorder: raw?.allow_preorder ?? false
+                    };
+                })(),
+                originalOperatingHours: null,
+                isSavingHours: false,
+                showHolidayModal: false,
+                newHoliday: { date: '', name: '', is_closed: true },
+                timeOptions: [
+                    '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
+                    '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+                    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+                    '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30',
+                    '22:00', '22:30', '23:00', '23:30', '23:59', '00:00', '01:00', '02:00'
+                ],
+                daysList: [
+                    { key: 'monday', label: 'Senin' },
+                    { key: 'tuesday', label: 'Selasa' },
+                    { key: 'wednesday', label: 'Rabu' },
+                    { key: 'thursday', label: 'Kamis' },
+                    { key: 'friday', label: 'Jumat' },
+                    { key: 'saturday', label: 'Sabtu' },
+                    { key: 'sunday', label: 'Minggu' }
+                ],
+                get todayFormatted() {
+                    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                    const now = new Date();
+                    return days[now.getDay()] + ', ' + String(now.getDate()).padStart(2, '0') + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+                },
+                get currentDayKey() {
+                    const dayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+                    return dayKeys[new Date().getDay()];
+                },
+                get todaySchedule() {
+                    return this.operatingHours?.weekly?.[this.currentDayKey] || { open: '08:00', close: '22:00', is_closed: false };
+                },
+                get tzShort() {
+                    if (this.operatingHours?.timezone === 'Asia/Makassar') return 'WITA';
+                    if (this.operatingHours?.timezone === 'Asia/Jayapura') return 'WIT';
+                    return 'WIB';
+                },
+                formatHolidayDate(dateStr) {
+                    if (!dateStr) return '';
+                    try {
+                        const parts = dateStr.split('-');
+                        if (parts.length === 3) {
+                            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                            const day = parseInt(parts[2], 10);
+                            const m = parseInt(parts[1], 10) - 1;
+                            const y = parts[0];
+                            return day + ' ' + (months[m] || parts[1]) + ' ' + y;
+                        }
+                        return dateStr;
+                    } catch(e) {
+                        return dateStr;
+                    }
+                },
+                openAddHolidayModal() {
+                    this.newHoliday = {
+                        date: new Date().toISOString().split('T')[0],
+                        name: '',
+                        is_closed: true
+                    };
+                    this.showHolidayModal = true;
+                },
+                addHoliday() {
+                    if (!this.newHoliday.date || !this.newHoliday.name.trim()) {
+                        this.addToast('Tanggal dan keterangan wajib diisi!', 'error');
+                        return;
+                    }
+                    if (!this.operatingHours.holidays) {
+                        this.operatingHours.holidays = [];
+                    }
+                    this.operatingHours.holidays.push({
+                        date: this.newHoliday.date,
+                        name: this.newHoliday.name.trim(),
+                        is_closed: Boolean(this.newHoliday.is_closed)
+                    });
+                    this.operatingHours.holidays.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    this.showHolidayModal = false;
+                    this.addToast('Tanggal khusus berhasil ditambahkan!', 'success');
+                },
+                removeHoliday(idx) {
+                    this.operatingHours.holidays.splice(idx, 1);
+                    this.addToast('Tanggal khusus dihapus', 'info');
+                },
+                resetOperatingHours() {
+                    if (this.originalOperatingHours) {
+                        this.operatingHours = JSON.parse(JSON.stringify(this.originalOperatingHours));
+                        this.addToast('Jadwal operasional dikembalikan ke kondisi sebelumnya', 'info');
+                    }
+                },
+                saveOperatingHours() {
+                    this.isSavingHours = true;
+                    fetch('/admin/api/operating-hours', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ operating_hours: this.operatingHours })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.isSavingHours = false;
+                        if (data.success) {
+                            this.addToast('Jadwal operasional berhasil disimpan!', 'success');
+                            this.originalOperatingHours = JSON.parse(JSON.stringify(this.operatingHours));
+                            if (window.INITIAL_DATA.shop) {
+                                window.INITIAL_DATA.shop.operating_hours = JSON.parse(JSON.stringify(this.operatingHours));
+                            }
+                            this.settings.operating_hours = this.operatingHours;
+                        } else {
+                            this.addToast(data.message || 'Gagal menyimpan jadwal operasional', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        this.isSavingHours = false;
+                        this.addToast('Terjadi kesalahan jaringan', 'error');
+                    });
+                },
                 profile: {
                     name: window.INITIAL_DATA.user?.name || '',
                     email: window.INITIAL_DATA.user?.email || '',
@@ -1132,6 +1280,7 @@ handleDraftImageUpload(event, index) {
                     { id: 'report', ability: 'view-reports', name: 'Laporan Keuangan', icon: 'fas fa-book' },
                     { id: 'logs', ability: 'view-reports', name: 'Log Aktivitas', icon: 'fas fa-history' },
                     { id: 'settings', ability: 'manage-settings', name: 'Toko Saya', icon: 'fas fa-store' },
+                    { id: 'hours', ability: 'manage-settings', name: 'Jam Operasional', icon: 'fas fa-clock' },
                     { id: 'receipt', ability: 'manage-settings', name: 'Pengaturan Struk', icon: 'fas fa-print' },
                 ].filter(tab => !tab.ability || window.INITIAL_DATA.permissions.includes(tab.ability)),
                                 tables: [],
@@ -1458,6 +1607,8 @@ handleDraftImageUpload(event, index) {
                         }
                     }
                     
+                    this.originalOperatingHours = JSON.parse(JSON.stringify(this.operatingHours));
+                    this.settings.operating_hours = this.operatingHours;
                     this.fetchLiveOrders(true);
                     window.addEventListener('keydown', (e) => {
                         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {

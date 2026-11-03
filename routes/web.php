@@ -121,6 +121,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:manage-settings', 'schema:settings'])->group(function () {
 
         Route::post('/admin/api/settings', [DashboardController::class, 'saveSettings']);
+        Route::post('/admin/api/operating-hours', [DashboardController::class, 'saveOperatingHours']);
 
         // Table & QR Management
         Route::post('/admin/api/table', [DashboardController::class, 'saveTable']);

@@ -152,20 +152,26 @@
                     
                     <!-- Jam Operasional -->
                     <div class="p-6 border-b border-line">
-                        <h4 class="text-sm font-bold text-ink mb-4">Jadwal Operasional Otomatis</h4>
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-sm font-bold text-ink">Jadwal Operasional</h4>
+                            <button type="button" @click="currentTab = 'hours'" class="text-xs font-bold text-primary hover:underline flex items-center gap-1.5">
+                                <span>Atur Jam Buka & Hari Libur</span>
+                                <i class="fas fa-arrow-right text-[10px]"></i>
+                            </button>
+                        </div>
                         <div class="space-y-3">
                             <template x-for="(dayStr, key) in {'monday':'Senin', 'tuesday':'Selasa', 'wednesday':'Rabu', 'thursday':'Kamis', 'friday':'Jumat', 'saturday':'Sabtu', 'sunday':'Minggu'}" :key="key">
-                                <div class="flex items-center justify-between p-3 rounded-xl border border-line bg-white hover:border-primary/30 transition-colors">
+                                <div class="flex items-center justify-between p-3 rounded-xl border border-line bg-white hover:border-primary/30 transition-colors" x-data="{ get dayItem() { return (settings.operating_hours?.weekly ? settings.operating_hours.weekly[key] : (settings.operating_hours?.[key] || { open: '08:00', close: '22:00', is_closed: false })); } }">
                                     <div class="flex items-center gap-3 w-1/3">
-                                        <input type="checkbox" :checked="!settings.operating_hours[key].is_closed" @change="settings.operating_hours[key].is_closed = !$event.target.checked" class="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary">
+                                        <input type="checkbox" :checked="!dayItem.is_closed" @change="dayItem.is_closed = !$event.target.checked" class="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary">
                                         <span class="text-sm font-semibold text-ink" x-text="dayStr"></span>
                                     </div>
-                                    <div class="flex items-center gap-2 w-2/3 justify-end" x-show="!settings.operating_hours[key].is_closed">
-                                        <input type="time" x-model="settings.operating_hours[key].open" class="border border-line rounded-lg px-2 py-1.5 text-xs font-mono focus:border-primary focus:outline-none">
+                                    <div class="flex items-center gap-2 w-2/3 justify-end" x-show="!dayItem.is_closed">
+                                        <input type="time" x-model="dayItem.open" class="border border-line rounded-lg px-2 py-1.5 text-xs font-mono focus:border-primary focus:outline-none">
                                         <span class="text-muted text-xs">s/d</span>
-                                        <input type="time" x-model="settings.operating_hours[key].close" class="border border-line rounded-lg px-2 py-1.5 text-xs font-mono focus:border-primary focus:outline-none">
+                                        <input type="time" x-model="dayItem.close" class="border border-line rounded-lg px-2 py-1.5 text-xs font-mono focus:border-primary focus:outline-none">
                                     </div>
-                                    <div class="w-2/3 text-right pr-4" x-show="settings.operating_hours[key].is_closed">
+                                    <div class="w-2/3 text-right pr-4" x-show="dayItem.is_closed">
                                         <span class="text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full">Tutup</span>
                                     </div>
                                 </div>

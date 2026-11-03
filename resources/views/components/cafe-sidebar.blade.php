@@ -29,6 +29,7 @@ $groups = [
     'Pengaturan' => [
         ['manage-settings', 'Meja & QR', 'fa-qrcode', 'admin.dashboard', 'qr', 'images/sparta/nav-meja-qr.svg'],
         ['manage-settings', 'Toko Saya', 'fa-store', 'admin.dashboard', 'settings', 'images/sparta/nav-toko.svg'],
+        ['manage-settings', 'Jam Operasional', 'fa-clock', 'admin.dashboard', 'hours', 'images/sparta/clock.svg'],
         ['manage-settings', 'Pengaturan Struk', 'fa-print', 'admin.dashboard', 'receipt', 'images/sparta/nav-struk.svg'],
         ['manage-hpp', 'Kalkulator HPP', 'fa-calculator', 'admin.hpp.index', null, 'images/sparta/nav-hpp.svg'],
         ['manage-users', 'Pengguna & Akses', 'fa-shield-halved', 'admin.users.index', null, 'images/sparta/nav-pengguna.svg'],

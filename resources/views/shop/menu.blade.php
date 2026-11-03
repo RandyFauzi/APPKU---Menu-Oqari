@@ -49,13 +49,22 @@
 <body data-page="home" class="antialiased w-full max-w-[420px] mx-auto bg-gray-50 min-h-screen relative shadow-2xl overflow-x-hidden pb-24 page-transition">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
-    @if(!($shop->is_open ?? true))
+    @php
+        $shopOpen = $shop ? $shop->isOpenNow() : true;
+        $allowPreorder = $shop ? ($shop->normalized_operating_hours['allow_preorder'] ?? false) : false;
+    @endphp
+
+    @if(!$shopOpen && !$allowPreorder)
     <!-- TOKO TUTUP OVERLAY -->
     <div class="fixed inset-0 max-w-[420px] mx-auto bg-white/80 backdrop-blur-sm z-[200] flex flex-col items-center justify-center p-6 text-center">
         <i class="fas fa-store-slash text-6xl text-gray-400 mb-4"></i>
         <h2 class="text-2xl font-bold text-gray-800 mb-2">Toko Sedang Tutup</h2>
-        <p class="text-gray-500 font-medium">Mohon maaf, toko kami saat ini sedang tidak menerima pesanan.</p>
+        <p class="text-gray-500 font-medium">Mohon maaf, toko kami saat ini sedang di luar jam operasional.</p>
         <button onclick="window.location.reload()" class="mt-6 bg-primary text-white px-6 py-3 rounded-full font-bold shadow-md hover:bg-opacity-90">Cek Lagi Nanti</button>
+    </div>
+    @elseif(!$shopOpen && $allowPreorder)
+    <div class="sticky top-0 z-[150] bg-amber-500 text-white text-xs font-semibold px-4 py-2 text-center flex items-center justify-center gap-2 shadow-sm">
+        <i class="fas fa-clock"></i> Toko di luar jam operasional. Pesanan Anda diterima sebagai Pre-Order.
     </div>
     @endif
 

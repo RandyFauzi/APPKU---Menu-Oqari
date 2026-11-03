@@ -79,4 +79,66 @@ class AdminDashboardTest extends TestCase
         $session->update(['status' => 'CLOSED']);
         $this->get('/admin/dashboard')->assertOk()->assertViewHas('activeSession', null);
     }
+
+    public function test_owner_can_save_operating_hours_via_api(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $owner = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+
+        $payload = [
+            'operating_hours' => [
+                'weekly' => [
+                    'monday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => false],
+                    'tuesday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => false],
+                    'wednesday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => false],
+                    'thursday' => ['open' => '08:00', 'close' => '21:00', 'is_closed' => false],
+                    'friday' => ['open' => '08:00', 'close' => '23:00', 'is_closed' => false],
+                    'saturday' => ['open' => '08:00', 'close' => '23:00', 'is_closed' => false],
+                    'sunday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => true],
+                ],
+                'holidays' => [
+                    ['date' => '2026-08-17', 'name' => 'Hari Kemerdekaan', 'is_closed' => true],
+                ],
+                'timezone' => 'Asia/Jakarta',
+                'auto_close' => true,
+                'allow_preorder' => false,
+            ],
+        ];
+
+        $response = $this->actingAs($owner)->postJson('/admin/api/operating-hours', $payload);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true);
+
+        $shop->refresh();
+        $this->assertIsArray($shop->operating_hours);
+        $this->assertEquals('Asia/Jakarta', $shop->operating_hours['timezone']);
+        $this->assertTrue($shop->operating_hours['auto_close']);
+        $this->assertCount(1, $shop->operating_hours['holidays']);
+    }
+
+    public function test_shop_operating_hours_helpers(): void
+    {
+        $shop = Shop::factory()->create([
+            'is_open' => true,
+            'operating_hours' => [
+                'weekly' => [
+                    'monday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => false],
+                    'sunday' => ['open' => '08:00', 'close' => '22:00', 'is_closed' => true],
+                ],
+                'holidays' => [
+                    ['date' => now()->format('Y-m-d'), 'name' => 'Hari Ini Libur', 'is_closed' => true],
+                ],
+                'timezone' => 'Asia/Jakarta',
+                'auto_close' => true,
+                'allow_preorder' => false,
+            ],
+        ]);
+
+        $this->assertFalse($shop->isOpenNow());
+
+        // When auto_close is false, isOpenNow reflects is_open
+        $shop->operating_hours = array_merge($shop->operating_hours, ['auto_close' => false]);
+        $this->assertTrue($shop->isOpenNow());
+    }
 }
