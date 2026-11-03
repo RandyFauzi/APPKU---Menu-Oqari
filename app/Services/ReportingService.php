@@ -62,17 +62,41 @@ class ReportingService
             $hourlySales[] = $count;
         }
 
-        // 3. Top Product Today
-        $topItem = DB::table('order_items')
+        // 3. Top Products Today (Top 5)
+        $top5Items = DB::table('order_items')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.shop_id', $shopId)
             ->whereDate('orders.created_at', $today)
-            ->select('order_items.product_id', 'order_items.product_name', DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->select(
+                'order_items.product_id',
+                'order_items.product_name',
+                DB::raw('SUM(order_items.quantity) as total_sold'),
+                DB::raw('SUM(order_items.subtotal) as total_revenue')
+            )
             ->groupBy('order_items.product_id', 'order_items.product_name')
             ->orderByDesc('total_sold')
-            ->first();
+            ->limit(5)
+            ->get();
 
-        $topProduct = $topItem?->product_id ? Product::where('shop_id', $shopId)->find($topItem->product_id) : null;
+        $topItem = $top5Items->first();
+        $productIds = $top5Items->pluck('product_id')->filter()->all();
+        $productsById = ! empty($productIds)
+            ? Product::where('shop_id', $shopId)->whereIn('id', $productIds)->get()->keyBy('id')
+            : collect();
+
+        $topProductsList = $top5Items->map(function ($item, $index) use ($productsById) {
+            $product = $productsById->get($item->product_id);
+
+            return [
+                'rank' => $index + 1,
+                'name' => $item->product_name,
+                'sold' => (int) $item->total_sold,
+                'revenue' => (float) $item->total_revenue,
+                'image' => $product?->image_url,
+            ];
+        })->toArray();
+
+        $topProduct = $topItem?->product_id ? $productsById->get($topItem->product_id) : null;
 
         // 4. Customer Retention Today
         // Identify customers who ordered today
@@ -128,6 +152,7 @@ class ReportingService
             'returningCount' => $returningCount,
             'newCount' => $newCount,
             'totalCustomers' => $totalCustomers,
+            'topProducts' => $topProductsList,
             'hourlySales' => $hourlySales,
         ];
     }

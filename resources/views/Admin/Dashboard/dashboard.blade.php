@@ -30,7 +30,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:wght@600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Auth Guard removed, using Laravel middleware instead -->
     
@@ -57,48 +57,65 @@
     <main class="flex-grow min-w-0 flex flex-col h-full bg-white rounded-l-[24px] shadow-[-10px_0_30px_rgba(0,0,0,0.02)] border-l border-brewlyborder overflow-hidden">
         
         <!-- Top Header for Main Area -->
-        <header class="h-20 md:h-24 flex justify-between items-center px-4 md:px-10 shrink-0 border-b border-brewlyborder/50 bg-white relative z-50">
+        <!-- Top Header for Main Area -->
+        <header class="h-16 md:h-[58px] flex justify-between items-center px-4 md:px-7 shrink-0 border-b border-[#e9ebf0] bg-white relative z-50 font-['DM_Sans',sans-serif]">
             <div class="flex items-center gap-3">
-                <button type="button" @click="window.innerWidth < 768 ? mobileNavOpen = !mobileNavOpen : isMinimized = !isMinimized" aria-label="Ubah ukuran sidebar" aria-controls="app-sidebar" :aria-expanded="!isMinimized" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors">
-                    <i class="fas fa-bars text-lg"></i>
+                <button type="button" @click="window.innerWidth < 768 ? mobileNavOpen = !mobileNavOpen : isMinimized = !isMinimized" aria-label="Ubah ukuran sidebar" aria-controls="app-sidebar" :aria-expanded="!isMinimized" class="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors md:hidden">
+                    <i class="fas fa-bars text-base"></i>
                 </button>
-                <div x-show="currentTab !== 'analytics'">
-                    <h2 class="font-sans font-bold text-xl md:text-3xl text-primary" x-text="tabs.find(t => t.id === currentTab)?.name"></h2>
+                <div x-show="currentTab === 'dashboard'">
+                    <p class="font-['DM_Sans',sans-serif] font-medium text-[13px] text-[#111827]">Dashboard</p>
+                </div>
+                <div x-show="currentTab !== 'dashboard' && currentTab !== 'analytics'">
+                    <h2 class="font-sans font-bold text-lg md:text-xl text-primary" x-text="tabs.find(t => t.id === currentTab)?.name"></h2>
                 </div>
             </div>
             
-            <div class="flex items-center gap-3 md:gap-6 ml-auto">
-                <div class="relative cursor-pointer group hidden md:block" x-show="currentTab !== 'analytics'">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" x-model="searchQuery" placeholder="Search..." class="bg-gray-50 border border-gray-200 rounded-full pl-11 pr-4 py-2 text-sm focus:outline-none focus:border-brewlygreen focus:ring-1 focus:ring-brewlygreen w-64 transition-all">
+            <div class="flex items-center gap-2.5 md:gap-4 ml-auto">
+                <!-- Search Bar (Sparta Figma Style with ⌘K badge) -->
+                <div class="relative items-center hidden sm:flex">
+                    <div class="bg-[#f8f9fa] border border-[#e9ebf0] rounded-[8px] flex items-center h-8 px-2.5 gap-2 w-56 md:w-64 focus-within:border-[#f9731f] focus-within:ring-1 focus-within:ring-[#f9731f]/20 transition-all">
+                        <img src="{{ asset('images/sparta/search-icon.svg') }}" class="w-3.5 h-3.5 opacity-60" alt="">
+                        <input type="text" id="global-search-input" x-model="searchQuery" placeholder="Cari menu atau pesanan…" class="bg-transparent border-0 p-0 text-[11px] text-[#111827] placeholder:text-[#7f837e] focus:ring-0 focus:outline-none w-full">
+                        <kbd class="px-1.5 py-0.5 rounded bg-gray-200/60 text-[#7f837e] text-[9px] font-mono leading-none">⌘K</kbd>
+                    </div>
                 </div>
 
-                <div class="relative cursor-pointer group" @click="currentTab = 'orders'">
-                    <i class="fas fa-bell text-muted text-lg md:text-xl group-hover:text-primary transition-colors"></i>
+                <!-- Date Pill (Sparta Figma Style) -->
+                <div class="bg-[#f8f9fa] border border-[#e9ebf0] rounded-[8px] px-3 py-1.5 hidden md:flex items-center text-[10px] font-medium text-[#7f837e] tracking-tight">
+                    {{ \Carbon\Carbon::now()->translatedFormat('d M Y') }}
+                </div>
+
+                <!-- Bell Notifications -->
+                <div class="relative cursor-pointer p-1.5 text-gray-500 hover:text-primary transition-colors" @click="currentTab = 'orders'" title="Pesanan Masuk">
+                    <i class="fas fa-bell text-base md:text-lg"></i>
                     <template x-if="(orders || []).filter(o => o.status === 'Masuk' || o.status === 'CONFIRMED' || o.order_status === 'CONFIRMED').length > 0">
-                        <span class="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white" x-text="(orders || []).filter(o => o.status === 'Masuk' || o.status === 'CONFIRMED' || o.order_status === 'CONFIRMED').length"></span>
+                        <span class="absolute 0 right-0 bg-[#ea580c] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white" x-text="(orders || []).filter(o => o.status === 'Masuk' || o.status === 'CONFIRMED' || o.order_status === 'CONFIRMED').length"></span>
                     </template>
                 </div>
                 
-                <div class="relative pl-3 md:pl-6 border-l border-gray-200" x-data="{ open: false }">
-                    <div @click="open = !open" @click.away="open = false" class="flex items-center gap-2 md:gap-3 cursor-pointer group">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'A') }}&background=164A35&color=fff" alt="User Avatar" class="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-transparent group-hover:border-brewlygreen transition-all object-cover">
-                        <div class="hidden md:flex flex-col">
-                            <span class="text-sm font-bold text-textdark leading-tight">{{ auth()->user()->name ?? 'Admin' }}</span>
-                            <span class="text-[10px] text-brewlymuted uppercase font-medium">{{ auth()->user()->role ?? 'Manager' }}</span>
+                <!-- User Profile -->
+                <div class="relative pl-2.5 md:pl-3.5 border-l border-gray-200" x-data="{ open: false }">
+                    <div @click="open = !open" @click.away="open = false" class="flex items-center gap-2 cursor-pointer group">
+                        <div class="w-8 h-8 rounded-full bg-[#dce8ec] text-[#111827] flex items-center justify-center font-bold text-xs shrink-0 border border-gray-100">
+                            {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 2)) }}
                         </div>
-                        <i class="fas fa-chevron-down text-xs text-gray-400 group-hover:text-brewlygreen transition-colors hidden md:block"></i>
+                        <div class="hidden lg:flex flex-col">
+                            <span class="text-xs font-semibold text-[#111827] leading-tight">{{ auth()->user()->name ?? 'Admin' }}</span>
+                            <span class="text-[9px] text-[#7f837e] uppercase font-medium">{{ auth()->user()->role ?? 'Manager' }}</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-[10px] text-gray-400 group-hover:text-primary transition-colors hidden md:block"></i>
                     </div>
                     
                     <!-- Dropdown Menu -->
-                    <div x-show="open" x-cloak x-transition.opacity class="absolute right-0 mt-3 w-48 bg-white rounded-[16px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-line overflow-hidden z-50">
-                        <div class="p-2">
-                            <button @click="currentTab = 'profile'; open = false" class="w-full text-left px-4 py-2.5 rounded-[10px] text-sm font-semibold text-ink hover:bg-ivory hover:text-primary transition-colors flex items-center gap-3">
-                                <i class="fas fa-user w-4"></i> Profile
+                    <div x-show="open" x-cloak x-transition.opacity class="absolute right-0 mt-3 w-48 bg-white rounded-[14px] shadow-[0_10px_35px_rgba(0,0,0,0.08)] border border-line overflow-hidden z-50">
+                        <div class="p-1.5">
+                            <button @click="currentTab = 'profile'; open = false" class="w-full text-left px-3.5 py-2 rounded-[8px] text-xs font-semibold text-ink hover:bg-gray-50 hover:text-primary transition-colors flex items-center gap-2.5">
+                                <i class="fas fa-user w-4 text-gray-400"></i> Profil Saya
                             </button>
-                            <div class="h-px bg-gray-100 my-1 mx-2"></div>
-                            <button @click="logout()" class="w-full text-left px-4 py-2.5 rounded-[10px] text-sm font-bold text-red-500 hover:bg-red-50 transition-colors flex items-center gap-3">
-                                <i class="fas fa-sign-out-alt w-4"></i> Logout
+                            <div class="h-px bg-gray-100 my-1 mx-1.5"></div>
+                            <button @click="logout()" class="w-full text-left px-3.5 py-2 rounded-[8px] text-xs font-bold text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2.5">
+                                <i class="fas fa-sign-out-alt w-4"></i> Keluar
                             </button>
                         </div>
                     </div>
@@ -106,6 +123,7 @@
             </div>
         </header>
 
+        @include('Admin.Dashboard.tabs.overview')
         @include('Admin.Dashboard.tabs.orders')
         @include('Admin.Dashboard.tabs.menu')
         
@@ -629,7 +647,7 @@
                 isLoadingSummary: true,
                 isLoadingMenus: true,
                 isLoadingAnalytics: true,
-                currentTab: new URLSearchParams(window.location.search).get('tab') || localStorage.getItem('activeDashboardTab') || 'orders',
+                currentTab: new URLSearchParams(window.location.search).get('tab') || localStorage.getItem('activeDashboardTab') || 'dashboard',
                 showAddCategoryModal: false,
                 newCategoryName: '',
                 showAddMenuModal: false,
@@ -1103,18 +1121,19 @@ handleDraftImageUpload(event, index) {
                     return filtered;
                 },
                 tabs: [
-                    { id: 'analytics', ability: 'view-reports', name: 'Dashboard Analytics', icon: 'fas fa-chart-pie' },
-                    { id: 'report', ability: 'view-reports', name: 'Laporan Keuangan', icon: 'fas fa-book' },
+                    { id: 'dashboard', ability: null, name: 'Dashboard', icon: 'fas fa-th-large' },
                     { id: 'orders', ability: 'view-orders', name: 'Live Orders', icon: 'fas fa-receipt' },
                     { id: 'menu', ability: 'manage-menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
                     { id: 'inventory', ability: 'manage-inventory', name: 'Bahan & Stok', icon: 'fas fa-boxes-stacked' },
                     { id: 'qr', ability: 'manage-settings', name: 'Table & QR', icon: 'fas fa-qrcode' },
                     { id: 'crew', ability: 'manage-crew', name: 'Crew Management', icon: 'fas fa-users' },
                     { id: 'shifts', ability: 'manage-crew', name: 'Jadwal Shift', icon: 'fas fa-calendar-alt' },
+                    { id: 'analytics', ability: 'view-reports', name: 'Dashboard Analytics', icon: 'fas fa-chart-pie' },
+                    { id: 'report', ability: 'view-reports', name: 'Laporan Keuangan', icon: 'fas fa-book' },
                     { id: 'logs', ability: 'view-reports', name: 'Log Aktivitas', icon: 'fas fa-history' },
                     { id: 'settings', ability: 'manage-settings', name: 'Toko Saya', icon: 'fas fa-store' },
                     { id: 'receipt', ability: 'manage-settings', name: 'Pengaturan Struk', icon: 'fas fa-print' },
-                ].filter(tab => window.INITIAL_DATA.permissions.includes(tab.ability)),
+                ].filter(tab => !tab.ability || window.INITIAL_DATA.permissions.includes(tab.ability)),
                                 tables: [],
                 reportPeriod: 'all',
                 formatNum(num) {
@@ -1253,6 +1272,139 @@ handleDraftImageUpload(event, index) {
                 },
                 orders: [],
                 menuItems: [],
+                formatOmzetShort(val) {
+                    if (!val || isNaN(val)) return 'Rp4,25 jt';
+                    const num = Number(val);
+                    if (num >= 1000000) {
+                        return 'Rp' + (num / 1000000).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + ' jt';
+                    }
+                    if (num >= 1000) {
+                        return 'Rp' + (num / 1000).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 1 }) + ' rb';
+                    }
+                    return formatRp(num);
+                },
+                getLiveKitchenQueue() {
+                    const live = (this.orders || []).filter(o => {
+                        const s = (o.status || o.order_status || '').toLowerCase();
+                        return ['masuk', 'confirmed', 'in progress', 'preparing', 'memasak'].includes(s);
+                    });
+
+                    if (live.length > 0) {
+                        return live.map((o, idx) => {
+                            const items = o.items || [];
+                            const itemNames = items.slice(0, 2).map(i => `${i.name || 'Menu'} ×${i.qty || 1}`).join(', ');
+                            const extraCount = items.length > 2 ? items.length - 2 : 0;
+                            return {
+                                id: o.id,
+                                table: o.table || `0${idx + 1}`,
+                                status: 'Memasak',
+                                total: o.total || 167000,
+                                items: items,
+                                itemsText: itemNames + (itemNames ? ', ' : ''),
+                                extraItemText: extraCount > 0 ? `+${extraCount} item` : '+1 item',
+                                displayTime: o.time ? (new Date(o.time.replace(' ', 'T')).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })) : '18:20'
+                            };
+                        });
+                    }
+
+                    return [
+                        {
+                            id: 'mock-1',
+                            table: '01',
+                            status: 'Memasak',
+                            total: 167000,
+                            items: [
+                                { name: 'Carbonara', qty: 3, price: 35000 },
+                                { name: 'Nasi Goreng', qty: 1, price: 32000 },
+                                { name: 'Iced Tea', qty: 1, price: 15000 }
+                            ],
+                            itemsText: 'Carbonara ×3, Nasi Goreng ×1, ',
+                            extraItemText: '+1 item',
+                            displayTime: '18:20'
+                        },
+                        {
+                            id: 'mock-2',
+                            table: '02',
+                            status: 'Memasak',
+                            total: 167000,
+                            items: [
+                                { name: 'Carbonara', qty: 3, price: 35000 },
+                                { name: 'Nasi Goreng', qty: 1, price: 32000 },
+                                { name: 'Iced Tea', qty: 1, price: 15000 }
+                            ],
+                            itemsText: 'Carbonara ×3, Nasi Goreng ×1, ',
+                            extraItemText: '+1 item',
+                            displayTime: '18:25'
+                        }
+                    ];
+                },
+                async markOrderReady(order) {
+                    if (order.id && typeof order.id === 'number') {
+                        await this.updateStatus(order.id, 'Ready');
+                    }
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Pesanan Siap Disajikan!',
+                            text: `Pesanan Meja ${order.table || '01'} telah siap disajikan kepada pelanggan.`,
+                            timer: 2000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-end'
+                        });
+                    }
+                },
+                getTopProductsList() {
+                    if (this.analytics?.topProducts && this.analytics.topProducts.length > 0) {
+                        return this.analytics.topProducts.map((p, idx) => ({
+                            name: p.name,
+                            sold: p.sold,
+                            revenue: p.revenue,
+                            image: p.image || [
+                                '/images/sparta/mont-blanc.png',
+                                '/images/sparta/iced-americano.png',
+                                '/images/sparta/dirty-latte.png',
+                                '/images/sparta/mix-platter.png',
+                                '/images/sparta/nusantara-platter.png'
+                            ][idx % 5]
+                        }));
+                    }
+
+                    return [
+                        { name: 'Mont Blanc', sold: 34, revenue: 952000, image: '/images/sparta/mont-blanc.png' },
+                        { name: 'Iced Americano', sold: 21, revenue: 504000, image: '/images/sparta/iced-americano.png' },
+                        { name: 'Dirty Latte Sparta', sold: 18, revenue: 504000, image: '/images/sparta/dirty-latte.png' },
+                        { name: 'Mix Platter', sold: 15, revenue: 675000, image: '/images/sparta/mix-platter.png' },
+                        { name: 'Nusantara Platter', sold: 12, revenue: 660000, image: '/images/sparta/nusantara-platter.png' }
+                    ];
+                },
+                busyHoursData: [
+                    { label: '09:00', visitors: 4, height: 22, isPeak: false },
+                    { label: '09:30', visitors: 5, height: 24, isPeak: false },
+                    { label: '10:00', visitors: 5, height: 24, isPeak: false },
+                    { label: '10:30', visitors: 6, height: 28, isPeak: false },
+                    { label: '11:00', visitors: 8, height: 38, isPeak: false },
+                    { label: '11:30', visitors: 5, height: 24, isPeak: false },
+                    { label: '12:00', visitors: 7, height: 32, isPeak: false },
+                    { label: '12:30', visitors: 6, height: 26, isPeak: false },
+                    { label: '13:00', visitors: 5, height: 24, isPeak: false },
+                    { label: '13:30', visitors: 7, height: 34, isPeak: false },
+                    { label: '14:00', visitors: 5, height: 24, isPeak: false },
+                    { label: '14:30', visitors: 6, height: 30, isPeak: false },
+                    { label: '15:00', visitors: 9, height: 44, isPeak: false },
+                    { label: '15:30', visitors: 11, height: 56, isPeak: false },
+                    { label: '16:00', visitors: 13, height: 70, isPeak: false },
+                    { label: '16:30', visitors: 15, height: 86, isPeak: true },
+                    { label: '17:00', visitors: 12, height: 68, isPeak: true },
+                    { label: '17:30', visitors: 16, height: 92, isPeak: true },
+                    { label: '18:00', visitors: 18, height: 100, isPeak: true },
+                    { label: '18:30', visitors: 14, height: 82, isPeak: true },
+                    { label: '19:00', visitors: 8, height: 42, isPeak: false },
+                    { label: '19:30', visitors: 8, height: 42, isPeak: false },
+                    { label: '20:00', visitors: 6, height: 28, isPeak: false },
+                    { label: '20:30', visitors: 5, height: 24, isPeak: false },
+                ],
+
                 init() {
                     const unlockAudio = () => {
                         const chime = document.getElementById('chime-sound');
@@ -1289,6 +1441,17 @@ handleDraftImageUpload(event, index) {
                     }
                     
                     this.fetchLiveOrders(true);
+                    window.addEventListener('keydown', (e) => {
+                        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                            e.preventDefault();
+                            const searchInput = document.getElementById('global-search-input');
+                            if (searchInput) {
+                                searchInput.focus();
+                                searchInput.select();
+                            }
+                        }
+                    });
+
                     
                     // The global notification engine (orders.js) handles Reverb connection 
                     // and dispatches the 'new-order-received' window event.
