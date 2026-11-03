@@ -60,6 +60,10 @@
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <header class="h-[52px] bg-[#f6f5f2] border-b border-[#e6e5e0] px-4 lg:px-[26px] flex items-center justify-between shrink-0 sticky top-0 z-20">
     <div class="flex items-center gap-3">
+        <button type="button" @click="$dispatch('toggle-mobile-nav')" aria-label="Buka menu navigasi" aria-controls="app-sidebar"
+            class="w-9 h-9 rounded-lg bg-[#eae8e3] flex items-center justify-center text-[#1e211f] hover:bg-[#dfddd7] transition-colors md:hidden">
+            <i class="fas fa-bars text-base"></i>
+        </button>
         <span class="text-[13px] font-semibold text-[#1e211f]">Kasir</span>
         @if($activeSession)
         <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#eaf7ef] text-[#289e5c] text-[10.5px] font-semibold">

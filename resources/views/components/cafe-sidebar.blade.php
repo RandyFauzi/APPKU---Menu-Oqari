@@ -42,8 +42,7 @@ if ($member?->role === 'superadmin') {
     ]];
 }
 @endphp
-<div class="contents" data-cafe-navigation x-data="{{ $dashboard ? '{}' : '{ isMinimized: window.innerWidth < 1024, mobileNavOpen: false }' }}" @keydown.escape.window="mobileNavOpen = false">
-    <button type="button" class="cafe-nav-mobile" @click="mobileNavOpen = !mobileNavOpen" aria-label="Buka menu aplikasi" :aria-expanded="mobileNavOpen" aria-controls="app-sidebar"><i class="fas fa-bars" aria-hidden="true"></i><span>Menu</span></button>
+<div class="contents" data-cafe-navigation x-data="{{ $dashboard ? '{}' : '{ isMinimized: window.innerWidth < 1024, mobileNavOpen: false }' }}" @toggle-mobile-nav.window="mobileNavOpen = !mobileNavOpen" @keydown.escape.window="mobileNavOpen = false">
     <div class="cafe-nav-backdrop md:hidden" x-show="mobileNavOpen" x-cloak @click="mobileNavOpen = false" aria-hidden="true"></div>
     <aside id="app-sidebar" data-cafe-sidebar class="app-sidebar transition-[width] duration-200 bg-[#f8f9fa] border-r border-[#e9ebf0]" :class="{ 'is-collapsed': isMinimized && !mobileNavOpen, 'is-mobile-open': mobileNavOpen }" aria-label="Navigasi aplikasi">
         
@@ -58,6 +57,9 @@ if ($member?->role === 'superadmin') {
             </div>
             <button type="button" @click="isMinimized = !isMinimized" class="hidden md:flex p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" title="Toggle Sidebar" x-show="!isMinimized && !mobileNavOpen">
                 <img src="{{ asset('images/sparta/panel-collapse.svg') }}" class="w-4 h-4" alt="">
+            </button>
+            <button type="button" @click="mobileNavOpen = false" class="md:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" title="Tutup Menu" x-show="mobileNavOpen">
+                <i class="fas fa-times text-sm"></i>
             </button>
         </div>
 
