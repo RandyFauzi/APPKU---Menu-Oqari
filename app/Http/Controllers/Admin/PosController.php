@@ -12,11 +12,13 @@ use App\Http\Requests\SubmitPosOrderRequest;
 use App\Models\CashRegister;
 use App\Models\CashRegisterSession;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Table;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PosController extends Controller
 {
@@ -35,11 +37,23 @@ class PosController extends Controller
             ->latest()
             ->first();
 
+        $soldCounts = OrderItem::query()
+            ->select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.shop_id', $shop->id)
+            ->whereNotIn('orders.order_status', ['CANCELLED', 'HOLD'])
+            ->groupBy('order_items.product_id')
+            ->pluck('total_sold', 'product_id');
+
         $products = Product::where('shop_id', $shop->id)
             ->where('is_sold_out', false)
-            ->with(['variants', 'modifierGroups.modifiers'])
+            ->with(['category', 'variants', 'modifierGroups.modifiers'])
             ->orderBy('category_id')
-            ->get();
+            ->get()
+            ->each(function (Product $product) use ($soldCounts): void {
+                $product->setAttribute('sold_count', (int) ($soldCounts[$product->id] ?? 0));
+                $product->setAttribute('category_name', $product->category?->name ?? 'Menu');
+            });
 
         // Unique category list for filter tabs
         $categories = $products
@@ -51,18 +65,55 @@ class PosController extends Controller
         // Active held orders — show in recall bar
         $heldOrders = Order::where('shop_id', $shop->id)
             ->where('order_status', 'HOLD')
-            ->with('items')
+            ->with(['items', 'table'])
             ->latest()
             ->take(10)
             ->get();
 
-        $heldOrderSummaries = $heldOrders->map(fn ($order): array => ['id' => $order->id, 'total' => $order->grand_total]);
+        $heldOrderSummaries = $heldOrders->map(fn ($order): array => [
+            'id' => $order->id,
+            'total' => $order->grand_total,
+            'customer_name' => $order->customer_name,
+            'table' => $order->table?->name,
+        ]);
+
+        // Initial live queue orders for the top Antrean section
+        $activeQueueOrders = Order::where('shop_id', $shop->id)
+            ->whereIn('order_status', ['PENDING', 'CONFIRMED', 'PREPARING', 'READY'])
+            ->with(['items', 'table'])
+            ->latest()
+            ->take(15)
+            ->get()
+            ->map(function (Order $order): array {
+                $statusMap = [
+                    'PENDING' => 'Masuk',
+                    'CONFIRMED' => 'Masuk',
+                    'PREPARING' => 'Diproses',
+                    'READY' => 'Siap',
+                ];
+
+                return [
+                    'id' => $order->id,
+                    'table' => $order->table?->name ?? ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : ($order->fulfillment_type === 'DELIVERY' ? 'Delivery' : 'Tanpa Meja')),
+                    'customer_name' => $order->customer_name ?: 'Walk-in Customer',
+                    'total' => (float) $order->grand_total,
+                    'status' => $statusMap[$order->order_status] ?? $order->order_status,
+                    'order_status' => $order->order_status,
+                    'fulfillment_type' => $order->fulfillment_type ?? 'DINE_IN',
+                    'time' => $order->created_at?->format('H:i') ?? '--:--',
+                    'items' => $order->items->map(fn ($item): array => [
+                        'name' => $item->product_name,
+                        'qty' => (int) $item->quantity,
+                    ])->values()->all(),
+                ];
+            })
+            ->values();
 
         $registers = CashRegister::where('shop_id', $shop->id)->where('is_active', true)->get();
         $tables = Table::where('shop_id', $shop->id)->get();
 
         return view('Admin.pos.index', compact(
-            'products', 'categories', 'activeSession', 'heldOrders', 'heldOrderSummaries', 'registers', 'shop', 'tables'
+            'products', 'categories', 'activeSession', 'heldOrders', 'heldOrderSummaries', 'activeQueueOrders', 'registers', 'shop', 'tables'
         ));
     }
 
@@ -152,16 +203,20 @@ class PosController extends Controller
             return response()->json(['error' => 'Order tidak ditemukan atau tidak bisa di-recall.'], 404);
         }
 
-        $order->load('items');
+        $order->load(['items.product', 'table']);
 
         return response()->json([
             'success' => true,
             'order' => [
                 'id' => $order->id,
                 'total' => $order->grand_total,
+                'customer_name' => $order->customer_name,
+                'table' => $order->table?->name,
+                'fulfillment_type' => $order->fulfillment_type ?? 'DINE_IN',
                 'items' => $order->items->map(fn ($i) => [
                     'id' => $i->product_id,
                     'name' => $i->product_name,
+                    'image' => $i->product?->image_url,
                     'qty' => $i->quantity,
                     'price' => $i->unit_price,
                     'subtotal' => $i->subtotal,

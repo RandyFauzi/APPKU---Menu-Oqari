@@ -7,6 +7,7 @@ use App\Actions\Payment\ProcessPayment;
 use App\Events\OrderCreated;
 use App\Models\Order;
 use App\Models\Shop;
+use App\Models\Table;
 use App\Models\User;
 use App\Services\InventoryService;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +48,18 @@ class SubmitPosOrder
                 foreach ($cart['items'] as $item) {
                     $order->items()->create($item);
                 }
+                $tableId = $order->table_id;
+                if (! empty($data['table'])) {
+                    $tableModel = Table::where('shop_id', $shop->id)
+                        ->where('name', $data['table'])
+                        ->first()
+                        ?? Table::create(['shop_id' => $shop->id, 'name' => $data['table']]);
+                    $tableId = $tableModel->id;
+                }
+
                 $order->update([
+                    'table_id' => $tableId,
+                    'customer_name' => $data['customer_name'] ?? $order->customer_name,
                     'subtotal' => $cart['subtotal'],
                     'grand_total' => $cart['subtotal'],
                     'total_cogs' => $cart['total_cogs'],

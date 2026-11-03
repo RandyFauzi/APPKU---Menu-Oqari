@@ -18,7 +18,7 @@ class SubmitPosOrderRequest extends HoldPosOrderRequest
             'recalled_order_id' => ['nullable', 'integer'],
             'payment_method' => ['required', 'in:CASH,QRIS,CARD,OTHER'],
             'amount_paid' => ['required', 'numeric', 'min:0'],
-            'fulfillment_type' => ['nullable', 'in:DINE_IN,TAKEAWAY'],
+            'fulfillment_type' => ['nullable', 'in:DINE_IN,TAKEAWAY,DELIVERY'],
         ]);
     }
 }
