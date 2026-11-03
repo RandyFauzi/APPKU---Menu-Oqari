@@ -25,7 +25,35 @@ class ReportingCompatibilityTest extends TestCase
         OrderFactory::new()->create(['shop_id' => Shop::factory()->create()->id, 'created_at' => now()->setTime(10, 30), 'payment_status' => 'PAID', 'grand_total' => 999999]);
         $this->actingAs($owner)->getJson('/admin/api/dashboard/analytics')->assertOk()
             ->assertJsonPath('revenue', 50000)->assertJsonPath('topProduct.name', 'Latte')->assertJsonPath('topProduct.sold', 2)
-            ->assertJsonPath('topProduct.image', $product->image_url)->assertJsonPath('hourlySales.1', 1);
+            ->assertJsonPath('topProduct.image', $product->image_url)->assertJsonPath('hourlySales.1', 1)
+            ->assertJsonPath('topProducts.0.name', 'Latte')
+            ->assertJsonPath('busyHours.peakHour', '10:00')
+            ->assertJsonPath('busyHours.peakVisitors', 1)
+            ->assertJsonPath('monthlyTrend.hasData', true);
+    }
+
+    public function test_analytics_returns_safe_zero_defaults_when_shop_has_no_orders(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $owner = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
+
+        $this->actingAs($owner)->getJson('/admin/api/dashboard/analytics')->assertOk()
+            ->assertJsonPath('orders', 0)
+            ->assertJsonPath('ordersYesterday', 0)
+            ->assertJsonPath('ordersChange', 0)
+            ->assertJsonPath('revenue', 0)
+            ->assertJsonPath('revenueYesterday', 0)
+            ->assertJsonPath('revenueChange', 0)
+            ->assertJsonPath('topProduct.name', 'Belum ada')
+            ->assertJsonPath('topProduct.sold', 0)
+            ->assertJsonPath('topProducts', [])
+            ->assertJsonPath('newCount', 0)
+            ->assertJsonPath('returningCount', 0)
+            ->assertJsonPath('newCustomersPct', 0)
+            ->assertJsonPath('returningCustomers', 0)
+            ->assertJsonPath('busyHours.peakHour', '—')
+            ->assertJsonPath('busyHours.peakVisitors', 0)
+            ->assertJsonPath('monthlyTrend.hasData', false);
     }
 
     public function test_payment_report_uses_ledger_cancellation_and_paid_order_instead_of_nonexistent_status(): void

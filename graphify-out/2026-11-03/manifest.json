@@ -552,9 +552,9 @@
     "semantic_hash": "069466e7f06e9e1e9f1a90b54bd1a2a5"
   },
   "app/Services/ReportingService.php": {
-    "mtime": 1792479734.5244918,
-    "seen": 1792480317.4849164,
-    "ast_hash": "c7a2628a95e1542c003199cb74123cee",
+    "mtime": 1793681568.5163953,
+    "seen": 1793682210.941907,
+    "ast_hash": "d37e2d2b9e403a1cee41784bc56be5c8",
     "semantic_hash": ""
   },
   "app/Traits/BelongsToShop.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1792478835.7265582,
-    "seen": 1792478940.9881868,
-    "ast_hash": "361c671d237478dce898afd3ba6da88e",
+    "mtime": 1793681890.6623945,
+    "seen": 1793682210.942181,
+    "ast_hash": "6c1be3d493d92b56279fe97473d2ef52",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/analytics.blade.php": {
@@ -2508,9 +2508,9 @@
     "semantic_hash": ""
   },
   "resources/views/components/cafe-sidebar.blade.php": {
-    "mtime": 1792478592.8103738,
-    "seen": 1792478940.9882715,
-    "ast_hash": "d6fd605c566d34728ef0e2f34c854967",
+    "mtime": 1793682117.1891174,
+    "seen": 1793682210.9422672,
+    "ast_hash": "9281a41b79454dd81e0ea4d6f410bc8e",
     "semantic_hash": ""
   },
   "app/Console/Commands/CheckDatabaseSchema.php": {
@@ -2571,6 +2571,222 @@
     "mtime": 1792481912.0659263,
     "seen": 1792481921.8757308,
     "ast_hash": "abc4b8e687ed2f6289109775ff3cd01d",
+    "semantic_hash": ""
+  },
+  "resources/views/Admin/Dashboard/tabs/overview.blade.php": {
+    "mtime": 1793681634.9925108,
+    "seen": 1793682210.9421947,
+    "ast_hash": "3e9a785dd1082605348ebaf228df8b08",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/bill-check.svg": {
+    "mtime": 1793681256.1997077,
+    "seen": 1793682210.942654,
+    "ast_hash": "b9cb8ed5d21802cf8c8f1f50489e6f2f",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/box-bold-duotone.svg": {
+    "mtime": 1793681250.0770147,
+    "seen": 1793682210.9426558,
+    "ast_hash": "c0a4239fb0d4753d4d9739854ab9233a",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/cart-btn-icon.svg": {
+    "mtime": 1793681258.2425995,
+    "seen": 1793682210.9426572,
+    "ast_hash": "26257aa3736e9f9f6304c59000b56777",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/cart-watermark.svg": {
+    "mtime": 1793681249.4168708,
+    "seen": 1793682210.9426591,
+    "ast_hash": "1d72a22bb89981018fb5171e5557908c",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/chart-line-area.svg": {
+    "mtime": 1793681255.895858,
+    "seen": 1793682210.9426606,
+    "ast_hash": "37aeff20db3df12730fb82807a17b3d1",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/chart-line.svg": {
+    "mtime": 1793681248.18662,
+    "seen": 1793682210.9426625,
+    "ast_hash": "d70b587aad037571dd5dc1cc70898917",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/check-bold.svg": {
+    "mtime": 1793681247.8846388,
+    "seen": 1793682210.9426637,
+    "ast_hash": "3dba452a8a2830597f4df00340fd7e86",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/chevron-right.svg": {
+    "mtime": 1793681248.4846551,
+    "seen": 1793682210.942665,
+    "ast_hash": "357049bcd7ad42aab817391ce730967c",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/clock.svg": {
+    "mtime": 1793681246.272006,
+    "seen": 1793682210.9426672,
+    "ast_hash": "95b821be6c4e4a70a40286a47d33f286",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/dirty-latte.png": {
+    "mtime": 1793681257.1903963,
+    "seen": 1793682210.942669,
+    "ast_hash": "db5dafbd6317560d7775afe046ae2865",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/iced-americano.png": {
+    "mtime": 1793681252.8664951,
+    "seen": 1793682210.94267,
+    "ast_hash": "fa39e09a47a812fa406888e5e7053e85",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/mix-platter.png": {
+    "mtime": 1793681261.3412535,
+    "seen": 1793682210.9426715,
+    "ast_hash": "447e9624a5585866b9470d19c2adde21",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/mont-blanc.png": {
+    "mtime": 1793681255.4977484,
+    "seen": 1793682210.9426732,
+    "ast_hash": "bc50637311999abb364dbcaf1db2e43f",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-absensi.svg": {
+    "mtime": 1793681263.3985384,
+    "seen": 1793682210.9426746,
+    "ast_hash": "d738094905f70216ed4c9ca1843edbbc",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-dashboard.svg": {
+    "mtime": 1793681250.6993148,
+    "seen": 1793682210.9426763,
+    "ast_hash": "bb01c4e59b35aaeaec859ff6f6ab44ef",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-hpp.svg": {
+    "mtime": 1793681258.559285,
+    "seen": 1793682210.9426775,
+    "ast_hash": "721baf4822b23ef9c1101fafb16f894e",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-kasir.svg": {
+    "mtime": 1793681249.1033552,
+    "seen": 1793682210.9426794,
+    "ast_hash": "4d996e19685e774b12bec7df1fbbc078",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-laporan.svg": {
+    "mtime": 1793681247.5752351,
+    "seen": 1793682210.9426806,
+    "ast_hash": "64b796c24dd0fc32f61328fa2daea98b",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-log.svg": {
+    "mtime": 1793681246.929523,
+    "seen": 1793682210.9426827,
+    "ast_hash": "8d16e766cf35e1ae3488445c6aae64cf",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-meja-qr.svg": {
+    "mtime": 1793681262.025987,
+    "seen": 1793682210.9426842,
+    "ast_hash": "319fa4fdd1a27a48c49cfd4646250c0b",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-menu.svg": {
+    "mtime": 1793681262.7087336,
+    "seen": 1793682210.9426856,
+    "ast_hash": "9d31067fdcdb419ed231bcb22ecd1db6",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-pengguna.svg": {
+    "mtime": 1793681247.2595184,
+    "seen": 1793682210.942687,
+    "ast_hash": "091613177144d7d285127a1502792c85",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-pesanan.svg": {
+    "mtime": 1793681246.617242,
+    "seen": 1793682210.9426882,
+    "ast_hash": "0dc21346f4532d08e30a39d79fddf8c1",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-shift.svg": {
+    "mtime": 1793681248.798443,
+    "seen": 1793682210.94269,
+    "ast_hash": "b739d6575a18d45ca04438cfc29d2144",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-staf.svg": {
+    "mtime": 1793681257.530194,
+    "seen": 1793682210.9426918,
+    "ast_hash": "d3abc4eb8009914b1a3f96e694689bb8",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-stok.svg": {
+    "mtime": 1793681253.5153315,
+    "seen": 1793682210.9426935,
+    "ast_hash": "1ff924a435926b21a2cc87bdc5947bd6",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-struk.svg": {
+    "mtime": 1793681258.873281,
+    "seen": 1793682210.942695,
+    "ast_hash": "b843e324e6b958ea00e395230e50b524",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-toko.svg": {
+    "mtime": 1793681261.6770463,
+    "seen": 1793682210.942696,
+    "ast_hash": "091a159e61d3ae7f827cae7406ed2a0e",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nusantara-platter.png": {
+    "mtime": 1793681260.1272864,
+    "seen": 1793682210.942698,
+    "ast_hash": "3a143248fa1401ad37e706a3df103b7d",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/omzet-cup-bag.png": {
+    "mtime": 1793681262.3990083,
+    "seen": 1793682210.9426994,
+    "ast_hash": "15cc7f426685ad1bb071c9c5511310d0",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/panel-collapse.svg": {
+    "mtime": 1793681253.8142505,
+    "seen": 1793682210.942701,
+    "ast_hash": "b31bf307b78adb2793095c4eaff74903",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/search-icon.svg": {
+    "mtime": 1793681249.7514052,
+    "seen": 1793682210.9427025,
+    "ast_hash": "f740a4a65eb2a9029470be1889e741de",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/sparta-logo.png": {
+    "mtime": 1793681253.1863117,
+    "seen": 1793682210.9427042,
+    "ast_hash": "afc1aee759ddb75ec174337a53db262c",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/tag-price-bold-duotone.svg": {
+    "mtime": 1793681257.8444245,
+    "seen": 1793682210.9427054,
+    "ast_hash": "bf4aea07b45a1ef6758117f90ee39d00",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/users-group-bold-duotone.svg": {
+    "mtime": 1793681250.3907483,
+    "seen": 1793682210.9427073,
+    "ast_hash": "d6deec724a8d5b0b1f4337c7e6c3d41b",
     "semantic_hash": ""
   }
 }

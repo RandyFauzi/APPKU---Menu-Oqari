@@ -1273,80 +1273,86 @@ handleDraftImageUpload(event, index) {
                 orders: [],
                 menuItems: [],
                 formatOmzetShort(val) {
-                    if (!val || isNaN(val)) return 'Rp4,25 jt';
-                    const num = Number(val);
+                    const num = Number(val ?? 0);
+                    if (isNaN(num) || num <= 0) return 'Rp0';
                     if (num >= 1000000) {
-                        return 'Rp' + (num / 1000000).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + ' jt';
+                        return 'Rp' + (num / 1000000).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' jt';
                     }
-                    if (num >= 1000) {
-                        return 'Rp' + (num / 1000).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 1 }) + ' rb';
-                    }
-                    return formatRp(num);
+                    return 'Rp' + num.toLocaleString('id-ID');
+                },
+                formatPctChange(val) {
+                    const num = Number(val ?? 0);
+                    if (isNaN(num) || num === 0) return '0%';
+                    const prefix = num > 0 ? '+' : '−';
+                    return prefix + Math.abs(num).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + '%';
                 },
                 getLiveKitchenQueue() {
                     const live = (this.orders || []).filter(o => {
                         const s = (o.status || o.order_status || '').toLowerCase();
-                        return ['masuk', 'confirmed', 'in progress', 'preparing', 'memasak'].includes(s);
+                        return ['masuk', 'pending', 'confirmed', 'in progress', 'preparing', 'memasak'].includes(s);
                     });
 
-                    if (live.length > 0) {
-                        return live.map((o, idx) => {
-                            const items = o.items || [];
-                            const itemNames = items.slice(0, 2).map(i => `${i.name || 'Menu'} ×${i.qty || 1}`).join(', ');
-                            const extraCount = items.length > 2 ? items.length - 2 : 0;
-                            return {
-                                id: o.id,
-                                table: o.table || `0${idx + 1}`,
-                                status: 'Memasak',
-                                total: o.total || 167000,
-                                items: items,
-                                itemsText: itemNames + (itemNames ? ', ' : ''),
-                                extraItemText: extraCount > 0 ? `+${extraCount} item` : '+1 item',
-                                displayTime: o.time ? (new Date(o.time.replace(' ', 'T')).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })) : '18:20'
-                            };
-                        });
-                    }
-
-                    return [
-                        {
-                            id: 'mock-1',
-                            table: '01',
-                            status: 'Memasak',
-                            total: 167000,
-                            items: [
-                                { name: 'Carbonara', qty: 3, price: 35000 },
-                                { name: 'Nasi Goreng', qty: 1, price: 32000 },
-                                { name: 'Iced Tea', qty: 1, price: 15000 }
-                            ],
-                            itemsText: 'Carbonara ×3, Nasi Goreng ×1, ',
-                            extraItemText: '+1 item',
-                            displayTime: '18:20'
-                        },
-                        {
-                            id: 'mock-2',
-                            table: '02',
-                            status: 'Memasak',
-                            total: 167000,
-                            items: [
-                                { name: 'Carbonara', qty: 3, price: 35000 },
-                                { name: 'Nasi Goreng', qty: 1, price: 32000 },
-                                { name: 'Iced Tea', qty: 1, price: 15000 }
-                            ],
-                            itemsText: 'Carbonara ×3, Nasi Goreng ×1, ',
-                            extraItemText: '+1 item',
-                            displayTime: '18:25'
+                    return live.map((o) => {
+                        const items = Array.isArray(o.items) ? o.items : [];
+                        const totalQty = items.reduce((acc, i) => acc + (Number(i.qty || i.quantity) || 1), 0);
+                        const itemNames = items.slice(0, 2).map(i => `${i.name || 'Menu'} ×${i.qty || i.quantity || 1}`).join(', ');
+                        const extraCount = items.length > 2 ? items.length - 2 : 0;
+                        const rawStatus = (o.status || o.order_status || 'Masuk').toLowerCase();
+                        let statusLabel = 'Memasak';
+                        let progressPct = 70;
+                        if (['masuk', 'pending'].includes(rawStatus)) {
+                            statusLabel = 'Pesanan Baru';
+                            progressPct = 30;
+                        } else if (rawStatus === 'confirmed') {
+                            statusLabel = 'Dikonfirmasi';
+                            progressPct = 55;
                         }
-                    ];
+
+                        const rawTable = String(o.table || '').trim();
+                        const isTakeaway = !rawTable || rawTable.toUpperCase() === 'TA' || rawTable.toLowerCase().includes('takeaway');
+                        const badgeText = isTakeaway ? 'TA' : rawTable.replace(/^meja\s*/i, '').padStart(2, '0');
+                        const titleText = isTakeaway
+                            ? (o.customer && !o.customer.toLowerCase().includes('meja') ? `${o.customer} (Takeaway)` : 'Takeaway')
+                            : (rawTable.toLowerCase().includes('meja') ? rawTable : `Meja ${rawTable}`);
+
+                        let displayTime = '—';
+                        if (o.time) {
+                            const parsed = new Date(String(o.time).replace(' ', 'T'));
+                            if (!isNaN(parsed.getTime())) {
+                                displayTime = parsed.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                            }
+                        }
+
+                        return {
+                            id: o.id,
+                            rawOrder: o,
+                            badgeText: badgeText,
+                            titleText: titleText,
+                            status: statusLabel,
+                            progressPct: progressPct,
+                            total: Number(o.total || 0),
+                            items: items,
+                            totalQty: totalQty,
+                            itemsText: itemNames ? (itemNames + (extraCount > 0 ? ', ' : '')) : 'Tidak ada rincian item',
+                            extraItemText: extraCount > 0 ? `+${extraCount} menu lainnya` : '',
+                            displayTime: displayTime
+                        };
+                    });
+                },
+                openOrderDetail(item) {
+                    if (!item) return;
+                    const target = item.rawOrder || (this.orders || []).find(o => o.id === item.id) || item;
+                    this.viewOrderDetails(target);
                 },
                 async markOrderReady(order) {
-                    if (order.id && typeof order.id === 'number') {
-                        await this.updateStatus(order.id, 'Ready');
-                    }
+                    if (!order || !order.id) return;
+                    await this.updateStatus(order.id, 'Ready');
+                    this.initAnalytics();
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
                             icon: 'success',
                             title: 'Pesanan Siap Disajikan!',
-                            text: `Pesanan Meja ${order.table || '01'} telah siap disajikan kepada pelanggan.`,
+                            text: `Pesanan ${order.titleText || ''} telah siap disajikan kepada pelanggan.`,
                             timer: 2000,
                             showConfirmButton: false,
                             toast: true,
@@ -1355,55 +1361,56 @@ handleDraftImageUpload(event, index) {
                     }
                 },
                 getTopProductsList() {
-                    if (this.analytics?.topProducts && this.analytics.topProducts.length > 0) {
+                    if (Array.isArray(this.analytics?.topProducts) && this.analytics.topProducts.length > 0) {
                         return this.analytics.topProducts.map((p, idx) => ({
-                            name: p.name,
-                            sold: p.sold,
-                            revenue: p.revenue,
-                            image: p.image || [
-                                '/images/sparta/mont-blanc.png',
-                                '/images/sparta/iced-americano.png',
-                                '/images/sparta/dirty-latte.png',
-                                '/images/sparta/mix-platter.png',
-                                '/images/sparta/nusantara-platter.png'
-                            ][idx % 5]
+                            rank: p.rank || (idx + 1),
+                            name: p.name || 'Produk',
+                            sold: Number(p.sold || 0),
+                            revenue: Number(p.revenue || 0),
+                            image: p.image || null
                         }));
                     }
-
-                    return [
-                        { name: 'Mont Blanc', sold: 34, revenue: 952000, image: '/images/sparta/mont-blanc.png' },
-                        { name: 'Iced Americano', sold: 21, revenue: 504000, image: '/images/sparta/iced-americano.png' },
-                        { name: 'Dirty Latte Sparta', sold: 18, revenue: 504000, image: '/images/sparta/dirty-latte.png' },
-                        { name: 'Mix Platter', sold: 15, revenue: 675000, image: '/images/sparta/mix-platter.png' },
-                        { name: 'Nusantara Platter', sold: 12, revenue: 660000, image: '/images/sparta/nusantara-platter.png' }
-                    ];
+                    return [];
                 },
-                busyHoursData: [
-                    { label: '09:00', visitors: 4, height: 22, isPeak: false },
-                    { label: '09:30', visitors: 5, height: 24, isPeak: false },
-                    { label: '10:00', visitors: 5, height: 24, isPeak: false },
-                    { label: '10:30', visitors: 6, height: 28, isPeak: false },
-                    { label: '11:00', visitors: 8, height: 38, isPeak: false },
-                    { label: '11:30', visitors: 5, height: 24, isPeak: false },
-                    { label: '12:00', visitors: 7, height: 32, isPeak: false },
-                    { label: '12:30', visitors: 6, height: 26, isPeak: false },
-                    { label: '13:00', visitors: 5, height: 24, isPeak: false },
-                    { label: '13:30', visitors: 7, height: 34, isPeak: false },
-                    { label: '14:00', visitors: 5, height: 24, isPeak: false },
-                    { label: '14:30', visitors: 6, height: 30, isPeak: false },
-                    { label: '15:00', visitors: 9, height: 44, isPeak: false },
-                    { label: '15:30', visitors: 11, height: 56, isPeak: false },
-                    { label: '16:00', visitors: 13, height: 70, isPeak: false },
-                    { label: '16:30', visitors: 15, height: 86, isPeak: true },
-                    { label: '17:00', visitors: 12, height: 68, isPeak: true },
-                    { label: '17:30', visitors: 16, height: 92, isPeak: true },
-                    { label: '18:00', visitors: 18, height: 100, isPeak: true },
-                    { label: '18:30', visitors: 14, height: 82, isPeak: true },
-                    { label: '19:00', visitors: 8, height: 42, isPeak: false },
-                    { label: '19:30', visitors: 8, height: 42, isPeak: false },
-                    { label: '20:00', visitors: 6, height: 28, isPeak: false },
-                    { label: '20:30', visitors: 5, height: 24, isPeak: false },
-                ],
+                getBusyHoursBars() {
+                    if (Array.isArray(this.analytics?.busyHours?.bars) && this.analytics.busyHours.bars.length > 0) {
+                        return this.analytics.busyHours.bars;
+                    }
+                    const emptyBars = [];
+                    for (let h = 9; h <= 20; h++) {
+                        emptyBars.push({
+                            label: String(h).padStart(2, '0') + ':00',
+                            visitors: 0,
+                            height: 6,
+                            isPeak: false
+                        });
+                    }
+                    return emptyBars;
+                },
+                getTrendPoints() {
+                    if (Array.isArray(this.analytics?.monthlyTrend?.points) && this.analytics.monthlyTrend.points.length > 0) {
+                        return this.analytics.monthlyTrend.points;
+                    }
+                    const defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'];
+                    return defaultMonths.map((label, idx) => ({
+                        label,
+                        revenue: 0,
+                        x: idx * 100,
+                        y: 170
+                    }));
+                },
+                getTrendLinePath() {
+                    const pts = this.getTrendPoints();
+                    if (!pts.length) return 'M 0 170 L 500 170';
+                    return pts.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+                },
+                getTrendAreaPath() {
+                    const pts = this.getTrendPoints();
+                    if (!pts.length) return 'M 0 170 L 500 170 L 500 180 L 0 180 Z';
+                    const line = pts.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+                    const lastX = pts[pts.length - 1].x;
+                    return `${line} L ${lastX} 180 L 0 180 Z`;
+                },
 
                 init() {
                     const unlockAudio = () => {

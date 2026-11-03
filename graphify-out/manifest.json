@@ -552,9 +552,9 @@
     "semantic_hash": "069466e7f06e9e1e9f1a90b54bd1a2a5"
   },
   "app/Services/ReportingService.php": {
-    "mtime": 1793681568.5163953,
-    "seen": 1793682210.941907,
-    "ast_hash": "d37e2d2b9e403a1cee41784bc56be5c8",
+    "mtime": 1793682810.9972553,
+    "seen": 1793683066.3044236,
+    "ast_hash": "ebb0b24234e4900efca12002f74e0844",
     "semantic_hash": ""
   },
   "app/Traits/BelongsToShop.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793681890.6623945,
-    "seen": 1793682210.942181,
-    "ast_hash": "6c1be3d493d92b56279fe97473d2ef52",
+    "mtime": 1793682924.1882944,
+    "seen": 1793683066.3046927,
+    "ast_hash": "ef295a5adf41a20b35360e415d0fd30c",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/analytics.blade.php": {
@@ -1949,30 +1949,6 @@
     "ast_hash": "90644480a15f1b3821ddd20d645dc480",
     "semantic_hash": ""
   },
-  ".playwright-mcp/page-2026-10-16T02-14-09-766Z.yml": {
-    "mtime": 1792116849.7693646,
-    "seen": 1792120501.365558,
-    "ast_hash": "d64f9e09301ba52e18c2ae3ee92a56cb",
-    "semantic_hash": ""
-  },
-  ".playwright-mcp/page-2026-10-16T02-15-15-442Z.yml": {
-    "mtime": 1792116915.4440193,
-    "seen": 1792120501.3655596,
-    "ast_hash": "594173c96c07752b8f1c52470882b3a8",
-    "semantic_hash": ""
-  },
-  ".playwright-mcp/page-2026-10-16T02-15-57-091Z.yml": {
-    "mtime": 1792116957.0951848,
-    "seen": 1792120501.365561,
-    "ast_hash": "e5e3074d340e51720f13aae817ebaeb2",
-    "semantic_hash": ""
-  },
-  ".playwright-mcp/page-2026-10-16T02-16-25-797Z.yml": {
-    "mtime": 1792116985.8043356,
-    "seen": 1792120501.3655627,
-    "ast_hash": "51a969a3b487be3ea71d51b844131573",
-    "semantic_hash": ""
-  },
   "AGENTS.md": {
     "mtime": 1792116344.1619444,
     "seen": 1792120501.3655639,
@@ -2183,18 +2159,6 @@
     "ast_hash": "0f6f7c33ecf99fc4e8b76b56c78c2a08",
     "semantic_hash": ""
   },
-  ".playwright-mcp/page-2026-10-20T01-07-41-553Z.yml": {
-    "mtime": 1792458461.5567794,
-    "seen": 1792458594.8862822,
-    "ast_hash": "82ab130169cb1ba532c48479451365e9",
-    "semantic_hash": ""
-  },
-  ".playwright-mcp/attendance-mobile.png": {
-    "mtime": 1792458514.3389502,
-    "seen": 1792458594.8863025,
-    "ast_hash": "695aff51b7c95ebd81f86c4791471638",
-    "semantic_hash": ""
-  },
   "app/Actions/Products/CalculateHpp.php": {
     "mtime": 1792462980.8152533,
     "seen": 1792463133.465437,
@@ -2253,30 +2217,6 @@
     "mtime": 1792462142.1575358,
     "seen": 1792462441.0102432,
     "ast_hash": "3bb6d382e9ef8232b512b13266b32785",
-    "semantic_hash": ""
-  },
-  ".playwright-mcp/page-2026-10-20T02-02-15-869Z.yml": {
-    "mtime": 1792461735.8715553,
-    "seen": 1792461836.3171208,
-    "ast_hash": "1ff294fa13e05f608d03bcc6e366710e",
-    "semantic_hash": ""
-  },
-  ".playwright-mcp/page-2026-10-20T02-02-23-701Z.yml": {
-    "mtime": 1792461743.7043924,
-    "seen": 1792461836.3171227,
-    "ast_hash": "209b415f1e3f3ef01fa7686a136cc7fd",
-    "semantic_hash": ""
-  },
-  ".playwright-mcp/pos-notes-desktop.png": {
-    "mtime": 1792461752.6578112,
-    "seen": 1792461836.317143,
-    "ast_hash": "202a62a544fafd5c695247f7e4fb2a52",
-    "semantic_hash": ""
-  },
-  ".playwright-mcp/pos-notes-mobile.png": {
-    "mtime": 1792461840.7767925,
-    "seen": 1792462441.0103624,
-    "ast_hash": "8c1ad61a95a51231f3e81ac72b082e49",
     "semantic_hash": ""
   },
   "app/Actions/Register/CalculateExpectedCash.php": {
@@ -2550,9 +2490,9 @@
     "semantic_hash": ""
   },
   "tests/Feature/ReportingCompatibilityTest.php": {
-    "mtime": 1792479735.59077,
-    "seen": 1792480317.4855447,
-    "ast_hash": "cc041735e8cfcef8d2c7105178ff42ad",
+    "mtime": 1793683022.469065,
+    "seen": 1793683066.3049083,
+    "ast_hash": "289c82ae432b19a8675066f03bc8f509",
     "semantic_hash": ""
   },
   "app/Console/Commands/UpgradeLegacyDatabase.php": {
@@ -2574,9 +2514,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/overview.blade.php": {
-    "mtime": 1793681634.9925108,
-    "seen": 1793682210.9421947,
-    "ast_hash": "3e9a785dd1082605348ebaf228df8b08",
+    "mtime": 1793682994.788928,
+    "seen": 1793683066.3047059,
+    "ast_hash": "1f46d1a3bd58cd95287ffafdde20c562",
     "semantic_hash": ""
   },
   "public/images/sparta/bill-check.svg": {
