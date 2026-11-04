@@ -693,6 +693,12 @@
                 inventoryMetrics: { total_materials: 0, low_stock_count: 0, total_asset_value: 0 },
                 inventorySubTab: 'materials',
                 materialSearch: '',
+                materialFilterCategory: 'all',
+                materialFilterStatus: 'all',
+                materialSortOrder: 'name_asc',
+                materialPage: 1,
+                materialPerPage: 12,
+                selectedMaterialIds: [],
                 isLoadingInventory: false,
                 showMaterialModal: false,
                 isSavingMaterial: false,
@@ -705,10 +711,97 @@
                 isSavingAdjustment: false,
                 adjustForm: { raw_material_id: '', type: 'in', amount: '', notes: '', new_cost_per_unit: '' },
 
+                getMaterialCategory(item) {
+                    if (item.category) return item.category;
+                    const name = (item.name || '').toLowerCase();
+                    if (name.includes('kopi') || name.includes('coffee') || name.includes('beans') || name.includes('espresso')) return 'Coffee';
+                    if (name.includes('susu') || name.includes('milk') || name.includes('cream') || name.includes('cheese') || name.includes('keju') || name.includes('dairy')) return 'Dairy';
+                    if (name.includes('gula') || name.includes('sugar') || name.includes('aren') || name.includes('sirup') || name.includes('syrup') || name.includes('sweetener')) return 'Sweetener';
+                    if (name.includes('powder') || name.includes('bubuk') || name.includes('matcha') || name.includes('cokelat') || name.includes('chocolate') || name.includes('tea') || name.includes('teh')) return 'Powder';
+                    if (name.includes('daging') || name.includes('beef') || name.includes('chicken') || name.includes('patty') || name.includes('fillet') || name.includes('ayam') || name.includes('meat')) return 'Meat';
+                    if (name.includes('fries') || name.includes('kentang') || name.includes('frozen') || name.includes('nugget') || name.includes('sosis')) return 'Frozen Food';
+                    if (name.includes('minyak') || name.includes('oil') || name.includes('garam') || name.includes('salt') || name.includes('sauce') || name.includes('saos') || name.includes('bumbu')) return 'Cooking';
+                    return 'Bahan Baku';
+                },
+
+                getMaterialCategoryBadgeClass(cat) {
+                    switch (cat) {
+                        case 'Coffee': return 'bg-[#fdf8f3] text-[#74472d]';
+                        case 'Dairy': return 'bg-[#eef0ff] text-[#2a3ba2]';
+                        case 'Sweetener': return 'bg-[#e8fbff] text-[#086d87]';
+                        case 'Powder': return 'bg-[#f3e8ff] text-[#6b21a8]';
+                        case 'Meat': return 'bg-[#fff0f4] text-[#b91f50]';
+                        case 'Frozen Food': return 'bg-[#e8fbff] text-[#086d87]';
+                        case 'Cooking': return 'bg-[#fef9c3] text-[#854d0e]';
+                        default: return 'bg-[#f1f3f5] text-[#53565a]';
+                    }
+                },
+
+                getMaterialStatus(item) {
+                    const current = Number(item.current_stock || 0);
+                    const min = Number(item.minimum_stock || 0);
+                    if (current <= 0) return 'Habis';
+                    if (current <= min) return 'Menipis';
+                    return 'Aman';
+                },
+
                 get filteredMaterials() {
-                    if (!this.materialSearch) return this.rawMaterials;
-                    const q = this.materialSearch.toLowerCase();
-                    return this.rawMaterials.filter(m => (m.name && m.name.toLowerCase().includes(q)) || (m.sku && m.sku.toLowerCase().includes(q)));
+                    let items = [...this.rawMaterials];
+                    if (this.materialSearch) {
+                        const q = this.materialSearch.toLowerCase();
+                        items = items.filter(m => (m.name && m.name.toLowerCase().includes(q)) || (m.sku && m.sku.toLowerCase().includes(q)));
+                    }
+                    if (this.materialFilterCategory !== 'all') {
+                        items = items.filter(m => this.getMaterialCategory(m) === this.materialFilterCategory);
+                    }
+                    if (this.materialFilterStatus !== 'all') {
+                        items = items.filter(m => this.getMaterialStatus(m) === this.materialFilterStatus);
+                    }
+                    if (this.materialSortOrder === 'name_asc') {
+                        items.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                    } else if (this.materialSortOrder === 'name_desc') {
+                        items.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+                    } else if (this.materialSortOrder === 'stock_asc') {
+                        items.sort((a, b) => Number(a.current_stock || 0) - Number(b.current_stock || 0));
+                    } else if (this.materialSortOrder === 'stock_desc') {
+                        items.sort((a, b) => Number(b.current_stock || 0) - Number(a.current_stock || 0));
+                    } else if (this.materialSortOrder === 'cost_asc') {
+                        items.sort((a, b) => Number(a.cost_per_unit || 0) - Number(b.cost_per_unit || 0));
+                    } else if (this.materialSortOrder === 'cost_desc') {
+                        items.sort((a, b) => Number(b.cost_per_unit || 0) - Number(a.cost_per_unit || 0));
+                    }
+                    return items;
+                },
+
+                get paginatedMaterials() {
+                    const start = (this.materialPage - 1) * this.materialPerPage;
+                    return this.filteredMaterials.slice(start, start + this.materialPerPage);
+                },
+
+                get totalMaterialPages() {
+                    return Math.max(1, Math.ceil(this.filteredMaterials.length / this.materialPerPage));
+                },
+
+                get isAllMaterialsSelected() {
+                    return this.paginatedMaterials.length > 0 && this.paginatedMaterials.every(m => this.selectedMaterialIds.includes(m.id));
+                },
+
+                toggleSelectAllMaterials(e) {
+                    if (e.target.checked) {
+                        const pageIds = this.paginatedMaterials.map(m => m.id);
+                        this.selectedMaterialIds = Array.from(new Set([...this.selectedMaterialIds, ...pageIds]));
+                    } else {
+                        const pageIds = new Set(this.paginatedMaterials.map(m => m.id));
+                        this.selectedMaterialIds = this.selectedMaterialIds.filter(id => !pageIds.has(id));
+                    }
+                },
+
+                prevMaterialPage() {
+                    if (this.materialPage > 1) this.materialPage--;
+                },
+
+                nextMaterialPage() {
+                    if (this.materialPage < this.totalMaterialPages) this.materialPage++;
                 },
 
                 getMaterialUnit(materialId) {
