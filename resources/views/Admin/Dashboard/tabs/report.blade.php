@@ -61,11 +61,6 @@
                 </div>
             </div>
 
-            <!-- Real-time badge -->
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Live Sinkron</span>
-            </span>
         </div>
 
         <!-- Action Buttons (Export & Print) -->
@@ -232,12 +227,12 @@
                                     <!-- Revenue Bar (Orange) -->
                                     <div class="w-full max-w-[18px] sm:max-w-[24px] rounded-t-lg transition-all duration-300"
                                         :class="bar.isCurrent ? 'bg-[#df5826] shadow-md shadow-[#df5826]/30' : 'bg-[#df5826]/75 group-hover:bg-[#df5826]'"
-                                        :style="'height: ' + Math.max(12, Math.round((bar.revenue / 10000000) * 100)) + '%'">
+                                        :style="'height: ' + (bar.heightPercent || 12) + '%'">
                                     </div>
                                     <!-- HPP Bar (Slate) -->
                                     <div class="w-full max-w-[18px] sm:max-w-[24px] rounded-t-lg transition-all duration-300"
                                         :class="bar.isCurrent ? 'bg-[#94a3b8]' : 'bg-[#cbd5e1] group-hover:bg-[#94a3b8]'"
-                                        :style="'height: ' + Math.max(8, Math.round((bar.cogs / 10000000) * 100)) + '%'">
+                                        :style="'height: ' + (bar.cogsHeightPercent || 8) + '%'">
                                     </div>
                                 </div>
 
@@ -441,8 +436,14 @@
 
                             <!-- Status -->
                             <td class="px-5 py-4 text-center whitespace-nowrap">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    Selesai
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold"
+                                    :class="{
+                                        'bg-emerald-50 text-emerald-700 border border-emerald-200': ['COMPLETED', 'SELESAI'].includes((order.status || '').toUpperCase()),
+                                        'bg-amber-50 text-amber-700 border border-amber-200': ['READY', 'SIAP'].includes((order.status || '').toUpperCase()),
+                                        'bg-blue-50 text-blue-700 border border-blue-200': ['CONFIRMED', 'MASUK'].includes((order.status || '').toUpperCase()),
+                                        'bg-purple-50 text-purple-700 border border-purple-200': ['PREPARING', 'MEMASAK', 'IN PROGRESS'].includes((order.status || '').toUpperCase())
+                                    }"
+                                    x-text="['COMPLETED', 'SELESAI'].includes((order.status || '').toUpperCase()) ? 'Selesai' : (['READY', 'SIAP'].includes((order.status || '').toUpperCase()) ? 'Siap' : (['PREPARING', 'MEMASAK', 'IN PROGRESS'].includes((order.status || '').toUpperCase()) ? 'Memasak' : 'Dikonfirmasi'))">
                                 </span>
                             </td>
 

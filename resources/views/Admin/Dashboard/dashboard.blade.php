@@ -1281,7 +1281,7 @@ handleDraftImageUpload(event, index) {
                     { id: 'receipt', ability: 'manage-settings', name: 'Pengaturan Struk', icon: 'fas fa-print' },
                 ].filter(tab => !tab.ability || window.INITIAL_DATA.permissions.includes(tab.ability)),
                                 tables: [],
-                reportPeriod: 'monthly',
+                reportPeriod: 'all',
                 reportSearch: '',
                 reportTypeFilter: 'all',
                 reportPaymentFilter: 'all',
@@ -1305,7 +1305,7 @@ handleDraftImageUpload(event, index) {
                         const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
                         return `01 ${monthNames[now.getMonth()]} - ${lastDay} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
                     }
-                    return 'Semua Periode';
+                    return 'Semua Periode (Keseluruhan)';
                 },
                 get reportData() {
                     const now = new Date();
@@ -1313,15 +1313,19 @@ handleDraftImageUpload(event, index) {
                     const startOfWeek = new Date(startOfToday);
                     startOfWeek.setDate(startOfToday.getDate() - now.getDay());
                     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                    const completed = this.orders.filter(o => {
-                        const s = (o.status || '').toUpperCase();
-                        return s === 'COMPLETED' || s === 'SELESAI';
+                    
+                    const validOrders = this.orders.filter(o => {
+                        const s = (o.status || o.order_status || '').toUpperCase();
+                        return s !== 'CANCELLED' && s !== 'BATAL' && s !== 'REJECTED';
                     });
+                    
                     let daily = { count: 0, total: 0 };
                     let weekly = { count: 0, total: 0 };
                     let monthly = { count: 0, total: 0 };
-                    completed.forEach(o => {
-                        const d = new Date((o.time || '').replace(' ', 'T'));
+                    validOrders.forEach(o => {
+                        if (!o.time) return;
+                        const d = new Date(String(o.time).replace(' ', 'T'));
+                        if (isNaN(d.getTime())) return;
                         if (d >= startOfToday) { daily.count++; daily.total += Number(o.total || 0); }
                         if (d >= startOfWeek) { weekly.count++; weekly.total += Number(o.total || 0); }
                         if (d >= startOfMonth) { monthly.count++; monthly.total += Number(o.total || 0); }
@@ -1338,14 +1342,30 @@ handleDraftImageUpload(event, index) {
                     const query = (this.reportSearch || '').toLowerCase().trim();
                     
                     return this.orders.filter(o => {
-                        const s = (o.status || '').toUpperCase();
-                        if (s !== 'COMPLETED' && s !== 'SELESAI') return false;
+                        const s = (o.status || o.order_status || '').toUpperCase();
+                        const ps = (o.payment_status || '').toUpperCase();
+                        
+                        // Exclude cancelled / rejected orders
+                        if (s === 'CANCELLED' || s === 'BATAL' || s === 'REJECTED') return false;
+                        
+                        // All non-cancelled orders count in financial ledger
+                        const isValid = (
+                            s === 'COMPLETED' || s === 'SELESAI' || 
+                            ps === 'PAID' || 
+                            s === 'CONFIRMED' || s === 'READY' || s === 'PREPARING' || s === 'MASUK' || 
+                            Number(o.total || 0) > 0
+                        );
+                        if (!isValid) return false;
                         
                         // Date filter
-                        const d = new Date((o.time || '').replace(' ', 'T'));
-                        if (this.reportPeriod === 'daily' && d < startOfToday) return false;
-                        if (this.reportPeriod === 'weekly' && d < startOfWeek) return false;
-                        if (this.reportPeriod === 'monthly' && d < startOfMonth) return false;
+                        if (o.time && this.reportPeriod !== 'all') {
+                            const d = new Date(String(o.time).replace(' ', 'T'));
+                            if (!isNaN(d.getTime())) {
+                                if (this.reportPeriod === 'daily' && d < startOfToday) return false;
+                                if (this.reportPeriod === 'weekly' && d < startOfWeek) return false;
+                                if (this.reportPeriod === 'monthly' && d < startOfMonth) return false;
+                            }
+                        }
                         
                         // Type filter
                         if (this.reportTypeFilter !== 'all') {
@@ -1402,40 +1422,35 @@ handleDraftImageUpload(event, index) {
                         const fullLabel = label + ' ' + y;
                         
                         const monthOrders = this.orders.filter(o => {
-                            const s = (o.status || '').toUpperCase();
-                            if (s !== 'COMPLETED' && s !== 'SELESAI') return false;
-                            const od = new Date((o.time || '').replace(' ', 'T'));
-                            return od.getMonth() === mIndex && od.getFullYear() === y;
+                            const s = (o.status || o.order_status || '').toUpperCase();
+                            if (s === 'CANCELLED' || s === 'BATAL' || s === 'REJECTED') return false;
+                            if (!o.time) return false;
+                            const od = new Date(String(o.time).replace(' ', 'T'));
+                            return !isNaN(od.getTime()) && od.getMonth() === mIndex && od.getFullYear() === y;
                         });
                         
                         let rev = monthOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
                         let cogs = monthOrders.reduce((sum, o) => sum + (Number(o.total_cogs || 0) || (Number(o.total || 0) * 0.38)), 0);
                         
-                        if (rev === 0 && this.orders.length > 0) {
-                            const baseRev = Math.max(this.reportMetrics.revenue, 1500000);
-                            const variance = [0.45, 0.62, 0.88, 0.52, 1.05, 0.46, 0.76, 0.64, 0.95][8 - i] || 0.6;
-                            rev = Math.round(baseRev * variance);
-                            cogs = Math.round(rev * 0.34);
-                        } else if (rev === 0 && this.orders.length === 0) {
-                            const dummyRevs = [3200000, 4800000, 7500000, 4200000, 8740000, 3900000, 6800000, 5200000, 7800000];
-                            rev = dummyRevs[8 - i] || 4500000;
-                            cogs = Math.round(rev * 0.32);
-                        }
-                        
-                        const profit = Math.max(0, rev - cogs);
                         const isCurrent = i === 0;
                         bars.push({
                             month: label,
                             fullLabel: fullLabel,
                             revenue: rev,
                             cogs: cogs,
-                            profit: profit,
-                            growthRev: (12 + (i * 3)) + '%',
-                            growthCogs: (6 + (i * 2)) + '%',
-                            marginPercent: rev > 0 ? Math.round((profit / rev) * 100) : 68,
+                            profit: Math.max(0, rev - cogs),
+                            marginPercent: rev > 0 ? Math.round(((rev - cogs) / rev) * 100) : 68,
                             isCurrent: isCurrent
                         });
                     }
+                    
+                    // Dynamic scaling
+                    const maxRev = Math.max(...bars.map(b => b.revenue), 100000);
+                    bars.forEach(b => {
+                        b.heightPercent = maxRev > 0 && b.revenue > 0 ? Math.max(14, Math.round((b.revenue / maxRev) * 100)) : 10;
+                        b.cogsHeightPercent = maxRev > 0 && b.cogs > 0 ? Math.max(10, Math.round((b.cogs / maxRev) * 100)) : 8;
+                    });
+                    
                     return bars;
                 },
                 exportCSV() {
