@@ -371,7 +371,7 @@
             </div>
 
             <!-- Scrollable Body with min-height and padding so dropdown never clips -->
-            <div class="flex-grow overflow-y-auto py-2 pr-1.5 custom-scroll min-h-[380px]">
+            <div class="flex-grow overflow-y-auto py-2 pr-1.5 custom-scroll min-h-[380px]" @scroll.passive="window.dispatchEvent(new CustomEvent('close-all-dropdowns'))">
                 <div class="flex flex-col gap-3 pb-48">
                     <template x-for="(draft, index) in draftMenus" :key="index">
                         <!-- Row Card matching screenshot -->
@@ -381,6 +381,49 @@
                                 isAddingNew: false, 
                                 newCatName: '', 
                                 isCreatingCat: false,
+                                dropdownPos: { top: 0, bottom: 0, left: 0, width: 300, dropUp: false },
+                                get dropdownStyle() {
+                                    if (this.dropdownPos.dropUp) {
+                                        return `position: fixed; bottom: calc(100vh - ${this.dropdownPos.bottom}px); left: ${this.dropdownPos.left}px; width: ${this.dropdownPos.width}px; z-index: 9999;`;
+                                    }
+                                    return `position: fixed; top: ${this.dropdownPos.top}px; left: ${this.dropdownPos.left}px; width: ${this.dropdownPos.width}px; z-index: 9999;`;
+                                },
+                                updatePosition() {
+                                    if (!this.$refs.catTrigger) return;
+                                    const rect = this.$refs.catTrigger.getBoundingClientRect();
+                                    const dropdownHeight = 330;
+                                    const spaceBelow = window.innerHeight - rect.bottom;
+                                    const dropUp = spaceBelow < dropdownHeight && rect.top > dropdownHeight;
+                                    const width = Math.max(rect.width, 300);
+                                    const left = Math.min(Math.max(16, rect.left), window.innerWidth - width - 16);
+                                    this.dropdownPos = {
+                                        top: Math.round(rect.bottom + 6),
+                                        bottom: Math.round(rect.top - 6),
+                                        left: Math.round(left),
+                                        width: Math.round(width),
+                                        dropUp: dropUp
+                                    };
+                                },
+                                toggleDropdown() {
+                                    if (this.openDropdown) {
+                                        this.openDropdown = false;
+                                        return;
+                                    }
+                                    this.isAddingNew = false;
+                                    this.updatePosition();
+                                    this.openDropdown = true;
+                                    this.$nextTick(() => {
+                                        this.$refs.searchCatInput?.focus();
+                                    });
+                                },
+                                openWithAddMode() {
+                                    this.isAddingNew = true;
+                                    this.updatePosition();
+                                    this.openDropdown = true;
+                                    this.$nextTick(() => {
+                                        this.$refs.inlineNewCatInput?.focus();
+                                    });
+                                },
                                 get selectedCategoryName() {
                                     const list = categories || [];
                                     const found = list.find(c => c.id == draft.categoryId || (c.name && String(c.name).toLowerCase() === String(draft.categoryId).toLowerCase()));
@@ -417,7 +460,9 @@
                                     }
                                 }
                              }"
-                             @click.away="openDropdown = false; isAddingNew = false; searchCat = ''"
+                             @close-all-dropdowns.window="openDropdown = false"
+                             @scroll.window="if(openDropdown) openDropdown = false"
+                             @resize.window="if(openDropdown) openDropdown = false"
                              @keydown.escape.window="openDropdown = false"
                              :class="openDropdown ? 'z-30 relative' : 'z-10 relative'"
                              class="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 bg-white rounded-[16px] border border-[#e9ebf0] shadow-xs hover:border-[#dcdfe5] transition">
@@ -461,7 +506,8 @@
                                             <span class="text-[10px] text-[#7f837e] font-normal" x-text="'(' + (categories ? categories.length : 0) + ')'"></span>
                                         </div>
                                         <button type="button" 
-                                                @click.stop="openDropdown = true; isAddingNew = true; $nextTick(() => $refs.inlineNewCatInput?.focus())" 
+                                                x-ref="addCatTrigger"
+                                                @click.stop="openWithAddMode()" 
                                                 class="text-[11px] font-semibold text-[#df5826] hover:text-[#c94d00] flex items-center gap-1 cursor-pointer transition group"
                                                 title="Buat kategori baru langsung di sini">
                                             <span class="w-3.5 h-3.5 rounded-full bg-[#df5826]/10 text-[#df5826] group-hover:bg-[#df5826] group-hover:text-white flex items-center justify-center text-[9px] transition">
@@ -473,7 +519,8 @@
 
                                     <!-- Dropdown Trigger Button -->
                                     <button type="button" 
-                                            @click="openDropdown = !openDropdown; if(openDropdown) { $nextTick(() => $refs.searchCatInput?.focus()); }" 
+                                            x-ref="catTrigger"
+                                            @click.stop="toggleDropdown()" 
                                             class="w-full bg-white border rounded-[12px] px-3.5 py-2.5 text-[13px] text-left flex items-center justify-between transition-all cursor-pointer shadow-xs outline-none"
                                             :class="openDropdown ? 'border-[#df5826] ring-2 ring-[#df5826]/15 shadow-sm' : 'border-[#e5e7eb] hover:border-[#df5826]/70 hover:bg-[#fafbfc]'">
                                         <span class="truncate flex items-center gap-2">
@@ -497,16 +544,20 @@
                                         </div>
                                     </button>
 
-                                    <!-- Dropdown Menu Popover -->
-                                    <div x-show="openDropdown" 
-                                         x-transition:enter="transition ease-out duration-150"
-                                         x-transition:enter-start="opacity-0 translate-y-1.5 scale-[0.98]"
-                                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                                         x-transition:leave="transition ease-in duration-100"
-                                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                                         x-transition:leave-end="opacity-0 translate-y-1.5 scale-[0.98]"
-                                         x-cloak
-                                         class="absolute left-0 right-0 top-full mt-2 z-50 bg-white border border-[#e5e7eb] rounded-[18px] shadow-[0_20px_48px_-8px_rgba(15,23,42,0.18),0_2px_6px_rgba(15,23,42,0.04)] p-3 min-w-[280px]">
+                                    <!-- Dropdown Menu Popover (Teleported to body - never clipped by modal containers) -->
+                                    <template x-teleport="body">
+                                        <div x-show="openDropdown" 
+                                             x-transition:enter="transition ease-out duration-150"
+                                             x-transition:enter-start="opacity-0 translate-y-1 scale-[0.98]"
+                                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                             x-transition:leave="transition ease-in duration-100"
+                                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                             x-transition:leave-end="opacity-0 translate-y-1 scale-[0.98]"
+                                             x-cloak
+                                             @click.outside="if (!$refs.catTrigger?.contains($event.target) && !$refs.addCatTrigger?.contains($event.target)) { openDropdown = false; isAddingNew = false; searchCat = ''; }"
+                                             @keydown.escape.window="openDropdown = false"
+                                             :style="dropdownStyle"
+                                             class="bg-white border border-[#e5e7eb] rounded-[18px] shadow-[0_24px_60px_-12px_rgba(15,23,42,0.28),0_6px_20px_rgba(15,23,42,0.08)] p-3 min-w-[290px]">
                                         
                                         <!-- Header inside Dropdown -->
                                         <div class="flex items-center justify-between pb-2 mb-2 border-b border-[#f1f3f5] text-[11px]">
@@ -680,7 +731,8 @@
                                                 </div>
                                             </template>
                                         </div>
-                                    </div>
+                                        </div>
+                                    </template>
                                 </div>
                                 
                                 <div>
