@@ -20,9 +20,12 @@
                 <button type="button" x-data @click="$dispatch('toggle-mobile-nav')" class="md:hidden w-11 h-11 rounded-lg text-gray-500 hover:bg-gray-50" aria-label="Buka navigasi"><i class="fas fa-bars" aria-hidden="true"></i></button>
                 <span class="text-[13px] font-semibold">Manajemen Staf</span>
             </div>
-            <div class="flex items-center gap-2.5 min-w-0">
-                <span class="w-8 h-8 rounded-full bg-[#fff6f0] text-[#c94d00] flex items-center justify-center text-xs font-semibold shrink-0" aria-hidden="true">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}</span>
-                <span class="text-xs text-[#53565a] truncate">{{ auth()->user()->name }}</span>
+            <div class="flex items-center gap-3">
+                <x-topbar-datetime />
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="w-8 h-8 rounded-full bg-[#fff6f0] text-[#c94d00] flex items-center justify-center text-xs font-semibold shrink-0" aria-hidden="true">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}</span>
+                    <span class="text-xs text-[#53565a] truncate">{{ auth()->user()->name }}</span>
+                </div>
             </div>
         </header>
         <main class="p-4 md:p-6 lg:p-7">
