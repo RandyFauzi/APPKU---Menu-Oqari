@@ -310,6 +310,91 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'category' => $category]);
     }
 
+    public function updateCategory(Request $request, $id)
+    {
+        $user = Auth::user();
+        $shopId = $user->shop_id;
+        if (! $shopId) {
+            abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $trimmed = trim($request->name);
+        $category = Category::where('shop_id', $shopId)->findOrFail($id);
+
+        // Check unique for other categories in the same shop (case-insensitive)
+        $duplicate = Category::where('shop_id', $shopId)
+            ->where('id', '!=', $category->id)
+            ->whereRaw('LOWER(name) = ?', [strtolower($trimmed)])
+            ->first();
+
+        if ($duplicate) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori dengan nama "'.$trimmed.'" sudah ada di toko Anda.',
+            ], 422);
+        }
+
+        $oldName = $category->name;
+        $category->name = $trimmed;
+        $baseSlug = Str::slug($trimmed) ?: 'kategori';
+        $slug = $baseSlug;
+        $counter = 1;
+        while (Category::where('shop_id', $shopId)->where('id', '!=', $category->id)->where('slug', $slug)->exists()) {
+            $slug = $baseSlug.'-'.$counter;
+            $counter++;
+        }
+        $category->slug = $slug;
+        $category->save();
+
+        // Update category_name in products for consistency
+        Product::where('shop_id', $shopId)->where('category_id', $category->id)->update([
+            'category_name' => $category->name,
+        ]);
+
+        $this->logActivity('category_updated', 'Mengubah kategori "'.$oldName.'" menjadi "'.$category->name.'"');
+
+        return response()->json([
+            'success' => true,
+            'category' => $category,
+            'message' => 'Kategori berhasil diperbarui!',
+        ]);
+    }
+
+    public function deleteCategory($id)
+    {
+        $user = Auth::user();
+        $shopId = $user->shop_id;
+        if (! $shopId) {
+            abort(403, 'Tindakan ditolak. Akun Anda tidak terikat dengan toko manapun.');
+        }
+
+        $category = Category::where('shop_id', $shopId)->findOrFail($id);
+        $categoryName = $category->name;
+
+        // Find fallback category if exists
+        $fallbackCat = Category::where('shop_id', $shopId)->where('id', '!=', $category->id)->first();
+
+        Product::where('shop_id', $shopId)->where('category_id', $category->id)->update([
+            'category_id' => $fallbackCat ? $fallbackCat->id : null,
+            'category_name' => $fallbackCat ? $fallbackCat->name : 'Uncategorized',
+        ]);
+
+        $category->delete();
+
+        $this->logActivity('category_deleted', 'Menghapus kategori: '.$categoryName);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kategori berhasil dihapus!',
+            'fallback_category_id' => $fallbackCat ? $fallbackCat->id : null,
+            'fallback_category_name' => $fallbackCat ? $fallbackCat->name : 'Uncategorized',
+        ]);
+    }
+
     public function saveMenuBulk(Request $request)
     {
         $user = Auth::user();

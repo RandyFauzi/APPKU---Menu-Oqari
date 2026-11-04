@@ -163,6 +163,125 @@
             </div>
         </div>
 
+        <!-- MODAL: MANAGE CATEGORIES (Kelola Kategori) -->
+        <div x-show="showManageCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans bg-black/40 backdrop-blur-xs" x-transition.opacity>
+            <div class="bg-white rounded-[24px] w-full max-w-[480px] p-6 sm:p-7 shadow-[0_24px_60px_rgba(0,0,0,0.15)] relative overflow-hidden border border-[#e9ebf0] max-h-[88vh] flex flex-col" @click.away="showManageCategoryModal = false" x-transition>
+                
+                <!-- Close Button -->
+                <div class="absolute top-5 right-5 z-10">
+                    <button type="button" @click="showManageCategoryModal = false" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition cursor-pointer">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Header -->
+                <div class="flex items-center gap-3.5 mb-5 shrink-0">
+                    <div class="w-11 h-11 rounded-[14px] bg-[#fff6f0] text-[#df5826] flex items-center justify-center text-lg shrink-0 shadow-xs">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-[18px] font-bold text-[#111827] leading-tight">Kelola Kategori Menu</h2>
+                        <p class="text-[12px] text-[#53565a]">Ubah nama atau hapus kategori toko Anda</p>
+                    </div>
+                </div>
+
+                <!-- Quick Add Category Box Inside Manager -->
+                <div class="mb-4 p-3 bg-[#f8f9fa] rounded-[14px] border border-[#e9ebf0] shrink-0">
+                    <label class="block text-[10px] font-bold text-[#53565a] mb-1.5 uppercase tracking-wider">Tambah Kategori Baru</label>
+                    <div class="flex items-center gap-2">
+                        <input type="text" 
+                               x-model="newCategoryName" 
+                               @keydown.enter="saveCategory" 
+                               placeholder="Nama kategori..." 
+                               class="flex-grow bg-white border border-[#e9ebf0] focus:border-[#df5826] rounded-[10px] px-3 py-2 text-[12px] text-[#111827] outline-none transition">
+                        <button type="button" 
+                                @click="saveCategory" 
+                                :disabled="!newCategoryName.trim()"
+                                class="px-4 py-2 bg-[#df5826] hover:bg-[#c94d00] text-white rounded-[10px] text-[12px] font-semibold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs shrink-0">
+                            <i class="fas fa-plus text-xs"></i>
+                            <span>Tambah</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category List (Scrollable) -->
+                <div class="flex-grow overflow-y-auto pr-1 space-y-2 custom-scroll min-h-[160px] max-h-[320px]">
+                    <template x-for="cat in categories" :key="cat.id">
+                        <div class="p-3 bg-white rounded-[12px] border border-[#e9ebf0] hover:border-gray-300 transition-all shadow-2xs">
+                            <!-- View Mode -->
+                            <template x-if="editingCategoryId !== cat.id">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-2 h-2 rounded-full bg-[#df5826] shrink-0"></span>
+                                        <div class="truncate">
+                                            <p class="text-[13px] font-bold text-[#111827] truncate" x-text="cat.name"></p>
+                                            <p class="text-[11px] text-[#7f837e]" x-text="(menuItems.filter(i => i.categoryId == cat.id || String(i.categoryName).toLowerCase() == String(cat.name).toLowerCase()).length) + ' menu'"></p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <button type="button" 
+                                                @click="startEditCategory(cat)" 
+                                                class="w-8 h-8 rounded-[8px] bg-white border border-[#e9ebf0] hover:border-[#df5826] text-gray-500 hover:text-[#df5826] flex items-center justify-center transition cursor-pointer shadow-2xs" 
+                                                title="Rename kategori">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </button>
+                                        <button type="button" 
+                                                @click="deleteCategory(cat.id, cat.name)" 
+                                                class="w-8 h-8 rounded-[8px] bg-white border border-[#e9ebf0] hover:border-red-400 text-gray-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition cursor-pointer shadow-2xs" 
+                                                title="Hapus kategori">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Edit/Rename Mode -->
+                            <template x-if="editingCategoryId === cat.id">
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between text-[11px] font-semibold text-[#53565a]">
+                                        <span>Rename Kategori</span>
+                                        <span class="text-[10px] text-[#7f837e]">Tekan Enter untuk simpan</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <input type="text" 
+                                               x-model="editingCategoryName" 
+                                               @keydown.enter.prevent="updateCategory(cat.id)"
+                                               class="flex-grow bg-[#fafbfc] border border-[#df5826] rounded-[8px] px-3 py-1.5 text-[12px] text-[#111827] outline-none">
+                                        <button type="button" 
+                                                @click="cancelEditCategory()" 
+                                                class="px-2.5 py-1.5 bg-white border border-[#e9ebf0] text-gray-600 rounded-[8px] text-[11px] font-medium hover:bg-gray-50 transition cursor-pointer">
+                                            Batal
+                                        </button>
+                                        <button type="button" 
+                                                @click="updateCategory(cat.id)" 
+                                                :disabled="isSavingCategoryAction || !editingCategoryName.trim()"
+                                                class="px-3.5 py-1.5 bg-[#df5826] hover:bg-[#c94d00] text-white rounded-[8px] text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer disabled:opacity-50 shadow-2xs">
+                                            <i :class="isSavingCategoryAction ? 'fas fa-spinner fa-spin' : 'fas fa-check text-xs'"></i>
+                                            <span>Simpan</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template x-if="categories.length === 0">
+                        <div class="py-8 text-center text-gray-400 text-xs">
+                            <i class="fas fa-folder-open text-2xl mb-2 text-gray-300"></i>
+                            <p>Belum ada kategori yang dibuat.</p>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-5 pt-3 border-t border-[#e9ebf0] flex justify-end shrink-0">
+                    <button type="button" @click="showManageCategoryModal = false" class="px-5 py-2 bg-white border border-[#e9ebf0] text-[#53565a] hover:bg-gray-50 rounded-[10px] text-[12px] font-semibold transition cursor-pointer">
+                        Selesai
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- MODAL: ADD TABLE -->
         <div x-show="showAddTableModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-primary/40 backdrop-blur-sm" x-transition.opacity>
             <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(30,90,122,0.15)] relative overflow-hidden" @click.away="showAddTableModal = false" x-transition>
@@ -490,6 +609,10 @@
                 isLoadingAnalytics: true,
                 currentTab: '{{ $page }}',
                 showAddCategoryModal: false,
+                showManageCategoryModal: false,
+                editingCategoryId: null,
+                editingCategoryName: '',
+                isSavingCategoryAction: false,
                 newCategoryName: '',
                 showAddMenuModal: false,
                 showAddTableModal: false,
@@ -544,7 +667,16 @@
                 editingUnitLocked: false,
                 formatStock(value) { return Number(value || 0).toLocaleString('id-ID', {maximumFractionDigits: 6}); },
                 stockUnitLabel(unit) { return this.stockUnits[unit] || unit || '—'; },
-                materialForm: { id: null, name: '', sku: '', unit: 'ml', current_stock: 0, minimum_stock: 0, cost_per_unit: 0 },
+                stockUnitShort(unit) {
+                    if (!unit) return '—';
+                    const lower = String(unit).toLowerCase();
+                    if (lower === 'pcs') return 'Pcs';
+                    if (lower === 'dus') return 'Dus';
+                    if (lower === 'cup') return 'Cup';
+                    const label = this.stockUnits[lower] || unit;
+                    return String(label).split(' ')[0] || label;
+                },
+                materialForm: { id: null, name: '', sku: '', unit: 'pcs', current_stock: 0, minimum_stock: 0, cost_per_unit: 0 },
                 showAdjustModal: false,
                 isSavingAdjustment: false,
                 adjustForm: { raw_material_id: '', type: 'in', amount: '', notes: '', new_cost_per_unit: '' },
@@ -691,6 +823,7 @@
                         this.rawMaterials = data.materials || [];
                         this.stockMutations = data.mutations || [];
                         this.inventoryMetrics = data.metrics || { total_materials: 0, low_stock_count: 0, total_asset_value: 0 };
+                        if (data.units) this.stockUnits = data.units;
                     })
                     .catch(err => {
                         this.isLoadingInventory = false;
@@ -699,7 +832,7 @@
 
                 openAddMaterialModal() {
                     this.editingUnitLocked = false;
-                    this.materialForm = { id: null, name: '', sku: '', unit: 'ml', current_stock: 0, minimum_stock: 10, cost_per_unit: 0 };
+                    this.materialForm = { id: null, name: '', sku: '', unit: 'pcs', current_stock: 0, minimum_stock: 10, cost_per_unit: 0 };
                     this.showMaterialModal = true;
                 },
 
@@ -1826,6 +1959,111 @@
                         console.error('Error creating quick category:', err);
                         this.addToast('Terjadi kesalahan jaringan saat menambahkan kategori', 'error');
                         return null;
+                    }
+                },
+                startEditCategory(cat) {
+                    this.editingCategoryId = cat.id;
+                    this.editingCategoryName = cat.name;
+                },
+                cancelEditCategory() {
+                    this.editingCategoryId = null;
+                    this.editingCategoryName = '';
+                },
+                async updateCategory(catId) {
+                    const trimmed = (this.editingCategoryName || '').trim();
+                    if (!trimmed) {
+                        this.addToast('Nama kategori tidak boleh kosong', 'error');
+                        return;
+                    }
+                    this.isSavingCategoryAction = true;
+                    try {
+                        const res = await fetch(`/admin/api/category/${catId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ name: trimmed })
+                        });
+                        const data = await res.json();
+                        this.isSavingCategoryAction = false;
+                        if (data.success && data.category) {
+                            const idx = this.categories.findIndex(c => c.id === catId);
+                            if (idx !== -1) {
+                                this.categories[idx] = Object.assign({}, this.categories[idx], data.category);
+                            }
+                            // Update menuItems matching this category
+                            this.menuItems.forEach(item => {
+                                if (item.categoryId == catId || item.category_id == catId) {
+                                    item.categoryName = data.category.name;
+                                    item.category_name = data.category.name;
+                                }
+                            });
+                            this.cancelEditCategory();
+                            this.addToast(data.message || 'Kategori berhasil diperbarui!', 'success');
+                        } else {
+                            this.addToast(data.message || 'Gagal memperbarui kategori', 'error');
+                        }
+                    } catch (err) {
+                        this.isSavingCategoryAction = false;
+                        console.error('Update category error:', err);
+                        this.addToast('Terjadi kesalahan jaringan', 'error');
+                    }
+                },
+                async deleteCategory(catId, catName) {
+                    const result = await Swal.fire({
+                        title: 'Hapus Kategori?',
+                        html: `Apakah Anda yakin ingin menghapus kategori <strong>"${catName}"</strong>?<br><span class="text-xs text-gray-500">Menu di dalam kategori ini akan dialihkan ke kategori lain dengan aman.</span>`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#df5826',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    });
+
+                    if (!result.isConfirmed) return;
+
+                    this.isSavingCategoryAction = true;
+                    try {
+                        const res = await fetch(`/admin/api/category/${catId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        });
+                        const data = await res.json();
+                        this.isSavingCategoryAction = false;
+                        if (data.success) {
+                            this.categories = this.categories.filter(c => c.id !== catId);
+                            
+                            // Reassign menuItems
+                            const fallbackId = data.fallback_category_id;
+                            const fallbackName = data.fallback_category_name || 'Uncategorized';
+                            this.menuItems.forEach(item => {
+                                if (item.categoryId == catId || item.category_id == catId) {
+                                    item.categoryId = fallbackId;
+                                    item.category_id = fallbackId;
+                                    item.categoryName = fallbackName;
+                                    item.category_name = fallbackName;
+                                }
+                            });
+
+                            if (this.activeMenuFilter == catId) {
+                                this.setMenuFilter('all');
+                            }
+
+                            this.addToast(data.message || 'Kategori berhasil dihapus!', 'success');
+                        } else {
+                            this.addToast(data.message || 'Gagal menghapus kategori', 'error');
+                        }
+                    } catch (err) {
+                        this.isSavingCategoryAction = false;
+                        console.error('Delete category error:', err);
+                        this.addToast('Terjadi kesalahan jaringan', 'error');
                     }
                 },
                 viewOrderDetails(order) {

@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\CashRegister;
 use App\Models\CashRegisterSession;
+use App\Models\Category;
+use App\Models\Product;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -226,5 +228,84 @@ class AdminDashboardTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('already_exists', true)
             ->assertJsonPath('category.name', 'Snacks');
+    }
+
+    public function test_admin_can_update_category_name(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+
+        $cat = Category::create([
+            'shop_id' => $shop->id,
+            'name' => 'Original Cat',
+            'slug' => 'original-cat',
+        ]);
+
+        $product = Product::create([
+            'shop_id' => $shop->id,
+            'category_id' => $cat->id,
+            'category_name' => 'Original Cat',
+            'name' => 'Kopi Cat',
+            'price' => 20000,
+        ]);
+
+        $response = $this->actingAs($user)->putJson('/admin/api/category/'.$cat->id, [
+            'name' => 'Renamed Cat',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('category.name', 'Renamed Cat');
+
+        $this->assertDatabaseHas('categories', [
+            'id' => $cat->id,
+            'name' => 'Renamed Cat',
+        ]);
+
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'category_name' => 'Renamed Cat',
+        ]);
+    }
+
+    public function test_admin_can_delete_category_and_reassigns_products(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+
+        $catFallback = Category::create([
+            'shop_id' => $shop->id,
+            'name' => 'General',
+            'slug' => 'general',
+        ]);
+
+        $catToDelete = Category::create([
+            'shop_id' => $shop->id,
+            'name' => 'ToDelete',
+            'slug' => 'to-delete',
+        ]);
+
+        $product = Product::create([
+            'shop_id' => $shop->id,
+            'category_id' => $catToDelete->id,
+            'category_name' => 'ToDelete',
+            'name' => 'Menu Item',
+            'price' => 15000,
+        ]);
+
+        $response = $this->actingAs($user)->deleteJson('/admin/api/category/'.$catToDelete->id);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseMissing('categories', [
+            'id' => $catToDelete->id,
+        ]);
+
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'category_id' => $catFallback->id,
+            'category_name' => 'General',
+        ]);
     }
 }

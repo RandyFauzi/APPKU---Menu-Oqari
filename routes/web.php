@@ -107,6 +107,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
         Route::delete('/admin/api/menu/{id}', [DashboardController::class, 'deleteMenu']);
         Route::post('/admin/api/category', [DashboardController::class, 'saveCategory']);
+        Route::put('/admin/api/category/{id}', [DashboardController::class, 'updateCategory']);
+        Route::delete('/admin/api/category/{id}', [DashboardController::class, 'deleteCategory']);
 
     });
 
