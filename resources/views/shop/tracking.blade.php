@@ -6,11 +6,6 @@
     <title>Pesanan Berhasil - {{ $shop->name }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    @if(isset($shop) && $shop->logo_url)
-        <link rel="icon" type="image/png" href="{{ $shop->logo_url }}">
-    @else
-        <link rel="icon" type="image/webp" href="{{ asset('logo-oqari.webp') }}">
-    @endif
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
         html { background-color: #fdfbf7; }

@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <x-theme-head :shop="$shop ?? null" />
+    <x-theme-head :shop="$shop ?? null" :platform="true" />
 </head>
 <body class="bg-gray-50 font-sans text-gray-900 antialiased selection:bg-brand-500 selection:text-white">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>

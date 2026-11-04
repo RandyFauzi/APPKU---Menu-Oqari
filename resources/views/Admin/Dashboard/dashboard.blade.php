@@ -8,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" id="favicon" href="{{ (isset($shop) && $shop->logo_url) ? $shop->logo_url : asset('logo-oqari.webp') }}">
+
     
     <!-- View Transitions API -->
     <meta name="view-transition" content="same-origin" />
@@ -2523,8 +2523,8 @@ if (res.ok) {
                             // Perbarui elemen UI lain
                             const favicon = document.getElementById('favicon');
                             const sidebarLogo = document.getElementById('sidebar-logo');
-                            if (data.shop && data.shop.logo_url) {
-                                const newLogoUrl = data.shop.logo_url;
+                            if (data.shop) {
+                                const newLogoUrl = data.shop.logo_url || favicon?.dataset.fallbackUrl;
                                 if (favicon) favicon.href = newLogoUrl;
                                 if (sidebarLogo) sidebarLogo.src = newLogoUrl;
                             }

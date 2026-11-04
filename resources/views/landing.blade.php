@@ -17,7 +17,7 @@
     <meta property="og:image" content="{{ asset('logo-oqari.webp') }}">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/webp" href="{{ asset('logo-oqari.webp') }}">
+
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -88,7 +88,7 @@
             background: #A8A29E;
         }
     </style>
-    <x-theme-head :shop="$shop ?? null" />
+    <x-theme-head :shop="$shop ?? null" :platform="true" />
 </head>
 <body class="antialiased selection:bg-gold-100 selection:text-gold-900" x-data="{ mobileMenuOpen: false }">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>

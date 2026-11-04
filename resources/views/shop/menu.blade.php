@@ -6,11 +6,6 @@
     <title>{{ $shop->name }}</title>
     
     <!-- Favicon -->
-    @if(isset($shop) && $shop->logo_url)
-        <link rel="icon" type="image/png" href="{{ $shop->logo_url }}">
-    @else
-        <link rel="icon" type="image/webp" href="{{ asset('logo-oqari.webp') }}">
-    @endif
     
     <!-- Styles & Scripts (Vite) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Kalkulator HPP — {{ $shop->name ?? 'OQARI' }}</title>
-    <link rel="icon" href="{{ $shop->logo_url ?? asset('logo-oqari.webp') }}">
+
     
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

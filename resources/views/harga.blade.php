@@ -8,7 +8,6 @@
     <title>Pilihan Paket & Harga — OQARI All-in-One Coffee SaaS</title>
     <meta name="description" content="Pilihan paket langganan dan akses permanen (lifetime) OQARI POS & QR Menu. Tanpa biaya bulanan tersembunyi, pangkas biaya software operasional cafe Anda.">
 
-    <link rel="icon" type="image/webp" href="{{ asset('logo-oqari.webp') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,7 +31,7 @@
                 #FFFFFF;
         }
     </style>
-    <x-theme-head :shop="$shop ?? null" />
+    <x-theme-head :shop="$shop ?? null" :platform="true" />
 </head>
 <body class="antialiased flex flex-col justify-between p-4 sm:p-8 lg:p-12">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>

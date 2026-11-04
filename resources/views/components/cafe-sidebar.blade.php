@@ -47,7 +47,7 @@ if ($member?->role === 'superadmin') {
         <!-- Sidebar Brand Header (Dynamic user/shop logo system maintained!) -->
         <div class="shrink-0 flex items-center px-4 border-b border-gray-200/70 transition-all" :class="isMinimized && !mobileNavOpen ? 'flex-col justify-center py-3 gap-2' : 'h-20 gap-3'">
             <a href="{{ route($member->homeRoute()) }}" class="shrink-0 flex items-center justify-center" aria-label="Beranda aplikasi">
-                <img src="{{ $cafe?->logo_url ?: asset('logo-oqari.webp') }}" alt="Logo {{ $cafe?->name ?? 'OQARI' }}" class="w-10 h-10 rounded-lg object-contain">
+                <img id="sidebar-logo" src="{{ $cafe?->logo_url ?: asset('logo-oqari.webp') }}" alt="Logo {{ $cafe?->name ?? 'OQARI' }}" class="w-10 h-10 rounded-lg object-contain">
             </a>
             <div x-show="!isMinimized || mobileNavOpen" class="min-w-0 flex-1">
                 <p class="font-bold text-sm text-gray-900 truncate leading-tight">{{ $cafe?->name ?? 'OQARI' }}</p>

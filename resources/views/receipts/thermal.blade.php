@@ -57,6 +57,7 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
     }
 }
 </style>
+<x-shop-favicon :shop="$shop ?? null" />
 </head>
 <body onload="window.print(); window.onafterprint = function(){ window.close(); }">
 

@@ -162,8 +162,9 @@ class DashboardController extends Controller
         }
 
         $receiptData = app(ReceiptService::class)->build($order);
+        $shop = $order->shop;
 
-        return view('receipts.thermal', compact('receiptData'));
+        return view('receipts.thermal', compact('receiptData', 'shop'));
     }
 
     public function deleteMenu($id)

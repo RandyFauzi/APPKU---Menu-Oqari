@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Oqari Super Admin')</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="icon" type="image/webp" href="{{ asset('logo-oqari.webp') }}">
+
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <x-theme-head :shop="$shop ?? null" />
+    <x-theme-head :shop="$shop ?? null" :platform="true" />
 </head>
 <body class="bg-ivory text-gray-800 flex h-screen overflow-hidden">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>

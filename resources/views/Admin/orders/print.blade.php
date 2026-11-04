@@ -20,6 +20,7 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 .items .price { width: 35%; text-align: right; }
 @media print { body { width: 58mm; } }
 </style>
+<x-shop-favicon :shop="$order->shop" />
 </head>
 <body onload="window.print(); window.onafterprint = function(){ window.close(); }">
 

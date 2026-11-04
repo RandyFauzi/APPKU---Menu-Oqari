@@ -16,8 +16,9 @@ class ReceiptController extends Controller
         }
 
         $receiptData = app(ReceiptService::class)->build($order);
+        $shop = $order->shop;
 
-        return view('receipts.web', compact('receiptData'));
+        return view('receipts.web', compact('receiptData', 'shop'));
     }
 
     public function downloadPdf(Request $request, Order $order)
