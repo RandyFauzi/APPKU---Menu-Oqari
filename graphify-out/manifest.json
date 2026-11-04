@@ -1164,9 +1164,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/report.blade.php": {
-    "mtime": 1792478835.5729685,
-    "seen": 1792478940.988205,
-    "ast_hash": "7e32e47ed135b853826f2051323d5b94",
+    "mtime": 1793758712.261344,
+    "seen": 1793758770.656659,
+    "ast_hash": "16aa4715af739caa34baaa033abe797c",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/settings.blade.php": {
@@ -2808,9 +2808,9 @@
     "semantic_hash": ""
   },
   "database/migrations/2026_11_04_021313_add_archived_at_to_users_table.php": {
-    "mtime": 1793758467.7449608,
-    "seen": 1793758645.9284894,
-    "ast_hash": "9e05958a98a30a735fc176a0041bf450",
+    "mtime": 1793758732.9079678,
+    "seen": 1793758770.6565914,
+    "ast_hash": "774c9cae448a9ab635c56c845cbdb483",
     "semantic_hash": ""
   },
   "tests/Feature/ArchiveCafeUserTest.php": {

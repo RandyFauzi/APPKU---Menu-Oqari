@@ -7513,7 +7513,7 @@
       "file_type": "code",
       "norm_label": "{closure#1}()",
       "source_file": "database/migrations/2026_11_04_021313_add_archived_at_to_users_table.php",
-      "source_location": "L14"
+      "source_location": "L15"
     },
     {
       "id": "database_migrations_2026_11_04_021313_add_archived_at_to_users_table_closure_2",
@@ -7525,7 +7525,7 @@
       "file_type": "code",
       "norm_label": "{closure#2}()",
       "source_file": "database/migrations/2026_11_04_021313_add_archived_at_to_users_table.php",
-      "source_location": "L24"
+      "source_location": "L27"
     },
     {
       "id": "database_migrations_2026_11_04_021313_add_archived_at_to_users_table_down",
@@ -7537,7 +7537,7 @@
       "file_type": "code",
       "norm_label": "down()",
       "source_file": "database/migrations/2026_11_04_021313_add_archived_at_to_users_table.php",
-      "source_location": "L22"
+      "source_location": "L24"
     },
     {
       "id": "database_migrations_2026_11_04_021313_add_archived_at_to_users_table_up",
@@ -49814,7 +49814,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "database/migrations/2026_11_04_021313_add_archived_at_to_users_table.php",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -49826,7 +49826,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "database/migrations/2026_11_04_021313_add_archived_at_to_users_table.php",
-      "source_location": "L24",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -60309,7 +60309,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "database/migrations/2026_11_04_021313_add_archived_at_to_users_table.php",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0
     },
     {
@@ -60320,7 +60320,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "database/migrations/2026_11_04_021313_add_archived_at_to_users_table.php",
-      "source_location": "L22",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -60331,7 +60331,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "database/migrations/2026_11_04_021313_add_archived_at_to_users_table.php",
-      "source_location": "L24",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -71846,5 +71846,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c182b997dd0a73f0c459c6e127f12c00be4048b5"
+  "built_at_commit": "5f841bc7c663ded5926edc420a9c8020ef0b02ae"
 }

@@ -29,9 +29,10 @@ class ThemeRenderingTest extends TestCase
         $shop = Shop::factory()->create(['onboarding_status' => 'completed', 'name' => 'Cafe Sparta']);
         $owner = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
         $this->actingAs($owner);
-        foreach (['admin.dashboard', 'admin.pos.index', 'admin.kitchen.index', 'admin.hpp.index', 'admin.register.index', 'admin.attendance.index', 'admin.attendance.report', 'admin.users.index', 'admin.users.create', 'admin.reports.index', 'admin.my-schedule', 'profile.edit'] as $route) {
+        foreach (['admin.dashboard', 'admin.pos.index', 'admin.kitchen.index', 'admin.hpp.index', 'admin.register.index', 'admin.attendance.index', 'admin.users.index', 'admin.users.create', 'admin.reports.index', 'admin.my-schedule', 'profile.edit'] as $route) {
             $this->get(route($route))->assertOk()->assertSee('name="theme-color"', false)->assertSee('/build/assets/', false)->assertSee('data-cafe-sidebar', false);
         }
+        $this->get(route('admin.attendance.report'))->assertRedirect(route('admin.attendance.index', ['tab' => 'team']));
         $this->assertSame('Cafe Sparta', $shop->fresh()->name);
     }
 

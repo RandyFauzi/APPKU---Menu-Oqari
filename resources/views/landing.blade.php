@@ -101,10 +101,7 @@
             <a href="{{ url('/') }}" class="flex items-center gap-3 group">
                 <img src="{{ asset('logo-oqari.webp') }}" alt="OQARI Logo" class="w-10 h-10 object-contain group-hover:scale-105 transition-transform">
                 <div>
-                    <span class="text-2xl font-black tracking-tight text-gold-950 flex items-center gap-1">
-                        OQARI
-                        <span class="text-[10px] font-bold px-1.5 py-0.5 bg-gold-100 text-gold-800 rounded uppercase tracking-wider">POS</span>
-                    </span>
+                    <span class="text-2xl font-black tracking-tight text-gold-950 block">OQARI</span>
                     <span class="text-[11px] block font-medium text-gray-500 -mt-1 tracking-wide">Coffee & F&B Ecosystem</span>
                 </div>
             </a>
@@ -426,16 +423,16 @@
             <!-- Tab Buttons -->
             <div class="flex flex-wrap items-center justify-center gap-2 mb-12">
                 <button @click="activeTab = 'specialty'" :class="activeTab === 'specialty' ? 'bg-gradient-to-r from-gold-600 to-amber-700 text-white shadow-lg shadow-gold-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-gold-50 hover:text-gold-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
-                    ☕ Specialty Coffee & Roastery
+                    Specialty Coffee & Roastery
                 </button>
                 <button @click="activeTab = 'cafe'" :class="activeTab === 'cafe' ? 'bg-gradient-to-r from-gold-600 to-amber-700 text-white shadow-lg shadow-gold-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-gold-50 hover:text-gold-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
-                    🍽️ Cafe & Casual Dining
+                    Cafe & Casual Dining
                 </button>
                 <button @click="activeTab = 'booth'" :class="activeTab === 'booth' ? 'bg-gradient-to-r from-gold-600 to-amber-700 text-white shadow-lg shadow-gold-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-gold-50 hover:text-gold-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
-                    🚀 Coffee Booth & Grab-and-Go
+                    Coffee Booth & Grab-and-Go
                 </button>
                 <button @click="activeTab = 'chain'" :class="activeTab === 'chain' ? 'bg-gradient-to-r from-gold-600 to-amber-700 text-white shadow-lg shadow-gold-600/30 border border-transparent' : 'bg-white text-gray-600 hover:bg-gold-50 hover:text-gold-700 border border-gray-200 shadow-sm'" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all">
-                    🏢 Multi-Outlet & Franchise
+                    Multi-Outlet & Franchise
                 </button>
             </div>
 
@@ -815,7 +812,7 @@
                 
                 <div class="p-6 rounded-2xl bg-stone-50 border border-gold-100 hover:border-gold-400 transition-colors">
                     <div class="w-12 h-12 mx-auto rounded-xl bg-gold-100 text-gold-800 flex items-center justify-center font-bold mb-4">
-                        📱
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 18h.01M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
                     </div>
                     <h4 class="font-bold text-gold-950 mb-1">Tablet & iPad</h4>
                     <p class="text-xs text-gray-500">Apple iPad, Samsung Galaxy Tab, Xiaomi Pad, tablet Android apapun.</p>
@@ -823,7 +820,7 @@
 
                 <div class="p-6 rounded-2xl bg-stone-50 border border-gold-100 hover:border-gold-400 transition-colors">
                     <div class="w-12 h-12 mx-auto rounded-xl bg-gold-100 text-gold-800 flex items-center justify-center font-bold mb-4">
-                        🖨️
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     </div>
                     <h4 class="font-bold text-gold-950 mb-1">Thermal Printer</h4>
                     <p class="text-xs text-gray-500">Printer struk 58mm & 80mm via Bluetooth, USB, maupun Ethernet LAN.</p>
@@ -831,7 +828,7 @@
 
                 <div class="p-6 rounded-2xl bg-stone-50 border border-gold-100 hover:border-gold-400 transition-colors">
                     <div class="w-12 h-12 mx-auto rounded-xl bg-gold-100 text-gold-800 flex items-center justify-center font-bold mb-4">
-                        📟
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     </div>
                     <h4 class="font-bold text-gold-950 mb-1">Mini POS Terminal</h4>
                     <p class="text-xs text-gray-500">Kompatibel dengan perangkat all-in-one Sunmi, iMin, Advan POS.</p>
@@ -839,7 +836,7 @@
 
                 <div class="p-6 rounded-2xl bg-stone-50 border border-gold-100 hover:border-gold-400 transition-colors">
                     <div class="w-12 h-12 mx-auto rounded-xl bg-gold-100 text-gold-800 flex items-center justify-center font-bold mb-4">
-                        💻
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     </div>
                     <h4 class="font-bold text-gold-950 mb-1">PC / Laptop / Mac</h4>
                     <p class="text-xs text-gray-500">Akses modul POS dan analitik lengkap melalui browser Google Chrome / Safari.</p>
@@ -1211,7 +1208,7 @@
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
             
             <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold text-gold-300 bg-gold-400/10 border border-gold-400/20">
-                <span>⚡ Coba Gratis Sekarang Selama 14 Hari Penuh</span>
+                <span>Coba Gratis Sekarang Selama 14 Hari Penuh</span>
             </div>
 
             <h2 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
@@ -1254,15 +1251,15 @@
                     </p>
                     <div class="space-y-2 pt-2 text-gold-700">
                         <div class="flex items-center gap-2">
-                            <span class="text-gold-400">📍</span>
+                            <svg class="w-4 h-4 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             <span>Jakarta Tech Center & Kreatif Hub</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-gold-400">📞</span>
+                            <svg class="w-4 h-4 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                             <span>WhatsApp: 0812-8888-OQARI</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="text-gold-400">✉️</span>
+                            <svg class="w-4 h-4 text-gold-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                             <span>Email: halo@oqari.com</span>
                         </div>
                     </div>
