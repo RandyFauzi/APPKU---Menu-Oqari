@@ -19,7 +19,6 @@ use App\Services\Receipt\ReceiptService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -360,11 +359,54 @@ class DashboardController extends Controller
         $savedMenus = [];
 
         foreach ($items as $index => $itemData) {
+            if (empty($itemData['name']) || ! isset($itemData['price'])) {
+                continue; // Lewati item yang kosong
+            }
+
+            $catId = null;
+            $catName = null;
+            $rawCat = $itemData['category_id'] ?? $itemData['category_name'] ?? null;
+            if ($rawCat) {
+                if (is_numeric($rawCat)) {
+                    $cat = Category::where('shop_id', $shopId)->find((int) $rawCat);
+                    if ($cat) {
+                        $catId = $cat->id;
+                        $catName = $cat->name;
+                    }
+                } else {
+                    $trimmed = trim($rawCat);
+                    if ($trimmed !== '') {
+                        $cat = Category::firstOrCreate(
+                            ['shop_id' => $shopId, 'name' => $trimmed],
+                            ['shop_id' => $shopId, 'name' => $trimmed]
+                        );
+                        $catId = $cat->id;
+                        $catName = $cat->name;
+                    }
+                }
+            }
+
+            if (! $catName) {
+                $defaultCat = Category::where('shop_id', $shopId)->first();
+                if ($defaultCat) {
+                    $catId = $defaultCat->id;
+                    $catName = $defaultCat->name;
+                } else {
+                    $cat = Category::firstOrCreate(
+                        ['shop_id' => $shopId, 'name' => 'Coffee'],
+                        ['shop_id' => $shopId, 'name' => 'Coffee']
+                    );
+                    $catId = $cat->id;
+                    $catName = $cat->name;
+                }
+            }
+
             $productData = [
                 'name' => $itemData['name'],
-                'price' => $itemData['price'],
-                'category_name' => $itemData['category_name'] ?? 'Uncategorized',
-                'description' => $itemData['description'] ?? null,
+                'price' => (int) $itemData['price'],
+                'category_id' => $catId,
+                'category_name' => $catName,
+                'description' => $itemData['description'] ?? ($itemData['desc'] ?? null),
             ];
 
             $menu = null;
@@ -388,27 +430,28 @@ class DashboardController extends Controller
                 $productData['image_path'] = $path;
             }
 
-            // Validasi sederhana
-            if (empty($itemData['name']) || empty($itemData['price'])) {
-                continue; // Lewati item yang kosong
-            }
-
             if ($menu) {
                 $menu->update($productData);
                 $savedMenus[] = $menu;
             } else {
                 $productData['shop_id'] = $shopId;
                 $menu = Product::create($productData);
-
-                // If we used a UUID dir for new product, we could move it to the real ID,
-                // but the DB image_path already contains the UUID path which is fine,
-                // or we can rename the directory. For now, UUID is perfectly fine.
-
                 $savedMenus[] = $menu;
             }
         }
 
-        return response()->json(['success' => true, 'menus' => $savedMenus]);
+        $savedIds = collect($savedMenus)->pluck('id');
+        $freshMenus = Product::whereIn('id', $savedIds)
+            ->with(['recipes.rawMaterial', 'category'])
+            ->get();
+
+        $allCategories = Category::where('shop_id', $shopId)->get();
+
+        return response()->json([
+            'success' => true,
+            'menus' => $freshMenus,
+            'categories' => $allCategories,
+        ]);
     }
 
     public function updateProfile(Request $request)

@@ -396,9 +396,9 @@
     "semantic_hash": "f79bbcd10c6548de6f6833195d81e369"
   },
   "app/Models/CrewShift.php": {
-    "mtime": 1793761061.119217,
-    "seen": 1793761447.8711836,
-    "ast_hash": "56546cc7ec4a6bc821c7144e5d48cdc4",
+    "mtime": 1793761473.504753,
+    "seen": 1793761519.164903,
+    "ast_hash": "e9608d3160fc575ebb071c64808596b5",
     "semantic_hash": ""
   },
   "app/Models/Modifier.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793761141.7628675,
-    "seen": 1793761447.8714547,
-    "ast_hash": "65ff612f3d663ad5f086f504c873824a",
+    "mtime": 1793766935.0995245,
+    "seen": 1793767096.3074741,
+    "ast_hash": "bb180b29df93bc2b4a2b11bdd6f3c6fd",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/crew.blade.php": {
@@ -1122,9 +1122,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
-    "mtime": 1792478835.6158545,
-    "seen": 1792478940.988192,
-    "ast_hash": "3ce69c7552ce2053bd48aef30e6e3b10",
+    "mtime": 1793767038.0851612,
+    "seen": 1793767096.3074806,
+    "ast_hash": "cfb988a426fe1fa0e7a406be74c6a9e8",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/logs.blade.php": {
@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/menu.blade.php": {
-    "mtime": 1792466608.3491504,
-    "seen": 1792466616.3069787,
-    "ast_hash": "a1ec910b52b42e907e1cd4d2a085ec44",
+    "mtime": 1793766566.8951411,
+    "seen": 1793766630.941301,
+    "ast_hash": "184d2a3a4d30bf494ed869a74eb9fa16",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
@@ -1470,27 +1470,27 @@
     "semantic_hash": ""
   },
   "resources/views/profile/edit.blade.php": {
-    "mtime": 1792466407.3468733,
-    "seen": 1792466592.0832212,
-    "ast_hash": "cce65d1be01c2cae71b64536f0401760",
+    "mtime": 1793763862.8593585,
+    "seen": 1793763908.841239,
+    "ast_hash": "59e2bf8bd4ab0843509b0c75a671dc2f",
     "semantic_hash": ""
   },
   "resources/views/profile/partials/delete-user-form.blade.php": {
-    "mtime": 1792466407.5075338,
-    "seen": 1792466592.0832229,
-    "ast_hash": "17ef6b13ed34364b6702ca39f14c25fd",
+    "mtime": 1793763862.8653395,
+    "seen": 1793763908.8412418,
+    "ast_hash": "d5212db56e9bd4a5bae86407d9654089",
     "semantic_hash": ""
   },
   "resources/views/profile/partials/update-password-form.blade.php": {
-    "mtime": 1792466407.5100398,
-    "seen": 1792466592.0832243,
-    "ast_hash": "206d65aab0ae2b6e2686b6789cfb1471",
+    "mtime": 1793763862.863345,
+    "seen": 1793763908.841244,
+    "ast_hash": "6096c42948cb3f0fedb21d1c01f6b96d",
     "semantic_hash": ""
   },
   "resources/views/profile/partials/update-profile-information-form.blade.php": {
-    "mtime": 1792466407.5100398,
-    "seen": 1792466592.083226,
-    "ast_hash": "5e5eee64ae49a04d1a23b41975d85cea",
+    "mtime": 1793763862.8613503,
+    "seen": 1793763908.841246,
+    "ast_hash": "16b0546383ef83a40f66b289df790f05",
     "semantic_hash": ""
   },
   "resources/views/receipts/pdf.blade.php": {
@@ -2850,15 +2850,123 @@
     "semantic_hash": ""
   },
   "tests/Feature/ShiftSchedulingTest.php": {
-    "mtime": 1793761427.9835863,
-    "seen": 1793761447.871679,
-    "ast_hash": "b399756f612c07ed661aa897ff95e30e",
+    "mtime": 1793761473.6630342,
+    "seen": 1793761519.1654043,
+    "ast_hash": "a4a1ea1c90e73c0cb25924011e54e141",
     "semantic_hash": ""
   },
   "tests/Unit/ShiftScheduling.test.cjs": {
     "mtime": 1793761418.0674918,
     "seen": 1793761447.8717027,
     "ast_hash": "bbb4adee21f7095a30a807e850740d06",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/menu-cloud-upload.svg": {
+    "mtime": 1793766133.0509205,
+    "seen": 1793766630.9416757,
+    "ast_hash": "5d5bbef1f11677e906ce840a8e75b447",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/menu-sparkle.svg": {
+    "mtime": 1793766133.6878505,
+    "seen": 1793766630.9416776,
+    "ast_hash": "2b060acc0ef52a5e08f1121160b9416e",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/menu-tip-burger.png": {
+    "mtime": 1793766119.603742,
+    "seen": 1793766630.941679,
+    "ast_hash": "5476227093163181d312a3fae054c527",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-add-bold.svg": {
+    "mtime": 1793766133.371237,
+    "seen": 1793766630.941733,
+    "ast_hash": "afe7f18ab0cb0832558fa0b0d7e2ec25",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-pen-2.svg": {
+    "mtime": 1793766134.0026796,
+    "seen": 1793766630.9417343,
+    "ast_hash": "eeaeae3d878ed42ebdf20995fe116cea",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-trash-bin.svg": {
+    "mtime": 1793766134.6776614,
+    "seen": 1793766630.9417357,
+    "ast_hash": "ea40a98fe7d6fe18501207effa23c0c8",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/toggle-off.svg": {
+    "mtime": 1793766132.6813626,
+    "seen": 1793766630.941741,
+    "ast_hash": "cc71cff18e958024c81bb43f6c9f9da5",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/toggle-on.svg": {
+    "mtime": 1793766134.3671486,
+    "seen": 1793766630.9417424,
+    "ast_hash": "f2f7e13bb87167d2d47cd6b589c17454",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/kpi-box-duotone.svg": {
+    "mtime": 1793766800.2217214,
+    "seen": 1793767096.307864,
+    "ast_hash": "51b1af30b0739aa3e8df7542f662fee0",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/kpi-wallet-duotone.svg": {
+    "mtime": 1793766801.5789444,
+    "seen": 1793767096.3078656,
+    "ast_hash": "58599a51ec6601e39fc435e4afc2c9a0",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/kpi-warning-chat.svg": {
+    "mtime": 1793766799.28625,
+    "seen": 1793767096.307867,
+    "ast_hash": "9233f710a44c6d67a98b5c2af796b3a8",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-box-linear.svg": {
+    "mtime": 1793766801.913723,
+    "seen": 1793767096.307928,
+    "ast_hash": "652ee41ce952a0474002cd6ae3301f9f",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-danger-circle.svg": {
+    "mtime": 1793766799.924462,
+    "seen": 1793767096.3079295,
+    "ast_hash": "0589ed99ba072a9e4ad500d0ccf906ab",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-danger-triangle.svg": {
+    "mtime": 1793766799.600775,
+    "seen": 1793767096.307931,
+    "ast_hash": "d0694091aadc961d331a0dd25d436e99",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-history.svg": {
+    "mtime": 1793766801.225608,
+    "seen": 1793767096.3079326,
+    "ast_hash": "0983c97d6df2026eb454cedc84515142",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-magnifer.svg": {
+    "mtime": 1793766800.567715,
+    "seen": 1793767096.3079343,
+    "ast_hash": "d6b89e6b0b2494908f6781fe108515e0",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-refresh.svg": {
+    "mtime": 1793766802.2438922,
+    "seen": 1793767096.3079376,
+    "ast_hash": "b17679c16fcafcdaa1084ddf2ccfb77e",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-sliders.svg": {
+    "mtime": 1793766800.8783176,
+    "seen": 1793767096.3079388,
+    "ast_hash": "163ac4678fb0660add7f745c641ce81e",
     "semantic_hash": ""
   }
 }

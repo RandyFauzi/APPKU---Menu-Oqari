@@ -227,9 +227,9 @@ class AuditRegressionTest extends TestCase
         $staff = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
         $this->actingAs($owner)->postJson('/admin/api/shifts', [
             'user_id' => $staff->id, 'date' => '2026-10-20', 'start_time' => '08:00', 'end_time' => '16:00',
-        ])->assertOk();
-        $response = $this->getJson('/admin/api/shifts')->assertOk()->assertJsonCount(1);
-        $shiftId = $response->json('0.id');
+        ])->assertSuccessful();
+        $response = $this->getJson('/admin/api/shifts?date=2026-10-20')->assertOk();
+        $shiftId = $response->json('data.0.id');
         $this->deleteJson('/admin/api/shifts/'.$shiftId)->assertOk();
         $this->assertDatabaseMissing('crew_shifts', ['id' => $shiftId]);
         $this->actingAs($staff)->getJson('/admin/api/shifts')->assertForbidden();

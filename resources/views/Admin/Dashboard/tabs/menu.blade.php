@@ -18,20 +18,12 @@
             <p class="text-[11px] text-[#53565a] leading-tight">Drag and drop images, or click to upload.</p>
             <p class="text-[10px] text-[#7f837e] mb-3">JPG, PNG, up to 10MB.</p>
             
-            <div class="flex items-center gap-2">
-                <button type="button" 
-                        @click="showAddMenuModal = true" 
-                        class="bg-[#df5826] hover:bg-[#c94d00] text-white px-4 py-2 rounded-[9px] text-[12px] font-medium shadow-[0px_2px_2px_rgba(27,114,118,0.12)] flex items-center gap-1.5 transition cursor-pointer">
-                    <img src="/images/sparta/solar-add-bold.svg" alt="Plus" class="w-3.5 h-3.5">
-                    <span>+ Tambah Menu Baru</span>
-                </button>
-                <button type="button" 
-                        @click="initBulkUpload()" 
-                        class="bg-white border border-[#e9ebf0] hover:bg-[#fff6f0] hover:border-[#df5826] text-[#df5826] px-3 py-2 rounded-[9px] text-[11px] font-medium transition cursor-pointer flex items-center gap-1">
-                    <i class="fas fa-file-csv text-xs"></i>
-                    <span>Bulk Upload</span>
-                </button>
-            </div>
+            <button type="button" 
+                    @click="initBulkUpload()" 
+                    class="bg-[#df5826] hover:bg-[#c94d00] text-white px-5 py-2.5 rounded-[10px] text-[13px] font-semibold shadow-[0px_2px_2px_rgba(27,114,118,0.12)] flex items-center gap-2 transition cursor-pointer">
+                <img src="/images/sparta/solar-add-bold.svg" alt="Plus" class="w-4 h-4">
+                <span>+ Buat Pesanan</span>
+            </button>
         </div>
 
         <!-- Right: Pro Tip Card -->
@@ -282,13 +274,14 @@
         </div>
     </div>
 
-    <!-- MODAL: BULK UPLOAD MENU (Preserved & Enhanced to match theme) -->
-    <div x-show="showBulkUpload" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-10 font-sans">
+    <!-- MODAL: BULK UPLOAD MENU (Sparta Caffe Theme - 100% matched to screenshot) -->
+    <div x-show="showBulkUpload" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 font-sans">
         <!-- Backdrop -->
         <div @click="showBulkUpload = false" class="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity"></div>
         
         <!-- Modal Content -->
-        <div class="relative w-full max-w-5xl mx-auto bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_10px_35px_rgba(0,0,0,0.08)] flex flex-col max-h-[90vh] overflow-hidden border border-[#e9ebf0]">
+        <div class="relative w-full max-w-4xl mx-auto bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.12)] flex flex-col max-h-[90vh] overflow-hidden border border-[#e9ebf0]"
+             @keydown.escape.window="showBulkUpload = false" x-transition>
             
             <!-- Header -->
             <div class="flex justify-between items-start mb-5 pb-5 border-b border-dashed border-[#e9ebf0] shrink-0">
@@ -297,16 +290,25 @@
                         <img src="/images/sparta/menu-cloud-upload.svg" alt="Upload" class="w-6 h-6">
                     </div>
                     <div>
-                        <h2 class="text-[20px] font-bold text-[#111827] leading-tight">Upload Menu</h2>
-                        <p class="text-[#53565a] text-[13px]">Add your coffee and food items with images, prices, and categories.</p>
+                        <h2 class="text-[20px] font-bold text-[#111827] leading-tight" x-text="draftMenus.length === 1 && draftMenus[0].id ? 'Edit Menu' : 'Upload Menu'">Upload Menu</h2>
+                        <p class="text-[#53565a] text-[13px]" x-text="draftMenus.length === 1 && draftMenus[0].id ? 'Perbarui detail, harga, dan foto menu toko Anda.' : 'Add your coffee and food items with images, prices, and categories.'">Add your coffee and food items with images, prices, and categories.</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button type="button" @click="$refs.csvInput.click()" class="bg-white border border-[#e9ebf0] text-[#111827] px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-50 transition flex items-center gap-2 cursor-pointer shadow-xs">
-                        <i class="fas fa-file-csv text-green-600"></i> Bulk upload CSV
-                    </button>
+                    <template x-if="!(draftMenus.length === 1 && draftMenus[0].id)">
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="downloadCsvTemplate()" class="bg-white border border-[#e9ebf0] text-[#53565a] hover:text-[#df5826] hover:border-[#df5826] px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-gray-50 transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Unduh format template CSV">
+                                <i class="fas fa-file-download text-[#df5826]"></i>
+                                <span>Template CSV</span>
+                            </button>
+                            <button type="button" @click="$refs.csvInput.click()" class="bg-white border border-[#e9ebf0] text-[#111827] px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-50 transition flex items-center gap-2 cursor-pointer shadow-xs">
+                                <i class="fas fa-file-csv text-green-600"></i>
+                                <span>Bulk upload CSV</span>
+                            </button>
+                        </div>
+                    </template>
                     <input type="file" x-ref="csvInput" @change="handleCSVUpload" accept=".csv" class="hidden">
-                    <button type="button" @click="showBulkUpload = false" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
+                    <button type="button" @click="showBulkUpload = false" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition cursor-pointer ml-1">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -316,59 +318,71 @@
             <div class="flex-grow overflow-y-auto hide-scroll py-2 pr-1">
                 <div class="flex flex-col gap-3 pb-6">
                     <template x-for="(draft, index) in draftMenus" :key="index">
-                        <!-- Row -->
-                        <div class="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 bg-[#f8f9fa] rounded-[16px] border border-[#e9ebf0]">
+                        <!-- Row Card matching screenshot -->
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 bg-white rounded-[16px] border border-[#e9ebf0] shadow-xs hover:border-[#dcdfe5] transition">
+                            
                             <!-- Image Box -->
-                            <div class="w-full md:w-[180px] h-[130px] md:h-[110px] shrink-0 relative rounded-xl overflow-hidden flex items-center justify-center group cursor-pointer transition border border-dashed border-[#e9ebf0] hover:border-[#df5826] bg-white">
+                            <div class="w-full md:w-[150px] h-[100px] shrink-0 relative rounded-[14px] overflow-hidden flex flex-col items-center justify-center group cursor-pointer transition border border-dashed border-[#e9ebf0] hover:border-[#df5826] bg-[#fafbfc]">
                                 <input type="file" @change="handleDraftImageUpload($event, index)" accept="image/jpeg, image/png, image/webp" class="absolute inset-0 opacity-0 cursor-pointer z-20">
                                 
                                 <template x-if="draft.imagePreview">
-                                    <img :src="draft.imagePreview" class="w-full h-full object-cover">
+                                    <div class="w-full h-full relative">
+                                        <img :src="draft.imagePreview" class="w-full h-full object-cover">
+                                        <button type="button" @click.stop="removeDraftImage(index)" class="absolute top-1.5 right-1.5 z-30 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center text-[10px] hover:bg-red-600 transition" title="Hapus foto">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
                                 </template>
                                 
                                 <template x-if="!draft.imagePreview">
                                     <div class="text-center flex flex-col items-center justify-center gap-1.5 p-2">
-                                        <i class="fas fa-cloud-upload-alt text-[#7f837e] text-xl group-hover:text-[#df5826] transition"></i>
-                                        <p class="text-[11px] text-[#7f837e] font-medium leading-snug">Upload foto<br><span class="text-[9px]">JPG, PNG, WEBP</span></p>
+                                        <div class="w-7 h-7 rounded-full bg-[#f0f2f5] flex items-center justify-center text-[#7f837e] group-hover:text-[#df5826] group-hover:bg-[#fff6f0] transition">
+                                            <i class="fas fa-cloud-upload-alt text-xs"></i>
+                                        </div>
+                                        <p class="text-[11px] font-semibold text-[#111827] leading-tight">Upload foto</p>
+                                        <p class="text-[9px] text-[#7f837e] font-normal leading-none">JPG, PNG, WEBP</p>
                                     </div>
                                 </template>
                             </div>
                             
-                            <!-- Inputs -->
-                            <div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-3 w-full">
+                            <!-- Inputs Grid -->
+                            <div class="flex-grow grid grid-cols-1 md:grid-cols-[1.5fr_1.2fr_1fr] gap-3 w-full">
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-[#53565a] mb-1">Item name</label>
-                                    <input type="text" x-model="draftMenus[index].name" placeholder="Contoh: Americano" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] px-3.5 py-2.5 text-[13px] text-[#111827] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
+                                    <label class="block text-[11px] font-semibold text-[#53565a] mb-1.5">Item name</label>
+                                    <input type="text" x-model="draft.name" placeholder="Contoh: Americano" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] px-3.5 py-2.5 text-[13px] text-[#111827] placeholder:text-[#9ca3af] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
                                 </div>
                                 
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-[#53565a] mb-1">Category</label>
-                                    <select x-model="draftMenus[index].categoryId" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] px-3.5 py-2.5 text-[13px] text-[#111827] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
-                                        <option value="" disabled>-- Pilih Kategori --</option>
-                                        <template x-for="cat in categories" :key="cat.id">
-                                            <option :value="cat.id" x-text="cat.name"></option>
-                                        </template>
-                                    </select>
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-[11px] font-semibold text-[#53565a] mb-1">Price</label>
+                                    <label class="block text-[11px] font-semibold text-[#53565a] mb-1.5">Category</label>
                                     <div class="relative">
-                                        <span class="absolute left-3.5 top-2.5 text-[13px] text-[#7f837e] font-medium">Rp</span>
-                                        <input type="number" x-model="draftMenus[index].price" placeholder="0" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] pl-10 pr-3.5 py-2.5 text-[13px] text-[#111827] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
+                                        <select x-model="draft.categoryId" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] px-3.5 py-2.5 text-[13px] text-[#111827] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none cursor-pointer appearance-none pr-8">
+                                            <option value="" disabled>-- Pilih Kategori --</option>
+                                            <template x-for="cat in categories" :key="cat.id">
+                                                <option :value="cat.id" x-text="cat.name"></option>
+                                            </template>
+                                        </select>
+                                        <i class="fas fa-chevron-down absolute right-3 top-3.5 text-xs text-gray-400 pointer-events-none"></i>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-[#53565a] mb-1.5">Price</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3.5 top-2.5 text-[13px] text-[#7f837e] font-medium pointer-events-none">Rp</span>
+                                        <input type="number" x-model="draft.price" placeholder="0" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] pl-10 pr-3.5 py-2.5 text-[13px] text-[#111827] placeholder:text-[#9ca3af] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Action Button -->
-                            <div class="shrink-0 flex items-center justify-center self-end md:self-center">
-                                <template x-if="index === draftMenus.length - 1">
-                                    <button type="button" @click="addDraftRow()" class="w-9 h-9 rounded-[10px] bg-white border border-[#df5826] text-[#df5826] hover:bg-[#fff6f0] flex items-center justify-center transition cursor-pointer shadow-xs" title="Tambah Baris">
+                            <!-- Action Buttons on the Right -->
+                            <div class="shrink-0 flex items-center gap-1.5 self-end md:self-center pt-2 md:pt-4">
+                                <template x-if="!(draftMenus.length === 1 && draftMenus[0].id)">
+                                    <button type="button" @click="addDraftRow()" class="w-9 h-9 rounded-[10px] bg-white border border-[#df5826] text-[#df5826] hover:bg-[#fff6f0] flex items-center justify-center transition cursor-pointer shadow-xs" title="Tambah Baris Menu">
                                         <i class="fas fa-plus text-xs"></i>
                                     </button>
                                 </template>
-                                <template x-if="index !== draftMenus.length - 1">
-                                    <button type="button" @click="removeDraftRow(index)" class="w-9 h-9 rounded-[10px] bg-white border border-[#e9ebf0] text-red-500 hover:bg-red-50 hover:border-red-200 flex items-center justify-center transition cursor-pointer shadow-xs" title="Hapus Baris">
+                                <template x-if="draftMenus.length > 1">
+                                    <button type="button" @click="removeDraftRow(index)" class="w-9 h-9 rounded-[10px] bg-white border border-[#e9ebf0] text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 flex items-center justify-center transition cursor-pointer shadow-xs" title="Hapus Baris">
                                         <i class="fas fa-trash-alt text-xs"></i>
                                     </button>
                                 </template>
@@ -380,16 +394,23 @@
 
             <!-- Action Buttons Footer -->
             <div class="flex flex-col sm:flex-row justify-between items-center pt-4 border-t border-[#e9ebf0] shrink-0 gap-3">
-                <div class="text-[13px] text-[#53565a] font-medium">
-                    <span class="text-[#df5826] font-bold text-[15px] mr-1" x-text="draftMenus.length"></span> menu siap ditambahkan
+                <div>
+                    <template x-if="draftMenus.length === 1 && draftMenus[0].id">
+                        <span class="text-[#53565a] font-medium text-[13px]">Sedang mengedit menu: <strong class="text-[#111827]" x-text="draftMenus[0].name || 'Tanpa Nama'"></strong></span>
+                    </template>
+                    <template x-if="!(draftMenus.length === 1 && draftMenus[0].id)">
+                        <div class="text-[13px] text-[#53565a] font-medium">
+                            <span class="text-[#df5826] font-bold text-[15px] mr-1" x-text="draftMenus.length"></span> menu siap ditambahkan
+                        </div>
+                    </template>
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                     <button type="button" @click="showBulkUpload = false" class="px-5 py-2.5 rounded-[10px] font-semibold text-[13px] bg-white border border-[#e9ebf0] text-[#53565a] hover:bg-gray-50 transition cursor-pointer">
                         Tutup
                     </button>
-                    <button type="button" @click="saveBulkMenu" class="px-6 py-2.5 rounded-[10px] font-semibold text-[13px] bg-[#df5826] hover:bg-[#c94d00] text-white transition shadow-sm flex items-center gap-2 cursor-pointer">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <span>Publish Menu</span>
+                    <button type="button" @click="saveBulkMenu" :disabled="isSavingBulk" class="px-6 py-2.5 rounded-[10px] font-semibold text-[13px] bg-[#df5826] hover:bg-[#c94d00] text-white transition shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50">
+                        <i :class="isSavingBulk ? 'fas fa-spinner fa-spin' : (draftMenus.length === 1 && draftMenus[0].id ? 'fas fa-save' : 'fas fa-cloud-upload-alt')"></i>
+                        <span x-text="isSavingBulk ? 'Menyimpan...' : (draftMenus.length === 1 && draftMenus[0].id ? 'Simpan Perubahan' : 'Publish Menu')">Publish Menu</span>
                     </button>
                 </div>
             </div>

@@ -139,184 +139,40 @@
         @include('Admin.Dashboard.tabs.profile')
 
 
-        <!-- MODAL: ADD/EDIT MENU -->
-        <div x-show="showAddMenuModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans">
-            <!-- Backdrop -->
-            <div @click="showAddMenuModal = false" class="absolute inset-0 bg-ink/30 backdrop-blur-sm transition-opacity"></div>
-            
-            <!-- Modal Content -->
-            <div class="relative bg-[#FFFFFF] w-full max-w-2xl rounded-[28px] p-8 shadow-[0_10px_35px_rgba(0,0,0,0.05)] flex flex-col border border-line" @keydown.escape.window="showAddMenuModal = false" x-transition>
-                
-                <!-- Header -->
-                <div class="flex justify-between items-start mb-6 pb-6 border-b border-dashed border-line">
-                    <div class="flex gap-5">
-                        <div class="w-16 h-16 rounded-[16px] bg-primary text-white flex items-center justify-center shadow-sm">
-                            <i class="fas fa-pen text-2xl" x-show="newMenu.id"></i>
-                            <i class="fas fa-hamburger text-2xl" x-show="!newMenu.id"></i>
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <h2 class="text-[28px] text-primary leading-tight mb-1" style="font-family: var(--oq-font-heading); font-weight: 700;" x-text="newMenu.id ? 'Edit Menu' : 'Tambah Menu Baru'"></h2>
-                            <p class="text-muted text-[15px]" x-text="newMenu.id ? 'Perbarui detail, harga, dan gambar menu ini.' : 'Tambahkan menu baru ke dalam daftar toko Anda.'"></p>
-                        </div>
-                    </div>
-                    <button @click="showAddMenuModal = false" class="text-muted hover:text-ink bg-ivory hover:bg-line transition-colors w-8 h-8 flex items-center justify-center rounded-full mt-1">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <!-- Body -->
-                <div class="flex flex-col gap-5">
-                    <div class="grid grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Kategori</label>
-                            <select x-model="newMenu.categoryId" class="w-full bg-ivory border border-line rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none appearance-none">
-                                <option value="" disabled>-- Pilih Kategori --</option>
-                                <template x-for="cat in categories" :key="cat.id">
-                                    <option :value="cat.id" x-text="cat.name"></option>
-                                </template>
-                                <template x-if="categories.length === 0">
-                                    <option disabled>Belum ada kategori — buat dulu di tab Kategori</option>
-                                </template>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Harga (Rp)</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-3.5 text-[15px] text-ink font-medium">Rp</span>
-                                <input type="number" x-model="newMenu.price" placeholder="0" class="w-full bg-ivory border border-line rounded-[14px] pl-11 pr-4 py-3.5 text-[15px] font-bold text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Nama Menu</label>
-                        <input type="text" x-model="newMenu.name" placeholder="Misal: Iced Matcha Latte" class="w-full bg-ivory border border-line rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-ink placeholder:font-medium placeholder:text-brand-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Deskripsi Singkat</label>
-                        <textarea x-model="newMenu.desc" placeholder="Penjelasan menarik tentang menu ini..." rows="2" class="w-full bg-ivory border border-line rounded-[14px] px-4 py-3.5 text-[15px] font-medium text-ink placeholder:text-brand-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Upload Gambar (Opsional)</label>
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-[14px] bg-ivory border border-dashed border-brand-200 flex items-center justify-center shrink-0 overflow-hidden">
-                                <template x-if="newMenu.imagePreview">
-                                    <img :src="newMenu.imagePreview" class="w-full h-full object-cover">
-                                </template>
-                                <template x-if="!newMenu.imagePreview">
-                                    <i class="fas fa-image text-brand-200 text-xl"></i>
-                                </template>
-                            </div>
-                            <input type="file" x-ref="menuImageInput" @change="(e) => {
-                                const file = e.target.files[0];
-                                if(file) {
-                                    const reader = new FileReader();
-                                    reader.onload = (ev) => newMenu.imagePreview = ev.target.result;
-                                    reader.readAsDataURL(file);
-                                }
-                            }" class="w-full text-sm text-muted file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-[13px] file:font-bold file:bg-brand-100 file:text-primary hover:file:bg-brand-200 cursor-pointer outline-none" accept="image/*">
-                        </div>
-                    </div>
-
-                    <!-- Resep Bahan Baku & HPP Otomatis -->
-                    <div class="mt-2 p-5 bg-ivory rounded-[20px] border border-line">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-blender text-primary"></i>
-                                <span class="text-xs font-bold text-ink uppercase tracking-wider">Komposisi Resep & HPP Otomatis</span>
-                            </div>
-                            <button type="button" @click="addMenuRecipeRow()" class="px-3 py-1 bg-white border border-line text-primary rounded-lg text-xs font-bold hover:bg-brand-100 transition flex items-center gap-1.5">
-                                <i class="fas fa-plus"></i> Tambah Bahan
-                            </button>
-                        </div>
-
-                        <!-- Recipe Rows -->
-                        <div class="flex flex-col gap-2 max-h-48 overflow-y-auto hide-scroll py-1">
-                            <template x-for="(rec, rIdx) in newMenu.recipes" :key="rIdx">
-                                <div class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-line">
-                                    <select x-model="rec.raw_material_id" class="w-1/2 bg-ivory border border-line rounded-lg px-2.5 py-1.5 text-xs font-semibold text-ink outline-none">
-                                        <option value="" disabled>-- Pilih Bahan --</option>
-                                        <template x-for="m in rawMaterials" :key="m.id">
-                                            <option :value="m.id" x-text="m.name + ' (' + m.unit + ')'"></option>
-                                        </template>
-                                    </select>
-                                    <div class="relative w-1/3">
-                                        <input type="number" step="0.01" x-model="rec.amount" placeholder="Takaran" class="w-full bg-ivory border border-line rounded-lg px-2.5 py-1.5 text-xs font-bold text-ink outline-none">
-                                        <span class="absolute right-2 top-1.5 text-[10px] text-gray-400 font-medium" x-text="getMaterialUnit(rec.raw_material_id)"></span>
-                                    </div>
-                                    <div class="text-[11px] font-mono font-bold text-primary w-20 text-right shrink-0" x-text="formatRp(calculateSingleRecipeCost(rec))"></div>
-                                    <button type="button" @click="removeMenuRecipeRow(rIdx)" class="w-6 h-6 rounded-lg text-red-500 hover:bg-red-50 transition flex items-center justify-center shrink-0">
-                                        <i class="fas fa-times text-xs"></i>
-                                    </button>
-                                </div>
-                            </template>
-
-                            <template x-if="newMenu.recipes.length === 0">
-                                <div class="text-center py-3 text-xs text-muted">
-                                    Belum ada resep bahan baku. Klik <strong>+ Tambah Bahan</strong> untuk hitung HPP otomatis.
-                                </div>
-                            </template>
-                        </div>
-
-                        <!-- HPP Calculation Summary -->
-                        <div class="mt-3 pt-3 border-t border-dashed border-line flex items-center justify-between">
-                            <div>
-                                <span class="text-xs text-muted block">Total Modal HPP</span>
-                                <span class="text-base font-black text-primary font-mono" x-text="formatRp(calculatedMenuHpp)">Rp 0</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-xs text-muted block">Estimasi Margin Laba</span>
-                                <span class="text-xs font-bold px-2 py-0.5 rounded-full" :class="estimatedProfitMargin > 0 ? 'bg-brand-100 text-primary' : 'bg-gray-100 text-gray-600'" x-text="estimatedProfitMargin.toFixed(1) + '% (Untung ' + formatRp(estimatedProfitAmount) + ')'">0%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <div class="mt-8 flex justify-end gap-3 pt-6 border-t border-line">
-                    <button @click="showAddMenuModal = false" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-white border border-line text-muted hover:bg-ivory transition-colors">Batal</button>
-                    <button @click="saveNewMenu" class="px-6 py-3 rounded-[12px] font-bold text-[14px] bg-primary text-white hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-2">
-                        <i class="fas fa-check" x-show="!newMenu.id"></i>
-                        <i class="fas fa-save" x-show="newMenu.id"></i>
-                        <span x-text="newMenu.id ? 'Simpan Perubahan' : 'Simpan Menu'"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MODAL: ADD TABLE -->
         <!-- MODAL: ADD CATEGORY -->
-        <div x-show="showAddCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-primary/40 backdrop-blur-sm" x-transition.opacity>
-            <div class="bg-white rounded-[24px] w-full max-w-[420px] p-8 shadow-[0_20px_60px_rgba(30,90,122,0.15)] relative overflow-hidden" @click.away="showAddCategoryModal = false" x-transition>
+        <div x-show="showAddCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans bg-black/40 backdrop-blur-xs" x-transition.opacity>
+            <div class="bg-white rounded-[20px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-[#e9ebf0]" @click.away="showAddCategoryModal = false" x-transition>
                 
                 <div class="absolute top-4 right-4 z-10">
-                    <button @click="showAddCategoryModal = false" class="text-muted hover:text-ink bg-ivory hover:bg-line transition-colors w-8 h-8 flex items-center justify-center rounded-full">
+                    <button @click="showAddCategoryModal = false" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition cursor-pointer">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
 
-                <div class="flex items-center gap-4 mb-6 relative z-10">
-                    <div class="w-12 h-12 rounded-full bg-brand-100 text-primary flex items-center justify-center text-xl shrink-0">
+                <div class="flex items-center gap-3.5 mb-5 relative z-10">
+                    <div class="w-11 h-11 rounded-[14px] bg-[#fff6f0] text-[#df5826] flex items-center justify-center text-lg shrink-0 shadow-xs">
                         <i class="fas fa-tags"></i>
                     </div>
                     <div>
-                        <h2 class="text-[24px] text-primary leading-tight" style="font-family: var(--oq-font-heading); font-weight: 700;">Tambah Kategori</h2>
-                        <p class="text-[14px] text-muted">Buat kategori menu baru</p>
+                        <h2 class="text-[18px] font-bold text-[#111827] leading-tight">Tambah Kategori</h2>
+                        <p class="text-[12px] text-[#53565a]">Buat kategori menu baru untuk toko Anda</p>
                     </div>
                 </div>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[12px] font-bold text-muted mb-2 uppercase tracking-widest">Nama Kategori</label>
-                        <input type="text" x-model="newCategoryName" placeholder="Contoh: Coffee, Pastry..." class="w-full bg-ivory border border-line rounded-[14px] px-4 py-3.5 text-[15px] font-bold text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+                        <label class="block text-[11px] font-semibold text-[#53565a] mb-1.5 uppercase tracking-wider">Nama Kategori</label>
+                        <input type="text" x-model="newCategoryName" @keydown.enter="saveCategory" placeholder="Contoh: Coffee, Pastry, Signature..." class="w-full bg-[#f8f9fa] border border-[#e9ebf0] rounded-[10px] px-3.5 py-2.5 text-[13px] font-medium text-[#111827] focus:bg-white focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
                     </div>
                 </div>
 
-                <div class="mt-8">
-                    <button @click="saveCategory" class="w-full py-3.5 bg-primary text-white rounded-[14px] font-bold text-[15px] hover:bg-primary-dark transition-colors flex items-center justify-center gap-2">
-                        <i class="fas fa-save"></i> Simpan Kategori
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" @click="showAddCategoryModal = false" class="px-4 py-2.5 bg-white border border-[#e9ebf0] text-[#53565a] hover:bg-gray-50 rounded-[10px] text-[13px] font-semibold transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="button" @click="saveCategory" class="px-5 py-2.5 bg-[#df5826] text-white rounded-[10px] text-[13px] font-semibold hover:bg-[#c94d00] transition flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+                        <i class="fas fa-save"></i>
+                        <span>Simpan Kategori</span>
                     </button>
                 </div>
             </div>
@@ -990,6 +846,7 @@
                 },
 
                 showBulkUpload: false,
+                isSavingBulk: false,
                 draftMenus: [],
                 categories: window.INITIAL_DATA.categories || [],
                 initBulkUpload() {
@@ -999,70 +856,31 @@
                     }
                 },
                 addDraftRow() {
-                    this.draftMenus.push({ id: null, name: '', price: '', categoryId: this.categories.length > 0 ? this.categories[0].id : '', imagePreview: null, imageFile: null });
+                    this.draftMenus.push({ 
+                        id: null, 
+                        name: '', 
+                        price: '', 
+                        categoryId: this.categories.length > 0 ? this.categories[0].id : '', 
+                        desc: '',
+                        imagePreview: null, 
+                        imageFile: null 
+                    });
                 },
                 removeDraftRow(index) {
                     this.draftMenus.splice(index, 1);
                     if (this.draftMenus.length === 0) this.addDraftRow();
                 },
-                
-                handleCSVUpload(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-                    
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const text = e.target.result;
-                        const lines = text.split('\n');
-                        let added = 0;
-                        
-                        for (let i = 1; i < lines.length; i++) {
-                            const line = lines[i].trim();
-                            if (!line) continue;
-                            
-                            const cols = line.split(',');
-                            if (cols.length >= 3) {
-                                const name = cols[0].replace(/^"|"$/g, '').trim();
-                                const category = cols[1].replace(/^"|"$/g, '').trim();
-                                const priceStr = cols[2].replace(/[^0-9]/g, '');
-                                const price = parseInt(priceStr) || 0;
-                                
-                                let validCategoryId = this.categories.length > 0 ? this.categories[0].id : '';
-                                const catLower = category.toLowerCase();
-                                const matchedCat = this.categories.find(c => c.name.toLowerCase() === catLower);
-                                if (matchedCat) validCategoryId = matchedCat.id;
-                                
-                                this.draftMenus.unshift({
-                                    id: null,
-                                    name: name,
-                                    categoryId: validCategoryId,
-                                    price: price,
-                                    imagePreview: null,
-                                    imageFile: null
-                                });
-                                added++;
-                            }
-                        }
-                        
-                        if (added > 0) {
-                            this.addToast(added + ' item diimpor dari CSV. Sedang menyimpan...', 'info');
-                            if (this.draftMenus.length > 0 && this.draftMenus[this.draftMenus.length - 1].name === '') {
-                                this.draftMenus.pop();
-                            }
-                            this.saveBulkMenu();
-                        } else {
-                            this.addToast('Format CSV tidak valid atau kosong', 'error');
-                        }
-                        
-                        event.target.value = '';
-                    };
-                    reader.readAsText(file);
+                removeDraftImage(index) {
+                    if (this.draftMenus[index]) {
+                        this.draftMenus[index].imagePreview = null;
+                        this.draftMenus[index].imageFile = null;
+                    }
                 },
-handleDraftImageUpload(event, index) {
+                handleDraftImageUpload(event, index) {
                     const file = event.target.files[0];
                     if (!file) return;
-                    if (file.size > 2 * 1024 * 1024) {
-                        this.addToast('Image max 2MB', 'error');
+                    if (file.size > 5 * 1024 * 1024) {
+                        this.addToast('Ukuran gambar maksimal 5MB', 'error');
                         return;
                     }
                     this.draftMenus[index].imageFile = file;
@@ -1070,32 +888,200 @@ handleDraftImageUpload(event, index) {
                     reader.onload = (e) => { this.draftMenus[index].imagePreview = e.target.result; };
                     reader.readAsDataURL(file);
                 },
+                downloadCsvTemplate() {
+                    const csvContent = "\ufeff"
+                        + "Nama Menu,Kategori,Harga,Deskripsi\n"
+                        + "Americano,Coffee,22000,Espresso dengan air panas\n"
+                        + "Caffe Latte,Coffee,28000,Espresso dengan steamed milk lembut\n"
+                        + "Matcha Latte,Drinks,30000,Matcha Jepang murni dengan susu segar\n"
+                        + "Butter Croissant,Pastry,24000,Pastry renyah dengan butter premium\n"
+                        + "Beef Burger,Main Course,45000,Patty daging sapi gurih dengan saus spesial\n";
+                    
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", "template_menu_sparta.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    this.addToast('Template CSV berhasil diunduh. Silakan isi dan upload kembali.', 'info');
+                },
+                handleCSVUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const text = e.target.result;
+                            if (!text || text.trim() === '') {
+                                this.addToast('File CSV kosong', 'error');
+                                return;
+                            }
+                            
+                            const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+                            if (lines.length < 2) {
+                                this.addToast('File CSV harus memiliki baris judul dan minimal 1 baris data', 'error');
+                                return;
+                            }
+                            
+                            const headerLine = lines[0];
+                            const commaCount = (headerLine.match(/,/g) || []).length;
+                            const semiCount = (headerLine.match(/;/g) || []).length;
+                            const delimiter = semiCount > commaCount ? ';' : ',';
+                            
+                            const parseLine = (lineStr) => {
+                                const row = [];
+                                let current = '';
+                                let inQuotes = false;
+                                for (let i = 0; i < lineStr.length; i++) {
+                                    const c = lineStr[i];
+                                    if (c === '"') {
+                                        if (inQuotes && lineStr[i + 1] === '"') {
+                                            current += '"';
+                                            i++;
+                                        } else {
+                                            inQuotes = !inQuotes;
+                                        }
+                                    } else if (c === delimiter && !inQuotes) {
+                                        row.push(current.trim());
+                                        current = '';
+                                    } else {
+                                        current += c;
+                                    }
+                                }
+                                row.push(current.trim());
+                                return row;
+                            };
+                            
+                            const headers = parseLine(headerLine).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+                            
+                            let nameIdx = headers.findIndex(h => h.includes('nama') || h.includes('name') || h.includes('menu') || h.includes('item'));
+                            let catIdx = headers.findIndex(h => h.includes('kategori') || h.includes('category') || h.includes('cat'));
+                            let priceIdx = headers.findIndex(h => h.includes('harga') || h.includes('price') || h.includes('nominal'));
+                            let descIdx = headers.findIndex(h => h.includes('deskripsi') || h.includes('desc') || h.includes('description') || h.includes('ket'));
+                            
+                            if (nameIdx === -1) nameIdx = 0;
+                            if (catIdx === -1) catIdx = 1;
+                            if (priceIdx === -1) priceIdx = 2;
+                            if (descIdx === -1) descIdx = 3;
+                            
+                            const newDrafts = [];
+                            for (let i = 1; i < lines.length; i++) {
+                                const cols = parseLine(lines[i]);
+                                const name = cols[nameIdx] ? cols[nameIdx].replace(/^["']|["']$/g, '').trim() : '';
+                                if (!name) continue;
+                                
+                                const catRaw = (cols[catIdx] ? cols[catIdx].replace(/^["']|["']$/g, '').trim() : '') || 'Coffee';
+                                const priceRaw = cols[priceIdx] ? String(cols[priceIdx]).replace(/[^0-9]/g, '') : '0';
+                                const price = parseInt(priceRaw) || 0;
+                                const desc = (descIdx !== -1 && cols[descIdx]) ? cols[descIdx].replace(/^["']|["']$/g, '').trim() : '';
+                                
+                                let matchedCatId = '';
+                                const foundCat = this.categories.find(c => c.name && c.name.toLowerCase() === catRaw.toLowerCase());
+                                if (foundCat) {
+                                    matchedCatId = foundCat.id;
+                                } else {
+                                    matchedCatId = catRaw;
+                                }
+                                
+                                newDrafts.push({
+                                    id: null,
+                                    name: name,
+                                    categoryId: matchedCatId,
+                                    price: price,
+                                    desc: desc,
+                                    imagePreview: null,
+                                    imageFile: null
+                                });
+                            }
+                            
+                            if (newDrafts.length > 0) {
+                                if (this.draftMenus.length === 1 && !this.draftMenus[0].name && !this.draftMenus[0].price) {
+                                    this.draftMenus = [];
+                                }
+                                this.draftMenus.push(...newDrafts);
+                                this.addToast(`Berhasil memuat ${newDrafts.length} menu dari CSV! Periksa data dan klik Publish Menu.`, 'success');
+                            } else {
+                                this.addToast('Tidak ada data menu yang valid ditemukan di dalam file CSV.', 'error');
+                            }
+                        } catch (err) {
+                            console.error('CSV parse error:', err);
+                            this.addToast('Gagal memproses file CSV: Format tidak didukung', 'error');
+                        } finally {
+                            event.target.value = '';
+                        }
+                    };
+                    reader.readAsText(file);
+                },
                 saveBulkMenu() {
-                    const validItems = this.draftMenus.filter(m => m.name && m.price);
+                    const validItems = this.draftMenus.filter(m => m.name && m.name.trim() !== '' && m.price !== '' && !isNaN(Number(m.price)));
                     if (validItems.length === 0) {
-                        this.addToast('Minimal isi Nama dan Harga', 'error');
+                        this.addToast('Mohon isi minimal Nama dan Harga menu', 'error');
                         return;
                     }
+                    
+                    this.isSavingBulk = true;
                     let formData = new FormData();
                     validItems.forEach((item, index) => {
                         if (item.id) formData.append(`items[${index}][id]`, item.id);
-                        formData.append(`items[${index}][name]`, item.name);
+                        formData.append(`items[${index}][name]`, item.name.trim());
                         formData.append(`items[${index}][price]`, item.price);
+                        formData.append(`items[${index}][category_id]`, item.categoryId);
                         formData.append(`items[${index}][category_name]`, item.categoryId);
+                        if (item.desc) formData.append(`items[${index}][description]`, item.desc);
                         if (item.imageFile) formData.append(`images[${index}]`, item.imageFile);
                     });
+
                     fetch('/admin/api/menu/bulk', {
                         method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        headers: { 
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}' 
+                        },
                         body: formData
                     })
                     .then(res => res.json())
                     .then(data => {
-                        if(data.success) {
-                            this.addToast('Berhasil upload menu!', 'success');
-                            setTimeout(() => window.location.reload(), 1000);
+                        this.isSavingBulk = false;
+                        if (data.success) {
+                            if (data.categories && Array.isArray(data.categories)) {
+                                this.categories = data.categories;
+                            }
+                            if (data.menus && Array.isArray(data.menus)) {
+                                data.menus.forEach(savedItem => {
+                                    const formatted = {
+                                        id: savedItem.id,
+                                        name: savedItem.name,
+                                        price: Number(savedItem.price),
+                                        category_name: savedItem.category ? savedItem.category.name : (savedItem.category_name || 'Coffee'),
+                                        categoryId: savedItem.category_id,
+                                        category_id: savedItem.category_id,
+                                        cogs: Number(savedItem.cogs || 0),
+                                        is_sold_out: savedItem.is_sold_out,
+                                        image: savedItem.image_url ? (savedItem.image_url + '?v=' + Date.now()) : null,
+                                        desc: savedItem.description || ''
+                                    };
+                                    const existingIdx = this.menuItems.findIndex(m => m.id === savedItem.id);
+                                    if (existingIdx !== -1) {
+                                        this.menuItems[existingIdx] = Object.assign({}, this.menuItems[existingIdx], formatted);
+                                    } else {
+                                        this.menuItems.unshift(formatted);
+                                    }
+                                });
+                            }
+                            this.addToast('Berhasil menyimpan menu!', 'success');
+                            this.showBulkUpload = false;
+                            this.draftMenus = [];
+                        } else {
+                            this.addToast(data.message || 'Gagal menyimpan menu', 'error');
                         }
-                    }).catch(err => this.addToast('Error saving bulk menu', 'error'));
+                    }).catch(err => {
+                        this.isSavingBulk = false;
+                        this.addToast('Terjadi kesalahan saat menyimpan menu', 'error');
+                    });
                 },
                 toasts: [],
                 addToast(message, type = 'success') {
@@ -1950,27 +1936,20 @@ handleDraftImageUpload(event, index) {
                 editMenu(item) {
                     let matchedCatId = item.categoryId || item.category_id || '';
                     if (matchedCatId && this.categories.length > 0 && !this.categories.some(c => c.id == matchedCatId)) {
-                        const found = this.categories.find(c => c.name.toLowerCase() === String(matchedCatId).toLowerCase());
+                        const found = this.categories.find(c => c.name && c.name.toLowerCase() === String(matchedCatId).toLowerCase());
                         if (found) matchedCatId = found.id;
                     }
 
-                    // Format recipes array
-                    const existingRecipes = (item.recipes || []).map(r => ({
-                        raw_material_id: r.raw_material_id,
-                        amount: Number(r.amount)
-                    }));
-
-                    this.newMenu = { 
-                        id: item.id, 
-                        name: item.name, 
-                        price: item.price, 
-                        desc: item.desc || item.description || '', 
-                        categoryId: matchedCatId, 
+                    this.draftMenus = [{
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        categoryId: matchedCatId || (this.categories.length > 0 ? this.categories[0].id : ''),
+                        desc: item.desc || item.description || '',
                         imagePreview: item.image || item.image_url || null,
-                        cogs: Number(item.cogs || 0),
-                        recipes: existingRecipes
-                    };
-                    this.showAddMenuModal = true;
+                        imageFile: null
+                    }];
+                    this.showBulkUpload = true;
                 },
                 async deleteMenu(id) {
                     const result = await Swal.fire({
