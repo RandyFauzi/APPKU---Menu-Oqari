@@ -38,4 +38,39 @@ class CalculateHppRequest extends FormRequest
             'cogs' => ['prohibited'], 'shop_id' => ['prohibited'],
         ];
     }
+
+    /** @return array<string, string> */
+    public function attributes(): array
+    {
+        return [
+            'recipes' => 'Resep bahan baku',
+            'recipes.*.raw_material_id' => 'Bahan baku',
+            'recipes.*.amount' => 'Jumlah takaran',
+            'production_quantity' => 'Jumlah hasil produksi',
+            'production_unit' => 'Satuan output',
+            'labor_cost' => 'Biaya tenaga kerja',
+            'overhead_cost' => 'Biaya overhead',
+            'selling_price' => 'Simulasi harga jual',
+            'target_margin' => 'Target margin',
+            'target_markup' => 'Target markup',
+            'tax_rate' => 'Tarif pajak',
+        ];
+    }
+
+    /** @return array<string, string> */
+    public function messages(): array
+    {
+        return [
+            'recipes.required' => 'Minimal tambahkan 1 bahan baku ke dalam resep.',
+            'recipes.min' => 'Minimal tambahkan 1 bahan baku ke dalam resep.',
+            'recipes.*.raw_material_id.required' => 'Bahan baku pada resep wajib dipilih.',
+            'recipes.*.raw_material_id.integer' => 'Bahan baku yang dipilih tidak valid.',
+            'recipes.*.raw_material_id.distinct' => 'Bahan baku tidak boleh dipilih lebih dari sekali.',
+            'recipes.*.raw_material_id.exists' => 'Bahan baku yang dipilih tidak ditemukan dalam inventori toko.',
+            'recipes.*.amount.required' => 'Jumlah takaran bahan wajib diisi.',
+            'recipes.*.amount.min' => 'Jumlah takaran bahan minimal lebih dari 0.',
+            'selling_price.required' => 'Simulasi harga jual per unit wajib diisi.',
+            'production_quantity.required' => 'Jumlah hasil produksi wajib diisi.',
+        ];
+    }
 }

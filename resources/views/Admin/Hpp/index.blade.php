@@ -22,13 +22,15 @@
         /* Modern form inputs & select styles */
         .hpp-input {
             width: 100%;
-            background-color: #fcfcfd;
-            border: 1px solid #e6e5e0;
+            background-color: #ffffff;
+            border: 1px solid #dcdfe4;
             border-radius: 12px;
             padding: 10px 14px;
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 500;
             color: #111827;
+            height: 46px;
+            box-sizing: border-box;
             transition: all 0.2s ease;
         }
         .hpp-input:focus {
@@ -41,6 +43,15 @@
             background-color: #f3f4f6;
             color: #9ca3af;
             cursor: not-allowed;
+        }
+        .hpp-input-prefix-icon {
+            padding-left: 42px !important;
+        }
+        .hpp-input-prefix-rp {
+            padding-left: 46px !important;
+        }
+        .hpp-input-suffix {
+            padding-right: 38px !important;
         }
 
         /* Hide number spin buttons */
@@ -202,10 +213,17 @@
             </nav>
 
             {{-- Status / Error Alerts --}}
-            <div x-cloak x-show="error" role="alert" tabindex="-1" x-ref="errorBox" class="p-4 bg-red-50 text-red-900 border border-red-200 rounded-2xl flex items-start gap-3 shadow-sm" x-transition>
-                <i class="fas fa-circle-exclamation text-red-500 mt-0.5 text-base"></i>
-                <div class="text-xs md:text-sm font-semibold flex-1" x-text="error"></div>
-                <button type="button" @click="error = ''" class="text-red-400 hover:text-red-600 p-1"><i class="fas fa-times"></i></button>
+            <div id="hpp-error-banner" x-cloak x-show="error" role="alert" tabindex="-1" x-ref="errorBox" class="p-4 bg-red-50 text-red-800 border border-red-200 rounded-2xl flex items-start gap-3 shadow-sm" x-transition>
+                <div class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                    <i class="fas fa-triangle-exclamation text-sm"></i>
+                </div>
+                <div class="flex-1 pt-1">
+                    <h5 class="text-xs font-bold text-red-900 mb-0.5">Perhatian</h5>
+                    <p class="text-xs font-medium text-red-800" x-text="error"></p>
+                </div>
+                <button type="button" @click="error = ''" class="text-red-400 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-100 transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
             </div>
             
             <div x-cloak x-show="saved" role="status" class="p-4 bg-green-50 text-green-900 border border-green-200 rounded-2xl flex items-start gap-3 shadow-sm" x-transition>
@@ -246,9 +264,12 @@
                                     <label for="production-quantity" class="block text-xs font-bold text-[#111827] mb-2">
                                         Jumlah Hasil Produksi per Siklus <span class="text-red-500">*</span>
                                     </label>
-                                    <div class="relative">
-                                        <input id="production-quantity" x-model="form.production_quantity" type="number" min="0.01" max="999999" step="0.01" required class="hpp-input pl-10" placeholder="Contoh: 1 atau 10">
-                                        <i class="fas fa-hashtag absolute left-3.5 top-3.5 text-gray-400 text-xs"></i>
+                                    <div class="relative flex items-center">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-hashtag text-xs"></i>
+                                        </div>
+                                        <input id="production-quantity" x-model="form.production_quantity" type="number" min="0.01" max="999999" step="0.01" required 
+                                            class="hpp-input hpp-input-prefix-icon" placeholder="Contoh: 1 atau 10">
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-1">Berapa porsi/cup yang dihasilkan dalam 1 batch.</p>
                                 </div>
@@ -269,9 +290,12 @@
                                     <label for="selling-price" class="block text-xs font-bold text-[#111827] mb-2">
                                         Simulasi Harga Jual per Unit (Rp) <span class="text-red-500">*</span>
                                     </label>
-                                    <div class="relative">
-                                        <span class="absolute left-3.5 top-3 text-xs font-bold text-gray-400">Rp</span>
-                                        <input id="selling-price" x-model="form.selling_price" type="number" min="0" max="99999999.99" step="0.01" required class="hpp-input pl-11 text-base font-bold" placeholder="Contoh: 25000">
+                                    <div class="relative flex items-center">
+                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                            <span class="text-xs font-black text-gray-400">Rp</span>
+                                        </div>
+                                        <input id="selling-price" x-model="form.selling_price" type="number" min="0" max="99999999.99" step="0.01" required 
+                                            class="hpp-input hpp-input-prefix-rp text-base font-bold text-gray-900" placeholder="Contoh: 25000">
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-1">Harga jual yang Anda targetkan untuk melihat estimasi laba kotor &amp; margin.</p>
                                 </div>
@@ -301,9 +325,12 @@
                             </div>
 
                             {{-- Material Quick Filter --}}
-                            <div class="relative">
-                                <input id="material-search" type="search" x-model="materialSearch" class="hpp-input pl-9" placeholder="Cari nama bahan baku yang tersedia di inventori…">
-                                <i class="fas fa-search absolute left-3.5 top-3.5 text-gray-400 text-xs"></i>
+                            <div class="relative flex items-center">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                                    <i class="fas fa-search text-xs"></i>
+                                </div>
+                                <input id="material-search" type="search" x-model="materialSearch" 
+                                    class="hpp-input hpp-input-prefix-icon" placeholder="Cari nama bahan baku yang tersedia di inventori…">
                             </div>
 
                             <div x-show="materials.length === 0" class="p-4 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs">
@@ -403,9 +430,12 @@
                                 <label for="labor-cost" class="block text-xs font-bold text-[#111827] mb-2">
                                     Total Biaya Tenaga Kerja untuk 1 Siklus (Rp) <span class="text-red-500">*</span>
                                 </label>
-                                <div class="relative">
-                                    <span class="absolute left-3.5 top-3 text-xs font-bold text-gray-400">Rp</span>
-                                    <input id="labor-cost" x-model="form.labor_cost" type="number" min="0" max="99999999.99" step="0.01" required class="hpp-input pl-11 text-base font-bold" placeholder="0">
+                                <div class="relative flex items-center">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <span class="text-xs font-black text-gray-400">Rp</span>
+                                    </div>
+                                    <input id="labor-cost" x-model="form.labor_cost" type="number" min="0" max="99999999.99" step="0.01" required 
+                                        class="hpp-input hpp-input-prefix-rp text-base font-bold text-gray-900" placeholder="0">
                                 </div>
                                 <p class="text-[11px] text-gray-400 mt-1">Isi 0 jika tidak mengalokasikan upah per siklus.</p>
                             </div>
@@ -451,9 +481,12 @@
                                 <label for="overhead-cost" class="block text-xs font-bold text-[#111827] mb-2">
                                     Biaya Overhead per Siklus (Rp) <span class="text-red-500">*</span>
                                 </label>
-                                <div class="relative">
-                                    <span class="absolute left-3.5 top-3 text-xs font-bold text-gray-400">Rp</span>
-                                    <input id="overhead-cost" x-model="form.overhead_cost" type="number" min="0" max="99999999.99" step="0.01" :required="form.overhead_mode === 'fixed'" class="hpp-input pl-11 text-base font-bold" placeholder="Contoh: 5000">
+                                <div class="relative flex items-center">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                        <span class="text-xs font-black text-gray-400">Rp</span>
+                                    </div>
+                                    <input id="overhead-cost" x-model="form.overhead_cost" type="number" min="0" max="99999999.99" step="0.01" :required="form.overhead_mode === 'fixed'" 
+                                        class="hpp-input hpp-input-prefix-rp text-base font-bold text-gray-900" placeholder="Contoh: 5000">
                                 </div>
                             </div>
 
@@ -464,9 +497,12 @@
                                 </label>
                                 <div class="flex items-center gap-4">
                                     <input id="overhead-slider" x-model="form.overhead_percent" type="range" min="0" max="100" step="0.5" class="w-full accent-[#df5826]">
-                                    <div class="relative w-28 shrink-0">
-                                        <input id="overhead-percent" x-model="form.overhead_percent" type="number" min="0" max="100" step="0.01" :required="form.overhead_mode === 'percentage'" class="hpp-input pr-8 text-right font-bold" placeholder="10">
-                                        <span class="absolute right-3.5 top-2.5 text-xs font-bold text-gray-400">%</span>
+                                    <div class="relative w-28 shrink-0 flex items-center">
+                                        <input id="overhead-percent" x-model="form.overhead_percent" type="number" min="0" max="100" step="0.01" :required="form.overhead_mode === 'percentage'" 
+                                            class="hpp-input hpp-input-suffix text-right font-bold" placeholder="10">
+                                        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                                            <span class="text-xs font-bold text-gray-400">%</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <p class="text-[11px] text-gray-400">Umumnya kafe menetapkan 5% – 15% untuk biaya penunjang.</p>
@@ -497,18 +533,24 @@
 
                                 <div x-show="form.pricing_method === 'margin'">
                                     <label for="target-margin" class="block text-xs font-bold text-[#111827] mb-2">Target Margin (%) — Opsional</label>
-                                    <div class="relative">
-                                        <input id="target-margin" x-model="form.target_margin" type="number" min="0" max="99.99" step="0.01" class="hpp-input pr-8 font-bold" placeholder="Contoh: 60">
-                                        <span class="absolute right-3.5 top-2.5 text-xs font-bold text-gray-400">%</span>
+                                    <div class="relative flex items-center">
+                                        <input id="target-margin" x-model="form.target_margin" type="number" min="0" max="99.99" step="0.01" 
+                                            class="hpp-input hpp-input-suffix font-bold" placeholder="Contoh: 60">
+                                        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                                            <span class="text-xs font-bold text-gray-400">%</span>
+                                        </div>
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-1">Rumus: HPP ÷ (1 − Target Margin)</p>
                                 </div>
 
                                 <div x-show="form.pricing_method === 'markup'">
                                     <label for="target-markup" class="block text-xs font-bold text-[#111827] mb-2">Target Markup (%) — Opsional</label>
-                                    <div class="relative">
-                                        <input id="target-markup" x-model="form.target_markup" type="number" min="0" max="1000" step="0.01" class="hpp-input pr-8 font-bold" placeholder="Contoh: 150">
-                                        <span class="absolute right-3.5 top-2.5 text-xs font-bold text-gray-400">%</span>
+                                    <div class="relative flex items-center">
+                                        <input id="target-markup" x-model="form.target_markup" type="number" min="0" max="1000" step="0.01" 
+                                            class="hpp-input hpp-input-suffix font-bold" placeholder="Contoh: 150">
+                                        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                                            <span class="text-xs font-bold text-gray-400">%</span>
+                                        </div>
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-1">Rumus: HPP × (1 + Target Markup)</p>
                                 </div>
@@ -574,9 +616,12 @@
 
                                 <div>
                                     <label for="tax-rate" class="block text-xs font-bold text-[#111827] mb-2">Tarif Pajak (%) — Isi 0 jika Tanpa Pajak</label>
-                                    <div class="relative">
-                                        <input id="tax-rate" x-model="form.tax_rate" type="number" min="0" max="100" step="0.01" required class="hpp-input pr-8 font-bold" placeholder="0">
-                                        <span class="absolute right-3.5 top-2.5 text-xs font-bold text-gray-400">%</span>
+                                    <div class="relative flex items-center">
+                                        <input id="tax-rate" x-model="form.tax_rate" type="number" min="0" max="100" step="0.01" required 
+                                            class="hpp-input hpp-input-suffix font-bold" placeholder="0">
+                                        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                                            <span class="text-xs font-bold text-gray-400">%</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1035,28 +1080,64 @@ function hppCalculator() {
             }
         },
 
+        hasValidRecipes() {
+            return Array.isArray(this.form.recipes) && this.form.recipes.some(r => Boolean(r.raw_material_id) && Number(r.amount) > 0);
+        },
+
         async next() {
-            if (this.busy || !this.validateStep()) return;
-            if (this.step >= 4 && !(await this.calculate())) return;
+            if (this.busy) return;
+            this.error = '';
+            
+            // Validasi per langkah
+            if (this.step === 1) {
+                if (!this.form.production_quantity || Number(this.form.production_quantity) <= 0) {
+                    this.error = 'Silakan isi jumlah hasil produksi per siklus (minimal 0.01).';
+                    return;
+                }
+                if (this.form.selling_price === '' || Number(this.form.selling_price) < 0) {
+                    this.error = 'Silakan isi simulasi harga jual per unit.';
+                    return;
+                }
+            }
+            
+            if (this.step === 2) {
+                const validCount = this.form.recipes.filter(r => Boolean(r.raw_material_id) && Number(r.amount) > 0).length;
+                if (validCount === 0) {
+                    this.error = 'Silakan pilih minimal 1 bahan baku inventori dan masukkan takaran resep sebelum lanjut ke langkah berikutnya.';
+                    return;
+                }
+            }
+            
+            if (!this.validateStep()) return;
+            
+            // Jika berada di step 4 ke atas dan bahan valid, sinkronkan via API
+            if (this.step >= 4 && this.hasValidRecipes()) {
+                if (!(await this.calculate())) return;
+            }
+            
             if (this.step < 6) {
                 this.step++;
                 this.furthest = Math.max(this.furthest, this.step);
-                // Auto calculate to keep live preview synced
-                if (this.step >= 2) {
+                // Hitung otomatis jika berada di langkah hasil akhir (Langkah 5 atau 6)
+                if (this.step >= 5 && this.hasValidRecipes()) {
                     this.calculate();
                 }
             }
         },
 
         payload() {
+            const validRecipes = this.form.recipes
+                .filter(r => Boolean(r.raw_material_id) && Number(r.amount) > 0)
+                .map(({raw_material_id, amount, unit, notes}) => ({
+                    raw_material_id: Number(raw_material_id),
+                    amount: Number(amount),
+                    unit: unit || '',
+                    notes: notes || ''
+                }));
+                
             return {
                 ...this.form,
-                recipes: this.form.recipes.map(({raw_material_id, amount, unit, notes}) => ({
-                    raw_material_id,
-                    amount,
-                    unit,
-                    notes
-                })),
+                recipes: validRecipes.length > 0 ? validRecipes : this.form.recipes,
                 target_margin: this.form.target_margin === '' ? null : this.form.target_margin,
                 target_markup: this.form.target_markup === '' ? null : this.form.target_markup
             };
@@ -1080,8 +1161,20 @@ function hppCalculator() {
         },
 
         showError(error) {
-            this.error = error.message;
-            this.$nextTick(() => this.$refs.errorBox?.focus());
+            let msg = error.message || 'Terjadi kendala saat memproses perhitungan.';
+            // Bersihkan format teknis jika ada
+            msg = msg.replace(/The recipes\.\d+\.raw_material_id field is required\./gi, 'Bahan baku pada baris resep wajib dipilih.')
+                     .replace(/The recipes\.\d+\.amount field is required\./gi, 'Jumlah takaran bahan wajib diisi.')
+                     .replace(/recipes\.\d+\.raw_material_id/gi, 'Bahan baku')
+                     .replace(/recipes\.\d+\.amount/gi, 'Jumlah takaran')
+                     .replace(/field is required\./gi, 'wajib diisi.')
+                     .replace(/The /gi, '')
+                     .replace(/is required\./gi, 'wajib diisi.');
+            this.error = msg;
+            this.$nextTick(() => {
+                const el = this.$refs.errorBox || document.getElementById('hpp-error-banner');
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
         },
 
         async send(url, method) {
@@ -1104,6 +1197,10 @@ function hppCalculator() {
         },
 
         calculate() {
+            if (!this.hasValidRecipes()) {
+                this.error = 'Silakan pilih bahan baku dan tentukan takaran pada Langkah 2 terlebih dahulu.';
+                return Promise.resolve(false);
+            }
             return this.send({{ Illuminate\Support\Js::from(route('admin.hpp.calculate')) }}, 'POST');
         },
 
