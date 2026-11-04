@@ -27,6 +27,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'archived_at' => 'datetime',
             'password' => 'hashed',
             'permissions' => 'array', 'is_active' => 'boolean', 'account_version' => 'integer',
         ];
@@ -34,7 +35,7 @@ class User extends Authenticatable
 
     public function isAccountActive(): bool
     {
-        return ! array_key_exists('is_active', $this->getAttributes()) || $this->is_active === true;
+        return $this->archived_at === null && (! array_key_exists('is_active', $this->getAttributes()) || $this->is_active === true);
     }
 
     /** @return list<string> */

@@ -45,7 +45,7 @@ return [
             'product_recipes' => ['batch_amount', 'notes'],
         ],
         'users' => [
-            'users' => ['id', 'shop_id', 'name', 'email', 'password', 'role', 'is_active', 'permissions', 'account_version', 'remember_token', 'email_verified_at', 'created_at', 'updated_at'],
+            'users' => ['id', 'shop_id', 'name', 'email', 'password', 'role', 'is_active', 'archived_at', 'permissions', 'account_version', 'remember_token', 'email_verified_at', 'created_at', 'updated_at'],
         ],
         'shifts' => [
             'crew_shifts' => ['id', 'shop_id', 'user_id', 'shift_template_id', 'position', 'date', 'start_time', 'end_time', 'notes', 'created_at', 'updated_at'],

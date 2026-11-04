@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Crew\ArchiveCafeUser;
 use App\Actions\Crew\ManageCafeUser;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SaveCafeUserRequest;
@@ -19,7 +20,7 @@ class CafeUserController extends Controller
         $this->authorize('manage-users');
         abort_unless($request->user()->shop_id, 403);
         $filters = $request->validate(['q' => ['nullable', 'string', 'max:100'], 'status' => ['nullable', 'in:active,inactive']]);
-        $users = User::where('shop_id', $request->user()->shop_id)->where('role', '!=', 'superadmin')
+        $users = User::where('shop_id', $request->user()->shop_id)->whereNull('archived_at')->where('role', '!=', 'superadmin')
             ->when($filters['q'] ?? null, fn ($query, string $term) => $query->where(fn ($search) => $search->where('name', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')))
             ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('is_active', $status === 'active'))
             ->orderBy('name')->paginate(20)->withQueryString();
@@ -34,7 +35,7 @@ class CafeUserController extends Controller
 
     public function edit(Request $request, int $cafeUser, CafeUserPolicy $policy): View
     {
-        $target = User::where('shop_id', $request->user()->shop_id)->where('role', '!=', 'superadmin')->findOrFail($cafeUser);
+        $target = User::where('shop_id', $request->user()->shop_id)->whereNull('archived_at')->where('role', '!=', 'superadmin')->findOrFail($cafeUser);
         abort_unless($policy->update($request->user(), $target), 403);
 
         return $this->form($request, $target);
@@ -67,6 +68,18 @@ class CafeUserController extends Controller
         abort_unless($request->user()->shop_id, 403);
 
         return $this->saved($request, $manage->execute($request->user(), ['is_active' => false], $cafeUser));
+    }
+
+    public function destroy(Request $request, int $cafeUser, ArchiveCafeUser $archive): JsonResponse|RedirectResponse
+    {
+        $this->authorize('manage-users');
+        abort_unless($request->user()->shop_id, 403);
+        $archive->execute($request->user(), $cafeUser);
+        $message = 'Staf dihapus dari daftar dan akses login dihentikan. Riwayat transaksi serta absensi tetap tersimpan.';
+
+        return $request->expectsJson()
+            ? response()->json(['success' => true, 'message' => $message])
+            : redirect()->route('admin.users.index')->with('success', $message);
     }
 
     private function saved(Request $request, User $user): JsonResponse|RedirectResponse

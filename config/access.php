@@ -21,6 +21,14 @@ return [
         'view-reports' => ['group' => 'Laporan', 'label' => 'Lihat laporan, audit, dan kas seluruh cafe'],
     ],
     'roles' => ['admin' => 'Admin Cafe', 'manager' => 'Manager', 'cashier' => 'Kasir', 'barista' => 'Barista', 'kitchen' => 'Dapur', 'crew' => 'Kru'],
+    'role_descriptions' => [
+        'admin' => 'Untuk pengelola kepercayaan owner yang menangani hampir seluruh operasional kafe. Kelola akun hanya jika diberi izin owner; Rekap Tim khusus owner.',
+        'manager' => 'Untuk penanggung jawab operasional: pesanan, menu, stok, jadwal, kas, dan laporan. Pengelolaan akun memerlukan delegasi owner.',
+        'cashier' => 'Untuk penerima pesanan dan pembayaran: POS, pesanan, kas shift sendiri, dan absensi sendiri.',
+        'barista' => 'Untuk peracik minuman: daftar pesanan, layar dapur, pembaruan status persiapan, dan absensi sendiri.',
+        'kitchen' => 'Untuk tim dapur: daftar pesanan, layar dapur, pembaruan status persiapan, dan absensi sendiri.',
+        'crew' => 'Untuk staf umum: absensi dan jadwal sendiri. Pilih ini jika staf tidak memerlukan akses kasir atau laporan.',
+    ],
     'defaults' => [
         'owner' => ['*'], 'admin' => ['*'],
         'manager' => ['access-pos', 'view-orders', 'manage-orders', 'manage-menu', 'manage-hpp', 'manage-crew', 'manage-settings', 'view-reports', 'manage-register', 'manage-payments', 'manage-inventory', 'record-attendance', 'view-attendance'],

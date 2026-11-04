@@ -17,6 +17,7 @@ class RecordAttendance
     {
         return DB::transaction(function () use ($employee, $type, $note): Attendance {
             $employee = User::whereKey($employee->id)->lockForUpdate()->firstOrFail();
+            abort_unless($employee->isAccountActive() && $employee->can('record-attendance'), 403);
             $shop = Shop::whereKey($employee->shop_id)->firstOrFail();
             abort_if($shop->isSuspended(), 403, 'Toko dinonaktifkan.');
             $now = CarbonImmutable::now('UTC');

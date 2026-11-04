@@ -3,6 +3,7 @@
 namespace App\Actions\Crew;
 
 use App\Models\ActivityLog;
+use App\Models\Attendance;
 use App\Models\CashRegisterSession;
 use App\Models\Shop;
 use App\Models\User;
@@ -21,7 +22,7 @@ class ManageCafeUser
             Shop::whereKey($actor->shop_id)->lockForUpdate()->firstOrFail();
             $actor = User::where('shop_id', $actor->shop_id)->whereKey($actor->id)->firstOrFail();
             abort_unless($actor->isAccountActive() && $actor->can('manage-users'), 403);
-            $target = $targetId ? User::where('shop_id', $actor->shop_id)->where('role', '!=', 'superadmin')->whereKey($targetId)->lockForUpdate()->firstOrFail() : new User(['shop_id' => $actor->shop_id]);
+            $target = $targetId ? User::where('shop_id', $actor->shop_id)->whereNull('archived_at')->where('role', '!=', 'superadmin')->whereKey($targetId)->lockForUpdate()->firstOrFail() : new User(['shop_id' => $actor->shop_id]);
             if ($targetId) {
                 abort_unless($this->policy->update($actor, $target), 403);
             }
@@ -53,6 +54,9 @@ class ManageCafeUser
             $accessChanged = $target->isDirty(['email', 'role', 'permissions', 'is_active', 'password']);
             if ($targetId && $accessChanged && CashRegisterSession::where('user_id', $target->id)->where('status', 'OPEN')->exists()) {
                 throw ValidationException::withMessages(['is_active' => 'Tutup shift kasir user ini sebelum mengubah akses, password, atau menonaktifkannya.']);
+            }
+            if ($targetId && $accessChanged && Attendance::where('shop_id', $actor->shop_id)->where('user_id', $target->id)->whereNull('checked_out_at')->exists()) {
+                throw ValidationException::withMessages(['is_active' => 'Selesaikan absensi staf sebelum mengubah akses, password, atau menonaktifkannya.']);
             }
             if ($targetId && $accessChanged) {
                 $target->account_version++;

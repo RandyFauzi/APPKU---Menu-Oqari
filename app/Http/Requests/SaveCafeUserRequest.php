@@ -18,7 +18,7 @@ class SaveCafeUserRequest extends FormRequest
     {
         $id = $this->route('cafeUser') ?? $this->route('id');
 
-        return $id ? User::where('shop_id', $this->user()->shop_id)->where('role', '!=', 'superadmin')->findOrFail($id) : null;
+        return $id ? User::where('shop_id', $this->user()->shop_id)->whereNull('archived_at')->where('role', '!=', 'superadmin')->findOrFail($id) : null;
     }
 
     protected function prepareForValidation(): void
@@ -48,6 +48,7 @@ class SaveCafeUserRequest extends FormRequest
             'permissions.*' => ['required', 'string', 'distinct', Rule::in(array_keys(config('access.permissions')))],
             'password' => [$target ? 'nullable' : 'required', 'string', Password::min(12)->mixedCase()->numbers(), 'confirmed', 'max:255'],
             'shop_id' => ['prohibited'], 'account_version' => ['prohibited'], 'email_verified_at' => ['prohibited'],
+            'archived_at' => ['prohibited'],
         ];
     }
 

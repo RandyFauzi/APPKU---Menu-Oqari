@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/users', [CafeUserController::class, 'store'])->name('admin.users.store');
         Route::get('/admin/users/{cafeUser}/edit', [CafeUserController::class, 'edit'])->whereNumber('cafeUser')->name('admin.users.edit');
         Route::put('/admin/users/{cafeUser}', [CafeUserController::class, 'update'])->whereNumber('cafeUser')->name('admin.users.update');
+        Route::delete('/admin/users/{cafeUser}', [CafeUserController::class, 'destroy'])->whereNumber('cafeUser')->middleware('schema:attendance,register')->name('admin.users.destroy');
         Route::patch('/admin/users/{cafeUser}/deactivate', [CafeUserController::class, 'deactivate'])->whereNumber('cafeUser')->name('admin.users.deactivate');
         Route::post('/admin/api/crew', [CafeUserController::class, 'store']);
         Route::put('/admin/api/crew/{id}', [CafeUserController::class, 'update'])->whereNumber('id');
