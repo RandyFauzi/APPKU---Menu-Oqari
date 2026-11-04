@@ -10,7 +10,7 @@
         [x-cloak] { display: none !important; }
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        body { font-family: ui-sans-serif, system-ui, sans-serif; }
+        body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <x-theme-head :shop="$shop ?? null" />

@@ -2441,7 +2441,7 @@ if (res.ok) {
                         "    <title>Print QR - " + table.id + "</title>\n" +
                         "    <style>\n" +
                         "        @page { margin: 0; size: auto; }\n" +
-                        "        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #fff; text-align: center; }\n" +
+                        "        body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #fff; text-align: center; }\n" +
                         "        .card { border: 2px dashed #ccc; padding: 40px; border-radius: 20px; max-width: 300px; margin: 20px auto; }\n" +
                         "        h1 { color: var(--oq-primary); margin-bottom: 10px; font-size: 28px; font-weight: 800; }\n" +
                         "        h2 { color: var(--oq-ink); font-size: 44px; margin: 0 0 20px 0; font-weight: 900; }\n" +

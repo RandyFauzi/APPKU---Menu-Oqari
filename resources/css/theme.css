@@ -34,14 +34,15 @@
         --oq-line: #e5e7eb;
         --oq-ink: #222222;
         --oq-muted: #64748b;
-        --oq-font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
-        --oq-font-heading: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        --oq-font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --oq-font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        --oq-font-heading: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         --color-primary: var(--oq-primary);
         --color-secondary: var(--oq-primary-dark);
     }
-    html { background-color: var(--oq-ivory); accent-color: var(--oq-primary); }
+    html { background-color: var(--oq-ivory); accent-color: var(--oq-primary); font-family: var(--oq-font-body); }
     body { background-color: var(--oq-ivory); color: var(--oq-ink); font-family: var(--oq-font-body); }
-    h1, h2, h3, .font-heading { font-family: var(--oq-font-heading); font-weight: 700; letter-spacing: -.015em; }
+    h1, h2, h3, h4, h5, h6, .font-heading { font-family: var(--oq-font-heading); font-weight: 700; letter-spacing: -.015em; }
     :is(input, select, textarea) { accent-color: var(--oq-primary); }
     :is(input, textarea)::placeholder { color: var(--oq-muted); opacity: .85; }
     :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--oq-gold-ink); outline-offset: 3px; }

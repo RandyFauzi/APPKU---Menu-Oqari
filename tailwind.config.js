@@ -14,8 +14,9 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['var(--oq-font-body)', ...defaultTheme.fontFamily.sans],
-                heading: ['var(--oq-font-heading)', ...defaultTheme.fontFamily.sans],
+                sans: ['var(--oq-font-body)', 'DM Sans', ...defaultTheme.fontFamily.sans],
+                heading: ['var(--oq-font-heading)', 'DM Sans', ...defaultTheme.fontFamily.sans],
+                mono: ['var(--oq-font-mono)', 'Space Mono', ...defaultTheme.fontFamily.mono],
             },
             colors: {
                 brand: Object.fromEntries([50,100,200,300,400,500,600,700,800,900,950].map(shade => [shade, `rgb(var(--oq-blue-${shade}) / <alpha-value>)`])),
