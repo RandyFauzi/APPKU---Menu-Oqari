@@ -3,8 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Services\SchemaCompatibility;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,6 +15,15 @@ use Illuminate\Notifications\Notifiable;
 #[Hidden(['password', 'remember_token', 'permissions', 'account_version'])]
 class User extends Authenticatable
 {
+    public function scopeUnarchived(Builder $query): Builder
+    {
+        if (in_array('archived_at', app(SchemaCompatibility::class)->columns('users'), true)) {
+            $query->whereNull($query->qualifyColumn('archived_at'));
+        }
+
+        return $query;
+    }
+
     protected $fillable = ['name', 'email', 'password', 'shop_id', 'role'];
 
     /** @use HasFactory<UserFactory> */

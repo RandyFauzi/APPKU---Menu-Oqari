@@ -22,7 +22,7 @@ class ManageCafeUser
             Shop::whereKey($actor->shop_id)->lockForUpdate()->firstOrFail();
             $actor = User::where('shop_id', $actor->shop_id)->whereKey($actor->id)->firstOrFail();
             abort_unless($actor->isAccountActive() && $actor->can('manage-users'), 403);
-            $target = $targetId ? User::where('shop_id', $actor->shop_id)->whereNull('archived_at')->where('role', '!=', 'superadmin')->whereKey($targetId)->lockForUpdate()->firstOrFail() : new User(['shop_id' => $actor->shop_id]);
+            $target = $targetId ? User::where('shop_id', $actor->shop_id)->unarchived()->where('role', '!=', 'superadmin')->whereKey($targetId)->lockForUpdate()->firstOrFail() : new User(['shop_id' => $actor->shop_id]);
             if ($targetId) {
                 abort_unless($this->policy->update($actor, $target), 403);
             }

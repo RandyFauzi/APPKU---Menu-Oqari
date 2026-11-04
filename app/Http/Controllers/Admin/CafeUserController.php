@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SaveCafeUserRequest;
 use App\Models\User;
 use App\Policies\CafeUserPolicy;
+use App\Services\SchemaCompatibility;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,17 +16,19 @@ use Illuminate\View\View;
 
 class CafeUserController extends Controller
 {
-    public function index(Request $request, CafeUserPolicy $policy): View
+    public function index(Request $request, CafeUserPolicy $policy, SchemaCompatibility $schema): View
     {
         $this->authorize('manage-users');
         abort_unless($request->user()->shop_id, 403);
         $filters = $request->validate(['q' => ['nullable', 'string', 'max:100'], 'status' => ['nullable', 'in:active,inactive']]);
-        $users = User::where('shop_id', $request->user()->shop_id)->whereNull('archived_at')->where('role', '!=', 'superadmin')
+        $users = User::where('shop_id', $request->user()->shop_id)->unarchived()->where('role', '!=', 'superadmin')
             ->when($filters['q'] ?? null, fn ($query, string $term) => $query->where(fn ($search) => $search->where('name', 'like', '%'.$term.'%')->orWhere('email', 'like', '%'.$term.'%')))
             ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('is_active', $status === 'active'))
             ->orderBy('name')->paginate(20)->withQueryString();
 
-        return view('Admin.Users.index', compact('users', 'filters', 'policy'));
+        $archivingAvailable = in_array('archived_at', $schema->columns('users'), true);
+
+        return view('Admin.Users.index', compact('users', 'filters', 'policy', 'archivingAvailable'));
     }
 
     public function create(Request $request): View
@@ -35,7 +38,7 @@ class CafeUserController extends Controller
 
     public function edit(Request $request, int $cafeUser, CafeUserPolicy $policy): View
     {
-        $target = User::where('shop_id', $request->user()->shop_id)->whereNull('archived_at')->where('role', '!=', 'superadmin')->findOrFail($cafeUser);
+        $target = User::where('shop_id', $request->user()->shop_id)->unarchived()->where('role', '!=', 'superadmin')->findOrFail($cafeUser);
         abort_unless($policy->update($request->user(), $target), 403);
 
         return $this->form($request, $target);

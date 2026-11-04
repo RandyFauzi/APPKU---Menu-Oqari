@@ -18,7 +18,7 @@ class SaveCafeUserRequest extends FormRequest
     {
         $id = $this->route('cafeUser') ?? $this->route('id');
 
-        return $id ? User::where('shop_id', $this->user()->shop_id)->whereNull('archived_at')->where('role', '!=', 'superadmin')->findOrFail($id) : null;
+        return $id ? User::where('shop_id', $this->user()->shop_id)->unarchived()->where('role', '!=', 'superadmin')->findOrFail($id) : null;
     }
 
     protected function prepareForValidation(): void

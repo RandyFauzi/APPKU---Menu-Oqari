@@ -45,7 +45,10 @@ return [
             'product_recipes' => ['batch_amount', 'notes'],
         ],
         'users' => [
-            'users' => ['id', 'shop_id', 'name', 'email', 'password', 'role', 'is_active', 'archived_at', 'permissions', 'account_version', 'remember_token', 'email_verified_at', 'created_at', 'updated_at'],
+            'users' => ['id', 'shop_id', 'name', 'email', 'password', 'role', 'is_active', 'permissions', 'account_version', 'remember_token', 'email_verified_at', 'created_at', 'updated_at'],
+        ],
+        'user_archive' => [
+            'users' => ['archived_at'],
         ],
         'shifts' => [
             'crew_shifts' => ['id', 'shop_id', 'user_id', 'shift_template_id', 'position', 'date', 'start_time', 'end_time', 'notes', 'created_at', 'updated_at'],
@@ -78,7 +81,7 @@ return [
         'pos' => ['catalog', 'orders', 'register'],
         'checkout' => ['catalog', 'orders', 'checkout', 'register', 'inventory', 'receipts'],
         'inventory' => ['inventory', 'audit'], 'hpp' => ['catalog', 'inventory', 'hpp', 'audit'],
-        'users' => ['users', 'audit'], 'shifts' => ['shifts'],
+        'users' => ['users', 'audit'], 'user_archive' => ['users', 'user_archive', 'audit'], 'shifts' => ['shifts'],
         'attendance' => ['attendance', 'shifts', 'audit'], 'register' => ['register', 'audit'],
         'settings' => ['settings', 'orders'], 'reports' => ['reports', 'orders', 'catalog'],
         'analytics' => ['orders', 'catalog'], 'audit' => ['audit'], 'platform' => ['platform'],

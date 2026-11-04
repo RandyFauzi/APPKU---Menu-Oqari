@@ -35,7 +35,7 @@
                             <div class="flex flex-wrap gap-3 items-center">
                                 <a class="inline-flex items-center gap-2 px-3 py-2.5 text-xs font-semibold border border-[#e9ebf0] rounded-lg text-[#53565a] hover:border-orange-300 hover:text-[#ea580c] whitespace-nowrap" href="{{ route('admin.users.edit', $member->id) }}"><i class="fas fa-pen" aria-hidden="true"></i>Edit Staf</a>
                                 @if($member->is_active)<form method="POST" action="{{ route('admin.users.deactivate', $member->id) }}" x-data @submit="if (!confirm('Nonaktifkan akun ini? Riwayat tetap tersimpan dan akses login dihentikan.')) $event.preventDefault()">@csrf @method('PATCH')<button class="text-xs text-red-700 hover:bg-red-50 rounded-lg px-3 py-3" type="submit">Nonaktifkan</button></form>@endif
-                                @if($policy->delete(auth()->user(), $member))
+                                @if($archivingAvailable && $policy->delete(auth()->user(), $member))
                                     <form method="POST" action="{{ route('admin.users.destroy', $member->id) }}" x-data @submit="if (!confirm('Hapus staf ini dari daftar? Akun akan diarsipkan dan tidak bisa login. Riwayat transaksi dan absensi tetap tersimpan.')) $event.preventDefault()">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="text-xs text-red-700 border border-red-200 hover:bg-red-50 rounded-lg px-3 py-3">Hapus Staf</button>
