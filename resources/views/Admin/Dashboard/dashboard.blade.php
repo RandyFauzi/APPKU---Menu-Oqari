@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard - {{ $shop->name ?? config('app.name', 'Oqari') }}</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Favicon -->
@@ -66,7 +65,7 @@
                 <div x-show="currentTab === 'dashboard'">
                     <p class="font-['DM_Sans',sans-serif] font-semibold text-[13px] text-[#111827]">Dashboard</p>
                 </div>
-                <div x-show="currentTab !== 'dashboard' && currentTab !== 'analytics'">
+                <div x-show="currentTab !== 'dashboard'">
                     <p class="font-['DM_Sans',sans-serif] font-semibold text-[13px] text-[#111827]" x-text="tabs.find(t => t.id === currentTab)?.name"></p>
                 </div>
             </div>
@@ -128,7 +127,6 @@
         @include('Admin.Dashboard.tabs.menu')
         
         <!-- VIEW: ANALYTICS (OWNER) -->
-        @include('Admin.Dashboard.tabs.analytics')
         @include('Admin.Dashboard.tabs.report')
         @include('Admin.Dashboard.tabs.inventory')
         @include('Admin.Dashboard.tabs.qr')
@@ -1276,7 +1274,6 @@ handleDraftImageUpload(event, index) {
                     { id: 'qr', ability: 'manage-settings', name: 'Table & QR', icon: 'fas fa-qrcode' },
                     { id: 'crew', ability: 'manage-crew', name: 'Crew Management', icon: 'fas fa-users' },
                     { id: 'shifts', ability: 'manage-crew', name: 'Jadwal Shift', icon: 'fas fa-calendar-alt' },
-                    { id: 'analytics', ability: 'view-reports', name: 'Dashboard Analytics', icon: 'fas fa-chart-pie' },
                     { id: 'report', ability: 'view-reports', name: 'Laporan Keuangan', icon: 'fas fa-book' },
                     { id: 'logs', ability: 'view-reports', name: 'Log Aktivitas', icon: 'fas fa-history' },
                     { id: 'settings', ability: 'manage-settings', name: 'Toko Saya', icon: 'fas fa-store' },
@@ -1328,7 +1325,6 @@ handleDraftImageUpload(event, index) {
                     const url = `${baseUrl}?table=${tableCode}${token ? '&token='+token : ''}`;
                     return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
                 },
-                chartInstance: null,
                 get totalRevenue() {
                     return this.orders.filter(o => (o.status === 'Completed' || o.order_status === 'COMPLETED' || o.status === 'COMPLETED')).reduce((sum, o) => sum + (o.total || 0), 0);
                 },
@@ -1382,43 +1378,6 @@ handleDraftImageUpload(event, index) {
                     return 'Rp ' + num;
                 },
 
-                initChart() {
-                    const ctx = document.getElementById('salesChart');
-                    if (ctx && !this.chartInstance) {
-                        this.chartInstance = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                                datasets: [{
-                                    label: 'Revenue',
-                                    data: [1.2, 1.9, 1.5, 2.1, 1.8, 3.2, 4.25],
-                                    borderColor: '#b6924b',
-                                    backgroundColor: 'rgba(140, 93, 58, 0.1)',
-                                    borderWidth: 3,
-                                    fill: true,
-                                    tension: 0.4,
-                                    pointBackgroundColor: '#ffffff',
-                                    pointBorderColor: '#b6924b',
-                                    pointBorderWidth: 2,
-                                    pointRadius: 4
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: { legend: { display: false } },
-                                scales: { 
-                                    y: { 
-                                        beginAtZero: true, 
-                                        grid: { borderDash: [5, 5] },
-                                        ticks: { callback: function(value) { return value + 'M'; } }
-                                    },
-                                    x: { grid: { display: false } }
-                                }
-                            }
-                        });
-                    }
-                },
                 orders: [],
                 menuItems: [],
                 formatOrderTime(timeStr) {
@@ -1961,8 +1920,6 @@ async initAnalytics() {
         const res = await fetch('/admin/api/dashboard/analytics');
         if (res.ok) {
             this.analytics = await res.json();
-            // trigger chart init if active
-            setTimeout(() => { if (this.currentTab === 'analytics') this.initChart(); }, 100);
         }
     } catch(e) {}
     this.isLoadingAnalytics = false;
@@ -2046,7 +2003,7 @@ if (res.ok) {
                     this.logsError = '';
                     try {
                         const params = new URLSearchParams({ page, search: this.logSearch, date: this.logDate });
-                        const res = await fetch(@json(route('admin.logs.index', [], false)) + '?' + params, { headers: { Accept: 'application/json' } });
+                        const res = await fetch('{{ route('admin.logs.index', [], false) }}' + '?' + params, { headers: { Accept: 'application/json' } });
                         if (!res.ok) throw new Error('logs');
                         const data = await res.json();
                         this.logs = data.data;

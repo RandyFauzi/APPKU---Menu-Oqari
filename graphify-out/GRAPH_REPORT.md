@@ -1,17 +1,17 @@
 # Graph Report - coffee-saas  (2026-11-04)
 
 ## Corpus Check
-- 400 files · ~296,478 words
+- 399 files · ~295,224 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 24 file(s) not represented in the graph (top: (none) 18, .css 3, .example 1)
 
 ## Summary
-- 2107 nodes · 3924 edges · 261 communities (101 shown, 160 thin omitted)
+- 2105 nodes · 3923 edges · 257 communities (98 shown, 159 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 18 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `18b14eb3`
+- Built from commit: `3f1d39db`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -23,24 +23,24 @@
 - Illuminate\Database\Eloquent\Model
 - Illuminate\Database\Schema\Blueprint
 - main.js
-- Illuminate\Validation\ValidationException
+- HppCalculatorController.php
 - TestCase
 - Illuminate\Database\Eloquent\Factories\Factory
 - Controller
 - Illuminate\Http\Request
-- RawMaterial
+- InventoryController.php
 - Product
 - web.php
 - Shop
+- OrderItem
 - Table
-- AuditRegressionTest
 - CashRegisterSession
 - Laravel Boost Guidelines
-- Illuminate\Http\RedirectResponse
-- bootstrap/app.php
+- Illuminate\Http\JsonResponse
+- Illuminate\Support\Facades\Auth
 - 4. Arsitektur Komponen Halaman
-- Illuminate\Support\Facades\DB
-- SchemaCompatibility
+- UpgradeLegacyDatabase.php
+- .log
 - 2026_10_20_021611_extend_hpp_production_settings.php
 - Order
 - Dashboard/dashboard.blade.php
@@ -51,11 +51,11 @@
 - Illuminate\Foundation\Http\FormRequest
 - Category
 - AttendanceTest
-- Illuminate\Support\Facades\Auth
+- Illuminate\Validation\ValidationException
 - CashReconciliation.test.cjs
 - config
 - require-dev
-- NewPasswordController.php
+- Illuminate\View\View
 - 2026_09_03_045028_add_public_token_to_tables.php
 - .scenario
 - Controllers/ShopController.php
@@ -66,14 +66,14 @@
 - Process
 - require
 - 0001_01_01_000000_create_users_table.php
-- SuperAdmin/ShopController.php
+- SuperAdminAuditLog
 - Illuminate\Database\Migrations\Migration
 - Eloquent Best Practices
-- routes/auth.php
+- Illuminate\Http\RedirectResponse
 - OrderCreated
 - psr-4
 - Illuminate\Support\Facades\Hash
-- ShiftController.php
+- AdminDashboardTest
 - 2026_08_30_041719_add_branding_fields_to_shops_table.php
 - SubmitPosOrder.php
 - Illuminate\Support\Facades\Schema
@@ -81,7 +81,7 @@
 - 2026_09_02_041728_upgrade_activity_logs_for_audit_trail.php
 - 2026_09_02_053445_add_category_name_to_products_table.php
 - AppServiceProvider.php
-- StockMutation
+- Illuminate\Database\Eloquent\Relations\BelongsTo
 - Security Best Practices
 - 2026_09_06_062034_add_onboarding_fields_to_shops_table.php
 - HppWizard.test.cjs
@@ -90,7 +90,7 @@
 - DashboardAccess.test.cjs
 - PasswordResetTest.php
 - Advanced Query Best Practices
-- SaveCafeUserRequest
+- UserController.php
 - 2026_08_28_014639_create_tables_table.php
 - 2026_08_28_014640_create_orders_table.php
 - PosCartNotes.test.cjs
@@ -102,7 +102,7 @@
 - 2026_10_20_034632_add_cafe_access_settings_to_users_table.php
 - 2026_09_02_005912_restructure_media_columns.php
 - Caching Best Practices
-- CafeUserManagementTest
+- api.php
 - 2026_09_02_035819_create_cash_register_sessions_table.php
 - 2026_10_20_022907_add_unit_snapshot_to_stock_mutations_table.php
 - ExampleTest
@@ -126,6 +126,7 @@
 - create.blade.php
 - users/edit.blade.php
 - users/index.blade.php
+- ReportController.php
 - Events and Notifications Best Practices
 - Migration Best Practices
 - Queue and Job Best Practices
@@ -156,9 +157,8 @@
 - 2026_10_20_020757_preserve_decimal_amounts_in_cash_register_sessions_table.php
 - ThemeContrast.test.cjs
 - Laravel Application
-- CreateShift.php
+- ReceiptDelivery
 - LoginRequest
-- AttendanceController.php
 - 7_layer_standard.md
 - ReportingService.php
 - CustomerMenu.test.cjs
@@ -168,17 +168,15 @@
 - 2026_09_22_010707_add_receipt_fields_to_shops_table.php
 - 2026_09_02_090000_add_lifecycle_fields_to_shops_table.php
 - 2026_09_03_045523_add_unique_constraint_to_categories_table.php
-- Payment
 - 2026_10_20_073603_reconcile_legacy_order_item_and_shift_columns.php
 - 2026_10_16_012047_create_inventory_and_recipes_tables.php
 - RealtimeBoot.test.cjs
-- Illuminate\View\Component
+- RawMaterial
 - 2026_10_20_012647_add_hpp_settings_to_products_table.php
 - 2026_08_30_084041_create_personal_access_tokens_table.php
 - 2026_08_31_041527_create_shift_templates_table.php
-- ActivityLog
 - 2026_08_30_130702_add_is_banner_active_to_shops_table.php
-- ReceiptController.php
+- .download
 - 2026_08_31_041529_create_activity_logs_table.php
 - 2026_09_03_101206_create_receipt_deliveries_table.php
 - form.blade.php
@@ -216,19 +214,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (261 total, 160 thin omitted)
+## Communities (257 total, 159 thin omitted)
 
 ### Community 2 - "package.json"
 Cohesion: 0.05
 Nodes (33): devDependencies, alpinejs, autoprefixer, concurrently, laravel-echo, laravel-vite-plugin, postcss, pusher-js (+25 more)
 
 ### Community 3 - "SendOrderReceiptEmail.php"
-Cohesion: 0.11
-Nodes (5): SendOrderReceiptEmail, OrderReceiptMail, ReceiptDelivery, ReceiptData, ReceiptService
+Cohesion: 0.12
+Nodes (5): {closure#1}(), {closure#3}(), SendOrderReceiptEmail, OrderReceiptMail, ReceiptData
 
 ### Community 4 - "Illuminate\Database\Eloquent\Model"
-Cohesion: 0.16
-Nodes (7): CashDrawerTransaction, CashRegister, CrewShift, ModifierGroup, PaymentMethod, ShiftTemplate, BelongsToShop
+Cohesion: 0.14
+Nodes (7): CashDrawerTransaction, CashRegister, ModifierGroup, Payment, PaymentMethod, ShiftTemplate, BelongsToShop
 
 ### Community 5 - "Illuminate\Database\Schema\Blueprint"
 Cohesion: 0.05
@@ -238,93 +236,89 @@ Nodes (59): {closure#1}(), {closure#10}(), {closure#11}(), {closure#12}(), {clos
 Cohesion: 0.14
 Nodes (24): closeCustomerInfoModal(), closeItemDetail(), confirmAddToCart(), escapeHtml(), filterCategory(), formatRp(), handleUpdateQty(), initApp() (+16 more)
 
-### Community 7 - "Illuminate\Validation\ValidationException"
-Cohesion: 0.11
-Nodes (7): CalculateHpp, ConvertRecipeQuantity, CreateHppMaterial, {closure#1}(), SaveProductHpp, HppCalculatorController, CalculateHppRequest
+### Community 7 - "HppCalculatorController.php"
+Cohesion: 0.14
+Nodes (4): CreateHppMaterial, HppCalculatorController, CalculateHppRequest, StoreHppMaterialRequest
 
 ### Community 8 - "TestCase"
-Cohesion: 0.09
-Nodes (8): PasswordUpdateTest, RegistrationTest, {closure#1}(), ExampleTest, PaymentProcessingTest, {closure#1}(), SecurityIsolationTest, TestCase
+Cohesion: 0.08
+Nodes (9): AuthenticationTest, EmailVerificationTest, PasswordUpdateTest, RegistrationTest, ExampleTest, PaymentProcessingTest, {closure#1}(), SecurityIsolationTest (+1 more)
 
 ### Community 9 - "Illuminate\Database\Eloquent\Factories\Factory"
-Cohesion: 0.11
+Cohesion: 0.10
 Nodes (8): AttendanceFactory, {closure#1}(), {closure#2}(), CategoryFactory, PaymentMethodFactory, ProductFactory, ShopFactory, UserFactory
 
 ### Community 10 - "Controller"
-Cohesion: 0.12
-Nodes (11): ActivityLogController, ProductApiController, CategoryController, CrewController, LiveOrderController, ModifierController, OrderController, PaymentController (+3 more)
+Cohesion: 0.13
+Nodes (10): ActivityLogController, ProductApiController, CategoryController, CrewController, LiveOrderController, ModifierController, OrderController, PaymentController (+2 more)
 
 ### Community 11 - "Illuminate\Http\Request"
-Cohesion: 0.08
-Nodes (4): DashboardController, GoBizIntegrationController, OnboardingController, UserController
+Cohesion: 0.11
+Nodes (4): DashboardController, GoBizIntegrationController, {closure#1}(), OnboardingController
 
-### Community 12 - "RawMaterial"
-Cohesion: 0.09
-Nodes (10): AdjustStock, {closure#1}(), {closure#1}(), SaveMaterial, {closure#1}(), InventoryController, SaveInventoryMaterialRequest, RawMaterial (+2 more)
+### Community 12 - "InventoryController.php"
+Cohesion: 0.11
+Nodes (6): AdjustStock, SaveMaterial, {closure#1}(), InventoryController, AdjustInventoryStockRequest, InventoryService
 
-### Community 13 - "Product"
-Cohesion: 0.10
-Nodes (4): {closure#1}(), SaveProductAction, Product, OrderCreationTest
+### Community 16 - "OrderItem"
+Cohesion: 0.13
+Nodes (6): {closure#1}(), {closure#1}(), ApplyDiscount, Modifier, OrderItem, ProductVariant
 
-### Community 15 - "Shop"
-Cohesion: 0.07
-Nodes (4): {closure#1}(), {closure#1}(), Shop, AdminDashboardTest
-
-### Community 16 - "Table"
-Cohesion: 0.12
-Nodes (7): {closure#1}(), {closure#1}(), Modifier, OrderItem, ProductVariant, {closure#1}(), Table
+### Community 17 - "Table"
+Cohesion: 0.20
+Nodes (4): {closure#1}(), DashboardApiController, {closure#1}(), Table
 
 ### Community 18 - "CashRegisterSession"
-Cohesion: 0.07
-Nodes (10): CalculateExpectedCash, CloseRegister, {closure#1}(), {closure#1}(), OpenRegister, CashRegisterController, {closure#1}(), CloseRegisterRequest (+2 more)
+Cohesion: 0.05
+Nodes (18): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), ListActivityLogs, {closure#1}(), CalculateExpectedCash (+10 more)
 
 ### Community 19 - "Laravel Boost Guidelines"
 Cohesion: 0.07
 Nodes (28): APIs & Eloquent Resources, Application Structure & Architecture, Artisan, Conventions, Deployment, Do Things the Laravel Way, Documentation Files, Foundational Context (+20 more)
 
-### Community 20 - "Illuminate\Http\RedirectResponse"
+### Community 20 - "Illuminate\Http\JsonResponse"
 Cohesion: 0.13
-Nodes (5): ManageCafeUser, LoginAdminController, CafeUserController, EmailVerificationPromptController, CafeUserPolicy
+Nodes (4): ManageCafeUser, CafeUserController, SaveCafeUserRequest, CafeUserPolicy
 
-### Community 21 - "bootstrap/app.php"
-Cohesion: 0.13
-Nodes (9): CheckRole, EnsureAccountIsActive, EnsureFeatureSchemaIsReady, EnsureShopIsNotSuspended, IsSuperAdmin, {closure#1}(), {closure#2}(), {closure#3}() (+1 more)
+### Community 21 - "Illuminate\Support\Facades\Auth"
+Cohesion: 0.10
+Nodes (10): CheckRole, EnsureAccountIsActive, EnsureFeatureSchemaIsReady, EnsureShopIsNotSuspended, IsSuperAdmin, SchemaCompatibility, {closure#1}(), {closure#2}() (+2 more)
 
 ### Community 22 - "4. Arsitektur Komponen Halaman"
 Cohesion: 0.09
 Nodes (21): 10. Testimoni Pemilik Usaha Nyata, 11. FAQ Accordion Interaktif, 12. Mega Footer, CTA Penutup & Floating WhatsApp, 1. Filosofi & Arah Visual, 1. Top Announcement Bar, 2. Design Tokens & Palet Warna, 2. Sticky Glass Header, 3. Hero Section (+13 more)
 
-### Community 23 - "Illuminate\Support\Facades\DB"
-Cohesion: 0.17
-Nodes (5): {closure#1}(), {closure#1}(), {closure#1}(), SuperAdminController, SuperAdminAuditLog
+### Community 23 - "UpgradeLegacyDatabase.php"
+Cohesion: 0.12
+Nodes (6): CheckDatabaseSchema, CreateSuperAdmin, FixMigrations, {closure#3}(), {closure#4}(), UpgradeLegacyDatabase
 
-### Community 24 - "SchemaCompatibility"
-Cohesion: 0.07
-Nodes (9): CheckDatabaseSchema, FixMigrations, {closure#3}(), {closure#4}(), UpgradeLegacyDatabase, GoBizWebhookController, GoBizService, SchemaCompatibility (+1 more)
+### Community 24 - ".log"
+Cohesion: 0.13
+Nodes (3): GoBizWebhookController, GoBizService, ActivityLogTest
 
 ### Community 25 - "2026_10_20_021611_extend_hpp_production_settings.php"
 Cohesion: 0.22
 Nodes (6): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), {closure#6}()
 
 ### Community 26 - "Order"
-Cohesion: 0.11
-Nodes (5): CancelOrder, OrderApiController, KitchenController, ReceiptController, Order
+Cohesion: 0.08
+Nodes (7): CancelOrder, OrderApiController, KitchenController, ReceiptController, SuperAdminController, Order, ReceiptService
 
 ### Community 27 - "Dashboard/dashboard.blade.php"
-Cohesion: 0.13
-Nodes (14): Admin.Dashboard.tabs.analytics, Admin.Dashboard.tabs.crew, Admin.Dashboard.tabs.hours, Admin.Dashboard.tabs.inventory, Admin.Dashboard.tabs.logs, Admin.Dashboard.tabs.menu, Admin.Dashboard.tabs.orders, Admin.Dashboard.tabs.overview (+6 more)
+Cohesion: 0.14
+Nodes (13): Admin.Dashboard.tabs.crew, Admin.Dashboard.tabs.hours, Admin.Dashboard.tabs.inventory, Admin.Dashboard.tabs.logs, Admin.Dashboard.tabs.menu, Admin.Dashboard.tabs.orders, Admin.Dashboard.tabs.overview, Admin.Dashboard.tabs.profile (+5 more)
 
 ### Community 28 - "Detection Checklist"
 Cohesion: 0.17
 Nodes (11): A. Validation & HTTP input, B. Controllers & routing, C. Authorization, D. Eloquent & models, Detection Checklist, E. Architecture & organization, F. Frontend & views, G. Database & migrations (+3 more)
 
 ### Community 29 - "OrderFactory"
-Cohesion: 0.12
-Nodes (4): OrderFactory, LegacyUpgradeTest, ReportingCompatibilityTest, ThemeRenderingTest
+Cohesion: 0.08
+Nodes (5): OrderFactory, DatabaseCompatibilityTest, LegacyUpgradeTest, ReportingCompatibilityTest, ThemeRenderingTest
 
 ### Community 30 - "User"
 Cohesion: 0.09
-Nodes (5): User, AuthenticationTest, EmailVerificationTest, PasswordConfirmationTest, ProfileTest
+Nodes (4): User, AuditRegressionTest, PasswordConfirmationTest, ProfileTest
 
 ### Community 31 - "Architecture Best Practices"
 Cohesion: 0.18
@@ -332,15 +326,19 @@ Nodes (11): Architecture Best Practices, Depend on Contracts at Boundaries, Extr
 
 ### Community 32 - "Illuminate\Foundation\Http\FormRequest"
 Cohesion: 0.08
-Nodes (5): AdjustInventoryStockRequest, AttendanceReportRequest, RecordAttendanceRequest, RegisterHistoryRequest, StoreHppMaterialRequest
+Nodes (5): AttendanceReportRequest, CloseRegisterRequest, RecordAttendanceRequest, RegisterHistoryRequest, SaveInventoryMaterialRequest
 
 ### Community 33 - "Category"
-Cohesion: 0.22
-Nodes (4): {closure#1}(), DashboardApiController, Category, CategorySeeder
+Cohesion: 0.21
+Nodes (4): {closure#1}(), SaveProductAction, Category, CategorySeeder
 
-### Community 35 - "Illuminate\Support\Facades\Auth"
-Cohesion: 0.14
-Nodes (3): RegisterAdminController, ConfirmablePasswordController, {closure#1}()
+### Community 34 - "AttendanceTest"
+Cohesion: 0.08
+Nodes (9): {closure#1}(), CreateShift, {closure#1}(), {closure#2}(), RecordAttendance, ShiftController, Attendance, CrewShift (+1 more)
+
+### Community 35 - "Illuminate\Validation\ValidationException"
+Cohesion: 0.18
+Nodes (4): CalculateHpp, ConvertRecipeQuantity, {closure#1}(), SaveProductHpp
 
 ### Community 36 - "CashReconciliation.test.cjs"
 Cohesion: 0.20
@@ -354,9 +352,9 @@ Nodes (10): pestphp/pest-plugin, php-http/discovery, config, allow-plugins, opti
 Cohesion: 0.20
 Nodes (10): require-dev, fakerphp/faker, laravel/boost, laravel/breeze, laravel/pail, laravel/pao, laravel/pint, mockery/mockery (+2 more)
 
-### Community 39 - "NewPasswordController.php"
-Cohesion: 0.18
-Nodes (3): {closure#1}(), NewPasswordController, PasswordResetLinkController
+### Community 39 - "Illuminate\View\View"
+Cohesion: 0.09
+Nodes (7): AttendanceController, RegisterAdminController, {closure#1}(), NewPasswordController, PasswordResetLinkController, AppLayout, GuestLayout
 
 ### Community 40 - "2026_09_03_045028_add_public_token_to_tables.php"
 Cohesion: 0.29
@@ -386,9 +384,9 @@ Nodes (8): require, barryvdh/laravel-dompdf, intervention/image, laravel/framewo
 Cohesion: 0.33
 Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 
-### Community 50 - "SuperAdmin/ShopController.php"
-Cohesion: 0.15
-Nodes (4): ActivateShopAction, DeleteShopAction, SuspendShopAction, ShopController
+### Community 50 - "SuperAdminAuditLog"
+Cohesion: 0.09
+Nodes (8): ActivateShopAction, {closure#1}(), {closure#1}(), DeleteShopAction, {closure#1}(), SuspendShopAction, ShopController, SuperAdminAuditLog
 
 ### Community 51 - "Illuminate\Database\Migrations\Migration"
 Cohesion: 0.07
@@ -398,20 +396,20 @@ Nodes (7): {closure#1}(), {closure#1}(), {closure#2}(), {closure#1}(), {closure#
 Cohesion: 0.22
 Nodes (8): Apply Global Scopes Sparingly, Cast Date and Time Attributes, Define Attribute Casts, Define Precise Relationship Types, Eloquent Best Practices, Keep Application Queries Model-Aware, Use Local Scopes for Reusable Queries, Use `whereBelongsTo()` for Relationship Queries
 
-### Community 53 - "routes/auth.php"
-Cohesion: 0.12
-Nodes (3): PasswordController, VerifyEmailController, GET /user()
+### Community 53 - "Illuminate\Http\RedirectResponse"
+Cohesion: 0.10
+Nodes (6): LoginAdminController, ConfirmablePasswordController, EmailVerificationNotificationController, EmailVerificationPromptController, PasswordController, VerifyEmailController
 
 ### Community 55 - "psr-4"
 Cohesion: 0.40
 Nodes (5): autoload, psr-4, App\\, Database\\Factories\\, Database\\Seeders\\
 
 ### Community 58 - "Illuminate\Support\Facades\Hash"
-Cohesion: 0.17
-Nodes (4): CreateSuperAdmin, AttendanceSeeder, DatabaseSeeder, SuperAdminSeeder
+Cohesion: 0.18
+Nodes (4): AttendanceSeeder, DatabaseSeeder, SuperAdminSeeder, {closure#1}()
 
 ### Community 61 - "SubmitPosOrder.php"
-Cohesion: 0.33
+Cohesion: 0.39
 Nodes (5): CreateOrder, ProcessPayment, CalculateCart, {closure#1}(), SubmitPosOrder
 
 ### Community 62 - "Illuminate\Support\Facades\Schema"
@@ -426,12 +424,8 @@ Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 Cohesion: 0.22
 Nodes (4): AppServiceProvider, {closure#1}(), {closure#2}(), {closure#3}()
 
-### Community 67 - "StockMutation"
-Cohesion: 0.11
-Nodes (3): {closure#4}(), ProductRecipe, StockMutation
-
 ### Community 68 - "Security Best Practices"
-Cohesion: 0.18
+Cohesion: 0.17
 Nodes (11): Apply Cross-Site Request Forgery Protection, Audit Dependencies, Authorize Protected Actions, Bind Query Parameters, Control Mass Assignment, Encrypt Sensitive Attributes When Appropriate, Escape Output in Its Context, Keep Secrets Out of Application Code (+3 more)
 
 ### Community 70 - "HppWizard.test.cjs"
@@ -503,15 +497,15 @@ Cohesion: 0.25
 Nodes (7): Blade and View Best Practices, Prefer Components for Explicit Interfaces, Return Blade Fragments for Partial Rendering, Share Compatible View Data with a View Composer, Share Parent Component Props with `@aware`, Use `$attributes->merge()` in Component Templates, Use `@pushOnce` for Per-Component Scripts
 
 ### Community 190 - "Error Handling Best Practices"
-Cohesion: 0.20
-Nodes (8): Add Context to Exception Classes, Choose Where to Report and Render Exceptions, Define JSON Rendering for API Routes, Error Handling Best Practices, Mark Exceptions the Handler Should Not Report, Prevent Duplicate Reports of One Exception Instance, Throttle High-Volume Exception Reports, AttendanceController
+Cohesion: 0.25
+Nodes (7): Add Context to Exception Classes, Choose Where to Report and Render Exceptions, Define JSON Rendering for API Routes, Error Handling Best Practices, Mark Exceptions the Handler Should Not Report, Prevent Duplicate Reports of One Exception Instance, Throttle High-Volume Exception Reports
 
 ### Community 191 - "Task Scheduling Best Practices"
 Cohesion: 0.25
 Nodes (7): Bound Work Inside the Task, Group Shared Configuration, Prevent Unwanted Overlap, Restrict Tasks by Environment, Run a Task on One Server, Run Eligible Commands in the Background, Task Scheduling Best Practices
 
 ### Community 192 - "Fakes, Mocks, and Determinism"
-Cohesion: 0.25
+Cohesion: 0.22
 Nodes (7): Database, Fakes, Mocks, and Determinism, Framework Fakes, How to Isolate a Dependency, Mocking, Outbound HTTP Testing, Time and Randomness
 
 ### Community 193 - "README.md"
@@ -535,7 +529,7 @@ Cohesion: 0.29
 Nodes (6): Keep Controllers Focused on HTTP Concerns, Organize Controllers Around Resources, Routing and Controller Best Practices, Scope Nested Bindings, Use Implicit Route Model Binding, Use Resource Routes for Resourceful Actions
 
 ### Community 198 - "laravel-best-practices/SKILL.md"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (5): Consistency First, Decision Rules, How to Apply, Laravel Best Practices, Rule Index
 
 ### Community 199 - "Convention and Style Best Practices"
@@ -555,7 +549,7 @@ Cohesion: 0.29
 Nodes (3): Built-in Laravel Assertion Methods, How to Find Test Framework Features, Security Tests
 
 ### Community 203 - "Endpoint Tests"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (7): Endpoint Coverage, Endpoint Tests, How to Write the Test, Tenant Isolation, Test Authorization at the Policy Level, Testing Validation, Which Layer Owns Which Case
 
 ### Community 204 - "Konteks Project: OQARI SaaS (Multi-Tenant Coffee Shop POS & Smart QR Menu)"
@@ -590,21 +584,13 @@ Nodes (9): assert, color(), contrast(), css, { join }, luminance(), { readFileSy
 Cohesion: 0.50
 Nodes (3): Agent Setup, Laravel Application, Prerequisites
 
-### Community 216 - "AttendanceController.php"
-Cohesion: 0.36
-Nodes (3): {closure#1}(), {closure#2}(), RecordAttendance
-
 ### Community 219 - "CustomerMenu.test.cjs"
 Cohesion: 0.20
 Nodes (6): assert, { join }, { readFileSync }, source, { test }, vm
 
 ### Community 221 - "PosController.php"
-Cohesion: 0.10
+Cohesion: 0.09
 Nodes (5): {closure#2}(), {closure#5}(), PosController, HoldPosOrderRequest, SubmitPosOrderRequest
-
-### Community 228 - "Payment"
-Cohesion: 0.12
-Nodes (4): {closure#1}(), {closure#3}(), Payment, DatabaseCompatibilityTest
 
 ### Community 229 - "2026_10_20_073603_reconcile_legacy_order_item_and_shift_columns.php"
 Cohesion: 0.25
@@ -618,29 +604,29 @@ Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 Cohesion: 0.22
 Nodes (6): assert, { join }, { readFileSync }, source, { test }, vm
 
-### Community 241 - "ActivityLog"
-Cohesion: 0.15
-Nodes (8): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure#5}(), ListActivityLogs, {closure#1}(), ActivityLog
+### Community 233 - "RawMaterial"
+Cohesion: 0.10
+Nodes (6): {closure#1}(), {closure#1}(), {closure#1}(), RawMaterial, StockMutation, {closure#1}()
 
 ## Knowledge Gaps
-- **399 isolated node(s):** `$schema`, `name`, `type`, `description`, `keywords` (+394 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 889 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **160 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **398 isolated node(s):** `$schema`, `name`, `type`, `description`, `keywords` (+393 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 887 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **159 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `User` connect `User` to `DashboardController.php`, `InventoryUnitsTest`, `Illuminate\Database\Eloquent\Model`, `Illuminate\Database\Schema\Blueprint`, `Illuminate\Validation\ValidationException`, `TestCase`, `Illuminate\Database\Eloquent\Factories\Factory`, `Illuminate\Http\Request`, `RawMaterial`, `Shop`, `AuditRegressionTest`, `CashRegisterSession`, `Illuminate\Http\RedirectResponse`, `Illuminate\Support\Facades\DB`, `SchemaCompatibility`, `Order`, `OrderFactory`, `Illuminate\Foundation\Http\FormRequest`, `Category`, `AttendanceTest`, `Illuminate\Support\Facades\Auth`, `NewPasswordController.php`, `.scenario`, `PosItemNotesTest`, `Illuminate\Support\Facades\Hash`, `SubmitPosOrder.php`, `Error Handling Best Practices`, `AppServiceProvider.php`, `Convention and Style Best Practices`, `PasswordResetTest.php`, `SaveCafeUserRequest`, `CreateShift.php`, `AttendanceController.php`, `CafeUserManagementTest`, `Payment`, `Illuminate\Database\Eloquent\Relations\HasMany`, `ActivityLog`?**
-  _High betweenness centrality (0.265) - this node is a cross-community bridge._
+- **Why does `User` connect `User` to `DashboardController.php`, `InventoryUnitsTest`, `Illuminate\Database\Eloquent\Model`, `Illuminate\Database\Schema\Blueprint`, `HppCalculatorController.php`, `TestCase`, `Illuminate\Database\Eloquent\Factories\Factory`, `InventoryController.php`, `Product`, `Shop`, `Table`, `CashRegisterSession`, `Illuminate\Http\JsonResponse`, `Illuminate\Support\Facades\Auth`, `UpgradeLegacyDatabase.php`, `.log`, `Order`, `OrderFactory`, `Illuminate\Foundation\Http\FormRequest`, `AttendanceTest`, `Illuminate\Validation\ValidationException`, `Illuminate\View\View`, `.scenario`, `PosItemNotesTest`, `SuperAdminAuditLog`, `Illuminate\Http\RedirectResponse`, `Illuminate\Support\Facades\Hash`, `AdminDashboardTest`, `SubmitPosOrder.php`, `AppServiceProvider.php`, `Convention and Style Best Practices`, `PasswordResetTest.php`, `UserController.php`, `RawMaterial`?**
+  _High betweenness centrality (0.267) - this node is a cross-community bridge._
 - **What connects `$schema`, `name`, `type` to the rest of the system?**
-  _399 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _398 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `DashboardController.php` be split into smaller, more focused modules?**
-  _Cohesion score 0.0960591133004926 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1225296442687747 - nodes in this community are weakly interconnected._
 - **Why does `Follow Project Naming Conventions` connect `Convention and Style Best Practices` to `User`?**
-  _High betweenness centrality (0.139) - this node is a cross-community bridge._
+  _High betweenness centrality (0.140) - this node is a cross-community bridge._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.05365853658536585 - nodes in this community are weakly interconnected._
 - **Should `SendOrderReceiptEmail.php` be split into smaller, more focused modules?**
-  _Cohesion score 0.11330049261083744 - nodes in this community are weakly interconnected._
-- **Should `Illuminate\Database\Schema\Blueprint` be split into smaller, more focused modules?**
-  _Cohesion score 0.051251956181533644 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.12307692307692308 - nodes in this community are weakly interconnected._
+- **Should `Illuminate\Database\Eloquent\Model` be split into smaller, more focused modules?**
+  _Cohesion score 0.13793103448275862 - nodes in this community are weakly interconnected._

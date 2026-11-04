@@ -24,7 +24,6 @@ $groups = [
     'Laporan' => [
         ['view-reports', 'Laporan Keuangan', 'fa-book', 'admin.dashboard', 'report', 'images/sparta/nav-laporan.svg'],
         ['view-reports', 'Log Aktivitas', 'fa-clock-rotate-left', 'admin.dashboard', 'logs', 'images/sparta/nav-log.svg'],
-        ['view-reports', 'Analytics Detail', 'fa-chart-pie', 'admin.dashboard', 'analytics', null],
     ],
     'Pengaturan' => [
         ['manage-settings', 'Meja & QR', 'fa-qrcode', 'admin.dashboard', 'qr', 'images/sparta/nav-meja-qr.svg'],
