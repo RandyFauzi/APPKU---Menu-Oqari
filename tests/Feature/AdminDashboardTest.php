@@ -141,4 +141,50 @@ class AdminDashboardTest extends TestCase
         $shop->operating_hours = array_merge($shop->operating_hours, ['auto_close' => false]);
         $this->assertTrue($shop->isOpenNow());
     }
+
+    public function test_admin_can_save_menu_bulk_with_transactional_integrity(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+
+        $response = $this->actingAs($user)->postJson('/admin/api/menu/bulk', [
+            'items' => [
+                [
+                    'name' => 'Caramel Latte',
+                    'price' => 32000,
+                    'category_name' => 'Signature Coffee',
+                    'description' => 'Espresso with caramel and fresh milk',
+                ],
+                [
+                    'name' => 'Butter Croissant',
+                    'price' => 24000,
+                    'category_name' => 'Pastry',
+                    'description' => 'Crispy French pastry',
+                ],
+            ],
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonCount(2, 'menus');
+
+        $this->assertDatabaseHas('products', [
+            'shop_id' => $shop->id,
+            'name' => 'Caramel Latte',
+            'price' => 32000,
+            'category_name' => 'Signature Coffee',
+        ]);
+
+        $this->assertDatabaseHas('products', [
+            'shop_id' => $shop->id,
+            'name' => 'Butter Croissant',
+            'price' => 24000,
+            'category_name' => 'Pastry',
+        ]);
+
+        $this->assertDatabaseHas('categories', [
+            'shop_id' => $shop->id,
+            'name' => 'Signature Coffee',
+        ]);
+    }
 }

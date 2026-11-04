@@ -19,6 +19,7 @@ use App\Services\Receipt\ReceiptService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -356,88 +357,100 @@ class DashboardController extends Controller
         }
 
         $items = $request->input('items', []);
-        $savedMenus = [];
+        if (empty($items)) {
+            return response()->json(['success' => false, 'message' => 'Tidak ada item menu yang dikirim.'], 422);
+        }
 
-        foreach ($items as $index => $itemData) {
-            if (empty($itemData['name']) || ! isset($itemData['price'])) {
-                continue; // Lewati item yang kosong
-            }
+        $savedMenus = DB::transaction(function () use ($items, $shopId, $request) {
+            $saved = [];
 
-            $catId = null;
-            $catName = null;
-            $rawCat = $itemData['category_id'] ?? $itemData['category_name'] ?? null;
-            if ($rawCat) {
-                if (is_numeric($rawCat)) {
-                    $cat = Category::where('shop_id', $shopId)->find((int) $rawCat);
-                    if ($cat) {
-                        $catId = $cat->id;
-                        $catName = $cat->name;
+            foreach ($items as $index => $itemData) {
+                if (empty($itemData['name']) || ! isset($itemData['price'])) {
+                    continue; // Lewati item yang kosong
+                }
+
+                $catId = null;
+                $catName = null;
+                $rawCat = $itemData['category_id'] ?? $itemData['category_name'] ?? null;
+                if ($rawCat) {
+                    if (is_numeric($rawCat)) {
+                        $cat = Category::where('shop_id', $shopId)->find((int) $rawCat);
+                        if ($cat) {
+                            $catId = $cat->id;
+                            $catName = $cat->name;
+                        }
+                    } else {
+                        $trimmed = trim($rawCat);
+                        if ($trimmed !== '') {
+                            $cat = Category::firstOrCreate(
+                                ['shop_id' => $shopId, 'name' => $trimmed],
+                                ['shop_id' => $shopId, 'name' => $trimmed]
+                            );
+                            $catId = $cat->id;
+                            $catName = $cat->name;
+                        }
                     }
-                } else {
-                    $trimmed = trim($rawCat);
-                    if ($trimmed !== '') {
+                }
+
+                if (! $catName) {
+                    $defaultCat = Category::where('shop_id', $shopId)->first();
+                    if ($defaultCat) {
+                        $catId = $defaultCat->id;
+                        $catName = $defaultCat->name;
+                    } else {
                         $cat = Category::firstOrCreate(
-                            ['shop_id' => $shopId, 'name' => $trimmed],
-                            ['shop_id' => $shopId, 'name' => $trimmed]
+                            ['shop_id' => $shopId, 'name' => 'Coffee'],
+                            ['shop_id' => $shopId, 'name' => 'Coffee']
                         );
                         $catId = $cat->id;
                         $catName = $cat->name;
                     }
                 }
-            }
 
-            if (! $catName) {
-                $defaultCat = Category::where('shop_id', $shopId)->first();
-                if ($defaultCat) {
-                    $catId = $defaultCat->id;
-                    $catName = $defaultCat->name;
+                $productData = [
+                    'name' => $itemData['name'],
+                    'price' => (int) $itemData['price'],
+                    'category_id' => $catId,
+                    'category_name' => $catName,
+                    'description' => $itemData['description'] ?? ($itemData['desc'] ?? null),
+                ];
+
+                $menu = null;
+                if (! empty($itemData['id'])) {
+                    $menu = Product::where('id', $itemData['id'])->where('shop_id', $shopId)->first();
+                }
+
+                if ($request->hasFile("images.{$index}")) {
+                    $file = $request->file("images.{$index}");
+
+                    // If update, clean up old file
+                    if ($menu && $menu->image_path) {
+                        Storage::disk('public')->delete($menu->image_path);
+                    }
+
+                    $productIdDir = $menu ? $menu->id : Str::uuid()->toString();
+
+                    $path = app(MediaService::class)
+                        ->storeProductImage($file, $shopId, $productIdDir);
+
+                    $productData['image_path'] = $path;
+                }
+
+                if ($menu) {
+                    $menu->update($productData);
+                    $saved[] = $menu;
                 } else {
-                    $cat = Category::firstOrCreate(
-                        ['shop_id' => $shopId, 'name' => 'Coffee'],
-                        ['shop_id' => $shopId, 'name' => 'Coffee']
-                    );
-                    $catId = $cat->id;
-                    $catName = $cat->name;
+                    $productData['shop_id'] = $shopId;
+                    $menu = Product::create($productData);
+                    $saved[] = $menu;
                 }
             }
 
-            $productData = [
-                'name' => $itemData['name'],
-                'price' => (int) $itemData['price'],
-                'category_id' => $catId,
-                'category_name' => $catName,
-                'description' => $itemData['description'] ?? ($itemData['desc'] ?? null),
-            ];
+            return $saved;
+        });
 
-            $menu = null;
-            if (! empty($itemData['id'])) {
-                $menu = Product::where('id', $itemData['id'])->where('shop_id', $shopId)->first();
-            }
-
-            if ($request->hasFile("images.{$index}")) {
-                $file = $request->file("images.{$index}");
-
-                // If update, clean up old file
-                if ($menu && $menu->image_path) {
-                    Storage::disk('public')->delete($menu->image_path);
-                }
-
-                $productIdDir = $menu ? $menu->id : Str::uuid()->toString();
-
-                $path = app(MediaService::class)
-                    ->storeProductImage($file, $shopId, $productIdDir);
-
-                $productData['image_path'] = $path;
-            }
-
-            if ($menu) {
-                $menu->update($productData);
-                $savedMenus[] = $menu;
-            } else {
-                $productData['shop_id'] = $shopId;
-                $menu = Product::create($productData);
-                $savedMenus[] = $menu;
-            }
+        if (count($savedMenus) > 0) {
+            $this->logActivity('menu_bulk_saved', 'Menyimpan '.count($savedMenus).' item menu.');
         }
 
         $savedIds = collect($savedMenus)->pluck('id');
