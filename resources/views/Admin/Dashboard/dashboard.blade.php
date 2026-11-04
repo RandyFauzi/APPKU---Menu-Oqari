@@ -83,8 +83,6 @@
                 <!-- Topbar Datetime (Standardized Sparta Component) -->
                 <x-topbar-datetime />
 
-                </div>
-
                 <!-- Bell Notifications -->
                 <div class="relative cursor-pointer p-1.5 text-gray-500 hover:text-primary transition-colors" @click="navigateToPage('orders')" title="Pesanan Masuk">
                     <i class="fas fa-bell text-base md:text-lg"></i>
