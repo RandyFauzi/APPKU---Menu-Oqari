@@ -174,7 +174,7 @@ Route::middleware(['auth'])->group(function () {
     // Reporting & Analytics
     Route::middleware(['can:view-reports', 'schema:reports'])->group(function () {
         Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
-        Route::get('/admin/api/logs', [DashboardController::class, 'getLogs'])->middleware('schema:audit');
+        Route::get('/admin/api/logs', [DashboardController::class, 'getLogs'])->middleware('schema:audit')->name('admin.logs.index');
     });
 
     // Profile (all authenticated users)

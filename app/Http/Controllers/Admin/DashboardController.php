@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\ActivityLogs\ListActivityLogs;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\CashRegisterSession;
@@ -17,6 +18,7 @@ use App\Services\InventoryService;
 use App\Services\MediaService;
 use App\Services\Receipt\ReceiptService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -620,26 +622,15 @@ class DashboardController extends Controller
         return response()->json(['success' => false, 'message' => 'Table not found'], 404);
     }
 
-    public function getLogs()
+    public function getLogs(Request $request, ListActivityLogs $listLogs): JsonResponse
     {
-        $user = Auth::user();
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:150'],
+            'date' => ['nullable', 'date_format:Y-m-d'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+        ]);
 
-        $logs = ActivityLog::with('user')
-            ->where('shop_id', $user->shop_id)
-            ->orderBy('created_at', 'desc')
-            ->limit(50)
-            ->get()
-            ->map(function ($log) {
-                return [
-                    'id' => $log->id,
-                    'user' => $log->user ? $log->user->name : 'Sistem',
-                    'action' => $log->action,
-                    'description' => $log->description,
-                    'time' => $log->created_at->format('d M Y H:i:s'),
-                ];
-            });
-
-        return response()->json($logs);
+        return response()->json($listLogs->execute($request->user(), $filters));
     }
 
     public function getShifts()

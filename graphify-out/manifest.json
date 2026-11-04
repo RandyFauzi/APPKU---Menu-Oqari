@@ -162,9 +162,9 @@
     "semantic_hash": "2f3a26c9d7d3571350aee2b768761b8a"
   },
   "app/Http/Controllers/Admin/DashboardController.php": {
-    "mtime": 1793687095.0346103,
-    "seen": 1793687776.2851005,
-    "ast_hash": "8279eb987ea6e2e46210adfd9226b2d9",
+    "mtime": 1793756399.5785637,
+    "seen": 1793756439.5031173,
+    "ast_hash": "e3dec7b5a22c627b8fb4e40180d7cb85",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/GoBizIntegrationController.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793687472.876556,
-    "seen": 1793687776.2855008,
-    "ast_hash": "ce202eac5953569c3fc5e9693a690fce",
+    "mtime": 1793756352.0150285,
+    "seen": 1793756439.5035193,
+    "ast_hash": "a7355cb9eb0255010e1415b1b0ec22a3",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/analytics.blade.php": {
@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/logs.blade.php": {
-    "mtime": 1792466407.584177,
-    "seen": 1792466592.0831323,
-    "ast_hash": "1aa4a9d20f55470345a9b43308951cbc",
+    "mtime": 1793756351.6507435,
+    "seen": 1793756439.503529,
+    "ast_hash": "5fd98e3dbb02bca55b601d910ab64f4e",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/menu.blade.php": {
@@ -1572,9 +1572,9 @@
     "semantic_hash": "3c6ce2e6d16444282b24a9aa63885563"
   },
   "routes/web.php": {
-    "mtime": 1793687105.4173105,
-    "seen": 1793687776.2856727,
-    "ast_hash": "baaef2f25d91dd01f7f5958d75fafa33",
+    "mtime": 1793756298.881183,
+    "seen": 1793756439.5036957,
+    "ast_hash": "a07677721a0c806f86f915e96b893b51",
     "semantic_hash": ""
   },
   "tailwind.config.js": {
@@ -2775,6 +2775,18 @@
     "mtime": 1793687315.7962925,
     "seen": 1793687776.2855065,
     "ast_hash": "3f4f4a1af8afb0f79a71e2a1fda9ad4f",
+    "semantic_hash": ""
+  },
+  "app/Actions/ActivityLogs/ListActivityLogs.php": {
+    "mtime": 1793756298.8781967,
+    "seen": 1793756439.5030196,
+    "ast_hash": "2ddb07a1c68fde0a60fd4cbbf38aed3a",
+    "semantic_hash": ""
+  },
+  "tests/Feature/ActivityLogTest.php": {
+    "mtime": 1793756417.2347617,
+    "seen": 1793756439.5037,
+    "ast_hash": "09ec843f9c2b5a7334a0102e5d5c7f2a",
     "semantic_hash": ""
   }
 }

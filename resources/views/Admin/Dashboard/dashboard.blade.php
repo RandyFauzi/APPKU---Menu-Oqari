@@ -1587,6 +1587,7 @@ handleDraftImageUpload(event, index) {
                     };
                     document.addEventListener('click', unlockAudio);
                     this.$watch('currentTab', (val) => {
+                        if (val === 'logs') this.fetchLogs(1);
                         localStorage.setItem('activeDashboardTab', val);
                         const url = new URL(window.location);
                         url.searchParams.set('tab', val);
@@ -1594,6 +1595,7 @@ handleDraftImageUpload(event, index) {
                     });
                     
                     if (!this.tabs.some(tab => tab.id === this.currentTab)) this.currentTab = this.tabs[0]?.id || 'profile';
+                    if (this.currentTab === 'logs') this.fetchLogs(1);
                     this.initSummary();
                     this.initAnalytics();
                     this.loadMenu();
@@ -2022,6 +2024,13 @@ if (res.ok) {
                 },
                 shifts: [],
                 logs: [],
+                logsLoading: false,
+                logsError: '',
+                logSearch: '',
+                logDate: '',
+                logPage: 1,
+                logLastPage: 1,
+                logTotal: 0,
                 showAddShiftModal: false,
                 newShift: { id: null, user_id: '', date: '', start_time: '', end_time: '', notes: '' },
                 async fetchShifts() {
@@ -2031,12 +2040,24 @@ if (res.ok) {
                         if (res.ok) this.shifts = await res.json();
                     } catch (e) {}
                 },
-                async fetchLogs() {
-                    if (!this.can('view-reports')) return;
+                async fetchLogs(page = 1) {
+                    if (!this.can('view-reports') || this.logsLoading) return;
+                    this.logsLoading = true;
+                    this.logsError = '';
                     try {
-                        let res = await fetch('/admin/api/logs');
-                        if (res.ok) this.logs = await res.json();
-                    } catch (e) {}
+                        const params = new URLSearchParams({ page, search: this.logSearch, date: this.logDate });
+                        const res = await fetch(@json(route('admin.logs.index', [], false)) + '?' + params, { headers: { Accept: 'application/json' } });
+                        if (!res.ok) throw new Error('logs');
+                        const data = await res.json();
+                        this.logs = data.data;
+                        this.logPage = data.current_page;
+                        this.logLastPage = data.last_page;
+                        this.logTotal = data.total;
+                    } catch (e) {
+                        this.logsError = 'Riwayat aktivitas gagal dimuat. Silakan coba lagi.';
+                    } finally {
+                        this.logsLoading = false;
+                    }
                 },
                 async saveShift() {
                     this.isSaving = true;
