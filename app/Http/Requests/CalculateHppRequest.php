@@ -24,7 +24,7 @@ class CalculateHppRequest extends FormRequest
             'recipes.*.unit' => ['nullable', 'string', 'max:30'],
             'recipes.*.notes' => ['nullable', 'string', 'max:500'],
             'production_quantity' => ['sometimes', 'numeric', 'decimal:0,2', 'min:0.01', 'max:999999'],
-            'production_unit' => ['sometimes', 'in:porsi,pcs,gram,kg,ml,liter,botol,pack,dus'],
+            'production_unit' => ['sometimes', 'in:porsi,pcs,cup,gram,kg,ml,liter,botol,pack,dus,shot,slice'],
             'labor_cost' => ['sometimes', 'numeric', 'decimal:0,2', 'min:0', 'max:99999999.99'],
             'overhead_mode' => ['sometimes', 'in:fixed,percentage'],
             'overhead_percent' => ['sometimes', 'numeric', 'decimal:0,2', 'min:0', 'max:100'],

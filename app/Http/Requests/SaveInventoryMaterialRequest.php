@@ -27,7 +27,20 @@ class SaveInventoryMaterialRequest extends FormRequest
         if (is_string($this->input('unit'))) {
             $unit = trim($this->input('unit'));
             $canonical = strtolower($unit);
-            $this->merge(['unit' => array_key_exists($canonical, config('inventory.units')) ? $canonical : $unit]);
+            $configUnits = config('inventory.units');
+
+            if (array_key_exists($canonical, $configUnits)) {
+                $this->merge(['unit' => $canonical]);
+            } else {
+                $resolved = $unit;
+                foreach ($configUnits as $key => $label) {
+                    if (strtolower($label) === $canonical || str_starts_with($canonical, strtolower($key).' ')) {
+                        $resolved = $key;
+                        break;
+                    }
+                }
+                $this->merge(['unit' => $resolved]);
+            }
         }
     }
 

@@ -14,8 +14,9 @@ class InventoryUnitsTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[TestWith(['Pcs', 'pcs'])]
-    #[TestWith(['Dus', 'dus'])]
+    #[TestWith(['PCS (Pieces / Buah)', 'pcs'])]
+    #[TestWith(['DUS (Karton / Box)', 'dus'])]
+    #[TestWith(['CUP (Gelas / Cangkir)', 'cup'])]
     #[TestWith(['Botol', 'botol'])]
     #[TestWith(['Pack', 'pack'])]
     public function test_units_are_canonical_and_visible_on_remaining_stock_and_history(string $label, string $unit): void
@@ -124,6 +125,56 @@ class InventoryUnitsTest extends TestCase
         $user = $this->owner();
         $material = RawMaterial::create(['shop_id' => $user->shop_id, 'name' => 'Old stock', 'unit' => 'Pcs', 'current_stock' => 5]);
         $this->actingAs($user)->postJson('/admin/api/inventory/material', ['id' => $material->id] + $this->materialData('pcs'))->assertOk()->assertJsonPath('material.unit', 'pcs')->assertJsonPath('material.current_stock', '5.000000');
+    }
+
+    public function test_can_create_and_manage_materials_with_pcs_dus_cup(): void
+    {
+        $user = $this->owner();
+
+        // 1. Cup
+        $cupRes = $this->actingAs($user)->postJson('/admin/api/inventory/material', [
+            'name' => 'Paper Cup 12oz',
+            'unit' => 'cup',
+            'current_stock' => 500,
+            'minimum_stock' => 50,
+            'cost_per_unit' => 650,
+        ])->assertOk()->assertJsonPath('material.unit', 'cup')->assertJsonPath('material.unit_label', 'CUP (Gelas / Cangkir)');
+
+        $this->assertDatabaseHas('raw_materials', [
+            'id' => $cupRes->json('material.id'),
+            'unit' => 'cup',
+            'current_stock' => 500,
+        ]);
+
+        // 2. Dus
+        $dusRes = $this->actingAs($user)->postJson('/admin/api/inventory/material', [
+            'name' => 'Susu UHT Dus (Karton)',
+            'unit' => 'dus',
+            'current_stock' => 10,
+            'minimum_stock' => 2,
+            'cost_per_unit' => 220000,
+        ])->assertOk()->assertJsonPath('material.unit', 'dus')->assertJsonPath('material.unit_label', 'DUS (Karton / Box)');
+
+        $this->assertDatabaseHas('raw_materials', [
+            'id' => $dusRes->json('material.id'),
+            'unit' => 'dus',
+            'current_stock' => 10,
+        ]);
+
+        // 3. Pcs
+        $pcsRes = $this->actingAs($user)->postJson('/admin/api/inventory/material', [
+            'name' => 'Sedotan Pipih Hitam',
+            'unit' => 'pcs',
+            'current_stock' => 1000,
+            'minimum_stock' => 100,
+            'cost_per_unit' => 75,
+        ])->assertOk()->assertJsonPath('material.unit', 'pcs')->assertJsonPath('material.unit_label', 'PCS (Pieces / Buah)');
+
+        $this->assertDatabaseHas('raw_materials', [
+            'id' => $pcsRes->json('material.id'),
+            'unit' => 'pcs',
+            'current_stock' => 1000,
+        ]);
     }
 
     private function owner(): User

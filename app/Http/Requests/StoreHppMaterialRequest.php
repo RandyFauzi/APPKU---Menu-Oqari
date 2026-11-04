@@ -15,7 +15,22 @@ class StoreHppMaterialRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         if (is_string($this->input('unit'))) {
-            $this->merge(['unit' => strtolower(trim($this->input('unit')))]);
+            $unit = trim($this->input('unit'));
+            $canonical = strtolower($unit);
+            $configUnits = config('inventory.units');
+
+            if (array_key_exists($canonical, $configUnits)) {
+                $this->merge(['unit' => $canonical]);
+            } else {
+                $resolved = $canonical;
+                foreach ($configUnits as $key => $label) {
+                    if (strtolower($label) === $canonical || str_starts_with($canonical, strtolower($key).' ')) {
+                        $resolved = $key;
+                        break;
+                    }
+                }
+                $this->merge(['unit' => $resolved]);
+            }
         }
     }
 

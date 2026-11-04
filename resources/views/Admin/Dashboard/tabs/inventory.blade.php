@@ -241,13 +241,13 @@
                             <td class="px-3 py-3 align-middle">
                                 <span class="text-[13px]" 
                                       :class="getMaterialStatus(item) === 'Habis' ? 'font-bold text-[#b91f50]' : (getMaterialStatus(item) === 'Menipis' ? 'font-bold text-[#c94d00]' : 'font-bold text-[#00643b]')" 
-                                      x-text="formatStock(item.current_stock) + ' ' + (item.unit_label || stockUnitLabel(item.unit))">
+                                      x-text="formatStock(item.current_stock) + ' ' + stockUnitShort(item.unit)">
                                 </span>
                             </td>
 
                             <!-- Min. Stok -->
                             <td class="px-3 py-3 align-middle">
-                                <span class="font-medium text-[12px] text-[#53565a]" x-text="formatStock(item.minimum_stock) + ' ' + (item.unit_label || stockUnitLabel(item.unit))"></span>
+                                <span class="font-medium text-[12px] text-[#53565a]" x-text="formatStock(item.minimum_stock) + ' ' + stockUnitShort(item.unit)"></span>
                             </td>
 
                             <!-- Status -->
@@ -406,11 +406,11 @@
                             </td>
                             <td class="py-3 px-3 font-mono font-bold text-[12px]">
                                 <span :class="Number(mut.amount) > 0 ? 'text-[#00643b]' : 'text-[#b91f50]'" x-text="(Number(mut.amount) > 0 ? '+' : '') + formatStock(mut.amount)"></span>
-                                <span class="text-[11px] text-[#7f837e] font-normal" x-text="mut.unit_label || stockUnitLabel(mut.unit || mut.raw_material?.unit)"></span>
+                                <span class="text-[11px] text-[#7f837e] font-normal" x-text="stockUnitShort(mut.unit || mut.raw_material?.unit)"></span>
                             </td>
                             <td class="py-3 px-3 font-mono text-[12px] font-semibold text-[#111827]">
                                 <span x-text="formatStock(mut.balance_after)"></span>
-                                <span class="text-[10px] text-[#7f837e] font-normal" x-text="mut.unit_label || stockUnitLabel(mut.unit || mut.raw_material?.unit)"></span>
+                                <span class="text-[10px] text-[#7f837e] font-normal" x-text="stockUnitShort(mut.unit || mut.raw_material?.unit)"></span>
                             </td>
                             <td class="py-3 px-3 text-[12px] text-[#53565a]" x-text="mut.notes || '-'"></td>
                             <td class="py-3 px-3 pr-4 text-right text-[12px] text-[#53565a] font-medium" x-text="mut.user ? mut.user.name : 'Sistem'"></td>
@@ -528,7 +528,7 @@
                     <select x-model="adjustForm.raw_material_id" class="w-full bg-[#f8f9fa] border border-[#e9ebf0] rounded-[10px] px-3.5 py-2 text-[12px] font-medium text-[#111827] focus:border-[#df5826] focus:bg-white outline-none">
                         <option value="" disabled>-- Pilih Bahan --</option>
                         <template x-for="m in rawMaterials" :key="m.id">
-                            <option :value="m.id" x-text="m.name + ' (Sisa saat ini: ' + formatStock(m.current_stock) + ' ' + (m.unit_label || stockUnitLabel(m.unit)) + ')'"></option>
+                            <option :value="m.id" x-text="m.name + ' (Sisa saat ini: ' + formatStock(m.current_stock) + ' ' + stockUnitShort(m.unit) + ')'"></option>
                         </template>
                     </select>
                 </div>

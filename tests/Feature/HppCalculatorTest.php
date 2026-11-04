@@ -243,6 +243,67 @@ class HppCalculatorTest extends TestCase
         $this->assertDatabaseCount('activity_logs', 0);
     }
 
+    public function test_hpp_calculation_and_recipe_with_cup_and_pcs_materials(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
+        $cup = RawMaterial::create(['shop_id' => $shop->id, 'name' => 'Paper Cup 16oz', 'unit' => 'cup', 'cost_per_unit' => 800, 'current_stock' => 100, 'minimum_stock' => 10]);
+        $lid = RawMaterial::create(['shop_id' => $shop->id, 'name' => 'Lid Plastik', 'unit' => 'pcs', 'cost_per_unit' => 200, 'current_stock' => 100, 'minimum_stock' => 10]);
+        $beans = RawMaterial::create(['shop_id' => $shop->id, 'name' => 'Arabika Beans', 'unit' => 'gram', 'cost_per_unit' => 500, 'current_stock' => 1000, 'minimum_stock' => 100]);
+        $product = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Iced Americano', 'price' => 25000, 'cogs' => 0]);
+
+        $payload = [
+            'recipes' => [
+                ['raw_material_id' => $cup->id, 'amount' => 1, 'unit' => 'cup', 'notes' => 'Paper cup'],
+                ['raw_material_id' => $lid->id, 'amount' => 1, 'unit' => 'pcs', 'notes' => 'Lid'],
+                ['raw_material_id' => $beans->id, 'amount' => 18, 'unit' => 'gram', 'notes' => 'Double shot'],
+            ],
+            'production_quantity' => 1,
+            'production_unit' => 'cup',
+            'labor_cost' => 500,
+            'overhead_cost' => 500,
+            'selling_price' => 25000,
+            'target_margin' => 50,
+        ];
+
+        // 800 (cup) + 200 (lid) + (18 * 500 = 9000 beans) = 10000 ingredients + 500 labor + 500 overhead = 11000 total HPP
+        $this->actingAs($user)->postJson(route('admin.hpp.calculate'), $payload)
+            ->assertOk()
+            ->assertJsonPath('result.ingredients_cost', 10000)
+            ->assertJsonPath('result.hpp', 11000)
+            ->assertJsonPath('result.gross_profit', 14000)
+            ->assertJsonPath('result.production_unit', 'cup');
+
+        // Save recipe to product
+        $this->actingAs($user)->putJson(route('admin.hpp.update', $product->id), $payload)->assertOk();
+        $this->assertEquals(11000, $product->fresh()->cogs);
+        $this->assertDatabaseHas('product_recipes', ['product_id' => $product->id, 'raw_material_id' => $cup->id, 'amount' => 1]);
+        $this->assertDatabaseHas('product_recipes', ['product_id' => $product->id, 'raw_material_id' => $lid->id, 'amount' => 1]);
+        $this->assertDatabaseHas('product_recipes', ['product_id' => $product->id, 'raw_material_id' => $beans->id, 'amount' => 18]);
+    }
+
+    public function test_store_hpp_material_supports_cup_pcs_dus(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
+
+        foreach (['cup', 'pcs', 'dus'] as $unit) {
+            $this->actingAs($user)->postJson(route('admin.hpp.materials.store'), [
+                'name' => "Material $unit",
+                'purchase_total' => 50000,
+                'purchase_quantity' => 10,
+                'unit' => $unit,
+            ])->assertCreated()->assertJsonPath('material.unit', $unit);
+
+            $this->assertDatabaseHas('raw_materials', [
+                'shop_id' => $shop->id,
+                'name' => "Material $unit",
+                'unit' => $unit,
+                'cost_per_unit' => 5000,
+            ]);
+        }
+    }
+
     /** @return array{User, RawMaterial, Product, array<string, mixed>} */
     private function scenario(): array
     {

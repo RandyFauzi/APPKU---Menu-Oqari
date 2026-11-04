@@ -280,7 +280,7 @@
                                     </label>
                                     <select id="production-unit" x-model="form.production_unit" class="hpp-input cursor-pointer">
                                         <template x-for="unit in outputUnits" :key="unit">
-                                            <option :value="unit" x-text="unit"></option>
+                                            <option :value="unit" x-text="unitLabel(unit)"></option>
                                         </template>
                                     </select>
                                     <p class="text-[11px] text-gray-400 mt-1">Satuan jual (contoh: porsi, pcs, cup, botol).</p>
@@ -382,9 +382,9 @@
                                             <div class="sm:col-span-3">
                                                 <label :for="'unit-' + row.key" class="block text-[11px] font-bold text-gray-700 mb-1">Satuan Takaran</label>
                                                 <select :id="'unit-' + row.key" x-model="row.unit" @change="invalidate()" class="hpp-input cursor-pointer">
-                                                    <option value="">Satuan Stok</option>
+                                                    <option value="" x-text="materialFor(row) ? 'Satuan Stok (' + (materialFor(row).unit || '') + ')' : 'Satuan Stok'"></option>
                                                     <template x-for="unit in recipeUnits(row)" :key="unit">
-                                                        <option :value="unit" x-text="unit"></option>
+                                                        <option :value="unit" x-text="unitLabel(unit)"></option>
                                                     </template>
                                                 </select>
                                             </div>
@@ -878,7 +878,7 @@
                         <label for="new-material-unit" class="block text-xs font-bold text-gray-700 mb-1.5">Satuan Pembelian / Stok <span class="text-red-500">*</span></label>
                         <select id="new-material-unit" x-model="newMaterial.unit" class="hpp-input cursor-pointer font-semibold">
                             <template x-for="unit in materialUnits" :key="unit">
-                                <option :value="unit" x-text="unit"></option>
+                                <option :value="unit" x-text="unitLabel(unit)"></option>
                             </template>
                         </select>
                     </div>
@@ -926,6 +926,10 @@ function hppCalculator() {
         ],
         outputUnits: ['porsi', 'pcs', 'cup', 'gram', 'kg', 'ml', 'liter', 'botol', 'pack', 'dus', 'shot', 'slice'],
         materialUnits: {{ Illuminate\Support\Js::from(array_keys(config('inventory.units'))) }},
+        inventoryUnits: {{ Illuminate\Support\Js::from(config('inventory.units')) }},
+        unitLabel(unit) {
+            return this.inventoryUnits[unit] || (unit ? unit.charAt(0).toUpperCase() + unit.slice(1) : '');
+        },
         result: null,
         busy: false,
         error: '',
@@ -967,6 +971,7 @@ function hppCalculator() {
             const unit = (this.materialFor(row)?.unit || '').toLowerCase();
             return ['g', 'gram', 'kg'].includes(unit) ? ['gram', 'kg'] : 
                    ['ml', 'l', 'liter'].includes(unit) ? ['ml', 'liter'] : 
+                   ['pcs', 'cup'].includes(unit) ? ['pcs', 'cup'] :
                    unit ? [unit] : [];
         },
 
