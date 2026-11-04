@@ -271,15 +271,28 @@ class DashboardController extends Controller
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('categories', 'name')->where('shop_id', $shopId),
             ],
-        ], [
-            'name.unique' => 'Kategori dengan nama ini sudah ada di toko Anda.',
         ]);
 
+        $trimmedName = trim($request->name);
+
+        // Check if category already exists for this shop (case-insensitive)
+        $existing = Category::where('shop_id', $shopId)
+            ->whereRaw('LOWER(name) = ?', [strtolower($trimmedName)])
+            ->first();
+
+        if ($existing) {
+            return response()->json([
+                'success' => true,
+                'category' => $existing,
+                'already_exists' => true,
+                'message' => 'Kategori sudah ada di toko Anda.',
+            ]);
+        }
+
         // Pastikan slug juga unik per shop_id
-        $baseSlug = Str::slug($request->name);
-        $slug = $baseSlug;
+        $baseSlug = Str::slug($trimmedName);
+        $slug = $baseSlug ?: 'kategori';
         $counter = 1;
         while (Category::where('shop_id', $shopId)->where('slug', $slug)->exists()) {
             $slug = $baseSlug.'-'.$counter;
@@ -288,7 +301,7 @@ class DashboardController extends Controller
 
         $category = Category::create([
             'shop_id' => $shopId,
-            'name' => $request->name,
+            'name' => $trimmedName,
             'slug' => $slug,
             'sort_order' => Category::where('shop_id', $shopId)->count() + 1,
             'is_active' => true,

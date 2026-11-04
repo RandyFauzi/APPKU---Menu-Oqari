@@ -316,10 +316,55 @@
 
             <!-- Scrollable Body -->
             <div class="flex-grow overflow-y-auto hide-scroll py-2 pr-1">
-                <div class="flex flex-col gap-3 pb-6">
+                <div class="flex flex-col gap-3 pb-24">
                     <template x-for="(draft, index) in draftMenus" :key="index">
                         <!-- Row Card matching screenshot -->
-                        <div class="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 bg-white rounded-[16px] border border-[#e9ebf0] shadow-xs hover:border-[#dcdfe5] transition">
+                        <div x-data="{ 
+                                openDropdown: false, 
+                                searchCat: '', 
+                                isAddingNew: false, 
+                                newCatName: '', 
+                                isCreatingCat: false,
+                                get selectedCategoryName() {
+                                    const list = categories || [];
+                                    const found = list.find(c => c.id == draft.categoryId || (c.name && String(c.name).toLowerCase() === String(draft.categoryId).toLowerCase()));
+                                    return found ? found.name : (draft.categoryId || '');
+                                },
+                                get filteredCats() {
+                                    const list = categories || [];
+                                    if (!this.searchCat.trim()) return list;
+                                    const q = this.searchCat.toLowerCase();
+                                    return list.filter(c => c.name && c.name.toLowerCase().includes(q));
+                                },
+                                get isExactMatch() {
+                                    const list = categories || [];
+                                    const q = this.searchCat.trim().toLowerCase();
+                                    return list.some(c => c.name && c.name.toLowerCase() === q);
+                                },
+                                selectCategory(cat) {
+                                    draft.categoryId = cat.id;
+                                    this.openDropdown = false;
+                                    this.searchCat = '';
+                                    this.isAddingNew = false;
+                                },
+                                async handleCreateNew(nameToCreate) {
+                                    const name = (nameToCreate || this.newCatName || this.searchCat || '').trim();
+                                    if (!name) return;
+                                    this.isCreatingCat = true;
+                                    const newCat = await createQuickCategory(name, draft);
+                                    this.isCreatingCat = false;
+                                    if (newCat) {
+                                        this.newCatName = '';
+                                        this.searchCat = '';
+                                        this.isAddingNew = false;
+                                        this.openDropdown = false;
+                                    }
+                                }
+                             }"
+                             @click.away="openDropdown = false; isAddingNew = false; searchCat = ''"
+                             @keydown.escape.window="openDropdown = false"
+                             :class="openDropdown ? 'z-30 relative' : 'z-10 relative'"
+                             class="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 bg-white rounded-[16px] border border-[#e9ebf0] shadow-xs hover:border-[#dcdfe5] transition">
                             
                             <!-- Image Box -->
                             <div class="w-full md:w-[150px] h-[100px] shrink-0 relative rounded-[14px] overflow-hidden flex flex-col items-center justify-center group cursor-pointer transition border border-dashed border-[#e9ebf0] hover:border-[#df5826] bg-[#fafbfc]">
@@ -352,16 +397,150 @@
                                     <input type="text" x-model="draft.name" placeholder="Contoh: Americano" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] px-3.5 py-2.5 text-[13px] text-[#111827] placeholder:text-[#9ca3af] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
                                 </div>
                                 
-                                <div>
-                                    <label class="block text-[11px] font-semibold text-[#53565a] mb-1.5">Category</label>
-                                    <div class="relative">
-                                        <select x-model="draft.categoryId" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] px-3.5 py-2.5 text-[13px] text-[#111827] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none cursor-pointer appearance-none pr-8">
-                                            <option value="" disabled>-- Pilih Kategori --</option>
-                                            <template x-for="cat in categories" :key="cat.id">
-                                                <option :value="cat.id" x-text="cat.name"></option>
+                                <!-- Category with Modern Custom Dropdown + Quick Add -->
+                                <div class="relative">
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="block text-[11px] font-semibold text-[#53565a]">Category</label>
+                                        <button type="button" 
+                                                @click.stop="openDropdown = true; isAddingNew = true; $nextTick(() => $refs.inlineNewCatInput?.focus())" 
+                                                class="text-[10px] font-semibold text-[#df5826] hover:text-[#c94d00] hover:underline flex items-center gap-1 cursor-pointer transition"
+                                                title="Buat kategori baru jika belum tersedia">
+                                            <i class="fas fa-plus-circle text-[9px]"></i>
+                                            <span>Tambah Baru</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Dropdown Trigger Button -->
+                                    <button type="button" 
+                                            @click="openDropdown = !openDropdown; if(openDropdown) { $nextTick(() => $refs.searchCatInput?.focus()); }" 
+                                            class="w-full bg-white border rounded-[10px] px-3.5 py-2.5 text-[13px] text-left flex items-center justify-between transition cursor-pointer shadow-2xs outline-none"
+                                            :class="openDropdown ? 'border-[#df5826] ring-1 ring-[#df5826]' : 'border-[#e9ebf0] hover:border-[#df5826]'">
+                                        <span class="truncate flex items-center gap-2">
+                                            <template x-if="selectedCategoryName">
+                                                <span class="flex items-center gap-2 truncate">
+                                                    <span class="w-2 h-2 rounded-full bg-[#df5826] shrink-0"></span>
+                                                    <span class="font-medium text-[#111827] truncate" x-text="selectedCategoryName"></span>
+                                                </span>
                                             </template>
-                                        </select>
-                                        <i class="fas fa-chevron-down absolute right-3 top-3.5 text-xs text-gray-400 pointer-events-none"></i>
+                                            <template x-if="!selectedCategoryName">
+                                                <span class="text-[#9ca3af]">-- Pilih Kategori --</span>
+                                            </template>
+                                        </span>
+                                        <i class="fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200 shrink-0 ml-2" 
+                                           :class="openDropdown ? 'rotate-180 text-[#df5826]' : ''"></i>
+                                    </button>
+
+                                    <!-- Dropdown Menu Popover -->
+                                    <div x-show="openDropdown" 
+                                         x-transition:enter="transition ease-out duration-150"
+                                         x-transition:enter-start="opacity-0 translate-y-1 scale-98"
+                                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                         x-transition:leave="transition ease-in duration-100"
+                                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                         x-transition:leave-end="opacity-0 translate-y-1 scale-98"
+                                         x-cloak
+                                         class="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white border border-[#e9ebf0] rounded-[14px] shadow-[0_16px_36px_rgba(0,0,0,0.14)] p-2.5 min-w-[250px]">
+                                        
+                                        <!-- Search input inside dropdown -->
+                                        <div class="relative mb-2">
+                                            <i class="fas fa-search absolute left-3 top-2.5 text-xs text-gray-400"></i>
+                                            <input type="text" 
+                                                   x-ref="searchCatInput" 
+                                                   x-model="searchCat" 
+                                                   @keydown.enter.prevent="if(!isExactMatch && searchCat.trim()) { handleCreateNew(searchCat); }"
+                                                   placeholder="Cari atau ketik kategori..." 
+                                                   class="w-full bg-[#f8f9fa] border border-[#e9ebf0] focus:border-[#df5826] focus:bg-white rounded-[8px] pl-8 pr-3 py-1.5 text-[12px] text-[#111827] placeholder:text-[#9ca3af] outline-none transition">
+                                        </div>
+
+                                        <!-- Categories List -->
+                                        <div class="max-h-40 overflow-y-auto space-y-1 pr-1">
+                                            <template x-for="cat in filteredCats" :key="cat.id">
+                                                <button type="button" 
+                                                        @click="selectCategory(cat)" 
+                                                        class="w-full text-left px-3 py-2 rounded-[8px] text-[12px] flex items-center justify-between transition cursor-pointer"
+                                                        :class="(draft.categoryId == cat.id || String(draft.categoryId).toLowerCase() === String(cat.name).toLowerCase()) ? 'bg-[#fff6f0] text-[#df5826] font-semibold' : 'text-[#374151] hover:bg-gray-50'">
+                                                    <span class="flex items-center gap-2 truncate">
+                                                        <span class="w-1.5 h-1.5 rounded-full shrink-0" 
+                                                              :class="(draft.categoryId == cat.id || String(draft.categoryId).toLowerCase() === String(cat.name).toLowerCase()) ? 'bg-[#df5826]' : 'bg-gray-300'"></span>
+                                                        <span class="truncate" x-text="cat.name"></span>
+                                                    </span>
+                                                    <i x-show="(draft.categoryId == cat.id || String(draft.categoryId).toLowerCase() === String(cat.name).toLowerCase())" 
+                                                       class="fas fa-check text-[#df5826] text-xs shrink-0"></i>
+                                                </button>
+                                            </template>
+
+                                            <!-- If search result is empty -->
+                                            <template x-if="filteredCats.length === 0 && !isAddingNew">
+                                                <div class="py-3 px-2 text-center text-[12px] text-gray-500">
+                                                    <p class="text-[11px] text-gray-400 mb-2">Kategori tidak ditemukan</p>
+                                                    <template x-if="searchCat.trim()">
+                                                        <button type="button" 
+                                                                @click="handleCreateNew(searchCat)" 
+                                                                :disabled="isCreatingCat"
+                                                                class="w-full bg-[#df5826] hover:bg-[#c94d00] text-white py-1.5 px-3 rounded-[8px] text-[11px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50">
+                                                            <i :class="isCreatingCat ? 'fas fa-spinner fa-spin' : 'fas fa-plus'"></i>
+                                                            <span>Buat "<span class="font-bold truncate max-w-[120px] inline-block align-bottom" x-text="searchCat.trim()"></span>"</span>
+                                                        </button>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <!-- Quick create action when search query has no exact match -->
+                                        <template x-if="searchCat.trim() && !isExactMatch && filteredCats.length > 0">
+                                            <div class="mt-2 pt-2 border-t border-[#f0f2f5]">
+                                                <button type="button" 
+                                                        @click="handleCreateNew(searchCat)" 
+                                                        :disabled="isCreatingCat"
+                                                        class="w-full bg-[#fff6f0] hover:bg-[#ffede0] text-[#df5826] border border-[#ffdec9] py-1.5 px-3 rounded-[8px] text-[11px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50">
+                                                    <i :class="isCreatingCat ? 'fas fa-spinner fa-spin' : 'fas fa-plus'"></i>
+                                                    <span>+ Tambah "<span class="font-bold truncate max-w-[110px] inline-block align-bottom" x-text="searchCat.trim()"></span>"</span>
+                                                </button>
+                                            </div>
+                                        </template>
+
+                                        <!-- Expandable Create Form or Toggle Button -->
+                                        <div class="mt-2 pt-2 border-t border-[#f0f2f5]">
+                                            <template x-if="!isAddingNew">
+                                                <button type="button" 
+                                                        @click="isAddingNew = true; $nextTick(() => $refs.inlineNewCatInput?.focus())" 
+                                                        class="w-full px-3 py-1.5 rounded-[8px] text-[12px] font-semibold text-[#df5826] hover:bg-[#fff6f0] flex items-center gap-2 transition cursor-pointer">
+                                                    <i class="fas fa-plus-circle text-xs"></i>
+                                                    <span>+ Tambah Kategori Baru</span>
+                                                </button>
+                                            </template>
+
+                                            <template x-if="isAddingNew">
+                                                <div class="p-2.5 bg-[#fafbfc] rounded-[10px] border border-[#e9ebf0] space-y-2">
+                                                    <div class="flex items-center justify-between text-[11px] font-semibold text-[#53565a]">
+                                                        <span>Kategori Baru</span>
+                                                        <button type="button" @click="isAddingNew = false; newCatName = ''" class="text-gray-400 hover:text-gray-600 transition cursor-pointer">
+                                                            <i class="fas fa-times text-xs"></i>
+                                                        </button>
+                                                    </div>
+                                                    <input type="text" 
+                                                           x-ref="inlineNewCatInput"
+                                                           x-model="newCatName" 
+                                                           @keydown.enter.prevent="handleCreateNew(newCatName)"
+                                                           placeholder="Contoh: Mocktail, Toast..." 
+                                                           class="w-full bg-white border border-[#e9ebf0] focus:border-[#df5826] rounded-[8px] px-2.5 py-1.5 text-[12px] text-[#111827] outline-none">
+                                                    <div class="flex items-center justify-end gap-1.5">
+                                                        <button type="button" 
+                                                                @click="isAddingNew = false; newCatName = ''" 
+                                                                class="px-2.5 py-1 bg-white border border-[#e9ebf0] text-[#53565a] rounded-[6px] text-[11px] font-medium hover:bg-gray-50 transition cursor-pointer">
+                                                            Batal
+                                                        </button>
+                                                        <button type="button" 
+                                                                @click="handleCreateNew(newCatName)" 
+                                                                :disabled="isCreatingCat || !newCatName.trim()"
+                                                                class="px-3 py-1 bg-[#df5826] hover:bg-[#c94d00] text-white rounded-[6px] text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer disabled:opacity-50 shadow-2xs">
+                                                            <i :class="isCreatingCat ? 'fas fa-spinner fa-spin' : 'fas fa-save text-[10px]'"></i>
+                                                            <span>Simpan</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -387,6 +566,19 @@
                                     </button>
                                 </template>
                             </div>
+                        </div>
+                    </template>
+
+                    <!-- Add More Menu Items Button -->
+                    <template x-if="!(draftMenus.length === 1 && draftMenus[0].id)">
+                        <div class="pt-1 flex items-center justify-between">
+                            <button type="button" 
+                                    @click="addDraftRow()" 
+                                    class="px-4 py-2.5 bg-[#fff6f0] border border-dashed border-[#df5826] hover:bg-[#ffece0] text-[#df5826] font-semibold text-[12px] rounded-[12px] transition flex items-center gap-2 cursor-pointer shadow-2xs">
+                                <i class="fas fa-plus text-xs"></i>
+                                <span>+ Tambah Baris Menu</span>
+                            </button>
+                            <span class="text-[11px] text-[#7f837e]">Bisa tambah banyak menu sekaligus beserta kategorinya</span>
                         </div>
                     </template>
                 </div>

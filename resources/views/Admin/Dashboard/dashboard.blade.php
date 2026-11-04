@@ -1768,16 +1768,65 @@
                         body: JSON.stringify({ name: this.newCategoryName })
                     }).then(res => res.json()).then(data => {
                         if (data.success) {
-                            this.categories.push(data.category);
+                            if (!this.categories.some(c => c.id === data.category.id)) {
+                                this.categories.push(data.category);
+                            }
                             this.newCategoryName = '';
                             this.showAddCategoryModal = false;
-                            this.addToast('Kategori berhasil ditambahkan!', 'success');
+                            this.addToast(data.already_exists ? 'Kategori sudah tersedia!' : 'Kategori berhasil ditambahkan!', 'success');
                         } else {
                             this.addToast(data.message || 'Gagal menambahkan kategori', 'error');
                         }
                     }).catch(err => {
                         this.addToast('Terjadi kesalahan jaringan', 'error');
                     });
+                },
+                async createQuickCategory(name, draftTarget = null) {
+                    const trimmed = (name || '').trim();
+                    if (!trimmed) {
+                        this.addToast('Nama kategori tidak boleh kosong', 'error');
+                        return null;
+                    }
+
+                    // Cek apakah sudah ada di categories lokal
+                    const existing = this.categories.find(c => c.name && c.name.toLowerCase() === trimmed.toLowerCase());
+                    if (existing) {
+                        if (draftTarget) {
+                            draftTarget.categoryId = existing.id;
+                        }
+                        this.addToast(`Kategori "${existing.name}" sudah ada dan dipilih`, 'info');
+                        return existing;
+                    }
+
+                    try {
+                        const res = await fetch('/admin/api/category', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ name: trimmed })
+                        });
+                        const data = await res.json();
+                        if (data.success && data.category) {
+                            if (!this.categories.some(c => c.id === data.category.id)) {
+                                this.categories.push(data.category);
+                            }
+                            if (draftTarget) {
+                                draftTarget.categoryId = data.category.id;
+                            }
+                            this.addToast(`Kategori "${data.category.name}" ${data.already_exists ? 'sudah tersedia dan dipilih' : 'berhasil ditambahkan!'}`, 'success');
+                            return data.category;
+                        } else {
+                            this.addToast(data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Gagal menambahkan kategori'), 'error');
+                            return null;
+                        }
+                    } catch (err) {
+                        console.error('Error creating quick category:', err);
+                        this.addToast('Terjadi kesalahan jaringan saat menambahkan kategori', 'error');
+                        return null;
+                    }
                 },
                 viewOrderDetails(order) {
                     this.selectedOrder = order;

@@ -187,4 +187,44 @@ class AdminDashboardTest extends TestCase
             'name' => 'Signature Coffee',
         ]);
     }
+
+    public function test_admin_can_create_category_via_api(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+
+        $response = $this->actingAs($user)->postJson('/admin/api/category', [
+            'name' => 'Signature Mocktail',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('category.name', 'Signature Mocktail');
+
+        $this->assertDatabaseHas('categories', [
+            'shop_id' => $shop->id,
+            'name' => 'Signature Mocktail',
+        ]);
+    }
+
+    public function test_admin_creating_existing_category_returns_existing_category(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+
+        $first = $this->actingAs($user)->postJson('/admin/api/category', [
+            'name' => 'Snacks',
+        ]);
+        $first->assertOk();
+
+        // Call again with same name (different casing)
+        $second = $this->actingAs($user)->postJson('/admin/api/category', [
+            'name' => 'snacks',
+        ]);
+
+        $second->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('already_exists', true)
+            ->assertJsonPath('category.name', 'Snacks');
+    }
 }

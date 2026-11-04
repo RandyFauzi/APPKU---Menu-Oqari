@@ -180,9 +180,9 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/KitchenController.php": {
-    "mtime": 1793685874.9010324,
-    "seen": 1793687776.2851107,
-    "ast_hash": "cf25179a8944835b89591864cc7125f7",
+    "mtime": 1793775275.655249,
+    "seen": 1793775669.7881355,
+    "ast_hash": "6bad33d93ef80f0f9ba0b0386845a2f3",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/LiveOrderController.php": {
@@ -534,10 +534,10 @@
     "semantic_hash": "ddefdbbcb490a91e58d947ad71e76639"
   },
   "app/Services/Receipt/ReceiptData.php": {
-    "mtime": 1790740185.6304636,
-    "seen": 1792116353.4081495,
-    "ast_hash": "b4c71cceb8e4d51c10453f41c49e7d8a",
-    "semantic_hash": "b4c71cceb8e4d51c10453f41c49e7d8a"
+    "mtime": 1793775451.0608733,
+    "seen": 1793775669.7883244,
+    "ast_hash": "af852f2496acd2b71a91dd3b8115c90f",
+    "semantic_hash": ""
   },
   "app/Services/Receipt/ReceiptPdfService.php": {
     "mtime": 1792113996.521422,
@@ -546,10 +546,10 @@
     "semantic_hash": "31153716f257d47d3fa332bbcbc4e1ac"
   },
   "app/Services/Receipt/ReceiptService.php": {
-    "mtime": 1792113996.5802648,
-    "seen": 1792116353.408152,
-    "ast_hash": "069466e7f06e9e1e9f1a90b54bd1a2a5",
-    "semantic_hash": "069466e7f06e9e1e9f1a90b54bd1a2a5"
+    "mtime": 1793775461.5223093,
+    "seen": 1793775669.7883282,
+    "ast_hash": "382df687e4a55129aa7c9768e15e3f24",
+    "semantic_hash": ""
   },
   "app/Services/ReportingService.php": {
     "mtime": 1793682810.9972553,
@@ -1050,9 +1050,9 @@
     "semantic_hash": "2155055847fe16d5f2ffb8129ee18fb8"
   },
   "public/js/main.js": {
-    "mtime": 1793775066.625624,
-    "seen": 1793775083.7004595,
-    "ast_hash": "4f5f746af9c7c12be3a351685f7f7493",
+    "mtime": 1793775203.0029404,
+    "seen": 1793775669.7885375,
+    "ast_hash": "d8c49b850810e086fd2d533516f7bca5",
     "semantic_hash": ""
   },
   "public/js/menu_gen.json": {
@@ -1188,15 +1188,15 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/kitchen/index.blade.php": {
-    "mtime": 1793759212.7026901,
-    "seen": 1793759536.1323483,
-    "ast_hash": "0f1d859045207402112be8830b7b2c6f",
+    "mtime": 1793775411.1132135,
+    "seen": 1793775669.788604,
+    "ast_hash": "064ea3398c277ec1fa2e3a6132ba3871",
     "semantic_hash": ""
   },
   "resources/views/Admin/orders/print.blade.php": {
-    "mtime": 1793759212.7081933,
-    "seen": 1793759536.1323502,
-    "ast_hash": "04d1f1c4ae9931e188125b6029f2df59",
+    "mtime": 1793775518.180615,
+    "seen": 1793775669.7886057,
+    "ast_hash": "07400136a6e8ee3b852a0347d75edfad",
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
@@ -1470,9 +1470,9 @@
     "semantic_hash": ""
   },
   "resources/views/receipts/thermal.blade.php": {
-    "mtime": 1793759212.673643,
-    "seen": 1793759536.1324515,
-    "ast_hash": "865964a3bebeabaad8b5d358b758491b",
+    "mtime": 1793775493.969873,
+    "seen": 1793775669.7887828,
+    "ast_hash": "72571bca75b63a4e9fc95d1e16b75853",
     "semantic_hash": ""
   },
   "resources/views/receipts/web.blade.php": {
@@ -1494,9 +1494,9 @@
     "semantic_hash": ""
   },
   "resources/views/shop/scripts.blade.php": {
-    "mtime": 1792466407.4119272,
-    "seen": 1792466592.0832345,
-    "ast_hash": "9fcfd079c39fda6189464508bcfc125c",
+    "mtime": 1793775261.398542,
+    "seen": 1793775669.7887907,
+    "ast_hash": "27235bfab9fbf535631dbb6e749ba823",
     "semantic_hash": ""
   },
   "resources/views/shop/tracking.blade.php": {
@@ -1536,9 +1536,9 @@
     "semantic_hash": "3c6ce2e6d16444282b24a9aa63885563"
   },
   "routes/web.php": {
-    "mtime": 1793774934.705751,
-    "seen": 1793774944.5360658,
-    "ast_hash": "6967d4306d8b8254df311b1e51f25a2b",
+    "mtime": 1793775289.6847825,
+    "seen": 1793775669.7888176,
+    "ast_hash": "706924bf5725058c93df88267da88361",
     "semantic_hash": ""
   },
   "tailwind.config.js": {
@@ -1596,9 +1596,9 @@
     "semantic_hash": "0f4d91c9c5bbcd4e2f46cf885acb7fb6"
   },
   "tests/Feature/OrderCreationTest.php": {
-    "mtime": 1792120358.206388,
-    "seen": 1792120501.3654926,
-    "ast_hash": "daea3de9df5cce69d1267cc7776cf228",
+    "mtime": 1793775566.8101933,
+    "seen": 1793775669.7888675,
+    "ast_hash": "e5474ba813a47cd6718d137435bc3295",
     "semantic_hash": ""
   },
   "tests/Feature/PaymentProcessingTest.php": {
