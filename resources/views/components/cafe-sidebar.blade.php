@@ -139,7 +139,7 @@ if ($member?->role === 'superadmin') {
 
         <!-- Bottom User Profile Card (Sparta Figma Style) -->
         <div class="shrink-0 border-t border-gray-200/80 p-3 bg-white/40 space-y-1">
-            <div class="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-gray-100/70 transition-colors cursor-pointer group" @click="{{ $dashboard ? "currentTab = 'profile'" : "window.location.href = '" . route('profile.edit') . "'" }}">
+            <a href="{{ route('profile.edit') }}" aria-label="Profil Saya" class="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-gray-100/70 transition-colors group">
                 <div class="w-8 h-8 rounded-full bg-[#dce8ec] text-[#111827] flex items-center justify-center font-bold text-xs shrink-0">
                     {{ strtoupper(substr($member->name ?? 'A', 0, 2)) }}
                 </div>
@@ -150,7 +150,7 @@ if ($member?->role === 'superadmin') {
                 <div x-show="!isMinimized || mobileNavOpen" class="shrink-0 text-gray-400 group-hover:text-gray-600">
                     <img src="{{ asset('images/sparta/chevron-right.svg') }}" class="w-3 h-3" alt="">
                 </div>
-            </div>
+            </a>
             
             <form method="POST" action="{{ route('logout') }}" class="mt-0.5">
                 @csrf

@@ -2,13 +2,40 @@
 
 namespace Tests\Feature;
 
+use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
 {
     use RefreshDatabase;
+
+    #[TestWith(['owner'])]
+    #[TestWith(['manager'])]
+    #[TestWith(['crew'])]
+    #[TestWith(['superadmin'])]
+    public function test_legacy_dashboard_profile_redirects_to_the_single_profile_page(string $role): void
+    {
+        $user = User::factory()->create(['role' => $role, 'shop_id' => $role === 'superadmin' ? null : Shop::factory()->create(['onboarding_status' => 'completed'])->id]);
+
+        $this->actingAs($user)->get(route('admin.dashboard', ['tab' => 'profile']))
+            ->assertRedirect(route('profile.edit'));
+        $this->get(route('profile.edit'))->assertOk()->assertSee('Profil Saya')->assertDontSee('Profile Settings');
+    }
+
+    public function test_dashboard_profile_links_point_to_the_canonical_page_and_old_write_endpoint_is_removed(): void
+    {
+        $owner = User::factory()->create(['role' => 'owner', 'shop_id' => Shop::factory()->create(['onboarding_status' => 'completed'])->id]);
+
+        $response = $this->actingAs($owner)->get(route('admin.dashboard'))->assertOk()
+            ->assertSee('href="'.route('profile.edit').'"', false)->assertDontSee('Profile Settings');
+        $this->assertGreaterThanOrEqual(2, substr_count($response->getContent(), 'href="'.route('profile.edit').'"'));
+        $this->postJson('/admin/api/profile', ['name' => 'Old handler', 'email' => 'old@example.test', 'password' => 'NewPassword123', 'password_confirmation' => 'NewPassword123'])->assertNotFound();
+        $this->assertSame($owner->name, $owner->fresh()->name);
+        $this->assertSame($owner->email, $owner->fresh()->email);
+    }
 
     public function test_profile_page_is_displayed(): void
     {

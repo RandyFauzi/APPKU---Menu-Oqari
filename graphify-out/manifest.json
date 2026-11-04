@@ -162,9 +162,9 @@
     "semantic_hash": "2f3a26c9d7d3571350aee2b768761b8a"
   },
   "app/Http/Controllers/Admin/DashboardController.php": {
-    "mtime": 1793772955.0713646,
-    "seen": 1793773111.9717567,
-    "ast_hash": "220541a0c2044e52489191c8d402ebb4",
+    "mtime": 1793773290.0635476,
+    "seen": 1793773321.1972811,
+    "ast_hash": "2268fa35fbbe8dd84657771a306806ab",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/GoBizIntegrationController.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793772750.7513254,
-    "seen": 1793772800.921078,
-    "ast_hash": "976ec7086c9c0991cdf0bca9e0013e22",
+    "mtime": 1793773253.9739487,
+    "seen": 1793773321.1976843,
+    "ast_hash": "0274c56041b250ed04cb366057b83f68",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/crew.blade.php": {
@@ -1143,12 +1143,6 @@
     "mtime": 1793685012.540111,
     "seen": 1793687776.2855155,
     "ast_hash": "709ae044d78eb838c62038033efd7cf8",
-    "semantic_hash": ""
-  },
-  "resources/views/Admin/Dashboard/tabs/profile.blade.php": {
-    "mtime": 1792466407.585685,
-    "seen": 1792466592.0831366,
-    "ast_hash": "8a4649347a8b87d86b7f633a0ff54e6f",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/qr.blade.php": {
@@ -1566,9 +1560,9 @@
     "semantic_hash": "3c6ce2e6d16444282b24a9aa63885563"
   },
   "routes/web.php": {
-    "mtime": 1793761427.6290808,
-    "seen": 1793761447.8716235,
-    "ast_hash": "1aee3042571c886269b456712124c1f5",
+    "mtime": 1793773290.5008986,
+    "seen": 1793773321.1978576,
+    "ast_hash": "4ce7ab4751784808790f870d10530ed2",
     "semantic_hash": ""
   },
   "tailwind.config.js": {
@@ -1638,10 +1632,10 @@
     "semantic_hash": "1daa4fc6f1b6977b671e50b50ca099b3"
   },
   "tests/Feature/ProfileTest.php": {
-    "mtime": 1790740185.8483164,
-    "seen": 1792116353.4084134,
-    "ast_hash": "198cba3e6561abe548cc34787a312e44",
-    "semantic_hash": "198cba3e6561abe548cc34787a312e44"
+    "mtime": 1793773290.6479,
+    "seen": 1793773321.197917,
+    "ast_hash": "9b0b5fba4317a7985e82b1ab465d08ba",
+    "semantic_hash": ""
   },
   "tests/Feature/SecurityIsolationTest.php": {
     "mtime": 1792114000.1848443,
@@ -2442,9 +2436,9 @@
     "semantic_hash": ""
   },
   "resources/views/components/cafe-sidebar.blade.php": {
-    "mtime": 1793759210.2147326,
-    "seen": 1793759536.132388,
-    "ast_hash": "070dfd78f974b6083e2f6fb79c5d7fc6",
+    "mtime": 1793773253.9749458,
+    "seen": 1793773321.1977751,
+    "ast_hash": "73d7cbae913f22ba0303db99baba8d45",
     "semantic_hash": ""
   },
   "app/Console/Commands/CheckDatabaseSchema.php": {
@@ -2967,6 +2961,12 @@
     "mtime": 1793766800.8783176,
     "seen": 1793767096.3079388,
     "ast_hash": "163ac4678fb0660add7f745c641ce81e",
+    "semantic_hash": ""
+  },
+  "enlarge_tables.py": {
+    "mtime": 1793773282.073213,
+    "seen": 1793773321.1976478,
+    "ast_hash": "f1cac9166699aa661578a9705cf9afa5",
     "semantic_hash": ""
   }
 }

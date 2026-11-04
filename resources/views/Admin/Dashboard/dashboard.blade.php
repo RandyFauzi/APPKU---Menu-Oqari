@@ -109,9 +109,9 @@
                     <!-- Dropdown Menu -->
                     <div x-show="open" x-cloak x-transition.opacity class="absolute right-0 mt-3 w-48 bg-white rounded-[14px] shadow-[0_10px_35px_rgba(0,0,0,0.08)] border border-line overflow-hidden z-50">
                         <div class="p-1.5">
-                            <button @click="currentTab = 'profile'; open = false" class="w-full text-left px-3.5 py-2 rounded-[8px] text-xs font-semibold text-ink hover:bg-gray-50 hover:text-primary transition-colors flex items-center gap-2.5">
-                                <i class="fas fa-user w-4 text-gray-400"></i> Profil Saya
-                            </button>
+                            <a href="{{ route('profile.edit') }}" class="w-full text-left px-3.5 py-2 rounded-[8px] text-xs font-semibold text-ink hover:bg-gray-50 hover:text-primary transition-colors flex items-center gap-2.5">
+                                <i class="fas fa-user w-4 text-gray-400" aria-hidden="true"></i> Profil Saya
+                            </a>
                             <div class="h-px bg-gray-100 my-1 mx-1.5"></div>
                             <button @click="logout()" class="w-full text-left px-3.5 py-2 rounded-[8px] text-xs font-bold text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2.5">
                                 <i class="fas fa-sign-out-alt w-4"></i> Keluar
@@ -136,7 +136,6 @@
         @include('Admin.Dashboard.tabs.settings')
         @include('Admin.Dashboard.tabs.hours')
         @include('Admin.Dashboard.tabs.receipt')
-        @include('Admin.Dashboard.tabs.profile')
 
 
         <!-- MODAL: ADD CATEGORY -->
@@ -1273,48 +1272,6 @@
                         this.addToast('Terjadi kesalahan jaringan', 'error');
                     });
                 },
-                profile: {
-                    name: window.INITIAL_DATA.user?.name || '',
-                    email: window.INITIAL_DATA.user?.email || '',
-                    password: '',
-                    password_confirmation: ''
-                },
-                isSavingProfile: false,
-                saveProfile() {
-                    this.isSavingProfile = true;
-                    fetch('/admin/api/profile', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify(this.profile)
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        this.isSavingProfile = false;
-                        if(data.success) {
-                            this.addToast('Profil berhasil diperbarui!', 'success');
-                            this.profile.password = '';
-                            this.profile.password_confirmation = '';
-                            if(data.user) {
-                                this.profile.name = data.user.name;
-                                this.profile.email = data.user.email;
-                                window.INITIAL_DATA.user = data.user;
-                            }
-                        } else if (data.errors) {
-                            const firstError = Object.values(data.errors)[0][0];
-                            this.addToast(firstError, 'error');
-                        } else {
-                            this.addToast(data.message || 'Gagal menyimpan profil', 'error');
-                        }
-                    })
-                    .catch(err => {
-                        this.isSavingProfile = false;
-                        this.addToast('Terjadi kesalahan jaringan', 'error');
-                    });
-                },
                 get filteredMenuItems() {
                     let items = [...this.menuItems];
                     if (this.activeMenuFilter !== 'all') {
@@ -1843,6 +1800,10 @@
                 },
 
                 init() {
+                    if (this.currentTab === 'profile') {
+                        this.currentTab = 'dashboard';
+                        localStorage.removeItem('activeDashboardTab');
+                    }
                     const unlockAudio = () => {
                         const chime = document.getElementById('chime-sound');
                         if (chime) {
@@ -1865,7 +1826,7 @@
                         window.history.replaceState({}, '', url);
                     });
                     
-                    if (!this.tabs.some(tab => tab.id === this.currentTab)) this.currentTab = this.tabs[0]?.id || 'profile';
+                    if (!this.tabs.some(tab => tab.id === this.currentTab)) this.currentTab = this.tabs[0]?.id || 'dashboard';
                     if (this.currentTab === 'logs') this.fetchLogs(1);
                     if (this.currentTab === 'shifts') this.fetchShifts();
                     this.initSummary();

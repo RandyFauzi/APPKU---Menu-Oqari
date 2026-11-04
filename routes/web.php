@@ -117,7 +117,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/api/dashboard/orders', [OrderApiController::class, 'index'])->middleware(['can:view-orders', 'schema:orders']);
     Route::get('/admin/api/dashboard/products', [ProductApiController::class, 'index'])->middleware(['can:manage-menu', 'schema:catalog']);
     Route::get('/admin/api/dashboard/analytics', [AnalyticsApiController::class, 'index'])->middleware(['can:view-reports', 'schema:analytics']);
-    Route::post('/admin/api/profile', [DashboardController::class, 'updateProfile']);
     // Settings
     Route::middleware(['can:manage-settings', 'schema:settings'])->group(function () {
 

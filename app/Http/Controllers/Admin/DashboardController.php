@@ -20,7 +20,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -42,6 +41,10 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
+        if ($request->query('tab') === 'profile') {
+            return redirect()->route('profile.edit');
+        }
+
         $role = Auth::user()->role;
 
         if ($role === 'superadmin') {
@@ -464,32 +467,6 @@ class DashboardController extends Controller
             'success' => true,
             'menus' => $freshMenus,
             'categories' => $allCategories,
-        ]);
-    }
-
-    public function updateProfile(Request $request)
-    {
-        $user = Auth::user();
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
-            'password' => 'nullable|min:8|confirmed',
-        ]);
-
-        $user->name = $request->name;
-        $user->email = $request->email;
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
-        }
-        $user->save();
-
-        return response()->json([
-            'success' => true,
-            'user' => [
-                'name' => $user->name,
-                'email' => $user->email,
-            ],
         ]);
     }
 
