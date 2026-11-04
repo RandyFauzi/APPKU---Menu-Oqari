@@ -154,10 +154,10 @@
                     <div class="p-6 border-b border-line">
                         <div class="flex items-center justify-between mb-4">
                             <h4 class="text-sm font-bold text-ink">Jadwal Operasional</h4>
-                            <button type="button" @click="currentTab = 'hours'" class="text-xs font-bold text-primary hover:underline flex items-center gap-1.5">
+                            <a href="{{ route('admin.operating-hours.index') }}" class="text-xs font-bold text-primary hover:underline flex items-center gap-1.5">
                                 <span>Atur Jam Buka & Hari Libur</span>
                                 <i class="fas fa-arrow-right text-[10px]"></i>
-                            </button>
+                            </a>
                         </div>
                         <div class="space-y-3">
                             <template x-for="(dayStr, key) in {'monday':'Senin', 'tuesday':'Selasa', 'wednesday':'Rabu', 'thursday':'Kamis', 'friday':'Jumat', 'saturday':'Sabtu', 'sunday':'Minggu'}" :key="key">

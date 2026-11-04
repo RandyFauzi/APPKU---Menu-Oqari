@@ -9,7 +9,6 @@ use App\Models\CrewShift;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -46,13 +45,6 @@ class ShiftController extends Controller
         $shiftCount = $shifts->count();
 
         return view('Admin.shift.my-schedule', compact('schedule', 'user', 'timezone', 'today', 'workDays', 'totalMinutes', 'shiftCount'));
-    }
-
-    public function index(): RedirectResponse
-    {
-        $this->authorize('manage-crew');
-
-        return redirect()->route('admin.dashboard', ['tab' => 'shifts']);
     }
 
     public function schedule(Request $request): JsonResponse

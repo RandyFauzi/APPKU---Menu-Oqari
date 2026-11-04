@@ -75,13 +75,13 @@ class AuditRegressionTest extends TestCase
 
     public function test_owner_can_schedule_staff_and_view_shift_management(): void
     {
-        $shop = Shop::factory()->create();
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
         $owner = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
         $staff = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
         $this->actingAs($owner)->postJson('/admin/shifts', [
             'user_id' => $staff->id, 'date' => '2026-10-20', 'start_time' => '08:00', 'end_time' => '16:00',
         ])->assertCreated();
-        $this->get('/admin/shifts')->assertRedirect(route('admin.dashboard', ['tab' => 'shifts']));
+        $this->get(route('admin.shifts.index'))->assertOk()->assertSee('Jadwal Shift');
         $this->assertDatabaseHas('crew_shifts', ['shop_id' => $shop->id, 'user_id' => $staff->id]);
     }
 
@@ -222,7 +222,7 @@ class AuditRegressionTest extends TestCase
 
     public function test_shift_dashboard_api_lists_and_deletes_own_shifts_only(): void
     {
-        $shop = Shop::factory()->create();
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
         $owner = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
         $staff = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
         $this->actingAs($owner)->postJson('/admin/api/shifts', [

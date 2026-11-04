@@ -78,7 +78,7 @@ class User extends Authenticatable
         if (array_intersect(config('access.dashboard'), $this->effectivePermissions()) !== []) {
             return 'admin.dashboard';
         }
-        foreach (['manage-users' => 'admin.users.index', 'access-pos' => 'admin.pos.index', 'view-kitchen' => 'admin.kitchen.index', 'manage-hpp' => 'admin.hpp.index', 'manage-register' => 'admin.register.index', 'view-attendance' => 'admin.attendance.report', 'record-attendance' => 'admin.attendance.index', 'view-own-schedule' => 'admin.my-schedule', 'view-orders' => 'admin.dashboard'] as $ability => $route) {
+        foreach (['manage-users' => 'admin.users.index', 'access-pos' => 'admin.pos.index', 'view-kitchen' => 'admin.kitchen.index', 'manage-hpp' => 'admin.hpp.index', 'manage-register' => 'admin.register.index', 'view-attendance' => 'admin.attendance.report', 'record-attendance' => 'admin.attendance.index', 'view-own-schedule' => 'admin.my-schedule', 'view-orders' => 'admin.orders.index'] as $ability => $route) {
             if ($this->can($ability)) {
                 return $route;
             }

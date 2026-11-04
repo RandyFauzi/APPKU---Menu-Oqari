@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminPageController;
 use App\Http\Controllers\Admin\Api\AnalyticsApiController;
 use App\Http\Controllers\Admin\Api\DashboardApiController;
 use App\Http\Controllers\Admin\Api\OrderApiController;
@@ -7,7 +8,6 @@ use App\Http\Controllers\Admin\Api\ProductApiController;
 use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\CafeUserController;
 use App\Http\Controllers\Admin\CashRegisterController;
-use App\Http\Controllers\Admin\CrewController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HppCalculatorController;
 use App\Http\Controllers\Admin\InventoryController;
@@ -50,7 +50,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/attendance/report', [AttendanceController::class, 'report'])->middleware('schema:attendance')->name('admin.attendance.report');
 
     // Dashboard (accessible to all authenticated users)
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminPageController::class, 'index'])->name('admin.dashboard');
+    foreach (config('admin_pages') as $page => $definition) {
+        if (in_array($page, ['dashboard', 'report'], true)) {
+            continue;
+        }
+        Route::get('/admin/'.$definition['uri'], [AdminPageController::class, 'index'])
+            ->defaults('page', $page)->middleware(['can:'.$definition['ability'], 'schema:'.$definition['schema']])->name($definition['route']);
+    }
 
     Route::middleware(['can:manage-users', 'schema:users'])->group(function () {
         Route::get('/admin/users', [CafeUserController::class, 'index'])->name('admin.users.index');
@@ -130,7 +137,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Crew Management (Owner/Manager)
     Route::middleware(['can:manage-crew', 'schema:shifts'])->group(function () {
-        Route::get('/admin/shifts', [ShiftController::class, 'index'])->name('admin.shifts.index');
         Route::post('/admin/shifts', [ShiftController::class, 'store'])->name('admin.shifts.store');
         Route::get('/admin/api/shifts', [ShiftController::class, 'schedule'])->name('admin.shifts.data');
         Route::post('/admin/api/shifts', [ShiftController::class, 'store']);
@@ -140,7 +146,7 @@ Route::middleware(['auth'])->group(function () {
     // My Schedule (Crew/Barista — personal view only)
     Route::middleware(['can:view-own-schedule', 'schema:shifts'])->group(function () {
         Route::get('/admin/my-schedule', [ShiftController::class, 'mySchedule'])->name('admin.my-schedule');
-        Route::get('/admin/crew-home', [CrewController::class, 'home'])->name('admin.crew.home');
+        Route::get('/admin/crew-home', fn () => redirect()->route('admin.my-schedule'))->name('admin.crew.home');
     });
 
     // Kitchen Display (Barista/Kitchen)
@@ -174,8 +180,9 @@ Route::middleware(['auth'])->group(function () {
     // Reporting & Analytics
     Route::middleware(['can:view-reports', 'schema:reports'])->group(function () {
         Route::get('/admin/reports', [ReportController::class, 'index'])->name('admin.reports.index');
-        Route::get('/admin/api/logs', [DashboardController::class, 'getLogs'])->middleware('schema:audit')->name('admin.logs.index');
     });
+
+    Route::get('/admin/api/logs', [DashboardController::class, 'getLogs'])->middleware(['can:view-reports', 'schema:audit'])->name('admin.logs.index');
 
     // Profile (all authenticated users)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

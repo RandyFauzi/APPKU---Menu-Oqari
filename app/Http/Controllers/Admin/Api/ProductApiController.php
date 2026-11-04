@@ -16,7 +16,8 @@ class ProductApiController extends Controller
             return response()->json([]);
         }
 
-        $perPage = $request->query('per_page', 25);
+        $filters = $request->validate(['per_page' => ['sometimes', 'integer', 'min:1', 'max:150'], 'page' => ['sometimes', 'integer', 'min:1']]);
+        $perPage = (int) ($filters['per_page'] ?? 25);
 
         $products = Product::where('shop_id', $shopId)
             ->with(['category', 'variants', 'modifierGroups.modifiers', 'recipes.rawMaterial'])

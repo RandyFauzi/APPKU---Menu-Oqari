@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
         if (! is_array(config('access.permissions'))) {
             config(['access' => require config_path('access.php')]);
         }
+        if (! is_array(config('admin_pages'))) {
+            config(['admin_pages' => require config_path('admin_pages.php')]);
+        }
 
         Gate::before(function (User $user): ?bool {
             if (! $user->isAccountActive()) {

@@ -114,7 +114,7 @@
                     </div>
                     <p class="text-[11px] text-[#8b8e93] leading-[16.5px]">Status pesanan</p>
                 </div>
-                <a href="/admin/dashboard?tab=orders" class="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#df5826] hover:opacity-80 transition">
+                <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#df5826] hover:opacity-80 transition">
                     <span>Semua Pesanan</span>
                     <img src="{{ asset('images/sparta/arrow-right.svg') }}" alt="" class="w-[12px] h-[12px]">
                 </a>
@@ -1029,6 +1029,7 @@ function posApp() {
             const payload = {
                 items: this.cartPayload(),
                 table: this.fulfillmentType === 'DINE_IN' ? (this.selectedTable || null) : null,
+                fulfillment_type: this.fulfillmentType || 'DINE_IN',
                 customer_name: (this.customerName || '').trim() || null,
             };
             try {

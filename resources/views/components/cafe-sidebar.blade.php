@@ -5,38 +5,38 @@ $member = auth()->user();
 $cafe = $member?->shop;
 $groups = [
     'Operasional' => [
-        ['access-pos', 'Kasir', 'fa-cash-register', 'admin.pos.index', null, 'images/sparta/nav-kasir.svg'],
-        ['view-orders', 'Pesanan Aktif', 'fa-receipt', 'admin.dashboard', 'orders', 'images/sparta/nav-pesanan.svg'],
-        ['record-attendance', 'Absensi', 'fa-user-clock', 'admin.attendance.index', null, 'images/sparta/nav-absensi.svg'],
-        ['view-kitchen', 'Layar Dapur', 'fa-fire-burner', 'admin.kitchen.index', null, null],
-        ['manage-register', 'Rekonsiliasi Kas', 'fa-wallet', 'admin.register.index', null, null],
+        ['access-pos', 'Kasir', 'fa-cash-register', 'admin.pos.index', 'images/sparta/nav-kasir.svg'],
+        ['view-orders', 'Pesanan Aktif', 'fa-receipt', 'admin.orders.index', 'images/sparta/nav-pesanan.svg'],
+        ['record-attendance', 'Absensi', 'fa-user-clock', 'admin.attendance.index', 'images/sparta/nav-absensi.svg'],
+        ['view-kitchen', 'Layar Dapur', 'fa-fire-burner', 'admin.kitchen.index', null],
+        ['manage-register', 'Rekonsiliasi Kas', 'fa-wallet', 'admin.register.index', null],
     ],
     'Menu & Stok' => [
-        ['manage-menu', 'Kelola Menu', 'fa-burger', 'admin.dashboard', 'menu', 'images/sparta/nav-menu.svg'],
-        ['manage-inventory', 'Bahan & Stok', 'fa-boxes-stacked', 'admin.dashboard', 'inventory', 'images/sparta/nav-stok.svg'],
+        ['manage-menu', 'Kelola Menu', 'fa-burger', 'admin.menu.index', 'images/sparta/nav-menu.svg'],
+        ['manage-inventory', 'Bahan & Stok', 'fa-boxes-stacked', 'admin.inventory.index', 'images/sparta/nav-stok.svg'],
     ],
     'Manajemen Tim' => [
-        ['manage-users', 'Manajemen Staf', 'fa-user-shield', 'admin.users.index', null, 'images/sparta/nav-staf.svg'],
-        ['manage-crew', 'Jadwal Shift', 'fa-calendar-days', 'admin.dashboard', 'shifts', 'images/sparta/nav-shift.svg'],
-        ['view-own-schedule', 'Jadwal Saya', 'fa-calendar', 'admin.my-schedule', null, null],
+        ['manage-users', 'Manajemen Staf', 'fa-user-shield', 'admin.users.index', 'images/sparta/nav-staf.svg'],
+        ['manage-crew', 'Jadwal Shift', 'fa-calendar-days', 'admin.shifts.index', 'images/sparta/nav-shift.svg'],
+        ['view-own-schedule', 'Jadwal Saya', 'fa-calendar', 'admin.my-schedule', null],
     ],
     'Laporan' => [
-        ['view-reports', 'Laporan Keuangan', 'fa-book', 'admin.dashboard', 'report', 'images/sparta/nav-laporan.svg'],
-        ['view-reports', 'Log Aktivitas', 'fa-clock-rotate-left', 'admin.dashboard', 'logs', 'images/sparta/nav-log.svg'],
+        ['view-reports', 'Laporan Keuangan', 'fa-book', 'admin.reports.index', 'images/sparta/nav-laporan.svg'],
+        ['view-reports', 'Log Aktivitas', 'fa-clock-rotate-left', 'admin.activity-logs.index', 'images/sparta/nav-log.svg'],
     ],
     'Pengaturan' => [
-        ['manage-settings', 'Meja & QR', 'fa-qrcode', 'admin.dashboard', 'qr', 'images/sparta/nav-meja-qr.svg'],
-        ['manage-settings', 'Toko Saya', 'fa-store', 'admin.dashboard', 'settings', 'images/sparta/nav-toko.svg'],
-        ['manage-settings', 'Jam Operasional', 'fa-clock', 'admin.dashboard', 'hours', 'images/sparta/clock.svg'],
-        ['manage-settings', 'Pengaturan Struk', 'fa-print', 'admin.dashboard', 'receipt', 'images/sparta/nav-struk.svg'],
-        ['manage-hpp', 'Kalkulator HPP', 'fa-calculator', 'admin.hpp.index', null, 'images/sparta/nav-hpp.svg'],
+        ['manage-settings', 'Meja & QR', 'fa-qrcode', 'admin.tables.index', 'images/sparta/nav-meja-qr.svg'],
+        ['manage-settings', 'Toko Saya', 'fa-store', 'admin.settings.index', 'images/sparta/nav-toko.svg'],
+        ['manage-settings', 'Jam Operasional', 'fa-clock', 'admin.operating-hours.index', 'images/sparta/clock.svg'],
+        ['manage-settings', 'Pengaturan Struk', 'fa-print', 'admin.receipt-settings.index', 'images/sparta/nav-struk.svg'],
+        ['manage-hpp', 'Kalkulator HPP', 'fa-calculator', 'admin.hpp.index', 'images/sparta/nav-hpp.svg'],
     ],
 ];
 if ($member?->role === 'superadmin') {
     $groups = ['Administrasi Platform' => [
-        [null, 'Dashboard', 'fa-chart-pie', 'superadmin.dashboard', null, null],
-        [null, 'Manajemen Toko', 'fa-store', 'superadmin.shops.index', null, null],
-        [null, 'Manajemen Pengguna', 'fa-users', 'superadmin.users.index', null, null],
+        [null, 'Dashboard', 'fa-chart-pie', 'superadmin.dashboard', null],
+        [null, 'Manajemen Toko', 'fa-store', 'superadmin.shops.index', null],
+        [null, 'Manajemen Pengguna', 'fa-users', 'superadmin.users.index', null],
     ]];
 }
 @endphp
@@ -67,29 +67,11 @@ if ($member?->role === 'superadmin') {
             @if($member?->role !== 'superadmin')
                 <!-- Top Primary Dashboard Link (Sparta Style) -->
                 <div class="mb-2">
-                    @if($dashboard)
-                        <button type="button" 
-                            class="sidebar-link group relative transition-all" 
-                            :class="{ 'is-active': currentTab === 'dashboard' }" 
-                            @click="currentTab = 'dashboard'; mobileNavOpen = false" 
-                            title="Dashboard" 
-                            aria-label="Dashboard" 
-                            :aria-current="currentTab === 'dashboard' ? 'page' : null">
-                            <span x-show="currentTab === 'dashboard'" class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>
-                            <img src="{{ asset('images/sparta/nav-dashboard.svg') }}" class="nav-icon-dashboard w-[18px] h-[18px] shrink-0 transition-all" alt="">
-                            <span x-show="!isMinimized || mobileNavOpen" class="truncate font-medium">Dashboard</span>
-                        </button>
-                    @else
-                        <a href="{{ route('admin.dashboard', ['tab' => 'dashboard']) }}" 
-                            class="sidebar-link group relative transition-all {{ request()->routeIs('admin.dashboard') && (request('tab') === 'dashboard' || !request('tab')) ? 'is-active' : '' }}" 
-                            title="Dashboard">
-                            @if(request()->routeIs('admin.dashboard') && (request('tab') === 'dashboard' || !request('tab')))
-                                <span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>
-                            @endif
-                            <img src="{{ asset('images/sparta/nav-dashboard.svg') }}" class="nav-icon-dashboard w-[18px] h-[18px] shrink-0 transition-all" alt="">
-                            <span x-show="!isMinimized || mobileNavOpen" class="truncate font-medium">Dashboard</span>
-                        </a>
-                    @endif
+                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link group relative transition-all {{ request()->routeIs('admin.dashboard') ? 'is-active' : '' }}" title="Dashboard" aria-label="Dashboard" @if(request()->routeIs('admin.dashboard')) aria-current="page" @endif>
+                        @if(request()->routeIs('admin.dashboard'))<span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>@endif
+                        <img src="{{ asset('images/sparta/nav-dashboard.svg') }}" class="nav-icon-dashboard w-[18px] h-[18px] shrink-0 transition-all" alt="">
+                        <span x-show="!isMinimized || mobileNavOpen" class="truncate font-medium">Dashboard</span>
+                    </a>
                 </div>
             @endif
 
@@ -99,39 +81,21 @@ if ($member?->role === 'superadmin') {
                 @if(count($visibleLinks))
                     <p class="sidebar-heading" x-show="!isMinimized || mobileNavOpen">{{ $heading }}</p>
                     <div class="my-3 border-t border-gray-200" x-show="isMinimized && !mobileNavOpen" aria-hidden="true"></div>
-                    @foreach($visibleLinks as [$ability, $label, $icon, $routeName, $tab, $svgIcon])
+                    @foreach($visibleLinks as [$ability, $label, $icon, $routeName, $svgIcon])
                         @php
-                            $active = $tab
-                                ? (request()->routeIs('admin.dashboard') && request('tab') === $tab)
-                                : ($routeName === 'admin.attendance.index'
-                                    ? request()->routeIs('admin.attendance.index')
-                                    : request()->routeIs($routeName, str_replace('.index', '.*', $routeName)));
-                            $destination = route($routeName, $tab ? ['tab' => $tab] : []);
+                            $active = request()->routeIs($routeName, str_replace('.index', '.*', $routeName));
+                            $destination = route($routeName);
                             $ariaLabel = $label === 'Kasir' ? 'POS (Kasir)' : $label;
                         @endphp
-                        @if($dashboard && $tab)
-                            <button type="button" class="sidebar-link group relative transition-all" :class="{ 'is-active': currentTab === '{{ $tab }}' }" @click="currentTab = '{{ $tab }}'; mobileNavOpen = false" title="{{ $label }}" aria-label="{{ $ariaLabel }}" :aria-current="currentTab === '{{ $tab }}' ? 'page' : null">
-                                <span x-show="currentTab === '{{ $tab }}'" class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>
-                                @if($svgIcon)
-                                    <img src="{{ asset($svgIcon) }}" class="nav-icon-mono w-[18px] h-[18px] shrink-0 opacity-80 group-hover:opacity-100 transition-all" alt="">
-                                @else
-                                    <i class="fas {{ $icon }}" aria-hidden="true"></i>
-                                @endif
-                                <span x-show="!isMinimized || mobileNavOpen" class="truncate">{{ $label }}</span>
-                            </button>
-                        @else
-                            <a href="{{ $destination }}" class="sidebar-link group relative transition-all {{ $active ? 'is-active' : '' }}" title="{{ $label }}" aria-label="{{ $ariaLabel }}" @if($active) aria-current="page" @endif>
-                                @if($active)
-                                    <span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>
-                                @endif
-                                @if($svgIcon)
-                                    <img src="{{ asset($svgIcon) }}" class="nav-icon-mono w-[18px] h-[18px] shrink-0 opacity-80 group-hover:opacity-100 transition-all" alt="">
-                                @else
-                                    <i class="fas {{ $icon }}" aria-hidden="true"></i>
-                                @endif
-                                <span x-show="!isMinimized || mobileNavOpen" class="truncate">{{ $label }}</span>
-                            </a>
-                        @endif
+                        <a href="{{ $destination }}" class="sidebar-link group relative transition-all {{ $active ? 'is-active' : '' }}" title="{{ $label }}" aria-label="{{ $ariaLabel }}" @if($active) aria-current="page" @endif>
+                            @if($active)<span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>@endif
+                            @if($svgIcon)
+                                <img src="{{ asset($svgIcon) }}" class="nav-icon-mono w-[18px] h-[18px] shrink-0 opacity-80 group-hover:opacity-100 transition-all" alt="">
+                            @else
+                                <i class="fas {{ $icon }}" aria-hidden="true"></i>
+                            @endif
+                            <span x-show="!isMinimized || mobileNavOpen" class="truncate">{{ $label }}</span>
+                        </a>
                     @endforeach
                 @endif
             @endforeach

@@ -77,7 +77,7 @@ document.addEventListener('alpine:init', () => {
         
         viewDetails() {
             this.acknowledgeOrder();
-            window.location.href = '/admin/dashboard?tab=orders';
+            window.location.href = '{{ route('admin.orders.index') }}';
         }
     }));
 });

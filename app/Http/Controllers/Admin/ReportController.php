@@ -2,100 +2,35 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\BuildFinancialReport;
+use App\Actions\RenderAdminPage;
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Payment;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, BuildFinancialReport $report, RenderAdminPage $renderPage): View|StreamedResponse
     {
-        $shopId = Auth::user()->shop_id;
-        $date = $request->input('date', Carbon::today()->toDateString());
-
-        $startOfDay = Carbon::parse($date)->startOfDay();
-        $endOfDay = Carbon::parse($date)->endOfDay();
-
-        // 1. Basic Dashboard Metrics
-        $orders = Order::where('shop_id', $shopId)
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->where('payment_status', 'PAID') // Strict cash-basis accounting
-            ->get();
-
-        $transactionsCount = $orders->count();
-
-        // Accurate Financial Metrics Definition
-        // Gross merchandise sales (Subtotal of all items sold)
-        $grossSales = $orders->sum('subtotal');
-        $totalDiscount = $orders->sum('discount_amount');
-
-        // Gross - Discount = Net sales before tax
-        $netSales = $grossSales - $totalDiscount;
-        $totalCogs = $orders->sum('total_cogs');
-        $grossProfit = $netSales - $totalCogs;
-        $margin = $netSales > 0 ? round($grossProfit / $netSales * 100, 2) : 0;
-
-        $totalTax = $orders->sum('tax_amount');
-        $totalServiceCharge = $orders->sum('service_charge_amount');
-
-        // Grand Total collected from customers
-        $grandTotal = $orders->sum('grand_total');
-
-        // AOV typically uses Grand Total because it's what the customer actually pays
-        $aov = $transactionsCount > 0 ? $grandTotal / $transactionsCount : 0;
-
-        // Ensure variables are defined for the view if it expects them
-
-        // 2. Split by Payment Methods
-        $payments = Payment::where('shop_id', $shopId)
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->whereNull('cancelled_at')
-            ->whereHas('order', fn ($query) => $query->where('shop_id', $shopId)->where('payment_status', 'PAID'))
-            ->select('payment_method', DB::raw('SUM(amount) as total'))
-            ->groupBy('payment_method')
-            ->pluck('total', 'payment_method');
-
-        // 3. Product Analytics
-        // Best Seller
-        $bestSellers = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.shop_id', $shopId)
-            ->whereBetween('orders.created_at', [$startOfDay, $endOfDay])
-            ->where('orders.order_status', '!=', 'CANCELLED')
-            ->select('product_id', DB::raw('SUM(quantity) as total_qty'), DB::raw('SUM(order_items.unit_price * order_items.quantity) as total_revenue'))
-            ->groupBy('product_id')
-            ->orderBy('total_qty', 'desc')
-            ->with('product')
-            ->take(5)
-            ->get();
-
-        // Most Cancelled
-        $cancelledItems = OrderItem::join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.shop_id', $shopId)
-            ->whereBetween('orders.created_at', [$startOfDay, $endOfDay])
-            ->where('orders.order_status', 'CANCELLED')
-            ->select('product_id', DB::raw('SUM(quantity) as total_qty'))
-            ->groupBy('product_id')
-            ->orderBy('total_qty', 'desc')
-            ->with('product')
-            ->take(5)
-            ->get();
-
-        // 4. Time Analytics (Hourly) - DB Agnostic mapping
-        $chartData = array_fill_keys(array_map(fn ($i) => str_pad($i, 2, '0', STR_PAD_LEFT).':00', range(0, 23)), 0);
-
-        foreach ($orders as $order) {
-            $hour = $order->created_at->format('H:00');
-            $chartData[$hour] += $order->grand_total;
+        $this->authorize('view-reports');
+        abort_unless($request->user()->shop_id, 403);
+        $filters = $request->validate([
+            'date' => ['nullable', 'date_format:Y-m-d'], 'period' => ['nullable', 'in:daily,weekly,monthly,all'],
+            'format' => ['nullable', 'in:csv'], 'page' => ['sometimes', 'integer', 'min:1'],
+        ]);
+        if (($filters['format'] ?? null) === 'csv') {
+            return response()->streamDownload(function () use ($request, $report, $filters): void {
+                $stream = fopen('php://output', 'w');
+                fwrite($stream, "\xEF\xBB\xBF");
+                fputcsv($stream, ['ID', 'Waktu', 'Pelanggan', 'Pembayaran', 'Penjualan Bersih', 'HPP Tersimpan', 'Laba Kotor', 'Total Tagihan'], ',', '"', '');
+                foreach ($report->rows($request->user(), $filters) as $row) {
+                    fputcsv($stream, $row, ',', '"', '');
+                }
+                fclose($stream);
+            }, 'laporan-keuangan.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
         }
 
-        return view('Admin.reports.index', compact(
-            'date', 'transactionsCount', 'grossSales', 'netSales', 'aov', 'totalCogs', 'grossProfit', 'margin',
-            'payments', 'bestSellers', 'cancelledItems', 'chartData'
-        ));
+        return $renderPage->execute($request->user(), 'report', $report->execute($request->user(), $filters));
     }
 }

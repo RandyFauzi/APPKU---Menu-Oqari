@@ -1,112 +1,20 @@
-@extends('Admin.Layouts.admin-auth-master')
-
-@section('title', 'Analytics & Reporting')
-
-@section('content')
-<div class="p-6 max-w-7xl mx-auto space-y-6">
-    <div class="flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
-            <p class="text-sm text-gray-500">Overview of your shop's performance</p>
-        </div>
-        <form method="GET" class="flex gap-2">
-            <input type="date" name="date" value="{{ $date }}" class="rounded-lg border-gray-300 shadow-sm focus:border-gold-600 focus:ring-gold-600 text-sm">
-            <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-700">Filter</button>
-        </form>
+<div class="flex-grow overflow-y-auto bg-[#f8f9fa] p-4 font-['DM_Sans',sans-serif] md:p-6 lg:p-7">
+    <div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><h1 class="text-[25px] font-semibold tracking-tight">Laporan Keuangan</h1><p class="mt-1.5 text-[13px] text-[#7f837e]">Penjualan yang sudah dibayar dan HPP tersimpan · {{ $timezone }}</p></div><a href="{{ route('admin.reports.index', ['date' => $date, 'period' => $period, 'format' => 'csv']) }}" class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-[#f9731f] px-4 text-xs font-semibold text-white hover:bg-[#ea580c]"><i class="fas fa-download" aria-hidden="true"></i>Ekspor CSV</a></div>
+    <form method="GET" action="{{ route('admin.reports.index') }}" class="mb-5 flex flex-wrap items-end gap-3 rounded-xl border border-[#e9ebf0] bg-white p-5">
+        <div><label for="report-date" class="mb-1.5 block text-xs text-[#53565a]">Tanggal acuan</label><input id="report-date" type="date" name="date" value="{{ $date }}" required class="h-11 rounded-lg border-[#e9ebf0] text-xs focus:border-orange-500 focus:ring-orange-500"></div>
+        <div><label for="report-period" class="mb-1.5 block text-xs text-[#53565a]">Periode</label><select id="report-period" name="period" class="h-11 rounded-lg border-[#e9ebf0] text-xs focus:border-orange-500 focus:ring-orange-500">@foreach(['daily' => 'Harian', 'weekly' => 'Mingguan', 'monthly' => 'Bulanan', 'all' => 'Semua periode'] as $key => $label)<option value="{{ $key }}" @selected($period === $key)>{{ $label }}</option>@endforeach</select></div>
+        <button type="submit" class="h-11 rounded-lg border border-[#e9ebf0] px-4 text-xs font-semibold text-[#53565a] hover:bg-gray-50">Tampilkan</button>
+    </form>
+    <div class="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        @foreach(['Penjualan bersih' => $netSales, 'HPP tersimpan' => $totalCogs, 'Laba kotor' => $grossProfit, 'Total tagihan dibayar' => $grandTotal] as $label => $amount)
+            <div class="rounded-xl border border-[#e9ebf0] bg-white p-5 shadow-sm"><p class="text-xs text-[#7f837e]">{{ $label }}</p><p class="mt-3 text-xl font-semibold">Rp {{ number_format($amount, 0, ',', '.') }}</p></div>
+        @endforeach
     </div>
-
-    <!-- Top Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-sm font-semibold text-gray-500 uppercase">Gross Sales</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">Rp {{ number_format($grossSales, 0, ',', '.') }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-sm font-semibold text-gray-500 uppercase">Net Sales</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">Rp {{ number_format($netSales, 0, ',', '.') }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-sm font-semibold text-gray-500 uppercase">Transactions</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">{{ number_format($transactionsCount) }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-sm font-semibold text-gray-500 uppercase">Avg Order Value</p>
-            <p class="text-2xl font-bold text-gray-900 mt-1">Rp {{ number_format($aov, 0, ',', '.') }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-sm font-semibold text-gray-500 uppercase">COGS</p>
-            <p class="text-2xl font-bold text-red-500 mt-1">Rp {{ number_format($totalCogs, 0, ',', '.') }}</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-sm font-semibold text-gray-500 uppercase">Gross Profit ({{ $margin }}%)</p>
-            <p class="text-2xl font-bold text-green-600 mt-1">Rp {{ number_format($grossProfit, 0, ',', '.') }}</p>
-        </div>
+    <div class="mb-5 grid gap-5 lg:grid-cols-3">
+        <section class="rounded-xl border border-[#e9ebf0] bg-white p-5"><h2 class="text-sm font-semibold">Ringkasan periode</h2><dl class="mt-4 space-y-3 text-xs"><div class="flex justify-between"><dt class="text-[#7f837e]">Transaksi dibayar</dt><dd class="font-medium">{{ $transactionsCount }}</dd></div><div class="flex justify-between"><dt class="text-[#7f837e]">Rata-rata transaksi</dt><dd class="font-medium">Rp {{ number_format($aov, 0, ',', '.') }}</dd></div><div class="flex justify-between"><dt class="text-[#7f837e]">Margin laba kotor</dt><dd class="font-medium">{{ $margin }}%</dd></div></dl></section>
+        <section class="rounded-xl border border-[#e9ebf0] bg-white p-5"><h2 class="text-sm font-semibold">Penerimaan pembayaran</h2><div class="mt-4 space-y-3 text-xs">@forelse($payments as $method => $amount)<div class="flex justify-between gap-3"><span class="text-[#7f837e]">{{ $method }}</span><span class="font-medium">Rp {{ number_format($amount, 0, ',', '.') }}</span></div>@empty<p class="text-[#7f837e]">Belum ada pembayaran.</p>@endforelse</div></section>
+        <section class="rounded-xl border border-[#e9ebf0] bg-white p-5"><h2 class="text-sm font-semibold">Menu terlaris</h2><div class="mt-4 space-y-3 text-xs">@forelse($bestSellers as $item)<div class="flex justify-between gap-3"><span class="text-[#53565a]">{{ $item->product_name }}</span><span class="whitespace-nowrap text-[#7f837e]">{{ $item->total_qty }} terjual</span></div>@empty<p class="text-[#7f837e]">Belum ada penjualan.</p>@endforelse</div></section>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Chart -->
-        <div class="col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-bold text-gray-800 mb-4">Hourly Sales</h2>
-            <div class="h-64 flex items-end gap-1">
-                @php $max = max($chartData) > 0 ? max($chartData) : 1; @endphp
-                @foreach($chartData as $hour => $total)
-                    <div class="flex-1 flex flex-col justify-end group relative">
-                        <div class="hidden group-hover:block absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded whitespace-nowrap z-10">
-                            Rp {{ number_format($total, 0, ',', '.') }}
-                        </div>
-                        <div class="bg-green-500 rounded-t-sm hover:bg-brand-800 transition-all w-full" style="height: {{ ($total / $max) * 100 }}%"></div>
-                        <div class="text-[10px] text-gray-400 text-center mt-2 rotate-45 origin-left">{{ $hour }}</div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- Payments -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-bold text-gray-800 mb-4">Payment Methods</h2>
-            <div class="space-y-4">
-                @forelse($payments as $method => $total)
-                    <div class="flex justify-between items-center">
-                        <span class="font-semibold text-gray-600">{{ $method }}</span>
-                        <span class="font-bold text-gray-900">Rp {{ number_format($total, 0, ',', '.') }}</span>
-                    </div>
-                @empty
-                    <p class="text-gray-400 text-sm text-center py-4">No payments today</p>
-                @endforelse
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Analytics -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 text-green-600">Top 5 Best Sellers</h2>
-            <div class="space-y-4">
-                @foreach($bestSellers as $item)
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <div>
-                            <p class="font-bold text-gray-800">{{ $item->product->name ?? 'Unknown' }}</p>
-                            <p class="text-xs text-gray-500">{{ $item->total_qty }} items sold</p>
-                        </div>
-                        <span class="font-bold text-green-600">Rp {{ number_format($item->total_revenue, 0, ',', '.') }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 text-red-500">Most Cancelled Items</h2>
-            <div class="space-y-4">
-                @foreach($cancelledItems as $item)
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <div>
-                            <p class="font-bold text-gray-800">{{ $item->product->name ?? 'Unknown' }}</p>
-                            <p class="text-xs text-red-400">{{ $item->total_qty }} items cancelled</p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
+    <section class="overflow-hidden rounded-xl border border-[#e9ebf0] bg-white shadow-sm"><h2 class="border-b border-[#e9ebf0] px-5 py-4 text-sm font-semibold">Transaksi periode ini</h2><div class="overflow-x-auto"><table class="w-full min-w-[850px] text-left text-xs"><caption class="sr-only">Transaksi dibayar sesuai periode laporan</caption><thead class="bg-[#f8f9fa] text-[10px] uppercase tracking-wider text-[#7f837e]"><tr><th scope="col" class="px-5 py-4">Transaksi</th><th scope="col" class="px-5 py-4">Pelanggan</th><th scope="col" class="px-5 py-4">Pembayaran</th><th scope="col" class="px-5 py-4 text-right">Penjualan bersih</th><th scope="col" class="px-5 py-4 text-right">HPP</th><th scope="col" class="px-5 py-4 text-right">Laba kotor</th></tr></thead><tbody class="divide-y divide-[#e9ebf0]">@forelse($transactions as $transaction)<tr><td class="px-5 py-4"><p class="font-semibold">#{{ $transaction->id }}</p><p class="mt-1 text-[11px] text-[#7f837e]">{{ $transaction->created_at->timezone($timezone)->format('d M Y H:i') }}</p></td><td class="px-5 py-4">{{ $transaction->customer_name ?: 'Pelanggan' }}</td><td class="px-5 py-4">{{ $transaction->payment_method ?: '—' }}</td><td class="px-5 py-4 text-right">Rp {{ number_format($transaction->subtotal - $transaction->discount_amount, 0, ',', '.') }}</td><td class="px-5 py-4 text-right">Rp {{ number_format($transaction->total_cogs, 0, ',', '.') }}</td><td class="px-5 py-4 text-right">Rp {{ number_format($transaction->subtotal - $transaction->discount_amount - $transaction->total_cogs, 0, ',', '.') }}</td></tr>@empty<tr><td colspan="6" class="px-5 py-12 text-center text-[#7f837e]">Belum ada transaksi dibayar pada periode ini.</td></tr>@endforelse</tbody></table></div><div class="border-t border-[#e9ebf0] p-5">{{ $transactions->links() }}</div></section>
+    <p class="mt-4 text-[11px] leading-relaxed text-[#7f837e]">Periode penjualan mengikuti tanggal pesanan. Penerimaan mengikuti tanggal pembayaran. Transaksi batal dan pembayaran dibatalkan dikecualikan. HPP nol tetap ditampilkan nol; laba kotor belum dikurangi biaya operasional.</p>
 </div>
-@endsection

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\ActivityLogs\ListActivityLogs;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
-use App\Models\CashRegisterSession;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
@@ -37,66 +36,6 @@ class DashboardController extends Controller
                 'ip_address' => request()->ip(),
             ]);
         }
-    }
-
-    public function index(Request $request)
-    {
-        if ($request->query('tab') === 'profile') {
-            return redirect()->route('profile.edit');
-        }
-
-        $role = Auth::user()->role;
-
-        if ($role === 'superadmin') {
-            return redirect()->route('superadmin.dashboard');
-        }
-
-        if (Auth::user()->homeRoute() !== 'admin.dashboard') {
-            return redirect()->route(Auth::user()->homeRoute());
-        }
-
-        $user = Auth::user();
-
-        // JIKA USER BARU DAFTAR & BELUM PUNYA SHOP
-        if (! $user->shop_id) {
-            $baseSlug = Str::slug($user->name);
-            $slug = $baseSlug;
-            $counter = 1;
-            while (Shop::where('slug', $slug)->exists()) {
-                $slug = $baseSlug.'-'.$counter;
-                $counter++;
-            }
-
-            $newShop = Shop::create([
-                'name' => $user->name.' Shop',
-                'slug' => $slug,
-                'primary_color' => '#1E5A7A', // Default color
-                'onboarding_status' => 'pending',
-                'onboarding_step' => 'welcome',
-                'status' => 'onboarding', // using the existing status column as well for clarity
-            ]);
-
-            $user->update([
-                'shop_id' => $newShop->id,
-                'role' => 'owner', // Jadikan dia owner dari tokonya sendiri
-            ]);
-        }
-
-        $shopId = $user->shop_id;
-        $shop = Shop::find($shopId);
-
-        // ONBOARDING GUARD
-        // Hanya Owner dan Manager yang bisa mengakses / melanjutkan onboarding.
-        if ($shop && $shop->onboarding_status !== 'completed' && $user->can('manage-settings')) {
-            return redirect()->route('admin.onboarding');
-        }
-
-        // Dashboard shell: only essential layout data
-        $activeSession = CashRegisterSession::whereHas('register', fn ($query) => $query->where('shop_id', $shopId))->where('user_id', $user->id)->where('status', 'OPEN')->first();
-        $categories = $user->can('manage-menu') ? Category::where('shop_id', $shopId)->orderBy('sort_order')->get() : collect();
-        $dashboardShop = $user->can('manage-settings') ? $shop->toArray() : $shop->only(['id', 'name', 'slug', 'logo_url', 'primary_color', 'sales_modes']);
-
-        return view('Admin.Dashboard.dashboard', compact('shop', 'activeSession', 'categories', 'dashboardShop'));
     }
 
     public function getLiveOrders()

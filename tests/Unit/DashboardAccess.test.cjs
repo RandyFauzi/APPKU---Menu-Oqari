@@ -9,7 +9,7 @@ function dashboard(permissions) {
     const end = source.indexOf('</script>', start);
     let factory;
     const context = {
-        window: { OQARI_THEME: { primaryOptions: [], primary: '#641d35' }, INITIAL_DATA: { permissions, user: {}, categories: [], shop: {} }, location: { search: '' }, innerWidth: 1200 },
+        window: { OQARI_THEME: { primaryOptions: [], primary: '#641d35' }, INITIAL_DATA: { permissions, pages: permissions.includes('manage-inventory') ? [{id:'inventory', name:'Bahan & Stok', url:'/admin/inventory'}] : [], user: {}, categories: [], shop: {} }, location: { search: '' }, innerWidth: 1200 },
         document: { addEventListener: (event, callback) => callback() },
         Alpine: { data: (name, callback) => { factory = callback; } },
         localStorage: { getItem: () => null }, URLSearchParams,

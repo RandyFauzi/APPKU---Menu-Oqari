@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Dashboard - {{ $shop->name ?? config('app.name', 'Oqari') }}</title>
+    <title>{{ $pageLabel }} - {{ $shop->name ?? config('app.name', 'Oqari') }}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Favicon -->
@@ -86,7 +86,7 @@
                 </div>
 
                 <!-- Bell Notifications -->
-                <div class="relative cursor-pointer p-1.5 text-gray-500 hover:text-primary transition-colors" @click="currentTab = 'orders'" title="Pesanan Masuk">
+                <div class="relative cursor-pointer p-1.5 text-gray-500 hover:text-primary transition-colors" @click="navigateToPage('orders')" title="Pesanan Masuk">
                     <i class="fas fa-bell text-base md:text-lg"></i>
                     <template x-if="(orders || []).filter(o => o.status === 'Masuk' || o.status === 'CONFIRMED' || o.order_status === 'CONFIRMED').length > 0">
                         <span class="absolute 0 right-0 bg-[#ea580c] text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white" x-text="(orders || []).filter(o => o.status === 'Masuk' || o.status === 'CONFIRMED' || o.order_status === 'CONFIRMED').length"></span>
@@ -122,21 +122,7 @@
             </div>
         </header>
 
-        @include('Admin.Dashboard.tabs.overview')
-        @include('Admin.Dashboard.tabs.orders')
-        @include('Admin.Dashboard.tabs.menu')
-        
-        <!-- VIEW: ANALYTICS (OWNER) -->
-        @include('Admin.Dashboard.tabs.report')
-        @include('Admin.Dashboard.tabs.inventory')
-        @include('Admin.Dashboard.tabs.qr')
-        @include('Admin.Dashboard.tabs.crew')
-        @include('Admin.Dashboard.tabs.shifts')
-        @include('Admin.Dashboard.tabs.logs')
-        @include('Admin.Dashboard.tabs.settings')
-        @include('Admin.Dashboard.tabs.hours')
-        @include('Admin.Dashboard.tabs.receipt')
-
+        @include($pageView)
 
         <!-- MODAL: ADD CATEGORY -->
         <div x-show="showAddCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans bg-black/40 backdrop-blur-xs" x-transition.opacity>
@@ -487,6 +473,7 @@
             shop: {{ Illuminate\Support\Js::from($dashboardShop) }},
             user: {{ Illuminate\Support\Js::from(auth()->user()->only(['id', 'name', 'email', 'role'])) }},
             permissions: {{ Illuminate\Support\Js::from(auth()->user()->effectivePermissions()) }},
+            pages: {{ Illuminate\Support\Js::from($pageLinks) }},
             categories: @json($categories ?? [])
         };
 
@@ -501,7 +488,7 @@
                 isLoadingSummary: true,
                 isLoadingMenus: true,
                 isLoadingAnalytics: true,
-                currentTab: new URLSearchParams(window.location.search).get('tab') || localStorage.getItem('activeDashboardTab') || 'dashboard',
+                currentTab: '{{ $page }}',
                 showAddCategoryModal: false,
                 newCategoryName: '',
                 showAddMenuModal: false,
@@ -509,16 +496,12 @@
                 showResetQRModal: false,
                 qrTableToReset: null,
                 isResettingQR: false,
-                showAddCrewModal: false,
                 users: [],
                 categories: [],
                 tables: [],
                 menuItems: [],
                 orders: [],
                 analytics: null,
-                newCrew: { name: '', email: '', password: '', role: 'barista' },
-                showEditCrewModal: false,
-                editCrewData: { id: null, name: '', email: '', password: '', role: 'barista' },
                 isSaving: false,
                 showOrderDetailModal: false,
                 selectedOrder: null,
@@ -1363,230 +1346,12 @@
                     }
                     return filtered;
                 },
-                tabs: [
-                    { id: 'dashboard', ability: null, name: 'Dashboard', icon: 'fas fa-th-large' },
-                    { id: 'orders', ability: 'view-orders', name: 'Pesanan Aktif', icon: 'fas fa-receipt' },
-                    { id: 'menu', ability: 'manage-menu', name: 'Menu CMS', icon: 'fas fa-hamburger' },
-                    { id: 'inventory', ability: 'manage-inventory', name: 'Bahan & Stok', icon: 'fas fa-boxes-stacked' },
-                    { id: 'qr', ability: 'manage-settings', name: 'Table & QR', icon: 'fas fa-qrcode' },
-                    { id: 'crew', ability: 'manage-crew', name: 'Crew Management', icon: 'fas fa-users' },
-                    { id: 'shifts', ability: 'manage-crew', name: 'Jadwal Shift', icon: 'fas fa-calendar-alt' },
-                    { id: 'report', ability: 'view-reports', name: 'Laporan Keuangan', icon: 'fas fa-book' },
-                    { id: 'logs', ability: 'view-reports', name: 'Log Aktivitas', icon: 'fas fa-history' },
-                    { id: 'settings', ability: 'manage-settings', name: 'Toko Saya', icon: 'fas fa-store' },
-                    { id: 'hours', ability: 'manage-settings', name: 'Jam Operasional', icon: 'fas fa-clock' },
-                    { id: 'receipt', ability: 'manage-settings', name: 'Pengaturan Struk', icon: 'fas fa-print' },
-                ].filter(tab => !tab.ability || window.INITIAL_DATA.permissions.includes(tab.ability)),
+                tabs: window.INITIAL_DATA.pages || [],
+                navigateToPage(id) {
+                    const destination = this.tabs.find(tab => tab.id === id);
+                    if (destination) window.location.assign(destination.url);
+                },
                                 tables: [],
-                reportPeriod: 'all',
-                reportSearch: '',
-                reportTypeFilter: 'all',
-                reportPaymentFilter: 'all',
-                reportActiveBarIndex: null,
-                formatNum(num) {
-                    return new Intl.NumberFormat('id-ID').format(Math.round(num || 0));
-                },
-                reportPeriodLabel() {
-                    const now = new Date();
-                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                    const fullMonthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                    if (this.reportPeriod === 'daily') {
-                        return `${now.getDate()} ${fullMonthNames[now.getMonth()]} ${now.getFullYear()}`;
-                    }
-                    if (this.reportPeriod === 'weekly') {
-                        const start = new Date(now);
-                        start.setDate(now.getDate() - now.getDay());
-                        return `${String(start.getDate()).padStart(2, '0')} ${monthNames[start.getMonth()]} - ${String(now.getDate()).padStart(2, '0')} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
-                    }
-                    if (this.reportPeriod === 'monthly') {
-                        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-                        return `01 ${monthNames[now.getMonth()]} - ${lastDay} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
-                    }
-                    return 'Semua Periode (Keseluruhan)';
-                },
-                get reportData() {
-                    const now = new Date();
-                    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    const startOfWeek = new Date(startOfToday);
-                    startOfWeek.setDate(startOfToday.getDate() - now.getDay());
-                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                    
-                    const validOrders = this.orders.filter(o => {
-                        const s = (o.status || o.order_status || '').toUpperCase();
-                        return s !== 'CANCELLED' && s !== 'BATAL' && s !== 'REJECTED';
-                    });
-                    
-                    let daily = { count: 0, total: 0 };
-                    let weekly = { count: 0, total: 0 };
-                    let monthly = { count: 0, total: 0 };
-                    validOrders.forEach(o => {
-                        if (!o.time) return;
-                        const d = new Date(String(o.time).replace(' ', 'T'));
-                        if (isNaN(d.getTime())) return;
-                        if (d >= startOfToday) { daily.count++; daily.total += Number(o.total || 0); }
-                        if (d >= startOfWeek) { weekly.count++; weekly.total += Number(o.total || 0); }
-                        if (d >= startOfMonth) { monthly.count++; monthly.total += Number(o.total || 0); }
-                    });
-                    return { daily, weekly, monthly };
-                },
-                get filteredReportOrders() {
-                    const now = new Date();
-                    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                    const startOfWeek = new Date(startOfToday);
-                    startOfWeek.setDate(startOfToday.getDate() - now.getDay());
-                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-                    
-                    const query = (this.reportSearch || '').toLowerCase().trim();
-                    
-                    return this.orders.filter(o => {
-                        const s = (o.status || o.order_status || '').toUpperCase();
-                        const ps = (o.payment_status || '').toUpperCase();
-                        
-                        // Exclude cancelled / rejected orders
-                        if (s === 'CANCELLED' || s === 'BATAL' || s === 'REJECTED') return false;
-                        
-                        // All non-cancelled orders count in financial ledger
-                        const isValid = (
-                            s === 'COMPLETED' || s === 'SELESAI' || 
-                            ps === 'PAID' || 
-                            s === 'CONFIRMED' || s === 'READY' || s === 'PREPARING' || s === 'MASUK' || 
-                            Number(o.total || 0) > 0
-                        );
-                        if (!isValid) return false;
-                        
-                        // Date filter
-                        if (o.time && this.reportPeriod !== 'all') {
-                            const d = new Date(String(o.time).replace(' ', 'T'));
-                            if (!isNaN(d.getTime())) {
-                                if (this.reportPeriod === 'daily' && d < startOfToday) return false;
-                                if (this.reportPeriod === 'weekly' && d < startOfWeek) return false;
-                                if (this.reportPeriod === 'monthly' && d < startOfMonth) return false;
-                            }
-                        }
-                        
-                        // Type filter
-                        if (this.reportTypeFilter !== 'all') {
-                            if (this.reportTypeFilter === 'dine_in' && o.type !== 'Dine In') return false;
-                            if (this.reportTypeFilter === 'takeaway' && o.type !== 'Takeaway') return false;
-                        }
-                        
-                        // Payment filter
-                        if (this.reportPaymentFilter !== 'all') {
-                            const pm = (o.payment_method || 'Tunai').toLowerCase();
-                            if (this.reportPaymentFilter === 'cash' && !pm.includes('tunai') && !pm.includes('cash')) return false;
-                            if (this.reportPaymentFilter === 'qris' && !pm.includes('qris')) return false;
-                            if (this.reportPaymentFilter === 'transfer' && !pm.includes('transfer') && !pm.includes('bank')) return false;
-                        }
-                        
-                        // Search query
-                        if (query) {
-                            const matchId = String(o.id).toLowerCase().includes(query);
-                            const matchCustomer = (o.customer || '').toLowerCase().includes(query);
-                            const matchItems = (o.items || []).some(i => (i.name || '').toLowerCase().includes(query));
-                            const matchPayment = (o.payment_method || '').toLowerCase().includes(query);
-                            if (!matchId && !matchCustomer && !matchItems && !matchPayment) return false;
-                        }
-                        
-                        return true;
-                    });
-                },
-                get reportMetrics() {
-                    const orders = this.filteredReportOrders;
-                    let revenue = 0;
-                    let cogs = 0;
-                    orders.forEach(o => {
-                        const rev = Number(o.total || 0);
-                        revenue += rev;
-                        const itemCogs = Number(o.total_cogs || 0);
-                        cogs += itemCogs > 0 ? itemCogs : (rev * 0.38);
-                    });
-                    const profit = Math.max(0, revenue - cogs);
-                    const cogsPercent = revenue > 0 ? Math.round((cogs / revenue) * 100) : 38;
-                    const marginPercent = revenue > 0 ? Math.round((profit / revenue) * 100) : 62;
-                    const count = orders.length;
-                    const aov = count > 0 ? Math.round(revenue / count) : 0;
-                    return { revenue, cogs, profit, cogsPercent, marginPercent, count, aov };
-                },
-                get financialOverviewBars() {
-                    const monthNames = ['Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov'];
-                    const now = new Date();
-                    const bars = [];
-                    for (let i = 8; i >= 0; i--) {
-                        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                        const mIndex = d.getMonth();
-                        const y = d.getFullYear();
-                        const label = monthNames[mIndex % 12];
-                        const fullLabel = label + ' ' + y;
-                        
-                        const monthOrders = this.orders.filter(o => {
-                            const s = (o.status || o.order_status || '').toUpperCase();
-                            if (s === 'CANCELLED' || s === 'BATAL' || s === 'REJECTED') return false;
-                            if (!o.time) return false;
-                            const od = new Date(String(o.time).replace(' ', 'T'));
-                            return !isNaN(od.getTime()) && od.getMonth() === mIndex && od.getFullYear() === y;
-                        });
-                        
-                        let rev = monthOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
-                        let cogs = monthOrders.reduce((sum, o) => sum + (Number(o.total_cogs || 0) || (Number(o.total || 0) * 0.38)), 0);
-                        
-                        const isCurrent = i === 0;
-                        bars.push({
-                            month: label,
-                            fullLabel: fullLabel,
-                            revenue: rev,
-                            cogs: cogs,
-                            profit: Math.max(0, rev - cogs),
-                            marginPercent: rev > 0 ? Math.round(((rev - cogs) / rev) * 100) : 68,
-                            isCurrent: isCurrent
-                        });
-                    }
-                    
-                    // Dynamic scaling
-                    const maxRev = Math.max(...bars.map(b => b.revenue), 100000);
-                    bars.forEach(b => {
-                        b.heightPercent = maxRev > 0 && b.revenue > 0 ? Math.max(14, Math.round((b.revenue / maxRev) * 100)) : 10;
-                        b.cogsHeightPercent = maxRev > 0 && b.cogs > 0 ? Math.max(10, Math.round((b.cogs / maxRev) * 100)) : 8;
-                    });
-                    
-                    return bars;
-                },
-                exportCSV() {
-                    const orders = this.filteredReportOrders;
-                    if (!orders || orders.length === 0) {
-                        alert('Tidak ada data transaksi pada periode yang dipilih untuk di-export.');
-                        return;
-                    }
-                    const headers = ['ID Transaksi', 'Waktu Transaksi', 'Pelanggan', 'Tipe Pesanan', 'Metode Pembayaran', 'Item Pesanan', 'Total Pendapatan (IDR)', 'Estimasi HPP (IDR)', 'Estimasi Laba (IDR)', 'Status'];
-                    const rows = orders.map(o => {
-                        const rev = Number(o.total || 0);
-                        const cogs = Number(o.total_cogs || 0) || Math.round(rev * 0.38);
-                        const profit = Math.max(0, rev - cogs);
-                        const itemsStr = (o.items || []).map(i => `${i.qty}x ${i.name}`).join(' | ');
-                        return [
-                            `"#${o.id}"`,
-                            `"${new Date((o.time || '').replace(' ', 'T')).toLocaleString('id-ID')}"`,
-                            `"${(o.customer || '').replace(/"/g, '""')}"`,
-                            `"${o.type || 'Dine In'}"`,
-                            `"${o.payment_method || 'Tunai'}"`,
-                            `"${itemsStr.replace(/"/g, '""')}"`,
-                            rev,
-                            cogs,
-                            profit,
-                            `"${o.status || 'Completed'}"`
-                        ].join(',');
-                    });
-                    const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
-                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', `Laporan_Keuangan_Sparta_${this.reportPeriod}_${dateStr}.csv`);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                },
                 getQRUrl(tableCode, token = '') {
                     const slug = window.INITIAL_DATA.shop?.slug || 'menu';
                     const baseUrl = window.location.origin + '/' + slug;
@@ -1800,10 +1565,7 @@
                 },
 
                 init() {
-                    if (this.currentTab === 'profile') {
-                        this.currentTab = 'dashboard';
-                        localStorage.removeItem('activeDashboardTab');
-                    }
+                    localStorage.removeItem('activeDashboardTab');
                     const unlockAudio = () => {
                         const chime = document.getElementById('chime-sound');
                         if (chime) {
@@ -1817,22 +1579,12 @@
                         document.removeEventListener('click', unlockAudio);
                     };
                     document.addEventListener('click', unlockAudio);
-                    this.$watch('currentTab', (val) => {
-                        if (val === 'logs') this.fetchLogs(1);
-                        if (val === 'shifts') this.fetchShifts();
-                        localStorage.setItem('activeDashboardTab', val);
-                        const url = new URL(window.location);
-                        url.searchParams.set('tab', val);
-                        window.history.replaceState({}, '', url);
-                    });
-                    
-                    if (!this.tabs.some(tab => tab.id === this.currentTab)) this.currentTab = this.tabs[0]?.id || 'dashboard';
                     if (this.currentTab === 'logs') this.fetchLogs(1);
                     if (this.currentTab === 'shifts') this.fetchShifts();
-                    this.initSummary();
-                    this.initAnalytics();
-                    this.loadMenu();
-                    this.fetchInventory();
+                    if (['menu', 'qr'].includes(this.currentTab)) this.initSummary();
+                    if (this.currentTab === 'dashboard') this.initAnalytics();
+                    if (['menu', 'inventory'].includes(this.currentTab)) this.loadMenu();
+                    if (['menu', 'inventory'].includes(this.currentTab)) this.fetchInventory();
                     if (window.INITIAL_DATA.shop) {
                         this.settings.name = window.INITIAL_DATA.shop.name || '';
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
@@ -1844,7 +1596,7 @@
                     
                     this.originalOperatingHours = JSON.parse(JSON.stringify(this.operatingHours));
                     this.settings.operating_hours = this.operatingHours;
-                    this.fetchLiveOrders(true);
+                    if (['dashboard', 'orders'].includes(this.currentTab)) this.fetchLiveOrders(true);
                     window.addEventListener('keydown', (e) => {
                         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
                             e.preventDefault();
@@ -1862,7 +1614,7 @@
                     
                     // Fallback polling just in case WebSocket fails
                     setInterval(() => {
-                        this.fetchLiveOrders(false);
+                        if (['dashboard', 'orders'].includes(this.currentTab)) this.fetchLiveOrders(false);
                     }, 5000);
 
 
@@ -2476,119 +2228,6 @@ if (res.ok) {
                         this.settings.logoPreview = e.target.result;
                     };
                     reader.readAsDataURL(file);
-                },
-                saveCrew() {
-                    this.isSaving = true;
-                    fetch('/admin/api/crew', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify(this.newCrew)
-                    })
-                    .then(async res => {
-                        const data = await res.json();
-                        if (!res.ok) {
-                            throw data;
-                        }
-                        return data;
-                    })
-                    .then(data => {
-                        this.isSaving = false;
-                        if(data.success) {
-                            this.users.push(data.user);
-                            this.showAddCrewModal = false;
-                            this.newCrew = { name: '', email: '', password: '', role: 'barista' };
-                            this.addToast('Crew berhasil ditambahkan', 'success');
-                        } else {
-                            this.addToast(data.message || 'Error menambahkan crew', 'error');
-                        }
-                    })
-                    .catch((err) => {
-                        this.isSaving = false;
-                        if (err.errors) {
-                            const firstError = Object.values(err.errors)[0][0];
-                            this.addToast(firstError, 'error');
-                        } else {
-                            this.addToast(err.message || 'Network error', 'error');
-                        }
-                    });
-                },
-                openEditCrew(user) {
-                    this.editCrewData = { 
-                        id: user.id, 
-                        name: user.name, 
-                        email: user.email, 
-                        password: '', 
-                        role: user.role 
-                    };
-                    this.showEditCrewModal = true;
-                },
-                updateCrew() {
-                    this.isSaving = true;
-                    fetch('/admin/api/crew/' + this.editCrewData.id, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ ...this.editCrewData, _method: 'PUT' })
-                    })
-                    .then(async res => {
-                        const data = await res.json();
-                        if (!res.ok) throw data;
-                        return data;
-                    })
-                    .then(data => {
-                        this.isSaving = false;
-                        if(data.success) {
-                            const idx = this.users.findIndex(u => u.id === data.user.id);
-                            if(idx !== -1) this.users[idx] = data.user;
-                            this.showEditCrewModal = false;
-                            this.addToast('Crew berhasil diupdate', 'success');
-                        } else {
-                            this.addToast(data.message || 'Error update crew', 'error');
-                        }
-                    })
-                    .catch((err) => {
-                        this.isSaving = false;
-                        if (err.errors) {
-                            const firstError = Object.values(err.errors)[0][0];
-                            this.addToast(firstError, 'error');
-                        } else {
-                            this.addToast(err.message || 'Network error', 'error');
-                        }
-                    });
-                },
-                async deleteCrew(id) {
-                    const result = await Swal.fire({
-                        title: 'Hapus Crew?',
-                        text: "Data anggota tim ini akan dihapus permanen!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#64748b',
-                        confirmButtonText: 'Ya, hapus!',
-                        cancelButtonText: 'Batal'
-                    });
-                    
-                    if(!result.isConfirmed) return;
-                    fetch('/admin/api/crew/' + id, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if(data.success) {
-                            this.users = this.users.filter(u => u.id !== id);
-                            this.addToast('Crew dihapus', 'success');
-                        }
-                    });
                 },
                 saveSettings() {
                     if (!this.settings.name || !this.settings.slug) {

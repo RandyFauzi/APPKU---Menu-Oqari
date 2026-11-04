@@ -135,7 +135,7 @@
                         </h2>
                         <p class="text-[12px] text-[#7f837e] font-normal mt-0.5">Status pesanan di dapur</p>
                     </div>
-                    <button type="button" @click="currentTab = 'orders'" class="inline-flex items-center gap-1 text-[11px] text-[#c94d00] hover:text-[#ea580c] font-normal transition-colors">
+                    <button type="button" @click="navigateToPage('orders')" class="inline-flex items-center gap-1 text-[11px] text-[#c94d00] hover:text-[#ea580c] font-normal transition-colors">
                         <span>Semua Pesanan</span>
                         <img src="{{ asset('images/sparta/chevron-right.svg') }}" class="w-3 h-3" alt="">
                     </button>

@@ -83,7 +83,7 @@ return [
         'inventory' => ['inventory', 'audit'], 'hpp' => ['catalog', 'inventory', 'hpp', 'audit'],
         'users' => ['users', 'audit'], 'user_archive' => ['users', 'user_archive', 'audit'], 'shifts' => ['shifts'],
         'attendance' => ['attendance', 'shifts', 'audit'], 'register' => ['register', 'audit'],
-        'settings' => ['settings', 'orders'], 'reports' => ['reports', 'orders', 'catalog'],
+        'settings' => ['settings', 'orders'], 'reports' => ['reports', 'orders'],
         'analytics' => ['orders', 'catalog'], 'audit' => ['audit'], 'platform' => ['platform'],
     ],
 ];

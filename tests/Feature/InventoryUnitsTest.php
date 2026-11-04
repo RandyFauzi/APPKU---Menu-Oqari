@@ -25,7 +25,7 @@ class InventoryUnitsTest extends TestCase
         $id = $response->json('material.id');
         $this->getJson('/admin/api/inventory')->assertOk()->assertJsonPath('materials.0.current_stock', '10.000000')->assertJsonPath('materials.0.unit_label', $label)->assertJsonPath('materials.0.unit_locked', true)->assertJsonPath('mutations.0.unit', $unit)->assertJsonPath('mutations.0.unit_label', $label)->assertJsonPath('units.'.$unit, $label);
         $this->assertDatabaseHas('stock_mutations', ['raw_material_id' => $id, 'unit' => $unit, 'amount' => 10, 'balance_after' => 10]);
-        $this->get(route('admin.dashboard', ['tab' => 'inventory']))->assertOk()->assertSee('Satuan Dasar');
+        $this->get(route('admin.inventory.index'))->assertOk()->assertSee('Satuan Dasar');
     }
 
     public function test_fractional_pack_restock_and_zero_opname_preserve_unit_and_exact_balance(): void
