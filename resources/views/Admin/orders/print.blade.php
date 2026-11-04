@@ -41,7 +41,19 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 </div>
 
 <div class="divider"></div>
+<div class="text-center font-bold mb-2 mt-1" style="font-size: 12px; letter-spacing: 0.5px;">
+@if(strtoupper($order->fulfillment_type ?? '') === 'TAKEAWAY')
+    *** TAKE AWAY / BUNGKUS ***
+@elseif(strtoupper($order->fulfillment_type ?? '') === 'DELIVERY')
+    *** DELIVERY ***
+@else
+    *** DINE IN ({{ $order->table ? 'MEJA '.strtoupper($order->table->name) : 'MEJA --' }}) ***
+@endif
+</div>
+<div class="divider"></div>
+
 <div class="mb-1">Customer: {{ $order->customer_name ?: 'Guest' }}</div>
+<div class="mb-1">Tipe: {{ strtoupper($order->fulfillment_type ?? '') === 'TAKEAWAY' ? 'Take Away (Bungkus)' : (strtoupper($order->fulfillment_type ?? '') === 'DELIVERY' ? 'Delivery' : 'Dine In') }}</div>
 <div class="mb-1">Meja: {{ $order->table ? $order->table->name : 'Takeaway' }}</div>
 <div class="divider"></div>
 

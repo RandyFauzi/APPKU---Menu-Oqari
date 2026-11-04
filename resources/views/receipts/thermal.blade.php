@@ -82,7 +82,22 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 </div>
 <div class="divider"></div>
 
+<div class="text-center font-bold mb-2 mt-2" style="font-size: 13px; letter-spacing: 0.5px;">
+@if(strtoupper($receiptData->fulfillmentType ?? '') === 'TAKEAWAY')
+    *** TAKE AWAY / BUNGKUS ***
+@elseif(strtoupper($receiptData->fulfillmentType ?? '') === 'DELIVERY')
+    *** DELIVERY ***
+@else
+    *** DINE IN ({{ $receiptData->tableName ? 'MEJA '.strtoupper($receiptData->tableName) : 'MEJA --' }}) ***
+@endif
+</div>
+<div class="divider"></div>
+
 <div class="mb-1 mt-2">Customer: {{ $receiptData->customer['name'] }}</div>
+<div class="mb-1">Tipe: {{ strtoupper($receiptData->fulfillmentType ?? '') === 'TAKEAWAY' ? 'Take Away (Bungkus)' : (strtoupper($receiptData->fulfillmentType ?? '') === 'DELIVERY' ? 'Delivery' : 'Dine In (Makan di Tempat)') }}</div>
+@if($receiptData->tableName && strtoupper($receiptData->fulfillmentType ?? '') !== 'TAKEAWAY')
+<div class="mb-1">Meja: {{ $receiptData->tableName }}</div>
+@endif
 <div class="mb-2">Pembayaran: {{ $receiptData->paymentMethod ?? '-' }} ({{ $receiptData->paymentStatus }})</div>
 
 <div class="divider"></div>

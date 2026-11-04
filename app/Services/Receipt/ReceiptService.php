@@ -62,7 +62,9 @@ class ReceiptService
             date: $order->created_at->format('d M Y, H:i'),
             webUrl: $webUrl,
             pdfUrl: $pdfUrl,
-            logoPath: $logoPath
+            logoPath: $logoPath,
+            fulfillmentType: $order->fulfillment_type ?? 'DINE_IN',
+            tableName: $order->table?->name
         );
     }
 }

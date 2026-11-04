@@ -22,10 +22,13 @@ class CreateOrderAction
     {
         return DB::transaction(function () use ($shop, $data, $fulfillmentType) {
 
-            // 1. Resolve Table
-            $tableModel = Table::where('shop_id', $shop->id)->where('name', $data['table_id'])->first();
-            if (! $tableModel) {
-                $tableModel = Table::create(['shop_id' => $shop->id, 'name' => $data['table_id']]);
+            // 1. Resolve Table (Only for Dine In or if table is provided)
+            $tableModel = null;
+            if (! empty($data['table_id'])) {
+                $tableModel = Table::where('shop_id', $shop->id)->where('name', $data['table_id'])->first();
+                if (! $tableModel) {
+                    $tableModel = Table::create(['shop_id' => $shop->id, 'name' => $data['table_id']]);
+                }
             }
 
             // 2. Validate & Calculate Items
@@ -113,7 +116,7 @@ class CreateOrderAction
             // 3. Create the Order Parent
             $order = Order::create([
                 'shop_id' => $shop->id,
-                'table_id' => $tableModel->id,
+                'table_id' => $tableModel?->id,
                 'customer_name' => $data['customer_name'],
                 'customer_email' => $data['customer_email'] ?? null,
                 'customer_phone' => $data['customer_phone'] ?? null,

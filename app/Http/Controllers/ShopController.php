@@ -71,10 +71,11 @@ class ShopController extends Controller
         $shop = $this->resolveShop($slug);
 
         $validated = $request->validate([
-            'table_id' => 'required|string',
+            'table_id' => 'nullable|string|max:50',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'nullable|string|max:20',
+            'fulfillment_type' => 'nullable|string|in:DINE_IN,TAKEAWAY,DELIVERY',
             // TODO: Revert validation to 'required|string|exists:payment_methods,code' when Payment Gateway is active
             'payment_method' => 'required|string|max:50',
             'items' => 'required|array|min:1|max:50',
@@ -85,9 +86,15 @@ class ShopController extends Controller
             'items.*.modifiers' => 'nullable|array',
         ]);
 
+        $fulfillmentType = $validated['fulfillment_type'] ?? 'DINE_IN';
+
+        if ($fulfillmentType === 'DINE_IN' && empty($validated['table_id'])) {
+            return response()->json(['success' => false, 'message' => 'Nomor meja wajib diisi untuk pesanan Dine In.'], 422);
+        }
+
         try {
             // Action Pattern / Domain Layer
-            $order = $createOrder->execute($shop, $validated, 'DINE_IN');
+            $order = $createOrder->execute($shop, $validated, $fulfillmentType);
 
             $paymentUrl = null;
 

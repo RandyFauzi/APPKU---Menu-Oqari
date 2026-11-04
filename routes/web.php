@@ -164,6 +164,7 @@ Route::middleware(['auth'])->group(function () {
                     'table' => $o->table?->name ?? ($o->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : ($o->fulfillment_type === 'DELIVERY' ? 'Delivery' : 'Tanpa Meja')),
                     'customer' => $o->customer_name ?: 'Walk-in Customer',
                     'type' => $o->fulfillment_type === 'DINE_IN' ? 'Dine In' : ($o->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Delivery'),
+                    'fulfillment_type' => $o->fulfillment_type ?? 'DINE_IN',
                     'status' => $o->order_status,
                     'time' => $o->created_at->format('H:i'),
                     'items' => $o->items->map(fn ($i) => [

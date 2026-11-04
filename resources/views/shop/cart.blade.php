@@ -67,12 +67,36 @@
             <h3 class="font-bold text-xl text-gray-800 mb-6">Informasi Meja & Pemesan</h3>
             
             <!-- Default Dine In hidden input since we removed Takeaway -->
-            <input type="hidden" name="orderType" value="Dine-in">
+            <!-- Selector Tipe Pesanan: Dine In vs Take Away -->
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-gray-600 mb-2">Tipe Pesanan <span class="text-red-500">*</span></label>
+                <div class="grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-2xl">
+                    <button type="button" id="btn-type-dine-in" onclick="selectOrderType('Dine-in')"
+                        class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-all duration-200 bg-white text-gray-900 shadow-sm border border-gray-200/80">
+                        <i class="fas fa-utensils text-primary"></i>
+                        <span>Dine In (Di Tempat)</span>
+                    </button>
+                    <button type="button" id="btn-type-takeaway" onclick="selectOrderType('Takeaway')"
+                        class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-all duration-200 text-gray-500 hover:text-gray-800">
+                        <i class="fas fa-bag-shopping"></i>
+                        <span>Take Away (Bungkus)</span>
+                    </button>
+                </div>
+                <input type="hidden" id="order-type" name="orderType" value="Dine-in">
+            </div>
             
             <div class="space-y-4">
                 <div id="table-input-container">
                     <label for="customer-table" class="block text-xs font-bold text-gray-600 mb-1">Nomor Meja <span class="text-red-500">*</span></label>
                     <input type="text" id="customer-table" name="customer-table" autocomplete="off" placeholder="Ketik nomor meja" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-600 font-bold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
+                </div>
+
+                <div id="takeaway-info-container" class="hidden p-3.5 rounded-xl bg-orange-50/80 border border-primary/20 text-xs text-gray-700 flex items-start gap-2.5">
+                    <i class="fas fa-bag-shopping text-primary text-sm mt-0.5 shrink-0"></i>
+                    <div>
+                        <strong class="text-gray-900 block font-bold mb-0.5">Pesanan Take Away (Bungkus)</strong>
+                        <span class="text-gray-500 leading-relaxed">Pesanan Anda akan dikemas rapi untuk dibawa pulang. Nomor meja tidak diperlukan.</span>
+                    </div>
                 </div>
                 
                 <div>

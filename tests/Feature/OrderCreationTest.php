@@ -130,4 +130,62 @@ class OrderCreationTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['items.0.qty']);
     }
+
+    public function test_can_create_takeaway_order_without_table()
+    {
+        $product = Product::factory()->create([
+            'shop_id' => $this->shop->id,
+            'price' => 25000,
+            'is_sold_out' => false,
+        ]);
+
+        $payload = [
+            'fulfillment_type' => 'TAKEAWAY',
+            'table_id' => null,
+            'customer_name' => 'Budi Takeaway',
+            'customer_email' => 'budi@example.com',
+            'payment_method' => 'QRIS',
+            'items' => [
+                ['id' => $product->id, 'qty' => 1],
+            ],
+        ];
+
+        $response = $this->postJson(route('shop.order.submit', ['slug' => $this->shop->slug]), $payload);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('orders', [
+            'shop_id' => $this->shop->id,
+            'customer_name' => 'Budi Takeaway',
+            'fulfillment_type' => 'TAKEAWAY',
+            'table_id' => null,
+            'grand_total' => 25000,
+        ]);
+    }
+
+    public function test_cannot_create_dine_in_order_without_table()
+    {
+        $product = Product::factory()->create([
+            'shop_id' => $this->shop->id,
+            'price' => 25000,
+            'is_sold_out' => false,
+        ]);
+
+        $payload = [
+            'fulfillment_type' => 'DINE_IN',
+            'table_id' => '',
+            'customer_name' => 'Dina DineIn',
+            'customer_email' => 'dina@example.com',
+            'payment_method' => 'QRIS',
+            'items' => [
+                ['id' => $product->id, 'qty' => 1],
+            ],
+        ];
+
+        $response = $this->postJson(route('shop.order.submit', ['slug' => $this->shop->slug]), $payload);
+
+        $response->assertStatus(422)
+            ->assertJson(['success' => false, 'message' => 'Nomor meja wajib diisi untuk pesanan Dine In.']);
+    }
 }

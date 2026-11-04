@@ -19,7 +19,9 @@ class ReceiptData
         public string $date,
         public ?string $webUrl = null,
         public ?string $pdfUrl = null,
-        public ?string $logoPath = null
+        public ?string $logoPath = null,
+        public ?string $fulfillmentType = 'DINE_IN',
+        public ?string $tableName = null
     ) {}
 
     public function toArray(): array
@@ -39,6 +41,8 @@ class ReceiptData
             'date' => $this->date,
             'web_url' => $this->webUrl,
             'pdf_url' => $this->pdfUrl,
+            'fulfillment_type' => $this->fulfillmentType,
+            'table_name' => $this->tableName,
         ];
     }
 }

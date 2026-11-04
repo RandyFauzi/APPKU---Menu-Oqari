@@ -405,7 +405,6 @@ function updateFloatingCart() {
 // ==========================================
 // LOGIKA: HALAMAN CART (cart.html) & TRACKING
 // ==========================================
-// (Rest of the code remains the same for cart and tracking logic)
 
 function initCartPage() {
     renderCartDetail();
@@ -504,14 +503,66 @@ function closeCustomerInfoModal() {
     document.getElementById('modal-customer-info').classList.add('hidden');
 }
 
+function selectOrderType(type) {
+    const isTakeaway = (type === 'Takeaway');
+    const orderTypeInput = document.getElementById('order-type');
+    if (orderTypeInput) orderTypeInput.value = isTakeaway ? 'Takeaway' : 'Dine-in';
+
+    const btnDineIn = document.getElementById('btn-type-dine-in');
+    const btnTakeaway = document.getElementById('btn-type-takeaway');
+    const tableContainer = document.getElementById('table-input-container');
+    const takeawayInfo = document.getElementById('takeaway-info-container');
+
+    if (btnDineIn && btnTakeaway) {
+        if (isTakeaway) {
+            btnTakeaway.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-all duration-200 bg-white text-gray-900 shadow-sm border border-gray-200/80';
+            btnTakeaway.querySelector('i')?.classList.add('text-primary');
+            btnDineIn.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-all duration-200 text-gray-500 hover:text-gray-800';
+            btnDineIn.querySelector('i')?.classList.remove('text-primary');
+        } else {
+            btnDineIn.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-all duration-200 bg-white text-gray-900 shadow-sm border border-gray-200/80';
+            btnDineIn.querySelector('i')?.classList.add('text-primary');
+            btnTakeaway.className = 'flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs transition-all duration-200 text-gray-500 hover:text-gray-800';
+            btnTakeaway.querySelector('i')?.classList.remove('text-primary');
+        }
+    }
+
+    if (tableContainer) {
+        if (isTakeaway) {
+            tableContainer.classList.add('hidden');
+        } else {
+            tableContainer.classList.remove('hidden');
+        }
+    }
+
+    if (takeawayInfo) {
+        if (isTakeaway) {
+            takeawayInfo.classList.remove('hidden');
+        } else {
+            takeawayInfo.classList.add('hidden');
+        }
+    }
+}
+
 function triggerPaymentGateway() {
+    const orderType = document.getElementById('order-type')?.value || 'Dine-in';
+    const isTakeaway = (orderType.toLowerCase() === 'takeaway');
+    const fulfillmentType = isTakeaway ? 'TAKEAWAY' : 'DINE_IN';
+
     const name = document.getElementById('customer-name')?.value.trim();
     const email = document.getElementById('customer-email')?.value.trim();
     const phone = document.getElementById('customer-phone')?.value.trim();
     
-    let table = localStorage.getItem((window.SHOP_SLUG || 'default') + '_table_qr');
-    if (!table) {
-        table = document.getElementById('customer-table')?.value.trim();
+    let table = '';
+    if (!isTakeaway) {
+        table = localStorage.getItem((window.SHOP_SLUG || 'default') + '_table_qr');
+        if (!table) {
+            table = document.getElementById('customer-table')?.value.trim();
+        }
+        if (!table) {
+            showToast("⚠️ Mohon isi / scan Nomor Meja untuk Dine In!"); 
+            return; 
+        }
     }
     
     if(!name || !email) { 
@@ -528,16 +579,12 @@ function triggerPaymentGateway() {
         showToast("⚠️ Format nomor WhatsApp tidak valid!");
         return;
     }
-    
-    if(!table) {
-        showToast("⚠️ Mohon isi / scan Nomor Meja!"); 
-        return; 
-    }
 
     localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_name', name);
     localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_table', table);
     localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_email', email);
     localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_phone', phone);
+    localStorage.setItem((window.SHOP_SLUG || 'default') + '_fulfillment_type', fulfillmentType);
     
     // Tutup modal customer info dan buka payment modal
     closeCustomerInfoModal();
@@ -556,14 +603,15 @@ function processSimulatedPayment() {
     const name = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_name') || 'Guest';
     const email = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_email') || '';
     const phone = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_phone') || '';
-    const table = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_table') || 'TA';
+    const table = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_table') || '';
+    const fulfillmentType = localStorage.getItem((window.SHOP_SLUG || 'default') + '_fulfillment_type') || 'DINE_IN';
     const items = CartStore.get();
     const total = window.currentGrandTotal;
     
     // Create order using database.js engine
-    DB.createOrder(table, name, email, phone, paymentMethod, items, total)
+    DB.createOrder(table, name, email, phone, paymentMethod, items, total, fulfillmentType)
         .then(data => {
-            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_type', paymentMethod);
+            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_type', fulfillmentType === 'TAKEAWAY' ? 'Take Away' : 'Dine In');
             localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_total', data.order.grand_total);
             CartStore.clear(); 
             window.location.href = window.SHOP_TRACKING_URL;
@@ -603,4 +651,3 @@ function goBackHome(event) {
     }
 }
 function setRating(stars) { /* Same implementation as previous */ }
-

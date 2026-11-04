@@ -145,7 +145,7 @@ class PosController extends Controller
         // CreateOrder puts it as CONFIRMED; we override to HOLD
         $data = $validated;
         $data['payment_method'] = 'CASH'; // placeholder; real method set at recall
-        $data['fulfillment_type'] = 'DINE_IN';
+        $data['fulfillment_type'] = $validated['fulfillment_type'] ?? 'DINE_IN';
 
         $order = $createOrder->execute($shop, $cart, $data);
         $order->update(['order_status' => 'HOLD', 'payment_status' => 'UNPAID']);

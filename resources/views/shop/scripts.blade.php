@@ -103,7 +103,7 @@
                 }
                 return localStorage.getItem(tableName) ? JSON.parse(localStorage.getItem(tableName)) : [];
             },
-            createOrder: function(table, name, email, phone, paymentMethod, items, total) {
+            createOrder: function(table, name, email, phone, paymentMethod, items, total, fulfillmentType = 'DINE_IN') {
                 let orders = this.get(window.SHOP_SLUG + '_orders') || [];
                 const newOrder = {
                     id: 'ORD-' + Date.now(),
@@ -112,6 +112,7 @@
                     email: email,
                     phone: phone,
                     payment_method: paymentMethod,
+                    fulfillment_type: fulfillmentType,
                     items: items,
                     total: total,
                     status: 'process',
@@ -127,11 +128,12 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({
-                        table_id: table,
+                        table_id: table || null,
                         customer_name: name,
                         customer_email: email,
                         customer_phone: phone,
                         payment_method: paymentMethod,
+                    fulfillment_type: fulfillmentType,
                         items: items.map(item => ({
                             id: item.id,
                             qty: item.qty,

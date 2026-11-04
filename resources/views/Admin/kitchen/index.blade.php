@@ -139,6 +139,28 @@
                             </div>
 
                             {{-- Items Box --}}
+                            {{-- Fulfillment Badge (Dine In vs Take Away) --}}
+                            <div class="flex items-center gap-2">
+                                <template x-if="order.type === 'Dine In' || order.fulfillment_type === 'DINE_IN'">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#eafbf2] border border-[#a6f0c6] text-[#00643b] text-[11px] font-bold">
+                                        <i class="fas fa-mug-hot text-[11px]"></i>
+                                        <span>Dine In · Gelas Saji / Keramik</span>
+                                    </div>
+                                </template>
+                                <template x-if="order.type === 'Takeaway' || order.fulfillment_type === 'TAKEAWAY'">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] text-[11px] font-bold">
+                                        <i class="fas fa-bag-shopping text-[11px]"></i>
+                                        <span>Take Away · Paper Cup &amp; Kantong</span>
+                                    </div>
+                                </template>
+                                <template x-if="order.type === 'Delivery' || order.fulfillment_type === 'DELIVERY'">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#eff6ff] border border-[#bfdbfe] text-[#1d4ed8] text-[11px] font-bold">
+                                        <i class="fas fa-truck text-[11px]"></i>
+                                        <span>Delivery · Pengiriman</span>
+                                    </div>
+                                </template>
+                            </div>
+
                             <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[10px] p-2.5 space-y-2">
                                 <template x-for="item in order.items" :key="item.id">
                                     <div class="text-[12px] text-[#1e211f]">
@@ -216,6 +238,28 @@
                             </div>
 
                             {{-- Items Box --}}
+                            {{-- Fulfillment Badge (Dine In vs Take Away) --}}
+                            <div class="flex items-center gap-2">
+                                <template x-if="order.type === 'Dine In' || order.fulfillment_type === 'DINE_IN'">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#eafbf2] border border-[#a6f0c6] text-[#00643b] text-[11px] font-bold">
+                                        <i class="fas fa-mug-hot text-[11px]"></i>
+                                        <span>Dine In · Gelas Saji / Keramik</span>
+                                    </div>
+                                </template>
+                                <template x-if="order.type === 'Takeaway' || order.fulfillment_type === 'TAKEAWAY'">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] text-[11px] font-bold">
+                                        <i class="fas fa-bag-shopping text-[11px]"></i>
+                                        <span>Take Away · Paper Cup &amp; Kantong</span>
+                                    </div>
+                                </template>
+                                <template x-if="order.type === 'Delivery' || order.fulfillment_type === 'DELIVERY'">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#eff6ff] border border-[#bfdbfe] text-[#1d4ed8] text-[11px] font-bold">
+                                        <i class="fas fa-truck text-[11px]"></i>
+                                        <span>Delivery · Pengiriman</span>
+                                    </div>
+                                </template>
+                            </div>
+
                             <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[10px] p-2.5 space-y-2">
                                 <template x-for="item in order.items" :key="item.id">
                                     <div class="text-[12px] text-[#1e211f]">
@@ -290,6 +334,28 @@
                             </div>
 
                             {{-- Items Box --}}
+                            {{-- Fulfillment Badge (Dine In vs Take Away) --}}
+                            <div class="flex items-center gap-2">
+                                <template x-if="order.type === 'Dine In' || order.fulfillment_type === 'DINE_IN'">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#eafbf2] border border-[#a6f0c6] text-[#00643b] text-[11px] font-bold">
+                                        <i class="fas fa-mug-hot text-[11px]"></i>
+                                        <span>Dine In · Gelas Saji / Keramik</span>
+                                    </div>
+                                </template>
+                                <template x-if="order.type === 'Takeaway' || order.fulfillment_type === 'TAKEAWAY'">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] text-[11px] font-bold">
+                                        <i class="fas fa-bag-shopping text-[11px]"></i>
+                                        <span>Take Away · Paper Cup &amp; Kantong</span>
+                                    </div>
+                                </template>
+                                <template x-if="order.type === 'Delivery' || order.fulfillment_type === 'DELIVERY'">
+                                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#eff6ff] border border-[#bfdbfe] text-[#1d4ed8] text-[11px] font-bold">
+                                        <i class="fas fa-truck text-[11px]"></i>
+                                        <span>Delivery · Pengiriman</span>
+                                    </div>
+                                </template>
+                            </div>
+
                             <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[10px] p-2.5 space-y-2">
                                 <template x-for="item in order.items" :key="item.id">
                                     <div class="text-[12px] text-[#53565a]">
@@ -349,14 +415,14 @@ function kitchenApp() {
 
         formatTableBadge(t) {
             const str = String(t || '').trim();
-            if (!str || str === '-' || str.toUpperCase() === 'TA') return 'TA';
+            if (!str || str === '-' || str.toUpperCase() === 'TA' || str.toLowerCase().includes('takeaway')) return 'TA';
             const digits = str.replace(/\D/g, '');
             return digits ? digits.padStart(2, '0').slice(-2) : 'TA';
         },
 
         formatTableTitle(t) {
             const str = String(t || '').trim();
-            if (!str || str === '-' || str.toUpperCase() === 'TA' || str.toLowerCase().includes('takeaway')) return 'Takeaway';
+            if (!str || str === '-' || str.toUpperCase() === 'TA' || str.toLowerCase().includes('takeaway')) return 'Take Away';
             if (str.toLowerCase().includes('delivery')) return 'Delivery';
             if (/^meja/i.test(str)) return str;
             return 'Meja ' + str.padStart(2, '0');
