@@ -6,10 +6,10 @@
     "semantic_hash": "ee8f920cd448a8a5036dda43d44c1d64"
   },
   "app/Actions/Crew/CreateShift.php": {
-    "mtime": 1790740185.5505962,
-    "seen": 1792116353.408015,
-    "ast_hash": "00afbc413dbcf0f7f9cc26a6b91927c0",
-    "semantic_hash": "00afbc413dbcf0f7f9cc26a6b91927c0"
+    "mtime": 1793761425.164852,
+    "seen": 1793761447.8709748,
+    "ast_hash": "244a80b2dfbc67fdce68e358268f87b3",
+    "semantic_hash": ""
   },
   "app/Actions/Order/CancelOrder.php": {
     "mtime": 1790740185.551594,
@@ -162,9 +162,9 @@
     "semantic_hash": "2f3a26c9d7d3571350aee2b768761b8a"
   },
   "app/Http/Controllers/Admin/DashboardController.php": {
-    "mtime": 1793759482.341117,
-    "seen": 1793759536.1318583,
-    "ast_hash": "8e4274a01dbb159207c2ed6ed6e4bbc0",
+    "mtime": 1793761426.0027566,
+    "seen": 1793761447.871069,
+    "ast_hash": "5fa27e92162839f39eaaa74a3bbd6494",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/GoBizIntegrationController.php": {
@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/ShiftController.php": {
-    "mtime": 1792120355.8728945,
-    "seen": 1792120501.3650537,
-    "ast_hash": "2090cd86bf909c7b3da42b48d4fb6ed7",
+    "mtime": 1793761426.2429168,
+    "seen": 1793761447.8710957,
+    "ast_hash": "f33312e31bbdb0a9a4ad078f16446dd4",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Api/GoBizWebhookController.php": {
@@ -396,10 +396,10 @@
     "semantic_hash": "f79bbcd10c6548de6f6833195d81e369"
   },
   "app/Models/CrewShift.php": {
-    "mtime": 1790740185.6150484,
-    "seen": 1792116353.408115,
-    "ast_hash": "36999d450ac87777a04919f2c9b47c7a",
-    "semantic_hash": "36999d450ac87777a04919f2c9b47c7a"
+    "mtime": 1793761061.119217,
+    "seen": 1793761447.8711836,
+    "ast_hash": "56546cc7ec4a6bc821c7144e5d48cdc4",
+    "semantic_hash": ""
   },
   "app/Models/Modifier.php": {
     "mtime": 1792113994.770784,
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793759500.2652695,
-    "seen": 1793759536.1323013,
-    "ast_hash": "10559978b8b73e89385d786f7b244773",
+    "mtime": 1793761141.7628675,
+    "seen": 1793761447.8714547,
+    "ast_hash": "65ff612f3d663ad5f086f504c873824a",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/crew.blade.php": {
@@ -1176,9 +1176,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/shifts.blade.php": {
-    "mtime": 1792466407.5891862,
-    "seen": 1792466592.0831444,
-    "ast_hash": "4730c7cefa3d4756d7153edca4279dd7",
+    "mtime": 1793761240.2791648,
+    "seen": 1793761447.8714795,
+    "ast_hash": "7aedcb789f9bb2eaf42558d768879eef",
     "semantic_hash": ""
   },
   "resources/views/Admin/Layouts/admin-auth-master.blade.php": {
@@ -1242,9 +1242,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/shift/my-schedule.blade.php": {
-    "mtime": 1792478500.2800264,
-    "seen": 1792478940.988238,
-    "ast_hash": "583981069b366e813edafa2680a36efe",
+    "mtime": 1793761371.039965,
+    "seen": 1793761447.8715112,
+    "ast_hash": "47f65a903cc9150e0702d31e653d55a4",
     "semantic_hash": ""
   },
   "resources/views/SuperAdmin/dashboard.blade.php": {
@@ -1566,9 +1566,9 @@
     "semantic_hash": "3c6ce2e6d16444282b24a9aa63885563"
   },
   "routes/web.php": {
-    "mtime": 1793759313.3284435,
-    "seen": 1793759536.1324716,
-    "ast_hash": "c83b941a769403b2a7e1862c4aae8f41",
+    "mtime": 1793761427.6290808,
+    "seen": 1793761447.8716235,
+    "ast_hash": "1aee3042571c886269b456712124c1f5",
     "semantic_hash": ""
   },
   "tailwind.config.js": {
@@ -2172,9 +2172,9 @@
     "semantic_hash": ""
   },
   "app/Http/Requests/CalculateHppRequest.php": {
-    "mtime": 1792469499.1116292,
-    "seen": 1792476481.7174215,
-    "ast_hash": "77448a4b9a4a5548ba47cf0f479f79f4",
+    "mtime": 1793759995.0765417,
+    "seen": 1793760080.5969224,
+    "ast_hash": "c07ec7ea37c8d38345032a25737ee708",
     "semantic_hash": ""
   },
   "database/migrations/2026_10_20_012647_add_hpp_settings_to_products_table.php": {
@@ -2184,9 +2184,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Hpp/index.blade.php": {
-    "mtime": 1793759212.6987007,
-    "seen": 1793759536.132328,
-    "ast_hash": "e3aecdc8511ff316928ba814e4d8aa84",
+    "mtime": 1793760127.2663155,
+    "seen": 1793761447.8714812,
+    "ast_hash": "b4a01a30c109c10044e0d41fcec1beab",
     "semantic_hash": ""
   },
   "tests/Feature/HppCalculatorTest.php": {
@@ -2400,9 +2400,9 @@
     "semantic_hash": ""
   },
   "config/access.php": {
-    "mtime": 1793758506.2177947,
-    "seen": 1793758645.9283373,
-    "ast_hash": "c84ff3e1862abf20c8d8851af087613f",
+    "mtime": 1793761426.5759647,
+    "seen": 1793761447.8712602,
+    "ast_hash": "e698dba6e6d85498e745f5603f394834",
     "semantic_hash": ""
   },
   "database/migrations/2026_10_20_034632_add_cafe_access_settings_to_users_table.php": {
@@ -2412,9 +2412,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Users/form.blade.php": {
-    "mtime": 1793758511.0354266,
-    "seen": 1793758645.9285731,
-    "ast_hash": "17fca0ef9f923dfd4e7a45f7352b57a6",
+    "mtime": 1793760033.5163321,
+    "seen": 1793760080.5986593,
+    "ast_hash": "dbeb72b139bcf1bae2eb86ce1ed02c22",
     "semantic_hash": ""
   },
   "resources/views/Admin/Users/index.blade.php": {
@@ -2835,6 +2835,30 @@
     "mtime": 1793759424.839004,
     "seen": 1793759536.1325283,
     "ast_hash": "31afd68078e0b17a495cbebb475e1263",
+    "semantic_hash": ""
+  },
+  "app/Http/Requests/SaveShiftRequest.php": {
+    "mtime": 1793761061.1182168,
+    "seen": 1793761447.8711617,
+    "ast_hash": "7bb454a50da7dcf45f07153d8eee8d9f",
+    "semantic_hash": ""
+  },
+  "resources/views/Admin/shift/layout.blade.php": {
+    "mtime": 1793761240.4730234,
+    "seen": 1793761447.8715096,
+    "ast_hash": "1fbd0a2bb3bfd1ea6f98a26da49d7db3",
+    "semantic_hash": ""
+  },
+  "tests/Feature/ShiftSchedulingTest.php": {
+    "mtime": 1793761427.9835863,
+    "seen": 1793761447.871679,
+    "ast_hash": "b399756f612c07ed661aa897ff95e30e",
+    "semantic_hash": ""
+  },
+  "tests/Unit/ShiftScheduling.test.cjs": {
+    "mtime": 1793761418.0674918,
+    "seen": 1793761447.8717027,
+    "ast_hash": "bbb4adee21f7095a30a807e850740d06",
     "semantic_hash": ""
   }
 }

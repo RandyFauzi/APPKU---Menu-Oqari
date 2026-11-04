@@ -679,6 +679,10 @@
                 },
                 newTableId: '',
                 activeMenuFilter: 'all',
+                menuSortOrder: 'newest',
+                menuPage: 1,
+                menuPerPage: 8,
+                selectedMenuIds: [],
                 activeOrderFilter: 'process',
                 searchQuery: '',
                 newMenu: { id: null, name: '', price: '', desc: '', categoryId: '', imagePreview: null, cogs: 0, recipes: [] },
@@ -1233,7 +1237,7 @@ handleDraftImageUpload(event, index) {
                     });
                 },
                 get filteredMenuItems() {
-                    let items = this.menuItems;
+                    let items = [...this.menuItems];
                     if (this.activeMenuFilter !== 'all') {
                         items = items.filter(m => {
                             if (m.categoryId == this.activeMenuFilter) return true;
@@ -1244,9 +1248,66 @@ handleDraftImageUpload(event, index) {
                     }
                     if (this.searchQuery) {
                         const q = this.searchQuery.toLowerCase();
-                        items = items.filter(m => m.name.toLowerCase().includes(q) || m.desc.toLowerCase().includes(q));
+                        items = items.filter(m => {
+                            const name = (m.name || '').toLowerCase();
+                            const desc = (m.desc || m.description || '').toLowerCase();
+                            return name.includes(q) || desc.includes(q);
+                        });
+                    }
+                    if (this.menuSortOrder === 'price_asc') {
+                        items.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+                    } else if (this.menuSortOrder === 'price_desc') {
+                        items.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+                    } else {
+                        items.sort((a, b) => (b.id || 0) - (a.id || 0));
                     }
                     return items;
+                },
+                get paginatedMenuItems() {
+                    const start = (this.menuPage - 1) * this.menuPerPage;
+                    return this.filteredMenuItems.slice(start, start + this.menuPerPage);
+                },
+                get totalMenuPages() {
+                    return Math.max(1, Math.ceil(this.filteredMenuItems.length / this.menuPerPage));
+                },
+                get isAllMenusSelected() {
+                    return this.paginatedMenuItems.length > 0 && this.paginatedMenuItems.every(m => this.selectedMenuIds.includes(m.id));
+                },
+                toggleSelectAllMenus(e) {
+                    if (e.target.checked) {
+                        const pageIds = this.paginatedMenuItems.map(m => m.id);
+                        this.selectedMenuIds = Array.from(new Set([...this.selectedMenuIds, ...pageIds]));
+                    } else {
+                        const pageIds = new Set(this.paginatedMenuItems.map(m => m.id));
+                        this.selectedMenuIds = this.selectedMenuIds.filter(id => !pageIds.has(id));
+                    }
+                },
+                setMenuFilter(filter) {
+                    this.activeMenuFilter = filter;
+                    this.menuPage = 1;
+                },
+                prevMenuPage() {
+                    if (this.menuPage > 1) this.menuPage--;
+                },
+                nextMenuPage() {
+                    if (this.menuPage < this.totalMenuPages) this.menuPage++;
+                },
+                getCategoryBadgeClass(catName) {
+                    if (!catName) return 'bg-[#fdf8f3] text-[#74472d]';
+                    const name = catName.toLowerCase();
+                    if (name.includes('coffee') || name.includes('kopi')) {
+                        return 'bg-[#fdf8f3] text-[#74472d]';
+                    }
+                    if (name.includes('snack') || name.includes('cemilan')) {
+                        return 'bg-[#faf5ff] text-[#7e22ce]';
+                    }
+                    if (name.includes('drink') || name.includes('minuman') || name.includes('tea') || name.includes('latte') || name.includes('matcha')) {
+                        return 'bg-[#ecfeff] text-[#0e7490]';
+                    }
+                    if (name.includes('main') || name.includes('makanan') || name.includes('food') || name.includes('meal') || name.includes('nasi') || name.includes('burger')) {
+                        return 'bg-[#fff7ed] text-[#c2410c]';
+                    }
+                    return 'bg-[#fdf8f3] text-[#74472d]';
                 },
                 get filteredOrders() {
                     let filtered = this.orders;

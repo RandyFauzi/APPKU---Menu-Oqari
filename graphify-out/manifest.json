@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793761141.7628675,
-    "seen": 1793761447.8714547,
-    "ast_hash": "65ff612f3d663ad5f086f504c873824a",
+    "mtime": 1793766435.8082807,
+    "seen": 1793766630.9412904,
+    "ast_hash": "712527f6a94c34bf0ca33d730ae44f7f",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/crew.blade.php": {
@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/menu.blade.php": {
-    "mtime": 1792466608.3491504,
-    "seen": 1792466616.3069787,
-    "ast_hash": "a1ec910b52b42e907e1cd4d2a085ec44",
+    "mtime": 1793766566.8951411,
+    "seen": 1793766630.941301,
+    "ast_hash": "184d2a3a4d30bf494ed869a74eb9fa16",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
@@ -2859,6 +2859,54 @@
     "mtime": 1793761418.0674918,
     "seen": 1793761447.8717027,
     "ast_hash": "bbb4adee21f7095a30a807e850740d06",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/menu-cloud-upload.svg": {
+    "mtime": 1793766133.0509205,
+    "seen": 1793766630.9416757,
+    "ast_hash": "5d5bbef1f11677e906ce840a8e75b447",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/menu-sparkle.svg": {
+    "mtime": 1793766133.6878505,
+    "seen": 1793766630.9416776,
+    "ast_hash": "2b060acc0ef52a5e08f1121160b9416e",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/menu-tip-burger.png": {
+    "mtime": 1793766119.603742,
+    "seen": 1793766630.941679,
+    "ast_hash": "5476227093163181d312a3fae054c527",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-add-bold.svg": {
+    "mtime": 1793766133.371237,
+    "seen": 1793766630.941733,
+    "ast_hash": "afe7f18ab0cb0832558fa0b0d7e2ec25",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-pen-2.svg": {
+    "mtime": 1793766134.0026796,
+    "seen": 1793766630.9417343,
+    "ast_hash": "eeaeae3d878ed42ebdf20995fe116cea",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/solar-trash-bin.svg": {
+    "mtime": 1793766134.6776614,
+    "seen": 1793766630.9417357,
+    "ast_hash": "ea40a98fe7d6fe18501207effa23c0c8",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/toggle-off.svg": {
+    "mtime": 1793766132.6813626,
+    "seen": 1793766630.941741,
+    "ast_hash": "cc71cff18e958024c81bb43f6c9f9da5",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/toggle-on.svg": {
+    "mtime": 1793766134.3671486,
+    "seen": 1793766630.9417424,
+    "ast_hash": "f2f7e13bb87167d2d47cd6b589c17454",
     "semantic_hash": ""
   }
 }
