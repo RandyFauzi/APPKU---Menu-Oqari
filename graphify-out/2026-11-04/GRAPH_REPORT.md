@@ -1,7 +1,7 @@
 # Graph Report - coffee-saas  (2026-11-04)
 
 ## Corpus Check
-- 399 files · ~294,850 words
+- 399 files · ~295,224 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 24 file(s) not represented in the graph (top: (none) 18, .css 3, .example 1)
 

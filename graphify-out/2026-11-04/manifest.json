@@ -1440,9 +1440,9 @@
     "semantic_hash": ""
   },
   "resources/views/landing.blade.php": {
-    "mtime": 1792478448.3673453,
-    "seen": 1792478940.988309,
-    "ast_hash": "a6a6f63a7dc99493e1867f4e4bce452c",
+    "mtime": 1793757509.0254877,
+    "seen": 1793757532.7867613,
+    "ast_hash": "7a2b38e9183129f275ef54bcc13068bc",
     "semantic_hash": ""
   },
   "resources/views/layouts/app.blade.php": {
@@ -2166,9 +2166,9 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/HppCalculatorController.php": {
-    "mtime": 1792469498.241858,
-    "seen": 1792476481.7173147,
-    "ast_hash": "4f607b96ae7cb990acde78266750b67c",
+    "mtime": 1793757464.8498573,
+    "seen": 1793757505.668074,
+    "ast_hash": "eb51a31f4a9b0c3f133fce74a8f4d023",
     "semantic_hash": ""
   },
   "app/Http/Requests/CalculateHppRequest.php": {
@@ -2184,9 +2184,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Hpp/index.blade.php": {
-    "mtime": 1792482218.1512458,
-    "seen": 1792482283.9054892,
-    "ast_hash": "a2e045a99901d4c70abe04434381419a",
+    "mtime": 1793757637.4784267,
+    "seen": 1793757754.6430516,
+    "ast_hash": "1826613a31b0b82e0ad65f4a1fab094f",
     "semantic_hash": ""
   },
   "tests/Feature/HppCalculatorTest.php": {
@@ -2412,21 +2412,21 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Users/form.blade.php": {
-    "mtime": 1792482218.2636979,
-    "seen": 1792482283.9055073,
-    "ast_hash": "f20969dff65d796285fa91fab3c493e9",
+    "mtime": 1793757466.0555415,
+    "seen": 1793757505.668512,
+    "ast_hash": "535ebf6af6a0129f8af8e4a9f8c3744f",
     "semantic_hash": ""
   },
   "resources/views/Admin/Users/index.blade.php": {
-    "mtime": 1792482218.261702,
-    "seen": 1792482283.9055097,
-    "ast_hash": "e967398b6419001ea1c81fcfb4b5c231",
+    "mtime": 1793757501.2879634,
+    "seen": 1793757505.6685138,
+    "ast_hash": "2c5264d487f4e4715b07233909d0e1ba",
     "semantic_hash": ""
   },
   "resources/views/Admin/Users/layout.blade.php": {
-    "mtime": 1792482218.152246,
-    "seen": 1792482283.9055114,
-    "ast_hash": "bc4eced0b5ec5de44df982ea8a1ec47e",
+    "mtime": 1793757447.0274932,
+    "seen": 1793757505.668516,
+    "ast_hash": "242755cc075f1db7feaa34c52fcbaf3d",
     "semantic_hash": ""
   },
   "tests/Feature/CafeUserManagementTest.php": {
