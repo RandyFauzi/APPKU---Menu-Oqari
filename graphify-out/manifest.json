@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793776540.6090868,
-    "seen": 1793776643.887617,
-    "ast_hash": "d7ff51c2b6f25f80928133c979003ef3",
+    "mtime": 1793776888.8746526,
+    "seen": 1793776927.728054,
+    "ast_hash": "a1bc672d33921d73aed4fbb021a0a006",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {

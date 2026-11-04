@@ -126,9 +126,9 @@
 
         <!-- MODAL: ADD CATEGORY -->
         <div x-show="showAddCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans bg-black/40 backdrop-blur-xs" x-transition.opacity>
-            <div class="bg-white rounded-[20px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-[#e9ebf0]" @click.away="showAddCategoryModal = false" x-transition>
+            <div style="max-width: 420px; width: 100%;" class="bg-white rounded-[24px] w-full max-w-md p-6 sm:p-7 shadow-[0_24px_60px_rgba(0,0,0,0.18)] relative overflow-hidden border border-[#e9ebf0] mx-auto my-auto" @click.away="showAddCategoryModal = false" x-transition>
                 
-                <div class="absolute top-4 right-4 z-10">
+                <div class="absolute top-5 right-5 z-10">
                     <button @click="showAddCategoryModal = false" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition cursor-pointer">
                         <i class="fas fa-times"></i>
                     </button>
@@ -163,71 +163,88 @@
             </div>
         </div>
 
-        <!-- MODAL: MANAGE CATEGORIES (Kelola Kategori) -->
-        <div x-show="showManageCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans bg-black/40 backdrop-blur-xs" x-transition.opacity>
-            <div class="bg-white rounded-[24px] w-full max-w-[480px] p-6 sm:p-7 shadow-[0_24px_60px_rgba(0,0,0,0.15)] relative overflow-hidden border border-[#e9ebf0] max-h-[88vh] flex flex-col" @click.away="showManageCategoryModal = false" x-transition>
+        <!-- MODAL: MANAGE CATEGORIES (Kelola Kategori) - Perfectly Centered & Compact Desktop View -->
+        <div x-show="showManageCategoryModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans bg-black/50 backdrop-blur-xs" x-transition.opacity>
+            <div style="max-width: 520px; width: 100%;" class="bg-white rounded-[24px] w-full max-w-lg p-6 sm:p-7 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] relative overflow-hidden border border-[#e9ebf0] max-h-[85vh] flex flex-col mx-auto my-auto" @click.away="showManageCategoryModal = false" x-transition>
                 
                 <!-- Close Button -->
                 <div class="absolute top-5 right-5 z-10">
                     <button type="button" @click="showManageCategoryModal = false" class="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition cursor-pointer">
-                        <i class="fas fa-times"></i>
+                        <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
                 <!-- Header -->
                 <div class="flex items-center gap-3.5 mb-5 shrink-0">
-                    <div class="w-11 h-11 rounded-[14px] bg-[#fff6f0] text-[#df5826] flex items-center justify-center text-lg shrink-0 shadow-xs">
+                    <div class="w-11 h-11 rounded-[14px] bg-[#fff6f0] text-[#df5826] flex items-center justify-center text-lg shrink-0 shadow-xs border border-[#ffdec9]">
                         <i class="fas fa-layer-group"></i>
                     </div>
                     <div>
-                        <h2 class="text-[18px] font-bold text-[#111827] leading-tight">Kelola Kategori Menu</h2>
-                        <p class="text-[12px] text-[#53565a]">Ubah nama atau hapus kategori toko Anda</p>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-[18px] font-bold text-[#111827] leading-tight">Kelola Kategori Menu</h2>
+                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#fff6f0] text-[#df5826] border border-[#ffdec9]" x-text="(categories ? categories.length : 0) + ' kategori'"></span>
+                        </div>
+                        <p class="text-[12px] text-[#53565a] mt-0.5">Ubah nama atau hapus kategori toko Anda dengan mudah.</p>
                     </div>
                 </div>
 
                 <!-- Quick Add Category Box Inside Manager -->
-                <div class="mb-4 p-3 bg-[#f8f9fa] rounded-[14px] border border-[#e9ebf0] shrink-0">
-                    <label class="block text-[10px] font-bold text-[#53565a] mb-1.5 uppercase tracking-wider">Tambah Kategori Baru</label>
+                <div class="mb-4 p-3.5 bg-gradient-to-br from-[#fafbfc] to-[#fff8f5] rounded-[16px] border border-[#fed7c3] shadow-2xs shrink-0">
+                    <label class="block text-[11px] font-bold text-[#111827] mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fas fa-plus-circle text-[#df5826]"></i>
+                        <span>Tambah Kategori Baru</span>
+                    </label>
                     <div class="flex items-center gap-2">
                         <input type="text" 
                                x-model="newCategoryName" 
                                @keydown.enter="saveCategory" 
-                               placeholder="Nama kategori..." 
-                               class="flex-grow bg-white border border-[#e9ebf0] focus:border-[#df5826] rounded-[10px] px-3 py-2 text-[12px] text-[#111827] outline-none transition">
+                               placeholder="Ketik nama kategori baru..." 
+                               class="flex-grow bg-white border border-[#e5e7eb] focus:border-[#df5826] focus:ring-2 focus:ring-[#df5826]/10 rounded-[10px] px-3.5 py-2 text-[12px] text-[#111827] placeholder:text-[#9ca3af] outline-none transition">
                         <button type="button" 
                                 @click="saveCategory" 
                                 :disabled="!newCategoryName.trim()"
-                                class="px-4 py-2 bg-[#df5826] hover:bg-[#c94d00] text-white rounded-[10px] text-[12px] font-semibold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs shrink-0">
+                                class="px-4 py-2 bg-[#df5826] hover:bg-[#c94d00] active:scale-[0.98] text-white rounded-[10px] text-[12px] font-bold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs shrink-0">
                             <i class="fas fa-plus text-xs"></i>
                             <span>Tambah</span>
                         </button>
                     </div>
                 </div>
 
+                <!-- Category List Header -->
+                <div class="flex items-center justify-between pb-2 px-1 text-[11px] font-semibold text-[#7f837e] uppercase tracking-wider border-b border-[#f1f3f5] shrink-0 mb-2">
+                    <span>Nama Kategori</span>
+                    <span>Tindakan</span>
+                </div>
+
                 <!-- Category List (Scrollable) -->
-                <div class="flex-grow overflow-y-auto pr-1 space-y-2 custom-scroll min-h-[160px] max-h-[320px]">
+                <div class="flex-grow overflow-y-auto pr-1 space-y-2 custom-scroll min-h-[160px] max-h-[300px]">
                     <template x-for="cat in categories" :key="cat.id">
-                        <div class="p-3 bg-white rounded-[12px] border border-[#e9ebf0] hover:border-gray-300 transition-all shadow-2xs">
+                        <div class="p-3 bg-white rounded-[14px] border border-[#e9ebf0] hover:border-[#df5826]/40 hover:shadow-2xs transition-all">
                             <!-- View Mode -->
                             <template x-if="editingCategoryId !== cat.id">
                                 <div class="flex items-center justify-between gap-3">
-                                    <div class="flex items-center gap-2.5 min-w-0">
-                                        <span class="w-2 h-2 rounded-full bg-[#df5826] shrink-0"></span>
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-8 h-8 rounded-[10px] bg-[#f8f9fa] border border-[#e9ebf0] flex items-center justify-center text-[#df5826] shrink-0">
+                                            <i class="fas fa-tag text-xs"></i>
+                                        </div>
                                         <div class="truncate">
                                             <p class="text-[13px] font-bold text-[#111827] truncate" x-text="cat.name"></p>
-                                            <p class="text-[11px] text-[#7f837e]" x-text="(menuItems.filter(i => i.categoryId == cat.id || String(i.categoryName).toLowerCase() == String(cat.name).toLowerCase()).length) + ' menu'"></p>
+                                            <p class="text-[11px] text-[#7f837e] flex items-center gap-1 mt-0.5">
+                                                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                <span x-text="(menuItems.filter(i => i.categoryId == cat.id || String(i.categoryName).toLowerCase() == String(cat.name).toLowerCase()).length) + ' menu terdaftar'"></span>
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-1.5 shrink-0">
                                         <button type="button" 
                                                 @click="startEditCategory(cat)" 
-                                                class="w-8 h-8 rounded-[8px] bg-white border border-[#e9ebf0] hover:border-[#df5826] text-gray-500 hover:text-[#df5826] flex items-center justify-center transition cursor-pointer shadow-2xs" 
+                                                class="w-8 h-8 rounded-[9px] bg-white border border-[#e9ebf0] hover:border-[#df5826] hover:bg-[#fff6f0] text-gray-500 hover:text-[#df5826] flex items-center justify-center transition cursor-pointer shadow-2xs" 
                                                 title="Rename kategori">
                                             <i class="fas fa-pen text-xs"></i>
                                         </button>
                                         <button type="button" 
                                                 @click="deleteCategory(cat.id, cat.name)" 
-                                                class="w-8 h-8 rounded-[8px] bg-white border border-[#e9ebf0] hover:border-red-400 text-gray-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition cursor-pointer shadow-2xs" 
+                                                class="w-8 h-8 rounded-[9px] bg-white border border-[#e9ebf0] hover:border-red-400 hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center transition cursor-pointer shadow-2xs" 
                                                 title="Hapus kategori">
                                             <i class="fas fa-trash-alt text-xs"></i>
                                         </button>
@@ -237,25 +254,25 @@
 
                             <!-- Edit/Rename Mode -->
                             <template x-if="editingCategoryId === cat.id">
-                                <div class="space-y-2">
+                                <div class="space-y-2 p-1">
                                     <div class="flex items-center justify-between text-[11px] font-semibold text-[#53565a]">
-                                        <span>Rename Kategori</span>
-                                        <span class="text-[10px] text-[#7f837e]">Tekan Enter untuk simpan</span>
+                                        <span class="flex items-center gap-1"><i class="fas fa-pen-to-square text-[#df5826]"></i> Rename Kategori</span>
+                                        <span class="text-[10px] text-[#7f837e] font-mono">↵ Enter untuk simpan</span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <input type="text" 
                                                x-model="editingCategoryName" 
                                                @keydown.enter.prevent="updateCategory(cat.id)"
-                                               class="flex-grow bg-[#fafbfc] border border-[#df5826] rounded-[8px] px-3 py-1.5 text-[12px] text-[#111827] outline-none">
+                                               class="flex-grow bg-[#fafbfc] border border-[#df5826] focus:bg-white rounded-[9px] px-3 py-1.5 text-[12px] text-[#111827] outline-none">
                                         <button type="button" 
                                                 @click="cancelEditCategory()" 
-                                                class="px-2.5 py-1.5 bg-white border border-[#e9ebf0] text-gray-600 rounded-[8px] text-[11px] font-medium hover:bg-gray-50 transition cursor-pointer">
+                                                class="px-2.5 py-1.5 bg-white border border-[#e9ebf0] text-gray-600 rounded-[9px] text-[11px] font-medium hover:bg-gray-50 transition cursor-pointer">
                                             Batal
                                         </button>
                                         <button type="button" 
                                                 @click="updateCategory(cat.id)" 
                                                 :disabled="isSavingCategoryAction || !editingCategoryName.trim()"
-                                                class="px-3.5 py-1.5 bg-[#df5826] hover:bg-[#c94d00] text-white rounded-[8px] text-[11px] font-semibold transition flex items-center gap-1 cursor-pointer disabled:opacity-50 shadow-2xs">
+                                                class="px-3.5 py-1.5 bg-[#df5826] hover:bg-[#c94d00] active:scale-[0.98] text-white rounded-[9px] text-[11px] font-bold transition flex items-center gap-1 cursor-pointer disabled:opacity-50 shadow-2xs">
                                             <i :class="isSavingCategoryAction ? 'fas fa-spinner fa-spin' : 'fas fa-check text-xs'"></i>
                                             <span>Simpan</span>
                                         </button>
@@ -266,17 +283,21 @@
                     </template>
 
                     <template x-if="categories.length === 0">
-                        <div class="py-8 text-center text-gray-400 text-xs">
-                            <i class="fas fa-folder-open text-2xl mb-2 text-gray-300"></i>
-                            <p>Belum ada kategori yang dibuat.</p>
+                        <div class="py-10 text-center text-gray-400 text-xs">
+                            <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-2 text-gray-300">
+                                <i class="fas fa-folder-open text-base"></i>
+                            </div>
+                            <p class="font-medium text-gray-500">Belum ada kategori yang dibuat.</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5">Ketik nama di atas untuk membuat kategori pertama.</p>
                         </div>
                     </template>
                 </div>
 
                 <!-- Footer -->
-                <div class="mt-5 pt-3 border-t border-[#e9ebf0] flex justify-end shrink-0">
-                    <button type="button" @click="showManageCategoryModal = false" class="px-5 py-2 bg-white border border-[#e9ebf0] text-[#53565a] hover:bg-gray-50 rounded-[10px] text-[12px] font-semibold transition cursor-pointer">
-                        Selesai
+                <div class="mt-4 pt-3.5 border-t border-[#e9ebf0] flex items-center justify-between shrink-0">
+                    <span class="text-[11px] text-[#7f837e]">Perubahan langsung disimpan ke toko</span>
+                    <button type="button" @click="showManageCategoryModal = false" class="px-5 py-2 bg-white border border-[#e9ebf0] hover:border-gray-300 text-[#111827] hover:bg-gray-50 rounded-[10px] text-[12px] font-semibold transition cursor-pointer shadow-2xs">
+                        Tutup
                     </button>
                 </div>
             </div>
