@@ -210,14 +210,30 @@ class DashboardController extends Controller
         }
 
         if ($request->has('recipes')) {
-            if (is_string($request->input('recipes'))) {
-                $request->merge(['recipes' => json_decode($request->input('recipes'), true)]);
+            $recipes = $request->input('recipes');
+            if (is_string($recipes)) {
+                $recipes = json_decode($recipes, true);
             }
-            $request->validate([
-                'recipes' => ['required', 'array'],
-                'recipes.*.raw_material_id' => ['required', 'integer', 'distinct', Rule::exists('raw_materials', 'id')->where('shop_id', $shopId)->whereNull('deleted_at')],
-                'recipes.*.amount' => ['required', 'numeric', 'decimal:0,6', 'min:0.000001', 'max:999999.99'],
-            ]);
+            if (is_array($recipes)) {
+                $filteredRecipes = array_values(array_filter($recipes, function ($item) {
+                    return is_array($item) && ! empty($item['raw_material_id']);
+                }));
+                $request->merge(['recipes' => $filteredRecipes]);
+            }
+            if (! empty($request->input('recipes'))) {
+                $request->validate([
+                    'recipes' => ['array'],
+                    'recipes.*.raw_material_id' => ['required', 'integer', 'distinct', Rule::exists('raw_materials', 'id')->where('shop_id', $shopId)->whereNull('deleted_at')],
+                    'recipes.*.amount' => ['required', 'numeric', 'min:0.000001', 'max:999999.99'],
+                ], [
+                    'recipes.*.raw_material_id.required' => 'Bahan baku pada baris resep wajib dipilih.',
+                    'recipes.*.raw_material_id.integer' => 'Bahan baku yang dipilih tidak valid.',
+                    'recipes.*.raw_material_id.distinct' => 'Bahan baku tidak boleh dipilih ganda.',
+                    'recipes.*.raw_material_id.exists' => 'Bahan baku tidak ditemukan di inventori toko.',
+                    'recipes.*.amount.required' => 'Jumlah takaran bahan wajib diisi.',
+                    'recipes.*.amount.min' => 'Jumlah takaran minimal 0.000001.',
+                ]);
+            }
         }
         if ($request->filled('id')) {
             Product::where('shop_id', $shopId)->findOrFail($request->input('id'));

@@ -127,67 +127,67 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-[#f8f9fa] border-b border-[#e9ebf0]">
-                        <th class="w-10 px-4 py-2.5 text-center">
-                            <input type="checkbox" @change="toggleSelectAllMenus($event)" :checked="isAllMenusSelected" class="w-3.5 h-3.5 rounded border-[#d8dce2] text-[#df5826] focus:ring-[#df5826] cursor-pointer">
+                        <th class="w-10 px-4 py-3.5 text-center">
+                            <input type="checkbox" @change="toggleSelectAllMenus($event)" :checked="isAllMenusSelected" class="w-4 h-4 rounded border-[#d8dce2] text-[#df5826] focus:ring-[#df5826] cursor-pointer">
                         </th>
-                        <th class="px-4 py-2.5 text-[10px] font-semibold text-[#7f837e] uppercase tracking-wider w-[280px]">ITEM</th>
-                        <th class="px-4 py-2.5 text-[10px] font-semibold text-[#7f837e] uppercase tracking-wider">CATEGORY</th>
-                        <th class="px-4 py-2.5 text-[10px] font-semibold text-[#7f837e] uppercase tracking-wider">PRICE</th>
-                        <th class="px-4 py-2.5 text-[10px] font-semibold text-[#7f837e] uppercase tracking-wider">HPP (MODAL)</th>
-                        <th class="px-4 py-2.5 text-[10px] font-semibold text-[#7f837e] uppercase tracking-wider">STATUS</th>
-                        <th class="px-4 py-2.5 text-[10px] font-semibold text-[#7f837e] uppercase tracking-wider text-right pr-4">ACTIONS</th>
+                        <th class="px-4 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[280px]">ITEM</th>
+                        <th class="px-4 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider">CATEGORY</th>
+                        <th class="px-4 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider">PRICE</th>
+                        <th class="px-4 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider">HPP (MODAL)</th>
+                        <th class="px-4 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider">STATUS</th>
+                        <th class="px-4 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider text-right pr-4">ACTIONS</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#e9ebf0]">
                     <template x-for="item in paginatedMenuItems" :key="item.id">
                         <tr class="hover:bg-[#fafafa] transition-colors" :class="item.is_sold_out ? 'bg-[#fafafa]/60 opacity-80' : ''">
-                            <td class="w-10 px-4 py-2.5 text-center align-middle">
-                                <input type="checkbox" :value="item.id" x-model="selectedMenuIds" class="w-3.5 h-3.5 rounded border-[#d8dce2] text-[#df5826] focus:ring-[#df5826] cursor-pointer">
+                            <td class="w-10 px-4 py-3 text-center align-middle">
+                                <input type="checkbox" :value="item.id" x-model="selectedMenuIds" class="w-4 h-4 rounded border-[#d8dce2] text-[#df5826] focus:ring-[#df5826] cursor-pointer">
                             </td>
-                            <td class="px-4 py-2.5 align-middle">
-                                <div class="flex items-center gap-2.5">
-                                    <img :src="item.image || item.img || '/images/sparta/sparta-logo.png'" onerror="this.onerror=null; this.src='/images/sparta/sparta-logo.png'" class="w-[36px] h-[36px] rounded-[6px] object-cover shrink-0 border border-[#e9ebf0]">
+                            <td class="px-4 py-3 align-middle">
+                                <div class="flex items-center gap-3">
+                                    <img :src="item.image || item.img || '/images/sparta/sparta-logo.png'" onerror="this.onerror=null; this.src='/images/sparta/sparta-logo.png'" class="w-[42px] h-[42px] rounded-[8px] object-cover shrink-0 border border-[#e9ebf0]">
                                     <div class="flex flex-col min-w-0">
-                                        <span class="font-semibold text-[12px] text-[#111827] leading-[17px] truncate" x-text="item.name"></span>
-                                        <span class="text-[10px] text-[#7f837e] leading-[14px] truncate" x-text="item.desc || item.description || 'Tidak ada deskripsi'"></span>
+                                        <span class="font-bold text-[13px] text-[#111827] leading-snug truncate" x-text="item.name"></span>
+                                        <span class="text-[11px] text-[#7f837e] leading-snug truncate" x-text="item.desc || item.description || 'Tidak ada deskripsi'"></span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-4 py-2.5 align-middle">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-medium inline-block capitalize" 
+                            <td class="px-4 py-3 align-middle">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-block capitalize" 
                                       :class="getCategoryBadgeClass(item.categoryName || (categories.find(c => c.id == item.categoryId) || {}).name)" 
                                       x-text="item.categoryName || (categories.find(c => c.id == item.categoryId) || {}).name || '-'">
                                 </span>
                             </td>
-                            <td class="px-4 py-2.5 align-middle">
-                                <span class="text-[12px] font-medium text-[#111827]" x-text="formatRp(item.price)"></span>
+                            <td class="px-4 py-3 align-middle">
+                                <span class="text-[13px] font-bold text-[#111827] font-mono" x-text="formatRp(item.price)"></span>
                             </td>
-                            <td class="px-4 py-2.5 align-middle">
+                            <td class="px-4 py-3 align-middle">
                                 <div class="flex flex-col">
-                                    <span class="text-[12px] text-[#53565a]" x-text="formatRp(item.cogs || 0)"></span>
+                                    <span class="text-[13px] font-medium text-[#53565a] font-mono" x-text="formatRp(item.cogs || 0)"></span>
                                     <template x-if="item.price > 0 && item.cogs > 0">
-                                        <span class="text-[9px] text-[#7f837e]" x-text="'Margin ' + Math.round(((item.price - item.cogs)/item.price)*100) + '%'"></span>
+                                        <span class="text-[10px] text-[#7f837e] font-medium" x-text="'Margin ' + Math.round(((item.price - item.cogs)/item.price)*100) + '%'"></span>
                                     </template>
                                 </div>
                             </td>
-                            <td class="px-4 py-2.5 align-middle">
+                            <td class="px-4 py-3 align-middle">
                                 <div class="flex items-center gap-1.5" x-show="!item.is_sold_out">
-                                    <span class="w-[7px] h-[7px] rounded-full bg-[#00643b]"></span>
-                                    <span class="text-[11px] font-normal text-[#00643b]">Published</span>
+                                    <span class="w-[8px] h-[8px] rounded-full bg-[#00643b]"></span>
+                                    <span class="text-[12px] font-semibold text-[#00643b]">Published</span>
                                 </div>
                                 <div class="flex items-center gap-1.5" x-show="item.is_sold_out">
-                                    <span class="w-[7px] h-[7px] rounded-full bg-[#ef4444]"></span>
-                                    <span class="text-[11px] font-normal text-[#ef4444]">Sold Out</span>
+                                    <span class="w-[8px] h-[8px] rounded-full bg-[#ef4444]"></span>
+                                    <span class="text-[12px] font-semibold text-[#ef4444]">Sold Out</span>
                                 </div>
                             </td>
-                            <td class="px-4 py-2.5 align-middle text-right pr-4">
-                                <div class="flex items-center justify-end gap-1.5">
+                            <td class="px-4 py-3 align-middle text-right pr-4">
+                                <div class="flex items-center justify-end gap-2">
                                     <!-- Edit Button (Solar Pen 2 Linear) -->
                                     <button type="button" 
                                             @click="editMenu(item)" 
                                             title="Edit Menu" 
-                                            class="w-[26px] h-[26px] rounded-[6px] bg-white border border-[#e9ebf0] hover:border-[#df5826] text-[#53565a] hover:text-[#df5826] flex items-center justify-center transition shadow-xs cursor-pointer">
-                                        <svg class="w-3 h-3" viewBox="0 0 9 11" fill="none" stroke="currentColor">
+                                            class="w-[28px] h-[28px] rounded-[7px] bg-white border border-[#e9ebf0] hover:border-[#df5826] text-[#53565a] hover:text-[#df5826] flex items-center justify-center transition shadow-xs cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 9 11" fill="none" stroke="currentColor">
                                             <path d="M0.375 10.375H8.375" stroke-width="0.75" stroke-linecap="round"/>
                                             <path d="M0.504 7.496L0.397 7.817C0.346 7.969 0.386 8.137 0.5 8.251C0.613 8.364 0.781 8.404 0.933 8.353L1.254 8.246L2.567 7.809C2.876 7.706 3.031 7.654 3.177 7.584C3.349 7.503 3.511 7.402 3.661 7.285C3.789 7.186 3.904 7.07 4.135 6.839L7.544 3.431L7.914 3.06C8.529 2.446 8.529 1.45 7.914 0.836C7.3 0.221 6.304 0.221 5.69 0.836L5.319 1.206L1.911 4.615C1.68 4.846 1.564 4.961 1.465 5.089C1.348 5.239 1.247 5.401 1.166 5.573C1.096 5.719 1.045 5.874 0.941 6.183L0.504 7.496Z" stroke-width="0.75" stroke-linecap="round"/>
                                         </svg>
@@ -197,8 +197,8 @@
                                     <button type="button" 
                                             @click="deleteMenu(item.id)" 
                                             title="Hapus Menu" 
-                                            class="w-[26px] h-[26px] rounded-[6px] bg-white border border-[#e9ebf0] hover:border-red-500 text-[#53565a] hover:text-red-500 flex items-center justify-center transition shadow-xs cursor-pointer">
-                                        <svg class="w-3 h-3" viewBox="0 0 10 11" fill="none" stroke="currentColor">
+                                            class="w-[28px] h-[28px] rounded-[7px] bg-white border border-[#e9ebf0] hover:border-red-500 text-[#53565a] hover:text-red-500 flex items-center justify-center transition shadow-xs cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 10 11" fill="none" stroke="currentColor">
                                             <path d="M3.21 1.375C3.416 0.792 3.972 0.375 4.625 0.375C5.278 0.375 5.834 0.792 6.04 1.375" stroke-width="0.75" stroke-linecap="round"/>
                                             <path d="M8.875 2.375H0.375" stroke-width="0.75" stroke-linecap="round"/>
                                             <path d="M8.042 3.625L7.812 7.075C7.723 8.402 7.679 9.066 7.246 9.47C6.814 9.875 6.149 9.875 4.818 9.875H4.432C3.101 9.875 2.436 9.875 2.003 9.47C1.571 9.066 1.527 8.402 1.438 7.075L1.208 3.625" stroke-width="0.75" stroke-linecap="round"/>

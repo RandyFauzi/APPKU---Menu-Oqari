@@ -162,9 +162,9 @@
     "semantic_hash": "2f3a26c9d7d3571350aee2b768761b8a"
   },
   "app/Http/Controllers/Admin/DashboardController.php": {
-    "mtime": 1793771889.9804447,
-    "seen": 1793772364.1630356,
-    "ast_hash": "975239a8ea4b6f5972224fc42da75bb8",
+    "mtime": 1793772955.0713646,
+    "seen": 1793773111.9717567,
+    "ast_hash": "220541a0c2044e52489191c8d402ebb4",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/GoBizIntegrationController.php": {
@@ -390,10 +390,10 @@
     "semantic_hash": ""
   },
   "app/Models/Category.php": {
-    "mtime": 1792113994.7169285,
-    "seen": 1792116353.4081135,
-    "ast_hash": "f79bbcd10c6548de6f6833195d81e369",
-    "semantic_hash": "f79bbcd10c6548de6f6833195d81e369"
+    "mtime": 1793773036.8716424,
+    "seen": 1793773111.9718926,
+    "ast_hash": "ed3c7b27b017e9726d55fba7acc90981",
+    "semantic_hash": ""
   },
   "app/Models/CrewShift.php": {
     "mtime": 1793761473.504753,
@@ -1578,9 +1578,9 @@
     "semantic_hash": ""
   },
   "tests/Feature/AdminDashboardTest.php": {
-    "mtime": 1793687700.6186721,
-    "seen": 1793687776.2856762,
-    "ast_hash": "d7b9e540b32e5c794380ed01b4895f16",
+    "mtime": 1793772982.6283212,
+    "seen": 1793773111.9723966,
+    "ast_hash": "1efe3291c431db58915898cbf489c592",
     "semantic_hash": ""
   },
   "tests/Feature/Auth/AuthenticationTest.php": {

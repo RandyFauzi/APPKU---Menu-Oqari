@@ -167,19 +167,19 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-[#f8f9fa] border-b border-[#e9ebf0]">
-                        <th class="w-[28px] pl-4 py-2.5 text-center">
-                            <input type="checkbox" @change="toggleSelectAllMaterials($event)" :checked="isAllMaterialsSelected" class="w-3.5 h-3.5 rounded border-[#d8dce2] text-[#df5826] focus:ring-[#df5826] cursor-pointer">
+                        <th class="w-[36px] pl-4 py-3.5 text-center">
+                            <input type="checkbox" @change="toggleSelectAllMaterials($event)" :checked="isAllMaterialsSelected" class="w-4 h-4 rounded border-[#d8dce2] text-[#df5826] focus:ring-[#df5826] cursor-pointer">
                         </th>
-                        <th class="px-2 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider w-[180px] sm:w-[200px]">NAMA BAHAN</th>
-                        <th class="px-2 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider w-[80px]">SKU / KODE</th>
-                        <th class="px-2 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider w-[85px]">KATEGORI</th>
-                        <th class="px-2 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider w-[60px]">SATUAN</th>
-                        <th class="px-2 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider w-[95px]">HARGA BELI/UNIT</th>
-                        <th class="px-2 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider w-[85px]">SISA STOK</th>
-                        <th class="px-2 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider w-[80px]">MIN. STOK</th>
-                        <th class="px-2 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider w-[75px]">STATUS</th>
-                        <th class="px-2 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider w-[75px]">MENU TERKAIT</th>
-                        <th class="px-4 py-2.5 text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider text-right pr-4">AKSI</th>
+                        <th class="px-3 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[220px]">NAMA BAHAN</th>
+                        <th class="px-3 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[100px]">SKU / KODE</th>
+                        <th class="px-3 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[105px]">KATEGORI</th>
+                        <th class="px-3 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[75px]">SATUAN</th>
+                        <th class="px-3 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[120px]">HARGA BELI/UNIT</th>
+                        <th class="px-3 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[105px]">SISA STOK</th>
+                        <th class="px-3 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[95px]">MIN. STOK</th>
+                        <th class="px-3 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[90px]">STATUS</th>
+                        <th class="px-3 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider w-[95px]">MENU TERKAIT</th>
+                        <th class="px-4 py-3.5 text-[11px] font-bold text-[#53565a] uppercase tracking-wider text-right pr-4">AKSI</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#e9ebf0]">
@@ -187,27 +187,27 @@
                         <tr class="transition-colors" 
                             :class="getMaterialStatus(item) === 'Habis' ? 'bg-[#fff0f4]/80 hover:bg-[#fff0f4]' : (getMaterialStatus(item) === 'Menipis' ? 'bg-[#fff6f0]/70 hover:bg-[#fff6f0]' : 'bg-white hover:bg-[#fafafa]')">
                             <!-- Checkbox -->
-                            <td class="w-[28px] pl-4 py-2 text-center align-middle">
-                                <input type="checkbox" :value="item.id" x-model="selectedMaterialIds" class="w-3.5 h-3.5 rounded border-[#d8dce2] text-[#df5826] focus:ring-[#df5826] cursor-pointer">
+                            <td class="w-[36px] pl-4 py-3 text-center align-middle">
+                                <input type="checkbox" :value="item.id" x-model="selectedMaterialIds" class="w-4 h-4 rounded border-[#d8dce2] text-[#df5826] focus:ring-[#df5826] cursor-pointer">
                             </td>
 
                             <!-- Nama Bahan -->
-                            <td class="px-2 py-2 align-middle">
-                                <div class="flex items-center gap-2">
+                            <td class="px-3 py-3 align-middle">
+                                <div class="flex items-center gap-2.5">
                                     <!-- Icon Box -->
-                                    <div class="w-[22px] h-[22px] rounded-[4px] flex items-center justify-center shrink-0"
+                                    <div class="w-[28px] h-[28px] rounded-[6px] flex items-center justify-center shrink-0"
                                          :class="getMaterialStatus(item) === 'Habis' ? 'bg-[#fff0f4]' : (getMaterialStatus(item) === 'Menipis' ? 'bg-[#fff6f0]' : 'bg-[#f1f3f5]')">
                                         <template x-if="getMaterialStatus(item) === 'Aman'">
-                                            <img src="/images/sparta/solar-box-linear.svg" alt="Aman" class="w-3 h-3">
+                                            <img src="/images/sparta/solar-box-linear.svg" alt="Aman" class="w-3.5 h-3.5">
                                         </template>
                                         <template x-if="getMaterialStatus(item) === 'Menipis'">
-                                            <img src="/images/sparta/solar-danger-triangle.svg" alt="Menipis" class="w-3 h-3">
+                                            <img src="/images/sparta/solar-danger-triangle.svg" alt="Menipis" class="w-3.5 h-3.5">
                                         </template>
                                         <template x-if="getMaterialStatus(item) === 'Habis'">
-                                            <img src="/images/sparta/solar-danger-circle.svg" alt="Habis" class="w-3 h-3">
+                                            <img src="/images/sparta/solar-danger-circle.svg" alt="Habis" class="w-3.5 h-3.5">
                                         </template>
                                     </div>
-                                    <span class="font-semibold text-[11px] leading-[15px] truncate" 
+                                    <span class="font-bold text-[13px] leading-snug truncate" 
                                           :class="getMaterialStatus(item) === 'Habis' ? 'text-[#b91f50]' : 'text-[#111827]'" 
                                           x-text="item.name">
                                     </span>
@@ -215,48 +215,48 @@
                             </td>
 
                             <!-- SKU / Kode -->
-                            <td class="px-2 py-2 align-middle">
-                                <span class="font-normal text-[10px] text-[#7f837e] font-mono" x-text="item.sku || '-'"></span>
+                            <td class="px-3 py-3 align-middle">
+                                <span class="font-medium text-[12px] text-[#53565a] font-mono" x-text="item.sku || '-'"></span>
                             </td>
 
                             <!-- Kategori -->
-                            <td class="px-2 py-2 align-middle">
-                                <span class="px-2 py-0.5 rounded-full text-[9px] font-medium inline-block capitalize" 
+                            <td class="px-3 py-3 align-middle">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold inline-block capitalize" 
                                       :class="getMaterialCategoryBadgeClass(getMaterialCategory(item))" 
                                       x-text="getMaterialCategory(item)">
                                 </span>
                             </td>
 
                             <!-- Satuan -->
-                            <td class="px-2 py-2 align-middle">
-                                <span class="font-normal text-[10px] text-[#53565a] capitalize" x-text="item.unit_label || stockUnitLabel(item.unit)"></span>
+                            <td class="px-3 py-3 align-middle">
+                                <span class="font-medium text-[12px] text-[#53565a] capitalize" x-text="item.unit_label || stockUnitLabel(item.unit)"></span>
                             </td>
 
                             <!-- Harga Beli / Unit -->
-                            <td class="px-2 py-2 align-middle">
-                                <span class="font-medium text-[10px] text-[#111827]" x-text="formatRp(item.cost_per_unit)"></span>
+                            <td class="px-3 py-3 align-middle">
+                                <span class="font-bold text-[13px] text-[#111827] font-mono" x-text="formatRp(item.cost_per_unit)"></span>
                             </td>
 
                             <!-- Sisa Stok -->
-                            <td class="px-2 py-2 align-middle">
-                                <span class="text-[10px]" 
-                                      :class="getMaterialStatus(item) === 'Habis' ? 'font-bold text-[#b91f50]' : (getMaterialStatus(item) === 'Menipis' ? 'font-semibold text-[#c94d00]' : 'font-semibold text-[#00643b]')" 
+                            <td class="px-3 py-3 align-middle">
+                                <span class="text-[13px]" 
+                                      :class="getMaterialStatus(item) === 'Habis' ? 'font-bold text-[#b91f50]' : (getMaterialStatus(item) === 'Menipis' ? 'font-bold text-[#c94d00]' : 'font-bold text-[#00643b]')" 
                                       x-text="formatStock(item.current_stock) + ' ' + (item.unit_label || stockUnitLabel(item.unit))">
                                 </span>
                             </td>
 
                             <!-- Min. Stok -->
-                            <td class="px-2 py-2 align-middle">
-                                <span class="font-normal text-[10px] text-[#7f837e]" x-text="formatStock(item.minimum_stock) + ' ' + (item.unit_label || stockUnitLabel(item.unit))"></span>
+                            <td class="px-3 py-3 align-middle">
+                                <span class="font-medium text-[12px] text-[#53565a]" x-text="formatStock(item.minimum_stock) + ' ' + (item.unit_label || stockUnitLabel(item.unit))"></span>
                             </td>
 
                             <!-- Status -->
-                            <td class="px-2 py-2 align-middle">
-                                <div class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full"
+                            <td class="px-3 py-3 align-middle">
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
                                      :class="getMaterialStatus(item) === 'Habis' ? 'bg-[#ffe8ef]' : (getMaterialStatus(item) === 'Menipis' ? 'bg-[#fff3e8]' : 'bg-[#eafbf2]')">
-                                    <span class="w-[5px] h-[5px] rounded-full"
+                                    <span class="w-[6px] h-[6px] rounded-full"
                                           :class="getMaterialStatus(item) === 'Habis' ? 'bg-[#b91f50]' : (getMaterialStatus(item) === 'Menipis' ? 'bg-[#c94d00]' : 'bg-[#00643b]')"></span>
-                                    <span class="text-[9px] font-medium leading-[13px]"
+                                    <span class="text-[11px] font-semibold leading-[14px]"
                                           :class="getMaterialStatus(item) === 'Habis' ? 'text-[#b91f50]' : (getMaterialStatus(item) === 'Menipis' ? 'text-[#c94d00]' : 'text-[#00643b]')"
                                           x-text="getMaterialStatus(item)">
                                     </span>
@@ -264,18 +264,18 @@
                             </td>
 
                             <!-- Menu Terkait -->
-                            <td class="px-2 py-2 align-middle">
-                                <span class="font-medium text-[10px] text-[#c94d00]" x-text="(item.recipes_count || 0) + ' Menu'"></span>
+                            <td class="px-3 py-3 align-middle">
+                                <span class="font-bold text-[12px] text-[#df5826]" x-text="(item.recipes_count || 0) + ' Menu'"></span>
                             </td>
 
                             <!-- Aksi -->
-                            <td class="px-4 py-2 align-middle text-right pr-4">
-                                <div class="flex items-center justify-end gap-1.5">
+                            <td class="px-4 py-3 align-middle text-right pr-4">
+                                <div class="flex items-center justify-end gap-2">
                                     <!-- Restok Button -->
                                     <button type="button" 
                                             @click="quickRestock(item)" 
-                                            class="px-2 py-1 rounded-[4px] text-[9px] transition cursor-pointer"
-                                            :class="getMaterialStatus(item) === 'Menipis' || getMaterialStatus(item) === 'Habis' ? 'bg-[#df5826] hover:bg-[#c94d00] text-white font-semibold shadow-xs' : 'border border-[#ffd6bd] bg-white text-[#c94d00] hover:bg-[#fff6f0] font-medium'">
+                                            class="px-3 py-1.5 rounded-[6px] text-[11px] font-bold transition cursor-pointer shadow-xs"
+                                            :class="getMaterialStatus(item) === 'Menipis' || getMaterialStatus(item) === 'Habis' ? 'bg-[#df5826] hover:bg-[#c94d00] text-white' : 'border border-[#ffd6bd] bg-white text-[#c94d00] hover:bg-[#fff6f0]'">
                                         Restok
                                     </button>
 
@@ -283,8 +283,8 @@
                                     <button type="button" 
                                             @click="editMaterial(item)" 
                                             title="Edit Bahan" 
-                                            class="w-[24px] h-[24px] rounded-[6px] bg-white border border-[#e9ebf0] hover:border-[#df5826] text-[#53565a] hover:text-[#df5826] flex items-center justify-center transition shadow-xs cursor-pointer">
-                                        <svg class="w-3 h-3" viewBox="0 0 9 11" fill="none" stroke="currentColor">
+                                            class="w-[28px] h-[28px] rounded-[7px] bg-white border border-[#e9ebf0] hover:border-[#df5826] text-[#53565a] hover:text-[#df5826] flex items-center justify-center transition shadow-xs cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 9 11" fill="none" stroke="currentColor">
                                             <path d="M0.375 10.375H8.375" stroke-width="0.75" stroke-linecap="round"/>
                                             <path d="M0.504 7.496L0.397 7.817C0.346 7.969 0.386 8.137 0.5 8.251C0.613 8.364 0.781 8.404 0.933 8.353L1.254 8.246L2.567 7.809C2.876 7.706 3.031 7.654 3.177 7.584C3.349 7.503 3.511 7.402 3.661 7.285C3.789 7.186 3.904 7.07 4.135 6.839L7.544 3.431L7.914 3.06C8.529 2.446 8.529 1.45 7.914 0.836C7.3 0.221 6.304 0.221 5.69 0.836L5.319 1.206L1.911 4.615C1.68 4.846 1.564 4.961 1.465 5.089C1.348 5.239 1.247 5.401 1.166 5.573C1.096 5.719 1.045 5.874 0.941 6.183L0.504 7.496Z" stroke-width="0.75" stroke-linecap="round"/>
                                         </svg>
@@ -294,8 +294,8 @@
                                     <button type="button" 
                                             @click="deleteMaterial(item.id)" 
                                             title="Hapus Bahan" 
-                                            class="w-[24px] h-[24px] rounded-[6px] bg-white border border-[#e9ebf0] hover:border-red-500 text-[#53565a] hover:text-red-500 flex items-center justify-center transition shadow-xs cursor-pointer">
-                                        <svg class="w-3 h-3" viewBox="0 0 10 11" fill="none" stroke="currentColor">
+                                            class="w-[28px] h-[28px] rounded-[7px] bg-white border border-[#e9ebf0] hover:border-red-500 text-[#53565a] hover:text-red-500 flex items-center justify-center transition shadow-xs cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 10 11" fill="none" stroke="currentColor">
                                             <path d="M3.21 1.375C3.416 0.792 3.972 0.375 4.625 0.375C5.278 0.375 5.834 0.792 6.04 1.375" stroke-width="0.75" stroke-linecap="round"/>
                                             <path d="M8.875 2.375H0.375" stroke-width="0.75" stroke-linecap="round"/>
                                             <path d="M8.042 3.625L7.812 7.075C7.723 8.402 7.679 9.066 7.246 9.47C6.814 9.875 6.149 9.875 4.818 9.875H4.432C3.101 9.875 2.436 9.875 2.003 9.47C1.571 9.066 1.527 8.402 1.438 7.075L1.208 3.625" stroke-width="0.75" stroke-linecap="round"/>
@@ -375,45 +375,45 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-[#e9ebf0] text-[9px] font-semibold text-[#7f837e] uppercase tracking-wider bg-[#f8f9fa]">
-                        <th class="p-3 pl-4">WAKTU</th>
-                        <th class="p-3">NAMA BAHAN</th>
-                        <th class="p-3">TIPE</th>
-                        <th class="p-3">JUMLAH</th>
-                        <th class="p-3">SISA AKHIR</th>
-                        <th class="p-3">KETERANGAN</th>
-                        <th class="p-3 pr-4 text-right">PETUGAS</th>
+                    <tr class="border-b border-[#e9ebf0] text-[11px] font-bold text-[#53565a] uppercase tracking-wider bg-[#f8f9fa]">
+                        <th class="py-3.5 px-3 pl-4">WAKTU</th>
+                        <th class="py-3.5 px-3">NAMA BAHAN</th>
+                        <th class="py-3.5 px-3">TIPE</th>
+                        <th class="py-3.5 px-3">JUMLAH</th>
+                        <th class="py-3.5 px-3">SISA AKHIR</th>
+                        <th class="py-3.5 px-3">KETERANGAN</th>
+                        <th class="py-3.5 px-3 pr-4 text-right">PETUGAS</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#e9ebf0] text-[11px]">
+                <tbody class="divide-y divide-[#e9ebf0]">
                     <template x-for="mut in stockMutations" :key="mut.id">
                         <tr class="hover:bg-[#fafafa] transition">
-                            <td class="p-3 pl-4 text-[10px] text-[#7f837e] font-mono" x-text="new Date(mut.created_at).toLocaleString('id-ID')"></td>
-                            <td class="p-3 font-semibold text-[#111827]" x-text="mut.raw_material ? mut.raw_material.name : '-'"></td>
-                            <td class="p-3">
+                            <td class="py-3 px-3 pl-4 text-[12px] text-[#53565a] font-mono" x-text="new Date(mut.created_at).toLocaleString('id-ID')"></td>
+                            <td class="py-3 px-3 font-bold text-[13px] text-[#111827]" x-text="mut.raw_material ? mut.raw_material.name : '-'"></td>
+                            <td class="py-3 px-3">
                                 <template x-if="mut.type === 'in'">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#eafbf2] text-[#00643b]">Restok Masuk</span>
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#eafbf2] text-[#00643b]">Restok Masuk</span>
                                 </template>
                                 <template x-if="mut.type === 'out_order'">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#eef0ff] text-[#2a3ba2]">Terpakai Order</span>
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#eef0ff] text-[#2a3ba2]">Terpakai Order</span>
                                 </template>
                                 <template x-if="mut.type === 'adjustment'">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#f3e8ff] text-[#6b21a8]">Stok Opname</span>
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#f3e8ff] text-[#6b21a8]">Stok Opname</span>
                                 </template>
                                 <template x-if="mut.type === 'waste'">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#ffe8ef] text-[#b91f50]">Rusak/Expired</span>
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-[#ffe8ef] text-[#b91f50]">Rusak/Expired</span>
                                 </template>
                             </td>
-                            <td class="p-3 font-mono font-semibold">
+                            <td class="py-3 px-3 font-mono font-bold text-[12px]">
                                 <span :class="Number(mut.amount) > 0 ? 'text-[#00643b]' : 'text-[#b91f50]'" x-text="(Number(mut.amount) > 0 ? '+' : '') + formatStock(mut.amount)"></span>
+                                <span class="text-[11px] text-[#7f837e] font-normal" x-text="mut.unit_label || stockUnitLabel(mut.unit || mut.raw_material?.unit)"></span>
+                            </td>
+                            <td class="py-3 px-3 font-mono text-[12px] font-semibold text-[#111827]">
+                                <span x-text="formatStock(mut.balance_after)"></span>
                                 <span class="text-[10px] text-[#7f837e] font-normal" x-text="mut.unit_label || stockUnitLabel(mut.unit || mut.raw_material?.unit)"></span>
                             </td>
-                            <td class="p-3 font-mono text-[10px] font-medium text-[#111827]">
-                                <span x-text="formatStock(mut.balance_after)"></span>
-                                <span class="text-[9px] text-[#7f837e] font-normal" x-text="mut.unit_label || stockUnitLabel(mut.unit || mut.raw_material?.unit)"></span>
-                            </td>
-                            <td class="p-3 text-[10px] text-[#53565a]" x-text="mut.notes || '-'"></td>
-                            <td class="p-3 pr-4 text-right text-[10px] text-[#53565a]" x-text="mut.user ? mut.user.name : 'Sistem'"></td>
+                            <td class="py-3 px-3 text-[12px] text-[#53565a]" x-text="mut.notes || '-'"></td>
+                            <td class="py-3 px-3 pr-4 text-right text-[12px] text-[#53565a] font-medium" x-text="mut.user ? mut.user.name : 'Sistem'"></td>
                         </tr>
                     </template>
 

@@ -269,7 +269,7 @@
                                             <i class="fas fa-hashtag text-xs"></i>
                                         </div>
                                         <input id="production-quantity" x-model="form.production_quantity" type="number" min="0.01" max="999999" step="0.01" required 
-                                            class="hpp-input hpp-input-prefix-icon" placeholder="Contoh: 1 atau 10">
+                                            class="hpp-input hpp-input-prefix-icon !pl-10" placeholder="Contoh: 1 atau 10">
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-1">Berapa porsi/cup yang dihasilkan dalam 1 batch.</p>
                                 </div>
@@ -292,10 +292,10 @@
                                     </label>
                                     <div class="relative flex items-center">
                                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                            <span class="text-xs font-black text-gray-400">Rp</span>
+                                            <span class="text-xs font-bold text-gray-400 font-mono select-none">Rp</span>
                                         </div>
                                         <input id="selling-price" x-model="form.selling_price" type="number" min="0" max="99999999.99" step="0.01" required 
-                                            class="hpp-input hpp-input-prefix-rp text-base font-bold text-gray-900" placeholder="Contoh: 25000">
+                                            class="hpp-input hpp-input-prefix-rp !pl-12 text-base font-bold text-gray-900" placeholder="Contoh: 25000">
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-1">Harga jual yang Anda targetkan untuk melihat estimasi laba kotor &amp; margin.</p>
                                 </div>
@@ -330,7 +330,7 @@
                                     <i class="fas fa-search text-xs"></i>
                                 </div>
                                 <input id="material-search" type="search" x-model="materialSearch" 
-                                    class="hpp-input hpp-input-prefix-icon" placeholder="Cari nama bahan baku yang tersedia di inventori…">
+                                    class="hpp-input hpp-input-prefix-icon !pl-10" placeholder="Cari nama bahan baku yang tersedia di inventori…">
                             </div>
 
                             <div x-show="materials.length === 0" class="p-4 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs">
@@ -432,10 +432,10 @@
                                 </label>
                                 <div class="relative flex items-center">
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        <span class="text-xs font-black text-gray-400">Rp</span>
+                                        <span class="text-xs font-bold text-gray-400 font-mono select-none">Rp</span>
                                     </div>
                                     <input id="labor-cost" x-model="form.labor_cost" type="number" min="0" max="99999999.99" step="0.01" required 
-                                        class="hpp-input hpp-input-prefix-rp text-base font-bold text-gray-900" placeholder="0">
+                                        class="hpp-input hpp-input-prefix-rp !pl-12 text-base font-bold text-gray-900" placeholder="0">
                                 </div>
                                 <p class="text-[11px] text-gray-400 mt-1">Isi 0 jika tidak mengalokasikan upah per siklus.</p>
                             </div>
@@ -483,10 +483,10 @@
                                 </label>
                                 <div class="relative flex items-center">
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                        <span class="text-xs font-black text-gray-400">Rp</span>
+                                        <span class="text-xs font-bold text-gray-400 font-mono select-none">Rp</span>
                                     </div>
                                     <input id="overhead-cost" x-model="form.overhead_cost" type="number" min="0" max="99999999.99" step="0.01" :required="form.overhead_mode === 'fixed'" 
-                                        class="hpp-input hpp-input-prefix-rp text-base font-bold text-gray-900" placeholder="Contoh: 5000">
+                                        class="hpp-input hpp-input-prefix-rp !pl-12 text-base font-bold text-gray-900" placeholder="Contoh: 5000">
                                 </div>
                             </div>
 
