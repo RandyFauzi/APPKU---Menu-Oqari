@@ -520,19 +520,20 @@
 
                                         <!-- Search input inside dropdown -->
                                         <div class="relative mb-2.5">
-                                            <i class="fas fa-search absolute left-3 top-2.5 text-xs text-gray-400"></i>
+                                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none"></i>
                                             <input type="text" 
                                                    x-ref="searchCatInput" 
                                                    x-model="searchCat" 
                                                    @keydown.enter.prevent="if(searchCat.trim() && !isExactMatch) { handleCreateNew(searchCat); }"
                                                    placeholder="Cari atau ketik nama baru..." 
-                                                   class="w-full bg-[#f8f9fa] border border-[#e5e7eb] focus:border-[#df5826] focus:bg-white focus:ring-2 focus:ring-[#df5826]/10 rounded-[10px] pl-8.5 pr-8 py-2 text-[12px] text-[#111827] placeholder:text-[#9ca3af] outline-none transition-all">
+                                                   style="padding-left: 36px; padding-right: 32px;"
+                                                   class="w-full bg-[#f8f9fa] border border-[#e5e7eb] focus:border-[#df5826] focus:bg-white focus:ring-2 focus:ring-[#df5826]/10 rounded-[10px] pl-9 pr-8 py-2 text-[12px] text-[#111827] placeholder:text-[#9ca3af] outline-none transition-all">
                                             
                                             <!-- Clear Search Button -->
                                             <button type="button" 
                                                     x-show="searchCat.length > 0" 
                                                     @click="searchCat = ''; $refs.searchCatInput?.focus()" 
-                                                    class="absolute right-2.5 top-2 text-gray-400 hover:text-gray-600 w-5 h-5 rounded-full flex items-center justify-center hover:bg-gray-200 transition text-[11px] cursor-pointer">
+                                                    class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 w-5 h-5 rounded-full flex items-center justify-center hover:bg-gray-200 transition text-[11px] cursor-pointer">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
@@ -685,7 +686,7 @@
                                 <div>
                                     <label class="block text-[11px] font-semibold text-[#53565a] mb-1.5">Price</label>
                                     <div class="relative">
-                                        <span class="absolute left-3.5 top-2.5 text-[13px] text-[#7f837e] font-medium pointer-events-none">Rp</span>
+                                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] text-[#7f837e] font-medium pointer-events-none">Rp</span>
                                         <input type="number" x-model="draft.price" placeholder="0" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] pl-10 pr-3.5 py-2.5 text-[13px] text-[#111827] placeholder:text-[#9ca3af] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
                                     </div>
                                 </div>
