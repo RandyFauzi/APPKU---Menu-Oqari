@@ -29,15 +29,8 @@
             <span class="text-[13px] font-semibold text-[#1e211f]">Absensi</span>
         </div>
 
-        <div class="flex items-center gap-2">
-            <div class="hidden sm:flex items-center gap-1.5 bg-[#f1f0ec] border border-[#e6e5e0] h-[34px] px-[10px] rounded-[9px] text-[11px] font-medium text-[#53565a]">
-                <img src="{{ asset('images/sparta/clock.svg') }}" alt="" class="w-3.5 h-3.5 opacity-75">
-                <span>{{ $today->format('H:i') }} ({{ $timezone }})</span>
-            </div>
-            <div class="bg-[#f1f0ec] border border-[#e6e5e0] h-[34px] px-[10px] rounded-[9px] flex items-center text-[11px] font-medium text-[#53565a]">
-                {{ $today->translatedFormat('d M Y') }}
-            </div>
-        </div>
+        {{-- Topbar Datetime (Standardized Sparta Component) --}}
+        <x-topbar-datetime />
     </header>
 
     <main id="attendance-content" class="flex-1 w-full p-4 md:p-[24px] space-y-4">

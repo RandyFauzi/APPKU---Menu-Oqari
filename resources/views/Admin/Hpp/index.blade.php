@@ -90,15 +90,8 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <div class="hidden sm:flex items-center gap-1.5 bg-[#f1f0ec] border border-[#e6e5e0] h-[34px] px-[10px] rounded-[9px] text-[11px] font-medium text-[#53565a]">
-                    <img src="{{ asset('images/sparta/clock.svg') }}" alt="" class="w-3.5 h-3.5 opacity-75">
-                    <span>{{ now()->setTimezone($shop?->normalized_operating_hours['timezone'] ?? 'Asia/Jakarta')->format('H:i') }}</span>
-                </div>
-                <div class="bg-[#f1f0ec] border border-[#e6e5e0] h-[34px] px-[10px] rounded-[9px] flex items-center text-[11px] font-medium text-[#53565a]">
-                    {{ now()->translatedFormat('d M Y') }}
-                </div>
-            </div>
+            {{-- Topbar Datetime (Standardized Sparta Component) --}}
+            <x-topbar-datetime />
         </header>
 
         {{-- MAIN CONTENT --}}
