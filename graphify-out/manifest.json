@@ -1470,27 +1470,27 @@
     "semantic_hash": ""
   },
   "resources/views/profile/edit.blade.php": {
-    "mtime": 1792466407.3468733,
-    "seen": 1792466592.0832212,
-    "ast_hash": "cce65d1be01c2cae71b64536f0401760",
+    "mtime": 1793763862.8593585,
+    "seen": 1793763908.841239,
+    "ast_hash": "59e2bf8bd4ab0843509b0c75a671dc2f",
     "semantic_hash": ""
   },
   "resources/views/profile/partials/delete-user-form.blade.php": {
-    "mtime": 1792466407.5075338,
-    "seen": 1792466592.0832229,
-    "ast_hash": "17ef6b13ed34364b6702ca39f14c25fd",
+    "mtime": 1793763862.8653395,
+    "seen": 1793763908.8412418,
+    "ast_hash": "d5212db56e9bd4a5bae86407d9654089",
     "semantic_hash": ""
   },
   "resources/views/profile/partials/update-password-form.blade.php": {
-    "mtime": 1792466407.5100398,
-    "seen": 1792466592.0832243,
-    "ast_hash": "206d65aab0ae2b6e2686b6789cfb1471",
+    "mtime": 1793763862.863345,
+    "seen": 1793763908.841244,
+    "ast_hash": "6096c42948cb3f0fedb21d1c01f6b96d",
     "semantic_hash": ""
   },
   "resources/views/profile/partials/update-profile-information-form.blade.php": {
-    "mtime": 1792466407.5100398,
-    "seen": 1792466592.083226,
-    "ast_hash": "5e5eee64ae49a04d1a23b41975d85cea",
+    "mtime": 1793763862.8613503,
+    "seen": 1793763908.841246,
+    "ast_hash": "16b0546383ef83a40f66b289df790f05",
     "semantic_hash": ""
   },
   "resources/views/receipts/pdf.blade.php": {
