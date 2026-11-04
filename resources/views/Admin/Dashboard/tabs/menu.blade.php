@@ -22,7 +22,7 @@
                     @click="initBulkUpload()" 
                     class="bg-[#df5826] hover:bg-[#c94d00] text-white px-5 py-2.5 rounded-[10px] text-[13px] font-semibold shadow-[0px_2px_2px_rgba(27,114,118,0.12)] flex items-center gap-2 transition cursor-pointer">
                 <img src="/images/sparta/solar-add-bold.svg" alt="Plus" class="w-4 h-4">
-                <span>+ Buat Pesanan</span>
+                <span>+ Tambah Menu</span>
             </button>
         </div>
 
@@ -333,11 +333,11 @@
     <!-- MODAL: BULK UPLOAD MENU (Sparta Caffe Theme - 100% matched to screenshot) -->
     <div x-show="showBulkUpload" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 font-sans">
         <!-- Backdrop -->
-        <div @click="showBulkUpload = false" class="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity"></div>
+        <div @click="closeBulkUpload()" class="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity"></div>
         
-        <!-- Modal Content -->
-        <div class="relative w-full max-w-4xl mx-auto bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.12)] flex flex-col max-h-[90vh] overflow-hidden border border-[#e9ebf0]"
-             @keydown.escape.window="showBulkUpload = false" x-transition>
+        <!-- Modal Content with generous min-height to prevent dropdown cutoff -->
+        <div class="relative w-full max-w-4xl mx-auto bg-white rounded-[24px] p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.12)] flex flex-col min-h-[560px] max-h-[90vh] overflow-hidden border border-[#e9ebf0]"
+             @keydown.escape.window="closeBulkUpload()" x-transition>
             
             <!-- Header -->
             <div class="flex justify-between items-start mb-5 pb-5 border-b border-dashed border-[#e9ebf0] shrink-0">
@@ -346,8 +346,8 @@
                         <img src="/images/sparta/menu-cloud-upload.svg" alt="Upload" class="w-6 h-6">
                     </div>
                     <div>
-                        <h2 class="text-[20px] font-bold text-[#111827] leading-tight" x-text="draftMenus.length === 1 && draftMenus[0].id ? 'Edit Menu' : 'Upload Menu'">Upload Menu</h2>
-                        <p class="text-[#53565a] text-[13px]" x-text="draftMenus.length === 1 && draftMenus[0].id ? 'Perbarui detail, harga, dan foto menu toko Anda.' : 'Add your coffee and food items with images, prices, and categories.'">Add your coffee and food items with images, prices, and categories.</p>
+                        <h2 class="text-[20px] font-bold text-[#111827] leading-tight" x-text="draftMenus.length === 1 && draftMenus[0].id ? 'Edit Menu' : 'Tambah Menu Baru'">Tambah Menu Baru</h2>
+                        <p class="text-[#53565a] text-[13px]" x-text="draftMenus.length === 1 && draftMenus[0].id ? 'Perbarui detail, harga, dan foto menu toko Anda.' : 'Lengkapi foto, nama, kategori, dan harga menu toko Anda.'">Lengkapi foto, nama, kategori, dan harga menu toko Anda.</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -364,15 +364,15 @@
                         </div>
                     </template>
                     <input type="file" x-ref="csvInput" @change="handleCSVUpload" accept=".csv" class="hidden">
-                    <button type="button" @click="showBulkUpload = false" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition cursor-pointer ml-1">
+                    <button type="button" @click="closeBulkUpload()" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition cursor-pointer ml-1">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Scrollable Body -->
-            <div class="flex-grow overflow-y-auto hide-scroll py-2 pr-1">
-                <div class="flex flex-col gap-3 pb-24">
+            <!-- Scrollable Body with min-height and padding so dropdown never clips -->
+            <div class="flex-grow overflow-y-auto py-2 pr-1.5 custom-scroll min-h-[380px]">
+                <div class="flex flex-col gap-3 pb-48">
                     <template x-for="(draft, index) in draftMenus" :key="index">
                         <!-- Row Card matching screenshot -->
                         <div x-data="{ 
@@ -735,7 +735,7 @@
                     </template>
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <button type="button" @click="showBulkUpload = false" class="px-5 py-2.5 rounded-[10px] font-semibold text-[13px] bg-white border border-[#e9ebf0] text-[#53565a] hover:bg-gray-50 transition cursor-pointer">
+                    <button type="button" @click="closeBulkUpload()" class="px-5 py-2.5 rounded-[10px] font-semibold text-[13px] bg-white border border-[#e9ebf0] text-[#53565a] hover:bg-gray-50 transition cursor-pointer">
                         Tutup
                     </button>
                     <button type="button" @click="saveBulkMenu" :disabled="isSavingBulk" class="px-6 py-2.5 rounded-[10px] font-semibold text-[13px] bg-[#df5826] hover:bg-[#c94d00] text-white transition shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50">

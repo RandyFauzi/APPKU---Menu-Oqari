@@ -472,8 +472,8 @@ class DashboardController extends Controller
                 ];
 
                 $menu = null;
-                if (! empty($itemData['id'])) {
-                    $menu = Product::where('id', $itemData['id'])->where('shop_id', $shopId)->first();
+                if (! empty($itemData['id']) && is_numeric($itemData['id']) && (int) $itemData['id'] > 0) {
+                    $menu = Product::where('id', (int) $itemData['id'])->where('shop_id', $shopId)->first();
                 }
 
                 if ($request->hasFile("images.{$index}")) {

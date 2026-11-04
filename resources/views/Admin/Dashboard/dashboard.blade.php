@@ -986,10 +986,14 @@
                 draftMenus: [],
                 categories: window.INITIAL_DATA.categories || [],
                 initBulkUpload() {
+                    // Always clear previous draft/edit state so "+ Tambah Menu" is never stuck in Edit mode
+                    this.draftMenus = [];
+                    this.addDraftRow();
                     this.showBulkUpload = true;
-                    if (this.draftMenus.length === 0) {
-                        this.addDraftRow();
-                    }
+                },
+                closeBulkUpload() {
+                    this.showBulkUpload = false;
+                    this.draftMenus = [];
                 },
                 addDraftRow() {
                     this.draftMenus.push({ 
