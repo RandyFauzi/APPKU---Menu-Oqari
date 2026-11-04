@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\CashRegisterSession;
 use App\Models\Category;
-use App\Models\CrewShift;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductRecipe;
@@ -17,7 +16,6 @@ use App\Models\User;
 use App\Services\InventoryService;
 use App\Services\MediaService;
 use App\Services\Receipt\ReceiptService;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -632,64 +630,5 @@ class DashboardController extends Controller
         ]);
 
         return response()->json($listLogs->execute($request->user(), $filters));
-    }
-
-    public function getShifts()
-    {
-        $user = Auth::user();
-        $shifts = CrewShift::with('user')
-            ->whereHas('user', function ($q) use ($user) {
-                $q->where('shop_id', $user->shop_id);
-            })
-            ->orderBy('date', 'desc')
-            ->orderBy('start_time', 'asc')
-            ->get()
-            ->map(function ($s) {
-                return [
-                    'id' => $s->id,
-                    'user_id' => $s->user_id,
-                    'user_name' => $s->user ? $s->user->name : '-',
-                    'date' => $s->date->format('Y-m-d'),
-                    'start_time' => Carbon::parse($s->start_time)->format('H:i'),
-                    'end_time' => Carbon::parse($s->end_time)->format('H:i'),
-                    'notes' => $s->notes,
-                ];
-            });
-
-        return response()->json($shifts);
-    }
-
-    public function saveShift(Request $request)
-    {
-        $user = Auth::user();
-
-        $request->validate([
-            'user_id' => [
-                'required',
-                Rule::exists('users', 'id')->where('shop_id', $user->shop_id),
-            ],
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'notes' => 'nullable|string|max:255',
-        ]);
-
-        $data = [
-            'user_id' => $request->user_id,
-            'shop_id' => $user->shop_id,
-            'date' => $request->date,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'notes' => $request->notes,
-        ];
-
-        if ($request->filled('id')) {
-            $shift = CrewShift::where('shop_id', $user->shop_id)->findOrFail($request->id);
-            $shift->update($data);
-        } else {
-            CrewShift::create($data);
-        }
-
-        return response()->json(['success' => true]);
     }
 }

@@ -31,10 +31,10 @@ return [
     ],
     'defaults' => [
         'owner' => ['*'], 'admin' => ['*'],
-        'manager' => ['access-pos', 'view-orders', 'manage-orders', 'manage-menu', 'manage-hpp', 'manage-crew', 'manage-settings', 'view-reports', 'manage-register', 'manage-payments', 'manage-inventory', 'record-attendance', 'view-attendance'],
-        'cashier' => ['record-attendance', 'access-pos', 'view-orders', 'manage-orders', 'manage-register', 'manage-payments'],
-        'barista' => ['record-attendance', 'view-kitchen', 'update-kitchen-status', 'view-orders'],
-        'kitchen' => ['record-attendance', 'view-kitchen', 'update-kitchen-status', 'view-orders'],
+        'manager' => ['access-pos', 'view-orders', 'manage-orders', 'manage-menu', 'manage-hpp', 'manage-crew', 'manage-settings', 'view-reports', 'manage-register', 'manage-payments', 'manage-inventory', 'record-attendance', 'view-attendance', 'view-own-schedule'],
+        'cashier' => ['record-attendance', 'view-own-schedule', 'access-pos', 'view-orders', 'manage-orders', 'manage-register', 'manage-payments'],
+        'barista' => ['record-attendance', 'view-own-schedule', 'view-kitchen', 'update-kitchen-status', 'view-orders'],
+        'kitchen' => ['record-attendance', 'view-own-schedule', 'view-kitchen', 'update-kitchen-status', 'view-orders'],
         'crew' => ['record-attendance', 'view-own-schedule'],
     ],
     'dependencies' => [

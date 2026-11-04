@@ -1718,6 +1718,7 @@ handleDraftImageUpload(event, index) {
                     document.addEventListener('click', unlockAudio);
                     this.$watch('currentTab', (val) => {
                         if (val === 'logs') this.fetchLogs(1);
+                        if (val === 'shifts') this.fetchShifts();
                         localStorage.setItem('activeDashboardTab', val);
                         const url = new URL(window.location);
                         url.searchParams.set('tab', val);
@@ -1726,6 +1727,7 @@ handleDraftImageUpload(event, index) {
                     
                     if (!this.tabs.some(tab => tab.id === this.currentTab)) this.currentTab = this.tabs[0]?.id || 'profile';
                     if (this.currentTab === 'logs') this.fetchLogs(1);
+                    if (this.currentTab === 'shifts') this.fetchShifts();
                     this.initSummary();
                     this.initAnalytics();
                     this.loadMenu();
@@ -2161,14 +2163,41 @@ if (res.ok) {
                 logPage: 1,
                 logLastPage: 1,
                 logTotal: 0,
-                showAddShiftModal: false,
-                newShift: { id: null, user_id: '', date: '', start_time: '', end_time: '', notes: '' },
+                shiftsLoading: false,
+                shiftsError: '',
+                shiftSaving: false,
+                shiftDeletingId: null,
+                shiftFormError: '',
+                shiftDate: '{{ now(config('attendance.timezone'))->format('Y-m-d') }}',
+                shiftSearch: '',
+                shiftEmployees: [],
+                shiftTimezone: '',
+                newShift: { id: null, user_id: '', date: '', start_time: '', end_time: '', position: '', notes: '' },
+                get filteredShifts() {
+                    const term = this.shiftSearch.trim().toLowerCase();
+                    return this.shifts.filter(shift => (shift.user_name + ' ' + (shift.position || '')).toLowerCase().includes(term));
+                },
+                openShift(shift = null) {
+                    this.shiftFormError = '';
+                    this.newShift = shift ? { ...shift } : { id: null, user_id: '', date: this.shiftDate, start_time: '', end_time: '', position: '', notes: '' };
+                    this.$refs.shiftDialog.showModal();
+                },
                 async fetchShifts() {
-                    if (!this.can('manage-crew')) return;
+                    if (!this.can('manage-crew') || this.shiftsLoading) return;
+                    this.shiftsLoading = true;
+                    this.shiftsError = '';
                     try {
-                        let res = await fetch('/admin/api/shifts');
-                        if (res.ok) this.shifts = await res.json();
-                    } catch (e) {}
+                        const res = await fetch('/admin/api/shifts?' + new URLSearchParams({ date: this.shiftDate }), { headers: { Accept: 'application/json' } });
+                        if (!res.ok) throw new Error('shifts');
+                        const data = await res.json();
+                        this.shifts = data.data;
+                        this.shiftEmployees = data.employees;
+                        this.shiftTimezone = data.timezone;
+                    } catch (e) {
+                        this.shiftsError = 'Jadwal gagal dimuat. Silakan coba lagi.';
+                    } finally {
+                        this.shiftsLoading = false;
+                    }
                 },
                 async fetchLogs(page = 1) {
                     if (!this.can('view-reports') || this.logsLoading) return;
@@ -2190,58 +2219,45 @@ if (res.ok) {
                     }
                 },
                 async saveShift() {
-                    this.isSaving = true;
+                    if (this.shiftSaving) return;
+                    this.shiftSaving = true;
+                    this.shiftFormError = '';
                     try {
-                        let formData = new FormData();
-                        if (this.newShift.id) formData.append('id', this.newShift.id);
-                        formData.append('user_id', this.newShift.user_id);
-                        formData.append('date', this.newShift.date);
-                        formData.append('start_time', this.newShift.start_time);
-                        formData.append('end_time', this.newShift.end_time);
-                        if (this.newShift.notes) formData.append('notes', this.newShift.notes);
-
-                        let res = await fetch('/admin/api/shifts', {
+                        const res = await fetch('/admin/api/shifts', {
                             method: 'POST',
-                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                            body: formData
+                            headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: JSON.stringify(this.newShift)
                         });
-                        let data = await res.json();
-                        if (data.success) {
-                            this.addToast('Jadwal shift berhasil disimpan', 'success');
-                            this.showAddShiftModal = false;
-                            this.fetchShifts();
-                        } else {
-                            this.addToast('Gagal menyimpan shift', 'error');
+                        const data = await res.json();
+                        if (!res.ok) {
+                            this.shiftFormError = Object.values(data.errors || {}).flat().join(' ') || data.message || 'Gagal menyimpan jadwal.';
+                            return;
                         }
+                        this.addToast('Jadwal shift berhasil disimpan', 'success');
+                        this.$refs.shiftDialog.close();
+                        this.shiftDate = this.newShift.date;
+                        await this.fetchShifts();
                     } catch (e) {
-                        this.addToast('Terjadi kesalahan', 'error');
+                        this.shiftFormError = 'Jadwal gagal disimpan. Periksa koneksi dan coba lagi.';
+                    } finally {
+                        this.shiftSaving = false;
                     }
-                    this.isSaving = false;
                 },
                 async deleteShift(id) {
-                    const result = await Swal.fire({
-                        title: 'Hapus Jadwal Shift?',
-                        text: "Data jadwal ini akan dihapus permanen!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#64748b',
-                        confirmButtonText: 'Ya, hapus!',
-                        cancelButtonText: 'Batal'
-                    });
-                    
+                    if (this.shiftDeletingId) return;
+                    const result = await Swal.fire({ title: 'Hapus jadwal shift?', text: 'Jadwal ini akan dihapus. Riwayat absensi tetap tersimpan.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ea580c', confirmButtonText: 'Hapus jadwal', cancelButtonText: 'Batal' });
                     if (!result.isConfirmed) return;
+                    this.shiftDeletingId = id;
                     try {
-                        let res = await fetch(`/admin/api/shifts/${id}`, {
-                            method: 'DELETE',
-                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                        });
-                        let data = await res.json();
-                        if (data.success) {
-                            this.addToast('Shift dihapus', 'success');
-                            this.fetchShifts();
-                        }
-                    } catch (e) {}
+                        const res = await fetch(`/admin/api/shifts/${id}`, { method: 'DELETE', headers: { Accept: 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
+                        if (!res.ok) throw new Error('delete');
+                        this.addToast('Jadwal dihapus', 'success');
+                        await this.fetchShifts();
+                    } catch (e) {
+                        this.addToast('Jadwal gagal dihapus. Silakan coba lagi.', 'error');
+                    } finally {
+                        this.shiftDeletingId = null;
+                    }
                 },
                 addTableFromModal() {
                     if (!this.newTableId.trim()) {

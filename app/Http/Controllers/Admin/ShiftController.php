@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\Crew\CreateShift;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SaveShiftRequest;
 use App\Models\CrewShift;
-use Carbon\Carbon;
+use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ShiftController extends Controller
 {
@@ -20,69 +24,65 @@ class ShiftController extends Controller
         return response()->json(['success' => true]);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  MY SCHEDULE — Crew/Barista view: their own 7-day schedule
-    // ─────────────────────────────────────────────────────────────
-
-    public function mySchedule(Request $request)
+    public function mySchedule(Request $request): View
     {
+        $this->authorize('view-own-schedule');
         $user = $request->user();
-        $today = Carbon::today();
-
-        // Show a rolling 7-day window starting from today
-        $shifts = CrewShift::where('shop_id', $user->shop_id)
-            ->where('user_id', $user->id)
-            ->whereBetween('date', [$today, $today->copy()->addDays(6)])
-            ->orderBy('date')
-            ->get()
-            ->keyBy(fn ($shift) => $shift->date->format('Y-m-d'));
-
-        // Build a 7-day grid (today → +6) so UI always renders all 7 slots
+        abort_unless($user->shop_id, 403);
+        $timezone = config('attendance.timezone');
+        $today = CarbonImmutable::today($timezone)->locale('id');
+        $shifts = CrewShift::where('shop_id', $user->shop_id)->where('user_id', $user->id)
+            ->whereBetween('date', [$today->toDateString(), $today->addDays(6)->toDateString()])
+            ->orderBy('date')->orderBy('start_time')->get();
+        $grouped = $shifts->groupBy(fn (CrewShift $shift): string => $shift->date->format('Y-m-d'));
         $schedule = [];
-        for ($i = 0; $i < 7; $i++) {
-            $date = $today->copy()->addDays($i);
-            $key = $date->format('Y-m-d');
-            $shift = $shifts->get($key);
-
-            $schedule[] = [
-                'date' => $date,
-                'label' => $i === 0 ? 'TODAY'
-                             : ($i === 1 ? 'TOMORROW'
-                             : strtoupper($date->format('l'))),
-                'shift' => $shift,
-                'is_off' => is_null($shift),
-            ];
+        for ($index = 0; $index < 7; $index++) {
+            $date = $today->addDays($index);
+            $schedule[] = ['date' => $date, 'label' => $index === 0 ? 'Hari ini' : ($index === 1 ? 'Besok' : $date->translatedFormat('l')),
+                'shifts' => $grouped->get($date->toDateString(), collect())];
         }
+        $workDays = $grouped->count();
+        $totalMinutes = $shifts->sum(fn (CrewShift $shift): int => $shift->durationMinutes());
+        $shiftCount = $shifts->count();
 
-        return view('Admin.shift.my-schedule', compact('schedule', 'user'));
+        return view('Admin.shift.my-schedule', compact('schedule', 'user', 'timezone', 'today', 'workDays', 'totalMinutes', 'shiftCount'));
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  SHIFT MANAGEMENT — Owner/Manager view: full crew scheduling
-    // ─────────────────────────────────────────────────────────────
-
-    public function index(Request $request)
+    public function index(): RedirectResponse
     {
         $this->authorize('manage-crew');
 
         return redirect()->route('admin.dashboard', ['tab' => 'shifts']);
     }
 
-    public function store(Request $request, CreateShift $createShift)
+    public function schedule(Request $request): JsonResponse
     {
         $this->authorize('manage-crew');
+        abort_unless($request->user()->shop_id, 403);
+        $filters = $request->validate(['date' => ['nullable', 'date_format:Y-m-d']]);
+        $timezone = config('attendance.timezone');
+        $start = CarbonImmutable::parse($filters['date'] ?? CarbonImmutable::today($timezone)->toDateString(), $timezone);
+        $shifts = CrewShift::where('shop_id', $request->user()->shop_id)->with('user:id,name')
+            ->whereBetween('date', [$start->toDateString(), $start->addDays(6)->toDateString()])
+            ->orderBy('date')->orderBy('start_time')->orderBy('id')->get()->map(fn (CrewShift $shift): array => [
+                'id' => $shift->id, 'user_id' => $shift->user_id, 'user_name' => $shift->user?->name ?? 'Staf tidak tersedia',
+                'date' => $shift->date->format('Y-m-d'), 'date_label' => $shift->date->locale('id')->translatedFormat('d M Y'),
+                'start_time' => substr($shift->start_time, 0, 5), 'end_time' => substr($shift->end_time, 0, 5),
+                'overnight' => $shift->endsAt()->toDateString() !== $shift->startsAt()->toDateString(),
+                'position' => $shift->position, 'notes' => $shift->notes,
+            ]);
+        $employees = User::where('shop_id', $request->user()->shop_id)->unarchived()->where('role', '!=', 'superadmin')
+            ->orderBy('name')->get()->filter(fn (User $user): bool => $user->isAccountActive())->values()
+            ->map(fn (User $user): array => ['id' => $user->id, 'name' => $user->name, 'role' => config('access.roles.'.$user->role, $user->role)]);
 
-        $validated = $request->validate([
-            'user_id' => ['required', 'integer'],
-            'date' => ['required', 'date'],
-            'start_time' => ['required', 'date_format:H:i'],
-            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
-            'position' => ['nullable', 'string', 'max:100'],
-            'notes' => ['nullable', 'string', 'max:255'],
-        ]);
+        return response()->json(['data' => $shifts, 'employees' => $employees, 'timezone' => $timezone]);
+    }
 
-        $shift = $createShift->execute($request->user()->shop, $validated);
+    public function store(SaveShiftRequest $request, CreateShift $createShift): JsonResponse
+    {
+        $data = $request->validated();
+        $shift = $createShift->execute($request->user()->shop, $data, isset($data['id']) ? (int) $data['id'] : null);
 
-        return response()->json(['success' => true, 'shift' => $shift], 201);
+        return response()->json(['success' => true, 'shift' => $shift], isset($data['id']) ? 200 : 201);
     }
 }

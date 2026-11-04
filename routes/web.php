@@ -133,9 +133,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:manage-crew', 'schema:shifts'])->group(function () {
         Route::get('/admin/shifts', [ShiftController::class, 'index'])->name('admin.shifts.index');
         Route::post('/admin/shifts', [ShiftController::class, 'store'])->name('admin.shifts.store');
-        Route::get('/admin/api/shifts', [DashboardController::class, 'getShifts']);
-        Route::post('/admin/api/shifts', [DashboardController::class, 'saveShift']);
-        Route::delete('/admin/api/shifts/{shift}', [ShiftController::class, 'destroy']);
+        Route::get('/admin/api/shifts', [ShiftController::class, 'schedule'])->name('admin.shifts.data');
+        Route::post('/admin/api/shifts', [ShiftController::class, 'store']);
+        Route::delete('/admin/api/shifts/{shift}', [ShiftController::class, 'destroy'])->name('admin.shifts.destroy');
     });
 
     // My Schedule (Crew/Barista — personal view only)
