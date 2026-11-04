@@ -2172,9 +2172,9 @@
     "semantic_hash": ""
   },
   "app/Http/Requests/CalculateHppRequest.php": {
-    "mtime": 1792469499.1116292,
-    "seen": 1792476481.7174215,
-    "ast_hash": "77448a4b9a4a5548ba47cf0f479f79f4",
+    "mtime": 1793759995.0765417,
+    "seen": 1793760080.5969224,
+    "ast_hash": "c07ec7ea37c8d38345032a25737ee708",
     "semantic_hash": ""
   },
   "database/migrations/2026_10_20_012647_add_hpp_settings_to_products_table.php": {
@@ -2412,9 +2412,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Users/form.blade.php": {
-    "mtime": 1793758511.0354266,
-    "seen": 1793758645.9285731,
-    "ast_hash": "17fca0ef9f923dfd4e7a45f7352b57a6",
+    "mtime": 1793760033.5163321,
+    "seen": 1793760080.5986593,
+    "ast_hash": "dbeb72b139bcf1bae2eb86ce1ed02c22",
     "semantic_hash": ""
   },
   "resources/views/Admin/Users/index.blade.php": {
