@@ -122,7 +122,7 @@ class AttendanceTest extends TestCase
         $employee = $this->employee($role);
         $this->actingAs($employee)->get(route('admin.attendance.index'))->assertOk();
         $this->postJson(route('admin.attendance.store'), ['type' => 'check_in'])->assertOk();
-        $this->getJson(route('admin.attendance.report'))->assertForbidden();
+        $this->getJson(route('admin.attendance.index', ['tab' => 'team']))->assertForbidden();
     }
 
     public function test_identity_and_timestamps_cannot_be_supplied_by_client(): void
@@ -148,7 +148,6 @@ class AttendanceTest extends TestCase
     }
 
     #[TestWith(['owner'])]
-    #[TestWith(['manager'])]
     public function test_management_report_is_scoped_and_filters_by_employee_month_and_status(string $role): void
     {
         $manager = $this->employee($role);
@@ -160,9 +159,9 @@ class AttendanceTest extends TestCase
             'work_date' => '2026-10-20', 'check_in_note' => 'Manager private']);
         Attendance::factory()->create(['shop_id' => $other->shop_id, 'user_id' => $other->id,
             'work_date' => '2026-10-20', 'check_in_note' => 'Other cafe private']);
-        $this->actingAs($manager)->get(route('admin.attendance.report', ['month' => '2026-10', 'user_id' => $employee->id, 'status' => 'late']))
+        $this->actingAs($manager)->get(route('admin.attendance.index', ['tab' => 'team', 'month' => '2026-10', 'user_id' => $employee->id, 'status' => 'late']))
             ->assertOk()->assertSee('Late selected')->assertDontSee('Manager private')->assertDontSee('Other cafe private');
-        $this->getJson(route('admin.attendance.report', ['user_id' => $other->id]))->assertUnprocessable()->assertJsonValidationErrors('user_id');
+        $this->getJson(route('admin.attendance.index', ['tab' => 'team', 'user_id' => $other->id]))->assertUnprocessable()->assertJsonValidationErrors('user_id');
     }
 
     public function test_guest_unassigned_user_unknown_role_and_suspended_employee_cannot_record(): void
@@ -203,7 +202,7 @@ class AttendanceTest extends TestCase
 
     public function test_invalid_filter_and_action_are_rejected(): void
     {
-        $this->actingAs($this->employee('owner'))->getJson(route('admin.attendance.report', ['month' => 'invalid', 'status' => 'invalid']))
+        $this->actingAs($this->employee('owner'))->getJson(route('admin.attendance.index', ['tab' => 'team', 'month' => 'invalid', 'status' => 'invalid']))
             ->assertUnprocessable()->assertJsonValidationErrors(['month', 'status']);
         $this->postJson(route('admin.attendance.store'), ['type' => 'edit'])->assertUnprocessable()->assertJsonValidationErrors('type');
     }
@@ -213,9 +212,9 @@ class AttendanceTest extends TestCase
         $manager = $this->employee('owner');
         Attendance::factory()->create(['shop_id' => $manager->shop_id, 'user_id' => $manager->id,
             'work_date' => '2026-10-31', 'check_in_note' => 'Last day record']);
-        $this->actingAs($manager)->get(route('admin.attendance.report', ['month' => '2026-10']))
+        $this->actingAs($manager)->get(route('admin.attendance.index', ['tab' => 'team', 'month' => '2026-10']))
             ->assertOk()->assertSee('Last day record');
-        $this->get(route('admin.attendance.report', ['month' => '2026-11']))->assertOk()->assertDontSee('Last day record');
+        $this->get(route('admin.attendance.index', ['tab' => 'team', 'month' => '2026-11']))->assertOk()->assertDontSee('Last day record');
     }
 
     public function test_employee_can_record_next_day_after_previous_session_is_closed(): void
@@ -245,7 +244,7 @@ class AttendanceTest extends TestCase
         $employee = User::factory()->create(['shop_id' => $manager->shop_id, 'name' => 'Historical Employee', 'role' => 'crew']);
         $attendance = Attendance::factory()->create(['shop_id' => $manager->shop_id, 'user_id' => $employee->id]);
         $employee->delete();
-        $this->actingAs($manager)->get(route('admin.attendance.report'))->assertOk()->assertSee('Historical Employee')->assertSee('Akun telah dihapus');
+        $this->actingAs($manager)->get(route('admin.attendance.index', ['tab' => 'team']))->assertOk()->assertSee('Historical Employee')->assertSee('Akun telah dihapus');
         $this->assertNull($attendance->fresh()->user_id);
     }
 

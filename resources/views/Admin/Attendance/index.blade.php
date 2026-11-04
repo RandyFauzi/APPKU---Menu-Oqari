@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $isReport ? 'Rekap Absensi' : 'Absensi Saya' }} — {{ $shop->name ?? 'OQARI' }}</title>
+    <title>Absensi — {{ $shop->name ?? 'OQARI' }}</title>
     <link rel="icon" href="{{ $shop->logo_url ?? asset('logo-oqari.webp') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,11 +22,11 @@
     {{-- TOP HEADER BAR (Sparta Style) --}}
     <header class="h-[52px] bg-[#f6f5f2] border-b border-[#e6e5e0] px-4 lg:px-[26px] flex items-center justify-between shrink-0 sticky top-0 z-20">
         <div class="flex items-center gap-3">
-            <button type="button" @click="$dispatch('toggle-mobile-nav')" aria-label="Buka menu navigasi" aria-controls="app-sidebar"
+            <button type="button" x-data @click="$dispatch('toggle-mobile-nav')" aria-label="Buka menu navigasi" aria-controls="app-sidebar"
                 class="w-9 h-9 rounded-lg bg-[#eae8e3] flex items-center justify-center text-[#1e211f] hover:bg-[#dfddd7] transition-colors md:hidden">
                 <i class="fas fa-bars text-base"></i>
             </button>
-            <span class="text-[13px] font-semibold text-[#1e211f]">{{ $isReport ? 'Rekap Absensi' : 'Absensi' }}</span>
+            <span class="text-[13px] font-semibold text-[#1e211f]">Absensi</span>
         </div>
 
         <div class="flex items-center gap-2">
@@ -47,25 +47,25 @@
             <div>
                 <p class="text-[11px] font-semibold text-[#df5826] uppercase tracking-[0.22px]">Tim &amp; Kehadiran</p>
                 <h1 class="text-[22px] font-bold text-[#1e211f] tracking-[-0.3px] leading-tight mt-0.5">
-                    {{ $isReport ? 'Rekap Absensi Karyawan' : 'Absensi Saya' }}
+                    Absensi
                 </h1>
                 <p class="text-[12px] text-[#7f837e] mt-0.5">
                     {{ auth()->user()->name }} · {{ $today->format('d/m/Y H:i') }} · {{ $timezone }}
                 </p>
             </div>
 
-            @can('view-attendance')
-            <div class="bg-white border border-[#e6e5e0] p-1 rounded-[11px] inline-flex items-center gap-1 self-start sm:self-auto shadow-[0px_1px_2px_rgba(0,0,0,0.02)]">
-                <a href="{{ route('admin.attendance.index') }}"
+            <nav aria-label="Tampilan absensi" class="bg-white border border-[#e6e5e0] p-1 rounded-[11px] inline-flex items-center gap-1 self-start sm:self-auto shadow-[0px_1px_2px_rgba(0,0,0,0.02)]">
+                <a href="{{ route('admin.attendance.index', ['month' => $filters['month']]) }}" @if(!$isReport) aria-current="page" @endif
                    class="px-3.5 py-1.5 rounded-[8px] text-[12px] transition {{ !$isReport ? 'bg-[#fff6f0] border border-[#df5826] text-[#df5826] font-semibold' : 'text-[#53565a] font-medium hover:text-[#111827]' }}">
                     Absensi Saya
                 </a>
-                <a href="{{ route('admin.attendance.report') }}"
+                @if(auth()->user()->role === 'owner' && auth()->user()->can('view-attendance'))
+                <a href="{{ route('admin.attendance.index', ['tab' => 'team', 'month' => $filters['month']]) }}" @if($isReport) aria-current="page" @endif
                    class="px-3.5 py-1.5 rounded-[8px] text-[12px] transition {{ $isReport ? 'bg-[#fff6f0] border border-[#df5826] text-[#df5826] font-semibold' : 'text-[#53565a] font-medium hover:text-[#111827]' }}">
                     Rekap Tim
                 </a>
-            </div>
-            @endcan
+                @endif
+            </nav>
         </div>
 
         {{-- ALERTS --}}
@@ -231,7 +231,8 @@
                     </p>
                 </div>
 
-                <form method="GET" class="flex flex-wrap items-end gap-2.5">
+                <form method="GET" action="{{ route('admin.attendance.index') }}" class="flex flex-wrap items-end gap-2.5">
+                    @if($isReport)<input type="hidden" name="tab" value="team">@endif
                     <div>
                         <label for="month" class="block text-[11px] font-medium text-[#53565a] mb-1">Bulan</label>
                         <input id="month" type="month" name="month" value="{{ $filters['month'] }}"

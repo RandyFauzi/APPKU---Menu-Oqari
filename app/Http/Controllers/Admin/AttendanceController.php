@@ -16,18 +16,14 @@ use Illuminate\View\View;
 
 class AttendanceController extends Controller
 {
-    public function index(Request $request): View
+    public function index(AttendanceReportRequest $request): View
     {
-        $this->authorize('record-attendance');
-        abort_unless($request->user()->shop_id, 403);
-        $filters = $request->validate(['month' => ['nullable', 'date_format:Y-m']]);
-
-        return $this->render($request, $filters, false);
+        return $this->render($request, $request->validated(), $request->isTeamReport());
     }
 
-    public function report(AttendanceReportRequest $request): View
+    public function report(AttendanceReportRequest $request): RedirectResponse
     {
-        return $this->render($request, $request->validated(), true);
+        return redirect()->route('admin.attendance.index', ['tab' => 'team'] + $request->validated());
     }
 
     public function store(RecordAttendanceRequest $request, RecordAttendance $recordAttendance): JsonResponse|RedirectResponse

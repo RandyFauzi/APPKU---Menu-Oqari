@@ -18,7 +18,6 @@ $groups = [
     'Manajemen Tim' => [
         ['manage-users', 'Manajemen Staf', 'fa-user-shield', 'admin.users.index', null, 'images/sparta/nav-staf.svg'],
         ['manage-crew', 'Jadwal Shift', 'fa-calendar-days', 'admin.dashboard', 'shifts', 'images/sparta/nav-shift.svg'],
-        ['view-attendance', 'Rekap Absensi', 'fa-calendar-check', 'admin.attendance.report', null, null],
         ['view-own-schedule', 'Jadwal Saya', 'fa-calendar', 'admin.my-schedule', null, null],
     ],
     'Laporan' => [
@@ -64,7 +63,7 @@ if ($member?->role === 'superadmin') {
         </div>
 
         <!-- Navigation Links -->
-        <nav class="sidebar-scroll flex-1 min-h-0 overflow-y-auto px-3 py-3" aria-label="Menu utama">
+        <nav class="sidebar-scroll flex-1 min-h-0 overflow-y-auto px-3 py-3" aria-label="Menu utama" x-data="sidebarScroll('{{ $member->id }}')" @scroll.passive="savePosition()" @resize.window="$nextTick(() => revealActive())">
             
             @if($member?->role !== 'superadmin')
                 <!-- Top Primary Dashboard Link (Sparta Style) -->
