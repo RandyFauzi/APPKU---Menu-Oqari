@@ -99,9 +99,7 @@
             
             <!-- Brand Logo -->
             <a href="{{ url('/') }}" class="flex items-center gap-3 group">
-                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-gold-700 via-gold-800 to-stone-900 flex items-center justify-center shadow-md shadow-gold-900/10 group-hover:scale-105 transition-transform p-1.5">
-                    <img src="{{ asset('logo-oqari.webp') }}" alt="OQARI Logo" class="w-full h-full object-contain">
-                </div>
+                <img src="{{ asset('logo-oqari.webp') }}" alt="OQARI Logo" class="w-10 h-10 object-contain group-hover:scale-105 transition-transform">
                 <div>
                     <span class="text-2xl font-black tracking-tight text-gold-950 flex items-center gap-1">
                         OQARI
@@ -1248,9 +1246,7 @@
                 <!-- Col 1: Brand & Contact -->
                 <div class="lg:col-span-4 space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-gold-700 p-1 flex items-center justify-center">
-                            <img src="{{ asset('logo-oqari.webp') }}" alt="OQARI Logo" class="w-full h-full object-contain">
-                        </div>
+                        <img src="{{ asset('logo-oqari.webp') }}" alt="OQARI Logo" class="w-8 h-8 object-contain">
                         <span class="text-xl font-black text-white tracking-tight"><x-hellenic-emblem class="inline-block h-5 w-5 mr-1 align-middle" />OQARI</span>
                     </div>
                     <p class="text-gold-600 text-xs leading-relaxed max-w-sm">

@@ -22,6 +22,7 @@ class HppCalculatorController extends Controller
         abort_unless($request->user()->shop_id, 403);
         $filters = $request->validate(['product_id' => ['nullable', 'integer']]);
         $shopId = $request->user()->shop_id;
+        $shop = $request->user()->shop;
         $product = ! empty($filters['product_id'])
             ? Product::where('shop_id', $shopId)->with('recipes')->findOrFail($filters['product_id']) : null;
         $products = Product::where('shop_id', $shopId)->orderBy('name')->get(['id', 'name']);
@@ -38,7 +39,7 @@ class HppCalculatorController extends Controller
             'selling_price' => (float) ($product?->price ?? 0), 'target_margin' => $product?->hpp_target_margin,
         ]);
 
-        return view('Admin.Hpp.index', compact('product', 'products', 'materials', 'initial'));
+        return view('Admin.Hpp.index', compact('shop', 'product', 'products', 'materials', 'initial'));
     }
 
     public function calculate(CalculateHppRequest $request, CalculateHpp $calculator): JsonResponse
