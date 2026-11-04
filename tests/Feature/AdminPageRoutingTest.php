@@ -114,4 +114,13 @@ class AdminPageRoutingTest extends TestCase
             ->assertJsonMissingPath('shop.gobiz_access_token')->assertJsonMissingPath('shop.gobiz_refresh_token');
         $this->assertSame('private-access-example', $owner->shop->fresh()->gobiz_access_token);
     }
+
+    public function test_admin_pages_render_module_navigation_tabs(): void
+    {
+        $this->actingAs($this->owner());
+        $this->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('aria-label="Navigasi Modul"', false)
+            ->assertSee('Dashboard', false);
+    }
 }

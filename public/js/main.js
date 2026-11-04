@@ -60,6 +60,7 @@ function initHomePage() {
     renderCarousel();
     renderCategories();
     renderMenu();
+    initCategoryScrollSpy();
     updateFloatingCart();
 
     const searchInput = document.getElementById('search-menu');
@@ -177,25 +178,122 @@ function isItemInCategory(item, categoryTarget) {
     return false;
 }
 
+let isProgrammaticScroll = false;
+let scrollTimeout = null;
+
 function renderCategories() {
     const container = document.getElementById('category-container');
     if (!container) return;
     
     container.innerHTML = apiData.categories.map(cat => {
         const isActive = String(activeCategory).toLowerCase() === String(cat.id).toLowerCase();
-        const bgClass = isActive ? 'bg-white border-2 border-primary' : 'bg-white border-2 border-transparent hover:border-primary/30';
-        const iconColor = isActive ? 'text-primary' : 'text-accent';
-        const textClass = isActive ? 'text-primary font-bold' : 'text-textdark/70';
+        const bgClass = isActive 
+            ? 'bg-primary text-white shadow-md shadow-primary/25 border-primary scale-[1.03]' 
+            : 'bg-white text-gray-700 border-gray-200/80 hover:border-primary/40 hover:bg-gray-50/50';
+        const iconColor = isActive ? 'text-white' : 'text-accent';
+        const textClass = isActive ? 'text-primary font-bold' : 'text-textdark/70 font-medium';
         
         return `
-        <button type="button" data-category-id="${escapeHtml(cat.id)}" onclick="filterCategory(this.dataset.categoryId)" aria-pressed="${isActive}" class="flex flex-col items-center gap-2 cursor-pointer group flex-shrink-0 w-20">
-            <div class="w-16 h-16 rounded-2xl shadow-sm flex items-center justify-center transition-all ${bgClass}">
+        <button type="button" 
+                data-category-id="${escapeHtml(cat.id)}" 
+                onclick="handleCategoryClick(this.dataset.categoryId)" 
+                aria-pressed="${isActive}" 
+                class="category-pill flex flex-col items-center gap-1.5 cursor-pointer group flex-shrink-0 w-20 transition-all select-none outline-none">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 ${bgClass} border">
                 <i class="fas ${cat.icon} text-2xl ${iconColor} group-hover:scale-110 transition-transform"></i>
             </div>
-            <span class="text-[10px] text-center w-full truncate ${textClass}">${escapeHtml(cat.name)}</span>
+            <span class="text-[11px] text-center w-full truncate transition-colors ${textClass}">${escapeHtml(cat.name)}</span>
         </button>
         `;
     }).join('');
+
+    scrollActiveCategoryIntoView(activeCategory);
+}
+
+function scrollActiveCategoryIntoView(catId) {
+    const container = document.getElementById('category-container');
+    if (!container) return;
+    const activePill = container.querySelector(`[data-category-id="${catId}"]`);
+    if (activePill) {
+        const containerRect = container.getBoundingClientRect();
+        const pillRect = activePill.getBoundingClientRect();
+        const currentScroll = container.scrollLeft;
+        const targetScroll = currentScroll + (pillRect.left - containerRect.left) - (containerRect.width / 2) + (pillRect.width / 2);
+        container.scrollTo({
+            left: Math.max(0, targetScroll),
+            behavior: 'smooth'
+        });
+    }
+}
+
+function setActiveCategoryPill(catId) {
+    if (String(activeCategory).toLowerCase() === String(catId).toLowerCase()) return;
+    activeCategory = catId;
+    
+    const container = document.getElementById('category-container');
+    if (!container) return;
+
+    const pills = container.querySelectorAll('.category-pill');
+    pills.forEach(pill => {
+        const isCurrent = String(pill.dataset.categoryId).toLowerCase() === String(catId).toLowerCase();
+        pill.setAttribute('aria-pressed', isCurrent);
+        const iconBox = pill.querySelector('div');
+        const icon = pill.querySelector('i');
+        const text = pill.querySelector('span');
+        
+        if (iconBox && icon && text) {
+            if (isCurrent) {
+                iconBox.className = 'w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 bg-primary text-white shadow-md shadow-primary/25 border-primary scale-[1.03] border';
+                icon.className = icon.className.replace(/text-accent/g, 'text-white');
+                text.className = 'text-[11px] text-center w-full truncate transition-colors text-primary font-bold';
+            } else {
+                iconBox.className = 'w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 bg-white text-gray-700 border-gray-200/80 hover:border-primary/40 hover:bg-gray-50/50 border';
+                icon.className = icon.className.replace(/text-white/g, 'text-accent');
+                text.className = 'text-[11px] text-center w-full truncate transition-colors text-textdark/70 font-medium';
+            }
+        }
+    });
+
+    scrollActiveCategoryIntoView(catId);
+}
+
+function handleCategoryClick(catId) {
+    if (searchQuery) {
+        const searchInput = document.getElementById('search-menu');
+        if (searchInput) searchInput.value = '';
+        searchQuery = '';
+        renderMenu();
+    }
+
+    if (catId === 'all') {
+        setActiveCategoryPill('all');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+    }
+
+    const section = document.getElementById('cat-section-' + catId);
+    if (section) {
+        isProgrammaticScroll = true;
+        clearTimeout(scrollTimeout);
+        
+        setActiveCategoryPill(catId);
+
+        const header = document.getElementById('sticky-header');
+        const catBar = document.getElementById('sticky-categories');
+        const totalOffset = (header ? header.offsetHeight : 0) + (catBar ? catBar.offsetHeight : 0) + 12;
+        const targetTop = section.getBoundingClientRect().top + window.pageYOffset - totalOffset;
+
+        window.scrollTo({
+            top: targetTop,
+            behavior: 'smooth'
+        });
+
+        scrollTimeout = setTimeout(() => {
+            isProgrammaticScroll = false;
+        }, 800);
+    } else {
+        filterCategory(catId);
+    }
 }
 
 function filterCategory(catId) {
@@ -210,6 +308,52 @@ function filterCategory(catId) {
     }
 
     renderMenu();
+}
+
+function initCategoryScrollSpy() {
+    if (typeof window === 'undefined') return;
+
+    let ticking = false;
+    const onScroll = () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                if (isProgrammaticScroll) {
+                    ticking = false;
+                    return;
+                }
+                const sections = document.querySelectorAll('.category-section');
+                if (!sections.length) {
+                    ticking = false;
+                    return;
+                }
+
+                const header = document.getElementById('sticky-header');
+                const catBar = document.getElementById('sticky-categories');
+                const totalOffset = (header ? header.offsetHeight : 0) + (catBar ? catBar.offsetHeight : 0) + 35;
+
+                let currentActiveId = 'all';
+
+                if (window.pageYOffset < 150) {
+                    currentActiveId = 'all';
+                } else {
+                    sections.forEach(sec => {
+                        const rect = sec.getBoundingClientRect();
+                        if (rect.top <= totalOffset) {
+                            currentActiveId = sec.dataset.categoryId;
+                        }
+                    });
+                }
+
+                if (currentActiveId && currentActiveId !== activeCategory) {
+                    setActiveCategoryPill(currentActiveId);
+                }
+                ticking = false;
+            });
+            ticking = true;
+        }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
 }
 
 function renderMenu() {
@@ -245,7 +389,7 @@ function renderMenu() {
             const itemsInCat = filteredMenu.filter(m => isItemInCategory(m, cat));
             if (itemsInCat.length > 0) {
                 const colSpan = (theme === 'list') ? 'col-span-1' : 'col-span-2';
-                htmlOutput += `<div class="${colSpan} mt-4 mb-1 border-b-2 border-primary/10 pb-1"><h3 class="font-heading font-bold text-lg text-primary">${escapeHtml(cat.name)}</h3></div>`;
+                htmlOutput += `<div id="cat-section-${escapeHtml(cat.id)}" class="${colSpan} category-section mt-5 mb-2 border-b-2 border-primary/10 pb-1.5 scroll-mt-40" data-category-id="${escapeHtml(cat.id)}"><h3 class="font-heading font-bold text-lg text-primary flex items-center gap-2"><i class="fas ${cat.icon} text-sm opacity-70"></i><span>${escapeHtml(cat.name)}</span></h3></div>`;
                 htmlOutput += itemsInCat.map(item => renderMenuItem(item)).join('');
             }
         });

@@ -78,4 +78,13 @@ class ThemeRenderingTest extends TestCase
         $this->actingAs($owner)->get(route('admin.reports.index'))->assertOk()
             ->assertViewHas('totalCogs', 30000)->assertViewHas('netSales', 90000)->assertViewHas('grossProfit', 60000)->assertViewHas('margin', 66.67);
     }
+
+    public function test_customer_menu_renders_sticky_category_navigation_bar(): void
+    {
+        $shop = Shop::factory()->create(['status' => 'active']);
+        $this->get(route('shop.menu', $shop->slug))
+            ->assertOk()
+            ->assertSee('id="sticky-categories"', false)
+            ->assertSee('id="category-container"', false);
+    }
 }

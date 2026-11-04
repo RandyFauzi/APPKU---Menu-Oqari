@@ -120,6 +120,16 @@
         </div>
     </div>
     <script>
+        function updateStickyCategoryPosition() {
+            const header = document.getElementById('sticky-header');
+            const catBar = document.getElementById('sticky-categories');
+            if (header && catBar) {
+                catBar.style.top = header.offsetHeight + 'px';
+            }
+        }
+        window.addEventListener('DOMContentLoaded', updateStickyCategoryPosition);
+        window.addEventListener('load', updateStickyCategoryPosition);
+        window.addEventListener('resize', updateStickyCategoryPosition);
         window.addEventListener('scroll', function () {
             const header = document.getElementById('sticky-header');
             if (!header) return;
@@ -128,7 +138,8 @@
             } else {
                 header.classList.remove('shadow-md');
             }
-        });
+            updateStickyCategoryPosition();
+        }, { passive: true });
     </script>
 
 
@@ -152,8 +163,8 @@
     @endif
 
     <!-- Categories Square Grid -->
-    <div class="sticky top-0 bg-white z-20 pt-3 pb-3 border-b border-gray-100 shadow-sm">
-        <div id="category-container" class="flex overflow-x-auto px-4 gap-3 hide-scroll">
+    <div id="sticky-categories" class="sticky z-30 bg-white/95 backdrop-blur-md pt-2.5 pb-2.5 border-b border-gray-100 shadow-sm transition-all duration-150">
+        <div id="category-container" class="flex overflow-x-auto px-4 gap-3 hide-scroll scroll-smooth">
              <!-- Injected by JS -->
         </div>
     </div>

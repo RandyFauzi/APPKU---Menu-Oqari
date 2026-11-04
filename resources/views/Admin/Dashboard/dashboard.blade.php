@@ -80,9 +80,9 @@
                     </div>
                 </div>
 
-                <!-- Date Pill (Sparta Figma Style) -->
-                <div class="bg-[#f8f9fa] border border-[#e9ebf0] rounded-[8px] px-3 py-1.5 hidden md:flex items-center text-[10px] font-medium text-[#7f837e] tracking-tight">
-                    {{ \Carbon\Carbon::now()->translatedFormat('d M Y') }}
+                <!-- Topbar Datetime (Standardized Sparta Component) -->
+                <x-topbar-datetime />
+
                 </div>
 
                 <!-- Bell Notifications -->
@@ -121,6 +121,17 @@
                 </div>
             </div>
         </header>
+
+        <!-- Module Tabs Navigation Bar (Responsive for Mobile, Tablet POS, and Desktop) -->
+        <nav aria-label="Navigasi Modul" class="bg-white border-b border-[#e9ebf0] px-4 md:px-7 flex items-center gap-1.5 overflow-x-auto hide-scroll shrink-0 py-2.5 z-40 select-none">
+            @foreach($pageLinks as $tabLink)
+                <a href="{{ $tabLink['url'] }}" 
+                   class="px-3.5 py-1.5 rounded-[9px] text-[12px] font-medium transition-all shrink-0 flex items-center gap-2 cursor-pointer outline-none {{ $page === $tabLink['id'] ? 'bg-[#df5826] text-white font-bold shadow-xs' : 'text-[#53565a] hover:bg-[#f8f9fa] hover:text-[#111827] border border-transparent hover:border-[#e9ebf0]' }}"
+                   @if($page === $tabLink['id']) aria-current="page" @endif>
+                    <span>{{ $tabLink['name'] }}</span>
+                </a>
+            @endforeach
+        </nav>
 
         @include($pageView)
 

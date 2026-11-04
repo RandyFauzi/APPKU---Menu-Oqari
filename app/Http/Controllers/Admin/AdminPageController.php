@@ -16,12 +16,14 @@ class AdminPageController extends Controller
     public function index(Request $request, RenderAdminPage $renderPage): View|RedirectResponse
     {
         $legacyTab = $request->query('tab');
-        if ($request->routeIs('admin.dashboard') && $legacyTab !== null) {
+        if ($legacyTab !== null) {
             $aliases = ['profile' => 'profile.edit', 'crew' => 'admin.users.index', 'analytics' => 'admin.dashboard'];
             $destination = is_string($legacyTab) ? ($aliases[$legacyTab] ?? config('admin_pages.'.$legacyTab.'.route')) : null;
             abort_unless($destination, 404);
 
-            return redirect()->route($destination, $request->except('tab', 'page'));
+            if ($request->routeIs('admin.dashboard') || ! $request->routeIs($destination)) {
+                return redirect()->route($destination, $request->except('tab', 'page'));
+            }
         }
         $page = $request->route('page', 'dashboard');
 
