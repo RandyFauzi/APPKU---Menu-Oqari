@@ -83,10 +83,8 @@
             <span class="bg-white border border-[#e6e5e0] rounded-[4px] px-[5px] py-[1px] text-[10px] font-medium text-[#8b8e93] shrink-0">⌘K</span>
         </div>
 
-        {{-- Dynamic Date Pill --}}
-        <div class="bg-[#f1f0ec] border border-[#e6e5e0] h-[34px] px-[10px] rounded-[9px] flex items-center text-[11px] font-medium text-[#53565a]">
-            {{ \Carbon\Carbon::now()->translatedFormat('d M Y') }}
-        </div>
+        {{-- Topbar Datetime (Standardized Sparta Component) --}}
+        <x-topbar-datetime />
 
         @if($activeSession)
         <a href="{{ route('admin.register.index') }}" class="h-[34px] px-[10px] rounded-[9px] bg-white border border-[#e6e5e0] hover:border-[#df5826] text-[11px] font-semibold text-[#1e211f] inline-flex items-center gap-1.5 transition">

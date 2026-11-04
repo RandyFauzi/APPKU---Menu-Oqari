@@ -43,16 +43,8 @@
         </div>
 
         <div class="flex items-center gap-2">
-            {{-- Clock Pill --}}
-            <div class="hidden sm:flex items-center gap-1.5 bg-[#f1f0ec] border border-[#e6e5e0] h-[34px] px-[10px] rounded-[9px] text-[11px] font-medium text-[#53565a]">
-                <img src="{{ asset('images/sparta/clock.svg') }}" alt="" class="w-3.5 h-3.5 opacity-75">
-                <span x-text="currentTime"></span>
-            </div>
-
-            {{-- Date Pill --}}
-            <div class="bg-[#f1f0ec] border border-[#e6e5e0] h-[34px] px-[10px] rounded-[9px] flex items-center text-[11px] font-medium text-[#53565a]">
-                {{ \Carbon\Carbon::now()->translatedFormat('d M Y') }}
-            </div>
+            {{-- Topbar Datetime (Standardized Sparta Component) --}}
+            <x-topbar-datetime />
 
             @can('record-attendance')
             <a href="{{ route('admin.attendance.index') }}" class="hidden md:inline-flex items-center h-[34px] px-[10px] rounded-[9px] bg-white border border-[#e6e5e0] hover:border-[#df5826] text-[11px] font-semibold text-[#1e211f] transition">
