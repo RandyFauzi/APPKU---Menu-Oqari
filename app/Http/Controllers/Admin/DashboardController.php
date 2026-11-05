@@ -530,7 +530,7 @@ class DashboardController extends Controller
             'name' => 'required|string|max:255',
             'primary_color' => 'nullable|string|max:20',
             'logo' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
-            'theme_style' => 'nullable|string|in:grid,list',
+            'theme_style' => 'nullable|string|in:grid,list,compact,cards',
             'is_open' => 'nullable|boolean',
             'slogan' => 'nullable|string|max:255',
             'font_family' => 'nullable|string|max:50',
@@ -538,6 +538,8 @@ class DashboardController extends Controller
             'receipt_header' => 'nullable|string|max:500',
             'receipt_footer' => 'nullable|string|max:500',
             'instagram_link' => 'nullable|string|max:255',
+            'tiktok_link' => 'nullable|string|max:255',
+            'social_settings' => 'nullable',
             'whatsapp_number' => 'nullable|string|max:50',
             'maps_link' => 'nullable|string|max:500',
             'operating_hours' => 'nullable|string',
@@ -545,6 +547,13 @@ class DashboardController extends Controller
             'banner_0' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
             'banner_1' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
             'banner_2' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
+            'background_type' => 'nullable|string|in:solid,pattern,image',
+            'background_pattern' => 'nullable|string|max:50',
+            'background_color' => 'nullable|string|max:20',
+            'background_overlay_opacity' => 'nullable|integer|min:0|max:100',
+            'background_image' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
+            'remove_background_image' => 'nullable|boolean',
+            'best_seller_ids' => 'nullable',
         ]);
 
         $user = Auth::user();
@@ -581,6 +590,13 @@ class DashboardController extends Controller
         if ($request->has('instagram_link')) {
             $shop->instagram_link = $request->instagram_link;
         }
+        if ($request->has('tiktok_link')) {
+            $shop->tiktok_link = $request->tiktok_link;
+        }
+        if ($request->has('social_settings')) {
+            $social = $request->input('social_settings');
+            $shop->social_settings = is_array($social) ? $social : json_decode($social, true);
+        }
         if ($request->has('whatsapp_number')) {
             $shop->whatsapp_number = $request->whatsapp_number;
         }
@@ -589,6 +605,19 @@ class DashboardController extends Controller
         }
         if ($request->has('is_banner_active')) {
             $shop->is_banner_active = $request->boolean('is_banner_active');
+        }
+
+        if ($request->has('background_type')) {
+            $shop->background_type = $request->background_type;
+        }
+        if ($request->has('background_pattern')) {
+            $shop->background_pattern = $request->background_pattern;
+        }
+        if ($request->has('background_color')) {
+            $shop->background_color = $request->background_color;
+        }
+        if ($request->has('background_overlay_opacity')) {
+            $shop->background_overlay_opacity = (int) $request->background_overlay_opacity;
         }
 
         if ($request->has('operating_hours')) {
@@ -611,6 +640,25 @@ class DashboardController extends Controller
             $shop->logo_path = $path;
         }
 
+        // Background Image upload / removal
+        if ($request->boolean('remove_background_image')) {
+            if ($shop->background_image_path) {
+                Storage::disk('public')->delete($shop->background_image_path);
+            }
+            $shop->background_image_path = null;
+            if ($shop->background_type === 'image') {
+                $shop->background_type = 'pattern';
+            }
+        } elseif ($request->hasFile('background_image')) {
+            if ($shop->background_image_path) {
+                Storage::disk('public')->delete($shop->background_image_path);
+            }
+            $bgPath = app(MediaService::class)
+                ->storeShopBranding($request->file('background_image'), $shopId, 'background');
+            $shop->background_image_path = $bgPath;
+            $shop->background_type = 'image';
+        }
+
         // Banners
         $banners = [];
         $existingBanners = $shop->banner_paths ?? [];
@@ -629,6 +677,9 @@ class DashboardController extends Controller
                     }
                 }
                 $existingUrl = ltrim($existingUrl, '/');
+                if (Str::startsWith($existingUrl, 'storage/')) {
+                    $existingUrl = substr($existingUrl, strlen('storage/'));
+                }
                 $banners[] = $existingUrl;
             }
         }
@@ -642,9 +693,22 @@ class DashboardController extends Controller
 
         $shop->banner_paths = $banners;
 
+        // Curated Best Sellers sync
+        if ($request->has('best_seller_ids')) {
+            $rawBestSellers = $request->input('best_seller_ids');
+            $bestSellerIds = is_array($rawBestSellers) ? $rawBestSellers : json_decode($rawBestSellers, true);
+            if (is_array($bestSellerIds)) {
+                $cleanIds = array_map('intval', array_filter($bestSellerIds));
+                Product::where('shop_id', $shopId)->update(['is_best_seller' => false]);
+                if (! empty($cleanIds)) {
+                    Product::where('shop_id', $shopId)->whereIn('id', $cleanIds)->update(['is_best_seller' => true]);
+                }
+            }
+        }
+
         $shop->save();
 
-        return response()->json(['success' => true, 'shop' => $shop]);
+        return response()->json(['success' => true, 'shop' => $shop->fresh()]);
     }
 
     public function saveOperatingHours(Request $request)

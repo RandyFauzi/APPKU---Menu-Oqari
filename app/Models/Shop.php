@@ -46,11 +46,18 @@ class Shop extends Model
         'receipt_header',
         'receipt_footer',
         'instagram_link',
+        'tiktok_link',
+        'social_settings',
         'email',
         'whatsapp_number',
         'maps_link',
         'banner_paths',
         'is_banner_active',
+        'background_type',
+        'background_pattern',
+        'background_image_path',
+        'background_color',
+        'background_overlay_opacity',
         'gobiz_outlet_id',
         'gobiz_access_token',
         'gobiz_refresh_token',
@@ -68,14 +75,17 @@ class Shop extends Model
     protected $appends = [
         'logo_url',
         'banners',
+        'background_image_url',
     ];
 
     protected $casts = [
         'banner_paths' => 'array',
+        'social_settings' => 'array',
         'operating_hours' => 'array',
         'sales_modes' => 'array',
         'is_open' => 'boolean',
         'is_banner_active' => 'boolean',
+        'background_overlay_opacity' => 'integer',
         'gobiz_token_expires_at' => 'datetime',
         'trial_ends_at' => 'datetime',
         'last_active_at' => 'datetime',
@@ -114,6 +124,67 @@ class Shop extends Model
         return array_map(function ($banner) {
             return app(MediaService::class)->url($banner);
         }, $banners);
+    }
+
+    public function getBackgroundImageUrlAttribute()
+    {
+        return app(MediaService::class)->url($this->background_image_path);
+    }
+
+    public function activeSocialLinks(): array
+    {
+        $settings = $this->social_settings ?? [];
+        $links = [];
+
+        if (($settings['show_whatsapp'] ?? true) && ! empty($this->whatsapp_number)) {
+            $num = preg_replace('/[^0-9]/', '', $this->whatsapp_number);
+            if (str_starts_with($num, '0')) {
+                $num = '62'.substr($num, 1);
+            }
+            $links['whatsapp'] = [
+                'name' => 'WhatsApp',
+                'url' => 'https://wa.me/'.$num,
+                'icon' => 'fab fa-whatsapp',
+                'color' => '#25D366',
+                'handle' => $this->whatsapp_number,
+            ];
+        }
+
+        if (($settings['show_instagram'] ?? true) && ! empty($this->instagram_link)) {
+            $handle = trim($this->instagram_link, '@ ');
+            $url = str_starts_with($handle, 'http') ? $handle : 'https://instagram.com/'.$handle;
+            $links['instagram'] = [
+                'name' => 'Instagram',
+                'url' => $url,
+                'icon' => 'fab fa-instagram',
+                'color' => '#E1306C',
+                'handle' => '@'.str_replace('https://instagram.com/', '', $handle),
+            ];
+        }
+
+        if (($settings['show_tiktok'] ?? true) && ! empty($this->tiktok_link)) {
+            $handle = trim($this->tiktok_link, '@ ');
+            $url = str_starts_with($handle, 'http') ? $handle : 'https://www.tiktok.com/@'.$handle;
+            $links['tiktok'] = [
+                'name' => 'TikTok',
+                'url' => $url,
+                'icon' => 'fab fa-tiktok',
+                'color' => '#000000',
+                'handle' => '@'.str_replace(['https://www.tiktok.com/@', 'https://tiktok.com/@'], '', $handle),
+            ];
+        }
+
+        if (($settings['show_maps'] ?? true) && ! empty($this->maps_link)) {
+            $links['maps'] = [
+                'name' => 'Google Maps',
+                'url' => $this->maps_link,
+                'icon' => 'fas fa-map-marker-alt',
+                'color' => '#EA4335',
+                'handle' => 'Lokasi Toko',
+            ];
+        }
+
+        return $links;
     }
 
     public function products()

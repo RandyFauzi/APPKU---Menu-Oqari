@@ -258,11 +258,16 @@
                         ];
                     @endphp
                     <button type="button"
-                        x-show="matchesFilter({{ $product->category_id ?? 'null' }}, '{{ addslashes($product->name) }}', {{ (int) ($product->sold_count ?? 0) }})"
+                        x-show="matchesFilter({{ $product->category_id ?? 'null' }}, '{{ addslashes($product->name) }}', {{ (int) ($product->sold_count ?? 0) }}, {{ $product->is_best_seller ? 'true' : 'false' }})"
                         @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }})"
                         class="product-card bg-white border border-[#d8dce2] hover:border-[#df5826] rounded-[12px] pb-[8px] flex flex-col justify-between text-left shadow-[0px_4px_12px_0px_rgba(17,24,39,0.03)] focus:outline-none">
                         {{-- Product Image --}}
                         <div class="bg-[#ede7dc] h-[156px] w-full rounded-[11px] overflow-hidden relative">
+                            @if($product->is_best_seller)
+                                <span class="absolute top-2 left-2 z-10 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                                    <i class="fas fa-crown text-[8px]"></i> Best
+                                </span>
+                            @endif
                             @if($product->image_url)
                                 <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                             @else
@@ -933,10 +938,10 @@ function posApp() {
         },
 
         // ── Filters ───────────────────────────
-        matchesFilter(catId, name, soldCount = 0) {
+        matchesFilter(catId, name, soldCount = 0, isBestSeller = false) {
             let catMatch = true;
             if (this.activeCategory === 'best_seller') {
-                catMatch = Number(soldCount) > 0;
+                catMatch = Boolean(isBestSeller) || Number(soldCount) > 0;
             } else if (this.activeCategory !== null) {
                 catMatch = catId === this.activeCategory;
             }

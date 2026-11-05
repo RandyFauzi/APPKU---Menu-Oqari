@@ -18,15 +18,15 @@
     "semantic_hash": "b11244ab85cce1b15adc19bd0c6e8b2c"
   },
   "app/Actions/Order/CreateOrder.php": {
-    "mtime": 1792120353.8961253,
-    "seen": 1792120501.3649824,
-    "ast_hash": "d65496f8c501763809227265aaa9bb11",
+    "mtime": 1793881398.7142894,
+    "seen": 1793881542.8541522,
+    "ast_hash": "1262c9afc4bd15f8ab22c6974f9b1614",
     "semantic_hash": ""
   },
   "app/Actions/Orders/CreateOrderAction.php": {
-    "mtime": 1793774718.9569573,
-    "seen": 1793774793.704908,
-    "ast_hash": "cd7581b736acb8c402df3998b907b361",
+    "mtime": 1793881426.8921714,
+    "seen": 1793881542.854156,
+    "ast_hash": "90632e5e2d62c3a0d01d210433b307c6",
     "semantic_hash": ""
   },
   "app/Actions/POS/ApplyDiscount.php": {
@@ -162,9 +162,9 @@
     "semantic_hash": "2f3a26c9d7d3571350aee2b768761b8a"
   },
   "app/Http/Controllers/Admin/DashboardController.php": {
-    "mtime": 1793777859.393037,
-    "seen": 1793777903.1000617,
-    "ast_hash": "1088ed6cb2a3fb5a53810eff9851ae6b",
+    "mtime": 1793885352.3418684,
+    "seen": 1793886646.2153726,
+    "ast_hash": "0445451a49ad8d30658ea1f538469c96",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/GoBizIntegrationController.php": {
@@ -420,9 +420,9 @@
     "semantic_hash": ""
   },
   "app/Models/OrderItem.php": {
-    "mtime": 1792120356.3105166,
-    "seen": 1792120501.3651152,
-    "ast_hash": "2fe4f840a1890722d4fece73ad2d4ff5",
+    "mtime": 1793881496.6933975,
+    "seen": 1793881542.8544242,
+    "ast_hash": "134059025371deade35ba1a2164505cc",
     "semantic_hash": ""
   },
   "app/Models/Payment.php": {
@@ -438,9 +438,9 @@
     "semantic_hash": "76b441522bf33f858e9b9ecac6ed101a"
   },
   "app/Models/Product.php": {
-    "mtime": 1792462982.9777095,
-    "seen": 1792463133.4656475,
-    "ast_hash": "94588fdb482f48e445497a4c52824ecd",
+    "mtime": 1793884959.4145749,
+    "seen": 1793886646.2155333,
+    "ast_hash": "79228fa43828e359a5aabbaec2853579",
     "semantic_hash": ""
   },
   "app/Models/ProductRecipe.php": {
@@ -474,9 +474,9 @@
     "semantic_hash": "10b7fca1798af22ae2d4ac35e68e24d9"
   },
   "app/Models/Shop.php": {
-    "mtime": 1793775071.2420573,
-    "seen": 1793775083.7002473,
-    "ast_hash": "896a31a355c6d75f4cc09bf557759998",
+    "mtime": 1793884944.1748703,
+    "seen": 1793886646.2155473,
+    "ast_hash": "95ca82b30569258f61c891676f992e2b",
     "semantic_hash": ""
   },
   "app/Models/ShopSlugHistory.php": {
@@ -1050,9 +1050,9 @@
     "semantic_hash": "2155055847fe16d5f2ffb8129ee18fb8"
   },
   "public/js/main.js": {
-    "mtime": 1793779546.9077294,
-    "seen": 1793780095.839034,
-    "ast_hash": "d50d4c5840ec6f18113c1f3a5ed24352",
+    "mtime": 1793886330.7781994,
+    "seen": 1793886646.2158928,
+    "ast_hash": "66b2e481d7ce0d3b1feae72f5ed29432",
     "semantic_hash": ""
   },
   "public/js/menu_gen.json": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793779809.6441238,
-    "seen": 1793780095.8390574,
-    "ast_hash": "ba0dc278200887fd152311bee229e9b9",
+    "mtime": 1793885495.1759005,
+    "seen": 1793886646.2159238,
+    "ast_hash": "32ee06606745418cbd9c0e4faad049e1",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/settings.blade.php": {
-    "mtime": 1793774464.37146,
-    "seen": 1793774793.7054,
-    "ast_hash": "bce7b94991c25408bccd71b52f04d1f5",
+    "mtime": 1793885965.8777578,
+    "seen": 1793886646.2159476,
+    "ast_hash": "07c7a59b45395f5661cf09160b7b9d9d",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/shifts.blade.php": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
-    "mtime": 1793779836.7965071,
-    "seen": 1793780095.8390977,
-    "ast_hash": "428052c32b4d39bda155cdbd761db95c",
+    "mtime": 1793886374.3238125,
+    "seen": 1793886646.2159812,
+    "ast_hash": "8c3c5c67f5290210f241a3daafd99dff",
     "semantic_hash": ""
   },
   "resources/views/Admin/reports/index.blade.php": {
@@ -1488,15 +1488,15 @@
     "semantic_hash": ""
   },
   "resources/views/shop/menu.blade.php": {
-    "mtime": 1793779499.2325823,
-    "seen": 1793780095.8391998,
-    "ast_hash": "380d503eab9e895500b91ebf1dcb1e32",
+    "mtime": 1793886175.804813,
+    "seen": 1793886646.2161171,
+    "ast_hash": "c1a68bb1127ab2354e450ca8399c6a93",
     "semantic_hash": ""
   },
   "resources/views/shop/scripts.blade.php": {
-    "mtime": 1793775261.398542,
-    "seen": 1793775669.7887907,
-    "ast_hash": "27235bfab9fbf535631dbb6e749ba823",
+    "mtime": 1793886113.1948433,
+    "seen": 1793886646.2161198,
+    "ast_hash": "7222a4f903d1438453ba912ee9bc6361",
     "semantic_hash": ""
   },
   "resources/views/shop/tracking.blade.php": {
@@ -1668,9 +1668,9 @@
     "semantic_hash": "29ec79272e00d3ccc17f8493653cda42"
   },
   "app/Actions/POS/SubmitPosOrder.php": {
-    "mtime": 1793683819.818062,
-    "seen": 1793684078.5532458,
-    "ast_hash": "a9b03dbec19e783efd075e1729af9a3a",
+    "mtime": 1793881411.586961,
+    "seen": 1793881542.8541641,
+    "ast_hash": "926c37a089e4d10f209bb1086622ca56",
     "semantic_hash": ""
   },
   "app/Http/Middleware/EnsureShopIsNotSuspended.php": {
@@ -2172,9 +2172,9 @@
     "semantic_hash": ""
   },
   "tests/Feature/PosItemNotesTest.php": {
-    "mtime": 1792461697.350341,
-    "seen": 1792461836.3170261,
-    "ast_hash": "735579b2a28231bf9db74426985faba3",
+    "mtime": 1793881459.9515276,
+    "seen": 1793881542.855339,
+    "ast_hash": "0e1f616283f1d1a44fba3fd4a439f299",
     "semantic_hash": ""
   },
   "tests/Unit/PosCartNotes.test.cjs": {
@@ -2304,9 +2304,9 @@
     "semantic_hash": ""
   },
   "config/theme.php": {
-    "mtime": 1792478202.8911805,
-    "seen": 1792478248.479703,
-    "ast_hash": "0dc1bcbc722ce232d2b3658de6818d10",
+    "mtime": 1793885396.3628366,
+    "seen": 1793886646.2156734,
+    "ast_hash": "01c2991d61c01b24d4969084c6e13014",
     "semantic_hash": ""
   },
   "resources/views/components/hellenic-emblem.blade.php": {
@@ -2946,9 +2946,9 @@
     "semantic_hash": ""
   },
   "app/Actions/RenderAdminPage.php": {
-    "mtime": 1793774653.4456081,
-    "seen": 1793774793.7049363,
-    "ast_hash": "4d10aeece9091b0201674c4917f6d09f",
+    "mtime": 1793886381.349315,
+    "seen": 1793886646.2153115,
+    "ast_hash": "dc8b5866c4d52fc67bd6784b2341197f",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/AdminPageController.php": {
@@ -2964,9 +2964,9 @@
     "semantic_hash": ""
   },
   "tests/Feature/AdminPageRoutingTest.php": {
-    "mtime": 1793779646.6441038,
-    "seen": 1793780095.8392224,
-    "ast_hash": "8be18155013950a6e0d74b7f81109dd3",
+    "mtime": 1793781647.9446294,
+    "seen": 1793880307.7726002,
+    "ast_hash": "9107932d2f0cf0401e249316dac8ac38",
     "semantic_hash": ""
   },
   "tests/Feature/FinancialReportTest.php": {
@@ -2979,6 +2979,30 @@
     "mtime": 1793779690.361938,
     "seen": 1793780095.8391662,
     "ast_hash": "7f11ef4c8a034d55217dda4d7fce77d6",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_11_05_203000_make_legacy_price_nullable_on_order_items_table.php": {
+    "mtime": 1793881380.7690997,
+    "seen": 1793881542.8547113,
+    "ast_hash": "7677c1746f730f490949f9bfcecd3816",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_11_05_212000_add_branding_enhancements_to_shops_and_products.php": {
+    "mtime": 1793884855.4242227,
+    "seen": 1793886646.2158668,
+    "ast_hash": "13e814b2a200ba3d83253a6470e2de24",
+    "semantic_hash": ""
+  },
+  "tests/Feature/ShopBrandingTest.php": {
+    "mtime": 1793886427.3834233,
+    "seen": 1793886646.2162168,
+    "ast_hash": "6e5d808fdece1a813d492265b37846c9",
+    "semantic_hash": ""
+  },
+  "package-lock.json": {
+    "mtime": 1792120482.3709366,
+    "seen": 1793880307.7731628,
+    "ast_hash": "6fc56d1085814fd2d71a9a4c34223492",
     "semantic_hash": ""
   }
 }

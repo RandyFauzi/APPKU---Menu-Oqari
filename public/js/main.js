@@ -58,6 +58,7 @@ function initHomePage() {
     }
 
     renderCarousel();
+    renderBestSellers();
     renderCategories();
     renderMenu();
     initCategoryScrollSpy();
@@ -76,6 +77,47 @@ function initHomePage() {
     }
 }
 
+function renderBestSellers() {
+    const shelfContainer = document.getElementById('bestseller-shelf-container');
+    if (!shelfContainer) return;
+
+    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : (apiData.menu || []);
+    const bestSellers = menuData.filter(item => item.isBestSeller && !item.soldOut);
+
+    if (bestSellers.length === 0) {
+        shelfContainer.classList.add('hidden');
+        shelfContainer.innerHTML = '';
+        return;
+    }
+
+    shelfContainer.classList.remove('hidden');
+    shelfContainer.innerHTML = `
+        <div class="flex items-center justify-between mb-2.5">
+            <div class="flex items-center gap-1.5">
+                <span class="text-sm">⭐</span>
+                <h3 class="font-heading font-extrabold text-base text-gray-800 tracking-tight">Menu Unggulan</h3>
+            </div>
+            <span class="text-[10px] font-extrabold text-amber-700 bg-amber-100/90 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Pilihan Cafe</span>
+        </div>
+        <div class="flex gap-3 overflow-x-auto hide-scroll pb-2 scroll-smooth">
+            ${bestSellers.map(item => `
+                <div onclick="openItemDetail('${Number(item.id)}')" role="button" tabindex="0" class="w-36 shrink-0 bg-white rounded-2xl shadow-sm border border-amber-200/80 p-2.5 flex flex-col justify-between hover:shadow-md transition-all active:scale-95 cursor-pointer relative group">
+                    <div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-2 bg-gray-50">
+                        <img src="${safeImageUrl(item.img || item.image)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" class="w-full h-full object-cover">
+                        <span class="absolute top-1.5 left-1.5 bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm flex items-center gap-0.5">
+                            <i class="fas fa-crown text-[8px]"></i> Best
+                        </span>
+                    </div>
+                    <div class="truncate">
+                        <h4 class="font-bold text-xs text-gray-800 truncate">${escapeHtml(item.name)}</h4>
+                        <span class="font-extrabold text-primary text-xs mt-0.5 block">${formatRp(item.price)}</span>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
 function renderCarousel() {
     const track = document.getElementById('carousel-container');
     const dotsContainer = document.getElementById('carousel-dots');
@@ -91,10 +133,10 @@ function renderCarousel() {
     track.innerHTML = highlights.map(h => `
         <div class="min-w-full h-full snap-center bg-gray-900 relative">
             <img src="${safeImageUrl(h.img)}" class="w-full h-full object-cover">
-            <!-- Gradasi Biru hanya di bawah -->
-            <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#1E5A7A] via-[#1E5A7A]/60 to-transparent"></div>
+            <!-- Dynamic primary color gradient overlay -->
+            <div class="absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, var(--color-primary, #1e5a7a) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);"></div>
             <div class="absolute inset-0 p-5 flex flex-col justify-end w-full text-white z-10 pb-8">
-                <h2 class="text-3xl font-black font-heading leading-[1.1] uppercase text-white drop-shadow-md">${escapeHtml(h.title)}</h2>
+                ${h.title ? `<h2 class="text-3xl font-black font-heading leading-[1.1] uppercase text-white drop-shadow-md">${escapeHtml(h.title)}</h2>` : ''}
                 ${h.desc ? `<p class="text-xs opacity-90 font-medium mt-1">${escapeHtml(h.desc)}</p>` : ''}
             </div>
         </div>
@@ -363,9 +405,13 @@ function renderMenu() {
     // Set layout class
     const theme = typeof SHOP_THEME !== 'undefined' ? SHOP_THEME : 'list';
     if (theme === 'list') {
-        container.className = 'p-4 grid grid-cols-1 gap-4';
+        container.className = 'p-4 grid grid-cols-1 gap-3.5 relative z-10';
+    } else if (theme === 'compact') {
+        container.className = 'p-4 grid grid-cols-1 gap-2.5 relative z-10';
+    } else if (theme === 'cards') {
+        container.className = 'p-4 grid grid-cols-1 gap-5 relative z-10';
     } else {
-        container.className = 'p-4 grid grid-cols-2 gap-4';
+        container.className = 'p-4 grid grid-cols-2 gap-3.5 relative z-10';
     }
     
     let filteredMenu = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : apiData.menu;
@@ -388,7 +434,7 @@ function renderMenu() {
             if (cat.id === 'all') return;
             const itemsInCat = filteredMenu.filter(m => isItemInCategory(m, cat));
             if (itemsInCat.length > 0) {
-                const colSpan = (theme === 'list') ? 'col-span-1' : 'col-span-2';
+                const colSpan = (theme === 'grid') ? 'col-span-2' : 'col-span-1';
                 htmlOutput += `<div id="cat-section-${escapeHtml(cat.id)}" class="${colSpan} category-section mt-5 mb-2 border-b-2 border-primary/10 pb-1.5 scroll-mt-40" data-category-id="${escapeHtml(cat.id)}"><h3 class="font-heading font-bold text-lg text-primary flex items-center gap-2"><i class="fas ${cat.icon} text-sm opacity-70"></i><span>${escapeHtml(cat.name)}</span></h3></div>`;
                 htmlOutput += itemsInCat.map(item => renderMenuItem(item)).join('');
             }
@@ -408,16 +454,64 @@ function renderMenu() {
 function renderMenuItem(item) {
     const theme = typeof SHOP_THEME !== 'undefined' ? SHOP_THEME : 'list';
     
+    if (theme === 'compact') {
+        return `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-2.5 flex items-center justify-between gap-3 hover:shadow-md transition duration-200 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-gray-100 bg-gray-50">
+                        <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" class="w-full h-full object-cover">
+                        ${item.isBestSeller ? '<span class="absolute top-0.5 left-0.5 bg-amber-500 text-white text-[7px] font-black px-1 rounded shadow-sm">⭐</span>' : ''}
+                    </div>
+                    <div class="truncate">
+                        <div class="flex items-center gap-1.5">
+                            <h4 class="font-bold text-xs text-textdark truncate">${escapeHtml(item.name)}</h4>
+                            ${item.isBestSeller ? '<span class="text-[9px] text-amber-600 font-extrabold shrink-0 bg-amber-50 px-1 rounded">Best</span>' : ''}
+                        </div>
+                        <span class="font-extrabold text-primary text-xs mt-0.5 block">${formatRp(item.price)}</span>
+                    </div>
+                </div>
+                <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="bg-primary text-white h-7 w-7 rounded-lg flex items-center justify-center shadow-sm active:scale-95 transition-transform shrink-0">
+                    <i class="fas fa-plus text-[10px]"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    if (theme === 'cards') {
+        return `
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
+                <div class="relative w-full h-44 bg-gray-100">
+                    <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="w-full h-full object-cover">
+                    ${item.isBestSeller ? '<span class="absolute top-3 left-3 bg-amber-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md flex items-center gap-1"><i class="fas fa-crown text-[9px]"></i> Best Seller</span>' : ''}
+                    ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
+                </div>
+                <div class="p-4 flex flex-col flex-grow">
+                    <div class="flex justify-between items-start gap-2 mb-1">
+                        <h3 class="font-extrabold text-textdark text-base leading-tight">${escapeHtml(item.name)}</h3>
+                        <span class="font-black text-primary text-base shrink-0">${formatRp(item.price)}</span>
+                    </div>
+                    ${item.desc ? `<p class="text-xs text-gray-500 line-clamp-2 mt-1 mb-3">${escapeHtml(item.desc)}</p>` : ''}
+                    <div class="mt-auto pt-2 flex justify-end">
+                        <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-transform flex items-center gap-1.5">
+                            <i class="fas fa-plus text-[10px]"></i> Tambah
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     if (theme === 'list') {
         // Horizontal Layout (GoFood style)
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex hover:shadow-md transition duration-300 relative h-28">
                 <div class="w-28 flex-shrink-0 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
                     <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="h-full w-full object-cover">
+                    ${item.isBestSeller ? '<span class="absolute top-1.5 left-1.5 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5"><i class="fas fa-crown text-[7px]"></i> Best</span>' : ''}
                     ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
                 </div>
                 <div class="p-3 flex flex-col flex-grow relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
-                    <h3 class="font-bold text-textdark text-sm leading-tight mb-1 pr-6">${escapeHtml(item.name)}</h3>
+                    <h3 class="font-bold text-textdark text-sm leading-tight mb-1 pr-6 truncate">${escapeHtml(item.name)}</h3>
                     <p class="text-xs text-gray-500 line-clamp-2 leading-snug">${escapeHtml(item.desc || '')}</p>
                     <div class="mt-auto flex justify-between items-end">
                         <span class="font-bold text-primary text-sm">${formatRp(item.price)}</span>
@@ -435,10 +529,11 @@ function renderMenuItem(item) {
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative">
             <div class="p-2 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
                 <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="h-32 w-full object-cover rounded-xl">
+                ${item.isBestSeller ? '<span class="absolute top-3 left-3 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5"><i class="fas fa-crown text-[7px]"></i> Best</span>' : ''}
                 ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
             </div>
             <div class="px-3 pb-3 pt-1 flex flex-col flex-grow relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
-                <h3 class="font-bold text-textdark text-xs leading-tight mb-1">${escapeHtml(item.name)}</h3>
+                <h3 class="font-bold text-textdark text-xs leading-tight mb-1 truncate">${escapeHtml(item.name)}</h3>
                 <div class="mt-auto flex justify-between items-end">
                     <span class="font-bold text-primary text-sm">${formatRp(item.price)}</span>
                 </div>

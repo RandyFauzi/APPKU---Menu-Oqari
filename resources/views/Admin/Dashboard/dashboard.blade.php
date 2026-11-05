@@ -612,7 +612,8 @@
             user: {{ Illuminate\Support\Js::from(auth()->user()->only(['id', 'name', 'email', 'role'])) }},
             permissions: {{ Illuminate\Support\Js::from(auth()->user()->effectivePermissions()) }},
             pages: {{ Illuminate\Support\Js::from($pageLinks) }},
-            categories: @json($categories ?? [])
+            categories: @json($categories ?? []),
+            shopProducts: {{ Illuminate\Support\Js::from($shopProducts ?? []) }}
         };
 
         const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
@@ -1233,26 +1234,95 @@
                     this.toasts = this.toasts.filter(t => t.id !== id);
                 },
                 brandColorOptions: window.OQARI_THEME.primaryOptions,
+                allShopProducts: (window.INITIAL_DATA.shopProducts || []).map(p => ({
+                    ...p,
+                    is_best_seller: Boolean(p.is_best_seller)
+                })),
+                bestSellerSearch: '',
+                bestSellerFilter: 'all',
+                get filteredBestSellerProducts() {
+                    let prods = this.allShopProducts || [];
+                    if (this.bestSellerFilter === 'selected') {
+                        prods = prods.filter(p => this.settings.best_seller_ids.includes(p.id));
+                    }
+                    if (this.bestSellerSearch && this.bestSellerSearch.trim() !== '') {
+                        const q = this.bestSellerSearch.toLowerCase().trim();
+                        prods = prods.filter(p => p.name.toLowerCase().includes(q) || (p.category && p.category.name && p.category.name.toLowerCase().includes(q)));
+                    }
+                    return prods;
+                },
+                toggleBestSeller(productId) {
+                    const id = Number(productId);
+                    const idx = this.settings.best_seller_ids.indexOf(id);
+                    if (idx > -1) {
+                        this.settings.best_seller_ids.splice(idx, 1);
+                    } else {
+                        this.settings.best_seller_ids.push(id);
+                    }
+                    const prod = this.allShopProducts.find(p => p.id === id);
+                    if (prod) {
+                        prod.is_best_seller = this.settings.best_seller_ids.includes(id);
+                    }
+                },
+                handleBgImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) {
+                        this.addToast('Ukuran gambar latar maksimal 5MB!', 'error');
+                        return;
+                    }
+                    this.settings.backgroundImageFile = file;
+                    this.settings.removeBackgroundImage = false;
+                    this.settings.background_type = 'image';
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.settings.backgroundImagePreview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+                removeBgImage() {
+                    this.settings.backgroundImageFile = null;
+                    this.settings.backgroundImagePreview = null;
+                    this.settings.removeBackgroundImage = true;
+                    if (this.settings.background_type === 'image') {
+                        this.settings.background_type = 'pattern';
+                    }
+                },
                 settings: {
                     name: window.INITIAL_DATA.shop?.name || '',
                     slug: window.INITIAL_DATA.shop?.slug || '',
-                    primary_color: window.OQARI_THEME.primary,
+                    primary_color: window.INITIAL_DATA.shop?.primary_color || window.OQARI_THEME.primary,
                     logoPreview: window.INITIAL_DATA.shop?.logo_url ? window.INITIAL_DATA.shop.logo_url : '',
                     logoFile: null,
                     slogan: window.INITIAL_DATA.shop?.slogan || '',
                     is_open: window.INITIAL_DATA.shop?.is_open ?? true,
-                    theme_style: ['list', 'grid'].includes(window.INITIAL_DATA.shop?.theme_style) ? window.INITIAL_DATA.shop?.theme_style : 'list',
+                    theme_style: ['list', 'grid', 'compact', 'cards'].includes(window.INITIAL_DATA.shop?.theme_style) ? window.INITIAL_DATA.shop?.theme_style : 'list',
                     font_family: window.INITIAL_DATA.shop?.font_family || 'poppins',
                     title_font_family: window.INITIAL_DATA.shop?.title_font_family || 'poppins',
                     receipt_header: window.INITIAL_DATA.shop?.receipt_header || '',
                     receipt_footer: window.INITIAL_DATA.shop?.receipt_footer || 'Terima kasih atas kunjungan Anda!\nSilakan datang kembali.',
                     instagram_link: window.INITIAL_DATA.shop?.instagram_link || '',
+                    tiktok_link: window.INITIAL_DATA.shop?.tiktok_link || '',
+                    social_settings: Object.assign({
+                        show_whatsapp: true,
+                        show_instagram: true,
+                        show_tiktok: true,
+                        show_maps: true
+                    }, window.INITIAL_DATA.shop?.social_settings || {}),
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
                     maps_link: window.INITIAL_DATA.shop?.maps_link || '',
                     is_banner_active: window.INITIAL_DATA.shop?.is_banner_active ?? true,
-                      banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : '/storage/' + b) : null).concat([null, null, null]).slice(0, 3),
-                      bannerFiles: [null, null, null],
-                      bannerPaths: (window.INITIAL_DATA.shop?.banners || []).concat([null, null, null]).slice(0, 3),
+                    banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : '/storage/' + b) : null).concat([null, null, null]).slice(0, 3),
+                    bannerFiles: [null, null, null],
+                    bannerPaths: (window.INITIAL_DATA.shop?.banners || []).concat([null, null, null]).slice(0, 3),
+                    background_type: window.INITIAL_DATA.shop?.background_type || 'pattern',
+                    background_pattern: window.INITIAL_DATA.shop?.background_pattern || 'dots',
+                    background_color: window.INITIAL_DATA.shop?.background_color || '#fdfbf7',
+                    background_overlay_opacity: window.INITIAL_DATA.shop?.background_overlay_opacity ?? 85,
+                    backgroundImagePreview: window.INITIAL_DATA.shop?.background_image_url || null,
+                    backgroundImageFile: null,
+                    removeBackgroundImage: false,
+                    best_seller_ids: (window.INITIAL_DATA.shopProducts || []).filter(p => p.is_best_seller).map(p => p.id),
                     operating_hours: window.INITIAL_DATA.shop?.operating_hours || {
                         monday: { open: '08:00', close: '22:00', is_closed: false },
                         tuesday: { open: '08:00', close: '22:00', is_closed: false },
@@ -2559,8 +2629,23 @@ if (res.ok) {
                     formData.append('receipt_header', this.settings.receipt_header || '');
                     formData.append('receipt_footer', this.settings.receipt_footer || '');
                     formData.append('instagram_link', this.settings.instagram_link || '');
+                    formData.append('tiktok_link', this.settings.tiktok_link || '');
+                    formData.append('social_settings', JSON.stringify(this.settings.social_settings));
                     formData.append('whatsapp_number', this.settings.whatsapp_number || '');
                     formData.append('maps_link', this.settings.maps_link || '');
+                    
+                    formData.append('background_type', this.settings.background_type || 'pattern');
+                    formData.append('background_pattern', this.settings.background_pattern || 'dots');
+                    formData.append('background_color', this.settings.background_color || '#fdfbf7');
+                    formData.append('background_overlay_opacity', this.settings.background_overlay_opacity ?? 85);
+
+                    if (this.settings.removeBackgroundImage) {
+                        formData.append('remove_background_image', 1);
+                    } else if (this.settings.backgroundImageFile) {
+                        formData.append('background_image', this.settings.backgroundImageFile);
+                    }
+
+                    formData.append('best_seller_ids', JSON.stringify(this.settings.best_seller_ids || []));
                     
                     if (this.settings.logoFile && this.$refs.logoInput && this.$refs.logoInput.files.length > 0) {
                         formData.append('logo', this.$refs.logoInput.files[0]);
@@ -2607,6 +2692,15 @@ if (res.ok) {
                                 this.settings.bannerPaths = data.shop.banners.concat([null, null, null]).slice(0, 3);
                                 this.settings.banners = data.shop.banners.map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : '/storage/' + b) : null).concat([null, null, null]).slice(0, 3);
                                 this.settings.bannerFiles = [null, null, null];
+                            }
+
+                            if (data.shop) {
+                                this.settings.backgroundImagePreview = data.shop.background_image_url || null;
+                                this.settings.backgroundImageFile = null;
+                                this.settings.removeBackgroundImage = false;
+                                if (data.shop.background_type) {
+                                    this.settings.background_type = data.shop.background_type;
+                                }
                             }
                         } else {
                             this.addToast('Gagal menyimpan pengaturan: ' + (data.message || 'Error tidak diketahui'), 'error');

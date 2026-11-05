@@ -24,6 +24,29 @@
             echo '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">';
             $fontFamily = "'Poppins', sans-serif";
         }
+
+        $bgType = $shop->background_type ?? 'pattern';
+        $bgPattern = $shop->background_pattern ?? 'dots';
+        $bgColor = $shop->background_color ?: '#fdfbf7';
+        $bgOverlay = ($shop->background_overlay_opacity ?? 85) / 100;
+        $bgImageUrl = $shop->background_image_url ?? null;
+
+        $patternStyles = [
+            'dots' => 'background-color: '.$bgColor.'; background-image: radial-gradient(circle, #cbd5e1 1.5px, transparent 1.5px); background-size: 16px 16px;',
+            'grid' => 'background-color: '.$bgColor.'; background-image: linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px); background-size: 16px 16px;',
+            'cafe' => 'background-color: '.$bgColor.'; background-image: radial-gradient(#8d6e63 1.5px, transparent 1.5px), radial-gradient(#bcaaa4 1px, transparent 1px); background-size: 20px 20px, 10px 10px; background-position: 0 0, 10px 10px;',
+            'waves' => 'background-color: '.$bgColor.'; background-image: repeating-radial-gradient(circle at 0 0, transparent 0, '.$bgColor.' 10px), repeating-linear-gradient(#f1f5f955, #e2e8f055);',
+            'stripes' => 'background-color: '.$bgColor.'; background-image: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.04) 16px);',
+            'moroccan' => 'background-color: '.$bgColor.'; background-image: radial-gradient(#00000010 2px, transparent 2px), radial-gradient(#00000010 2px, transparent 2px); background-size: 16px 16px; background-position: 0 0, 8px 8px;',
+        ];
+
+        if ($bgType === 'solid') {
+            $bodyBgStyle = 'background-color: '.$bgColor.';';
+        } elseif ($bgType === 'image' && $bgImageUrl) {
+            $bodyBgStyle = 'background-image: url(\''.e($bgImageUrl).'\'); background-size: cover; background-position: center; background-attachment: fixed;';
+        } else {
+            $bodyBgStyle = $patternStyles[$bgPattern] ?? $patternStyles['dots'];
+        }
     @endphp
 
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -31,8 +54,8 @@
     <style>
         html { background-color: #fdfbf7; }
         :root {
-            --color-primary: var(--oq-primary);
-            --color-secondary: var(--oq-primary-dark);
+            --color-primary: var(--oq-primary, {{ $shop->primary_color ?? '#1e5a7a' }});
+            --color-secondary: var(--oq-primary-dark, {{ $shop->primary_color ?? '#1e5a7a' }});
         }
         body { font-family: {!! $fontFamily !!}; }
         .hide-scroll::-webkit-scrollbar { display: none; }
@@ -41,7 +64,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <x-theme-head :shop="$shop ?? null" />
 </head>
-<body data-page="home" class="antialiased w-full max-w-[420px] mx-auto bg-gray-50 min-h-screen relative shadow-2xl overflow-x-hidden pb-24 page-transition">
+<body data-page="home" class="antialiased w-full max-w-[420px] mx-auto min-h-screen relative shadow-2xl overflow-x-hidden pb-24 page-transition" style="{!! $bodyBgStyle !!}">
+    
+    @if($bgType === 'image' && $bgImageUrl)
+    <!-- Image Background Dimming Layer -->
+    <div class="fixed inset-0 max-w-[420px] mx-auto pointer-events-none z-0" style="background-color: rgba(253, 251, 247, {{ $bgOverlay }});"></div>
+    @endif
+
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
 
     @php
@@ -84,7 +113,7 @@
     </script>
 
     <!-- Header APP (Logo + Search Bar) - Sticky -->
-    <div id="sticky-header" class="sticky top-0 z-40 bg-white transition-shadow duration-300">
+    <div id="sticky-header" class="sticky top-0 z-40 bg-white/95 backdrop-blur-md transition-shadow duration-300">
         <div class="pt-4 pb-2 px-4">
             <div class="flex items-center justify-between px-1 pb-2">
                 <div class="flex items-center gap-2">
@@ -142,25 +171,27 @@
         }, { passive: true });
     </script>
 
-
     @if(!empty($shop->banners) && ($shop->is_banner_active ?? true))
     <!-- Promo Carousel Section -->
-    <div class="px-4 mb-8">
-        <div class="relative bg-primary rounded-[20px] overflow-hidden shadow-lg h-56 group">
-            
+    <div class="px-4 mb-5 relative z-10">
+        <div class="relative bg-primary rounded-[20px] overflow-hidden shadow-lg h-52 group">
             <!-- Carousel Images Container -->
-            <!-- We will let main.js inject into this container -->
             <div id="carousel-container" class="w-full h-full flex overflow-x-auto snap-x snap-mandatory hide-scroll relative z-0">
                 <!-- JS Inject Here -->
             </div>
             
             <!-- Carousel Dots -->
-            <div class="absolute bottom-4 w-full flex justify-center gap-1.5 z-10" id="carousel-dots">
+            <div class="absolute bottom-3 w-full flex justify-center gap-1.5 z-10" id="carousel-dots">
                 <!-- Injected by JS -->
             </div>
         </div>
     </div>
     @endif
+
+    <!-- Best Seller Highlights Shelf -->
+    <div id="bestseller-shelf-container" class="hidden px-4 mb-4 relative z-10">
+        <!-- Injected by main.js if products are marked is_best_seller -->
+    </div>
 
     <!-- Categories Square Grid -->
     <div id="sticky-categories" class="sticky z-30 bg-white/95 backdrop-blur-md pt-2.5 pb-2.5 border-b border-gray-100 shadow-sm transition-all duration-150">
@@ -170,11 +201,11 @@
     </div>
 
     <!-- Menu List -->
-    <div class="px-4 mt-5 flex justify-between items-center mb-1">
+    <div class="px-4 mt-5 flex justify-between items-center mb-1 relative z-10">
         <h2 class="font-extrabold text-xl text-gray-800">Popular Picks</h2>
         <span class="text-xs font-bold text-primary cursor-pointer hover:underline">View All &rarr;</span>
     </div>
-    <main class="p-4 grid grid-cols-2 gap-4" id="menu-container">
+    <main class="p-4 grid grid-cols-2 gap-4 relative z-10" id="menu-container">
         <!-- Injected by JS -->
     </main>
 
@@ -194,7 +225,7 @@
     <div id="modal-item-detail" class="fixed inset-0 max-w-[420px] mx-auto z-50 hidden flex flex-col justify-end p-0">
         <div class="absolute inset-0 modal-overlay bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeItemDetail()"></div>
         
-        <div class="relative bg-white w-full rounded-t-3xl bottom-sheet flex flex-col max-h-[85vh][90vh]">
+        <div class="relative bg-white w-full rounded-t-3xl bottom-sheet flex flex-col max-h-[90vh]">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto my-3 flex-shrink-0"></div>
             
             <div class="overflow-y-auto px-5 pb-24 hide-scroll relative">
@@ -231,7 +262,7 @@
 
     <!-- Blocking Table Selection Modal -->
     <div id="modal-table-selector" class="fixed inset-0 max-w-[420px] mx-auto bg-black/75 z-[200] flex-col items-center justify-center p-4 backdrop-blur-md hidden w-full h-full">
-        <div class="bg-white rounded-[24px] w-full max-w-[320px][400px] text-center shadow-2xl overflow-hidden relative mx-auto mt-[20vh]">
+        <div class="bg-white rounded-[24px] w-full max-w-[320px] text-center shadow-2xl overflow-hidden relative mx-auto mt-[20vh]">
             <div class="h-32 bg-primary relative flex items-center justify-center">
                 <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay">
                 <div class="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent"></div>
@@ -262,31 +293,31 @@
         </div>
     </div>
 
-    <!-- Tombol Akses Dashboard (Sementara) -->
-    <a href="{{ route('admin.dashboard') }}" class="fixed bottom-24 right-4 z-50 bg-primary text-white w-12 h-12 rounded-full flex justify-center items-center shadow-lg hover:scale-110 active:scale-95 transition-transform border-2 border-white">
+    <!-- Tombol Akses Dashboard (Jika Login) -->
+    @auth
+    <a href="{{ route('admin.dashboard') }}" class="fixed bottom-24 right-4 z-50 bg-primary text-white w-12 h-12 rounded-full flex justify-center items-center shadow-lg hover:scale-110 active:scale-95 transition-transform border-2 border-white" title="Kembali ke Dashboard">
         <i class="fas fa-home text-lg"></i>
     </a>
+    @endauth
 
     <!-- Footer / Social Media -->
-    <div class="px-4 py-8 mb-6 mt-8 flex flex-col items-center justify-center text-center opacity-80">
-        <div class="flex gap-4 mb-4">
-            @if($shop->instagram_link)
-                <a href="{{ $shop->instagram_url }}" target="_blank" class="w-10 h-10 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
-                    <i class="fab fa-instagram"></i>
+    @php
+        $activeSocials = $shop->activeSocialLinks();
+    @endphp
+    <div class="px-4 py-8 mb-6 mt-8 flex flex-col items-center justify-center text-center opacity-85 relative z-10">
+        @if(!empty($activeSocials))
+        <div class="flex flex-wrap items-center justify-center gap-3 mb-4">
+            @foreach($activeSocials as $key => $social)
+                <a href="{{ $social['url'] }}" target="_blank" rel="noopener noreferrer" 
+                   class="w-11 h-11 rounded-2xl flex items-center justify-center text-lg shadow-sm hover:scale-110 active:scale-95 transition-all border border-gray-100 bg-white"
+                   style="color: {{ $social['color'] }};"
+                   aria-label="{{ $social['name'] }}">
+                    <i class="{{ $social['icon'] }}"></i>
                 </a>
-            @endif
-            @if($shop->whatsapp_number)
-                <a href="{{ $shop->whatsapp_url }}" target="_blank" class="w-10 h-10 rounded-full bg-green-100 text-green-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-            @endif
-            @if($shop->maps_link)
-                <a href="{{ $shop->maps_link }}" target="_blank" class="w-10 h-10 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-lg shadow-sm hover:scale-110 transition-transform">
-                    <i class="fas fa-map-marker-alt"></i>
-                </a>
-            @endif
+            @endforeach
         </div>
-        <p class="text-xs text-gray-400 font-medium">Powered by Menu Oqari &copy; {{ date('Y') }}</p>
+        @endif
+        <p class="text-xs text-gray-400 font-medium tracking-wide">Powered by <span class="font-bold text-gray-600">Menu Oqari</span> &copy; {{ date('Y') }}</p>
     </div>
 
     <!-- Include Scripts -->

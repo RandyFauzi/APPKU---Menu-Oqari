@@ -104,23 +104,76 @@
                 <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
                     <div class="p-6 border-b border-line bg-ivory/50">
                         <h3 class="font-bold text-lg text-ink">Tampilan (UI/UX)</h3>
-                        <p class="text-xs text-muted">Ubah warna dan gaya menu agar sesuai dengan brand Anda.</p>
+                        <p class="text-xs text-muted">Ubah layout, tipografi, dan warna menu agar selaras dengan citra cafe Anda.</p>
                     </div>
                     <div class="p-6 flex flex-col gap-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-bold text-ink mb-2">Layout Menu</label>
-                                <select x-model="settings.theme_style" class="w-full border border-line rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none bg-white">
-                                    <option value="list">List View (Klasik GoFood)</option>
-                                    <option value="grid">Grid View (Modern Instagram)</option>
-                                </select>
+                        <!-- Opsi Layout Menu -->
+                        <div>
+                            <label class="block text-sm font-bold text-ink mb-2">Opsi Layout Menu Pelanggan</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <!-- List -->
+                                <button type="button" @click="settings.theme_style = 'list'" :class="settings.theme_style === 'list' ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-line hover:border-gray-300 bg-white'" class="p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all group">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-100 group-hover:bg-primary/10 transition-colors">
+                                            <i class="fas fa-list text-xs" :class="settings.theme_style === 'list' ? 'text-primary' : 'text-gray-500'"></i>
+                                        </div>
+                                        <span x-show="settings.theme_style === 'list'" class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-bold text-ink">List View</span>
+                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Klasik GoFood</span>
+                                    </div>
+                                </button>
+                                <!-- Grid -->
+                                <button type="button" @click="settings.theme_style = 'grid'" :class="settings.theme_style === 'grid' ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-line hover:border-gray-300 bg-white'" class="p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all group">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-100 group-hover:bg-primary/10 transition-colors">
+                                            <i class="fas fa-th-large text-xs" :class="settings.theme_style === 'grid' ? 'text-primary' : 'text-gray-500'"></i>
+                                        </div>
+                                        <span x-show="settings.theme_style === 'grid'" class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-bold text-ink">Grid 2-Kolom</span>
+                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Instagram Card</span>
+                                    </div>
+                                </button>
+                                <!-- Compact -->
+                                <button type="button" @click="settings.theme_style = 'compact'" :class="settings.theme_style === 'compact' ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-line hover:border-gray-300 bg-white'" class="p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all group">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-100 group-hover:bg-primary/10 transition-colors">
+                                            <i class="fas fa-bars text-xs" :class="settings.theme_style === 'compact' ? 'text-primary' : 'text-gray-500'"></i>
+                                        </div>
+                                        <span x-show="settings.theme_style === 'compact'" class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-bold text-ink">Compact List</span>
+                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Ringkas Cepat</span>
+                                    </div>
+                                </button>
+                                <!-- Cards -->
+                                <button type="button" @click="settings.theme_style = 'cards'" :class="settings.theme_style === 'cards' ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-line hover:border-gray-300 bg-white'" class="p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all group">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-100 group-hover:bg-primary/10 transition-colors">
+                                            <i class="fas fa-id-card text-xs" :class="settings.theme_style === 'cards' ? 'text-primary' : 'text-gray-500'"></i>
+                                        </div>
+                                        <span x-show="settings.theme_style === 'cards'" class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-bold text-ink">Hero Cards</span>
+                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Artisan Showcase</span>
+                                    </div>
+                                </button>
                             </div>
+                        </div>
+
+                        <!-- Tipografi -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-bold text-ink mb-2">Tipografi Utama (Teks)</label>
                                 <select x-model="settings.font_family" class="w-full border border-line rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none bg-white">
                                     <option value="poppins">Modern (Poppins)</option>
                                     <option value="playfair">Elegan (Playfair Display)</option>
-                                    <option value="nunito">Fun (Nunito)</option>
+                                    <option value="nunito">Fun & Friendly (Nunito)</option>
                                 </select>
                             </div>
                             <div>
@@ -128,26 +181,225 @@
                                 <select x-model="settings.title_font_family" class="w-full border border-line rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none bg-white">
                                     <option value="poppins">Modern (Poppins)</option>
                                     <option value="playfair">Elegan (Playfair Display)</option>
-                                    <option value="nunito">Fun (Nunito)</option>
+                                    <option value="nunito">Fun & Friendly (Nunito)</option>
                                 </select>
                             </div>
                         </div>
+
+                        <!-- Palet Warna Cafe & Custom Color Picker -->
                         <div>
-                            <label for="brand-color" class="block text-sm font-bold text-ink mb-3">Aksen Cafe — Palet Yunani/Sparta</label>
-                            <div class="flex items-center gap-4">
-                                <span aria-hidden="true" class="w-12 h-12 rounded-full border-2 border-gold-400 shrink-0" :style="'background-color: ' + settings.primary_color"></span>
-                                <select id="brand-color" x-model="settings.primary_color" class="w-full border border-line rounded-xl px-4 py-3 text-sm font-bold focus:border-primary focus:ring-primary" aria-describedby="brand-color-help"><template x-for="(label, color) in brandColorOptions" :key="color"><option :value="color" x-text="label"></option></template></select>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <label class="block text-sm font-bold text-ink">Warna Aksen Cafe / Brand</label>
+                                    <p class="text-xs text-muted">Pilih dari koleksi palet warna cafe atau tentukan warna hex kustom bebas.</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-mono font-bold text-ink bg-ivory px-2.5 py-1 rounded-lg border border-line uppercase" x-text="settings.primary_color"></span>
+                                    <span class="w-7 h-7 rounded-full border border-line shadow-sm" :style="'background-color: ' + settings.primary_color"></span>
+                                </div>
                             </div>
-                            <p id="brand-color-help" class="text-xs text-muted mt-2">Aksen cafe tetap dapat dipilih dalam palet warna cafe. Logo, foto, dan identitas cafe tetap milik Anda.</p>
+
+                            <!-- Palette Swatches Grid -->
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 mb-4">
+                                <template x-for="(label, color) in brandColorOptions" :key="color">
+                                    <button type="button" @click="settings.primary_color = color" :class="settings.primary_color.toLowerCase() === color.toLowerCase() ? 'border-primary bg-primary/5 ring-2 ring-primary/20 font-bold' : 'border-line bg-white hover:border-gray-300'" class="flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all">
+                                        <span class="w-6 h-6 rounded-full shrink-0 shadow-sm border border-black/10 flex items-center justify-center text-white text-[10px]" :style="'background-color: ' + color">
+                                            <i class="fas fa-check" x-show="settings.primary_color.toLowerCase() === color.toLowerCase()"></i>
+                                        </span>
+                                        <span class="text-xs text-ink truncate" x-text="label"></span>
+                                    </button>
+                                </template>
+                            </div>
+
+                            <!-- Custom Color Picker -->
+                            <div class="p-3.5 rounded-2xl border border-line bg-ivory/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="relative w-10 h-10 rounded-xl overflow-hidden shadow-inner border border-line cursor-pointer shrink-0">
+                                        <input type="color" x-model="settings.primary_color" class="absolute -top-4 -left-4 w-20 h-20 cursor-pointer border-0 p-0">
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-bold text-ink">Warna Kustom Bebas (Color Palette All)</span>
+                                        <span class="block text-[11px] text-muted">Klik kotak warna atau masukkan kode HEX apa saja</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold text-muted">HEX:</span>
+                                    <input type="text" x-model="settings.primary_color" class="w-28 border border-line rounded-xl px-3 py-1.5 text-xs font-mono font-bold uppercase focus:border-primary focus:outline-none bg-white">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 3: Operasional & Kontak -->
+                <!-- Section 3: Latar Belakang Menu Pelanggan -->
                 <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
                     <div class="p-6 border-b border-line bg-ivory/50">
-                        <h3 class="font-bold text-lg text-ink">Operasional & Kontak</h3>
-                        <p class="text-xs text-muted">Atur jam buka otomatis dan sosial media.</p>
+                        <h3 class="font-bold text-lg text-ink">Latar Belakang Menu Pelanggan</h3>
+                        <p class="text-xs text-muted">Atur tekstur pola atau foto suasana cafe sebagai latar belakang halaman menu.</p>
+                    </div>
+                    <div class="p-6 flex flex-col gap-6">
+                        <!-- Tipe Background Selector -->
+                        <div>
+                            <label class="block text-sm font-bold text-ink mb-2">Tipe Latar Belakang</label>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button type="button" @click="settings.background_type = 'pattern'" :class="settings.background_type === 'pattern' ? 'border-primary bg-primary/5 ring-2 ring-primary/20 text-primary font-bold' : 'border-line text-ink bg-white hover:border-gray-300'" class="py-3 px-4 rounded-xl border flex items-center justify-center gap-2 text-xs transition-all">
+                                    <i class="fas fa-shapes"></i>
+                                    <span>Pola Tekstur</span>
+                                </button>
+                                <button type="button" @click="settings.background_type = 'image'" :class="settings.background_type === 'image' ? 'border-primary bg-primary/5 ring-2 ring-primary/20 text-primary font-bold' : 'border-line text-ink bg-white hover:border-gray-300'" class="py-3 px-4 rounded-xl border flex items-center justify-center gap-2 text-xs transition-all">
+                                    <i class="fas fa-image"></i>
+                                    <span>Foto Kustom</span>
+                                </button>
+                                <button type="button" @click="settings.background_type = 'solid'" :class="settings.background_type === 'solid' ? 'border-primary bg-primary/5 ring-2 ring-primary/20 text-primary font-bold' : 'border-line text-ink bg-white hover:border-gray-300'" class="py-3 px-4 rounded-xl border flex items-center justify-center gap-2 text-xs transition-all">
+                                    <i class="fas fa-paint-roller"></i>
+                                    <span>Warna Polos</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Pilihan Pola Tekstur (Pattern) -->
+                        <div x-show="settings.background_type === 'pattern'" class="space-y-3">
+                            <label class="block text-xs font-bold text-ink">Pilihan Motif Pattern Estetik</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <!-- Dots -->
+                                <div @click="settings.background_pattern = 'dots'" :class="settings.background_pattern === 'dots' ? 'border-primary ring-2 ring-primary/20 font-bold' : 'border-line hover:border-gray-300'" class="cursor-pointer rounded-2xl border p-3 flex flex-col items-center gap-2 bg-white transition-all">
+                                    <div class="w-full h-14 rounded-xl border border-gray-100" style="background-color: #fdfbf7; background-image: radial-gradient(circle, #cbd5e1 1.5px, transparent 1.5px); background-size: 14px 14px;"></div>
+                                    <span class="text-xs text-ink">Polkadot Halus</span>
+                                </div>
+                                <!-- Grid -->
+                                <div @click="settings.background_pattern = 'grid'" :class="settings.background_pattern === 'grid' ? 'border-primary ring-2 ring-primary/20 font-bold' : 'border-line hover:border-gray-300'" class="cursor-pointer rounded-2xl border p-3 flex flex-col items-center gap-2 bg-white transition-all">
+                                    <div class="w-full h-14 rounded-xl border border-gray-100" style="background-color: #fdfbf7; background-image: linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px); background-size: 14px 14px;"></div>
+                                    <span class="text-xs text-ink">Grid Minimalis</span>
+                                </div>
+                                <!-- Cafe / Beans -->
+                                <div @click="settings.background_pattern = 'cafe'" :class="settings.background_pattern === 'cafe' ? 'border-primary ring-2 ring-primary/20 font-bold' : 'border-line hover:border-gray-300'" class="cursor-pointer rounded-2xl border p-3 flex flex-col items-center gap-2 bg-white transition-all">
+                                    <div class="w-full h-14 rounded-xl border border-gray-100 flex items-center justify-center" style="background-color: #fdfbf7; background-image: radial-gradient(#8d6e63 1.5px, transparent 1.5px), radial-gradient(#bcaaa4 1px, transparent 1px); background-size: 20px 20px, 10px 10px; background-position: 0 0, 10px 10px;">
+                                        <i class="fas fa-coffee text-muted text-xs opacity-40"></i>
+                                    </div>
+                                    <span class="text-xs text-ink">Coffee Texture</span>
+                                </div>
+                                <!-- Waves -->
+                                <div @click="settings.background_pattern = 'waves'" :class="settings.background_pattern === 'waves' ? 'border-primary ring-2 ring-primary/20 font-bold' : 'border-line hover:border-gray-300'" class="cursor-pointer rounded-2xl border p-3 flex flex-col items-center gap-2 bg-white transition-all">
+                                    <div class="w-full h-14 rounded-xl border border-gray-100" style="background-color: #fdfbf7; background-image: repeating-radial-gradient(circle at 0 0, transparent 0, #fdfbf7 10px), repeating-linear-gradient(#f1f5f955, #e2e8f055);"></div>
+                                    <span class="text-xs text-ink">Gelombang Lembut</span>
+                                </div>
+                                <!-- Stripes -->
+                                <div @click="settings.background_pattern = 'stripes'" :class="settings.background_pattern === 'stripes' ? 'border-primary ring-2 ring-primary/20 font-bold' : 'border-line hover:border-gray-300'" class="cursor-pointer rounded-2xl border p-3 flex flex-col items-center gap-2 bg-white transition-all">
+                                    <div class="w-full h-14 rounded-xl border border-gray-100" style="background-color: #fdfbf7; background-image: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.04) 16px);"></div>
+                                    <span class="text-xs text-ink">Garis Diagonal</span>
+                                </div>
+                                <!-- Moroccan / Tile -->
+                                <div @click="settings.background_pattern = 'moroccan'" :class="settings.background_pattern === 'moroccan' ? 'border-primary ring-2 ring-primary/20 font-bold' : 'border-line hover:border-gray-300'" class="cursor-pointer rounded-2xl border p-3 flex flex-col items-center gap-2 bg-white transition-all">
+                                    <div class="w-full h-14 rounded-xl border border-gray-100" style="background-color: #fdfbf7; background-image: radial-gradient(#00000010 2px, transparent 2px), radial-gradient(#00000010 2px, transparent 2px); background-size: 16px 16px; background-position: 0 0, 8px 8px;"></div>
+                                    <span class="text-xs text-ink">Ornamen Ubin</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pilihan Gambar Kustom (Image) -->
+                        <div x-show="settings.background_type === 'image'" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-ink mb-2">Upload Foto Latar Menu</label>
+                                <div class="w-full aspect-[21/9] rounded-2xl border-2 border-dashed border-line flex items-center justify-center bg-ivory overflow-hidden relative group cursor-pointer" @click="$refs.bgImageInput.click()">
+                                    <img x-show="settings.backgroundImagePreview" :src="settings.backgroundImagePreview" class="w-full h-full object-cover">
+                                    <div x-show="!settings.backgroundImagePreview" class="flex flex-col items-center text-muted">
+                                        <i class="fas fa-image text-3xl mb-2 text-line"></i>
+                                        <span class="text-xs font-semibold">Upload Foto Cafe / Suasana Menu</span>
+                                        <span class="text-[10px] text-gray-400 mt-1">Format: JPG, PNG, WebP (Maks. 5MB)</span>
+                                    </div>
+                                    <div class="absolute inset-0 bg-ink/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3">
+                                        <span class="text-xs text-white bg-white/20 px-3 py-1.5 rounded-full"><i class="fas fa-camera mr-1"></i> Ganti Foto</span>
+                                        <button x-show="settings.backgroundImagePreview" type="button" @click.stop="removeBgImage()" class="text-xs bg-red-500 text-white px-3 py-1.5 rounded-full hover:bg-red-600"><i class="fas fa-trash mr-1"></i> Hapus</button>
+                                    </div>
+                                </div>
+                                <input type="file" x-ref="bgImageInput" @change="handleBgImageUpload" class="hidden" accept="image/*">
+                            </div>
+
+                            <!-- Overlay Opacity Slider -->
+                            <div class="p-4 rounded-2xl bg-ivory/60 border border-line space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs font-bold text-ink">Kecerahan Lapisan Pelindung (Overlay Dimming)</label>
+                                    <span class="text-xs font-bold text-primary font-mono" x-text="settings.background_overlay_opacity + '%'"></span>
+                                </div>
+                                <input type="range" min="30" max="95" step="5" x-model="settings.background_overlay_opacity" class="w-full accent-primary cursor-pointer">
+                                <p class="text-[11px] text-muted">Lapisan transparan menjaga kontras agar tulisan menu tetap tajam dan mudah dibaca oleh pelanggan.</p>
+                            </div>
+                        </div>
+
+                        <!-- Pilihan Warna Polos (Solid) -->
+                        <div x-show="settings.background_type === 'solid'" class="space-y-3">
+                            <label class="block text-xs font-bold text-ink">Pilih Warna Latar Belakang</label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" x-model="settings.background_color" class="w-10 h-10 rounded-xl cursor-pointer border border-line p-0">
+                                <input type="text" x-model="settings.background_color" class="w-32 border border-line rounded-xl px-3 py-2 text-xs font-mono font-bold uppercase focus:border-primary focus:outline-none bg-white">
+                                <button type="button" @click="settings.background_color = '#fdfbf7'" class="text-xs text-muted hover:text-ink underline">Reset ke Ivory (#fdfbf7)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Sistem Setting Best Seller / Highlight -->
+                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                    <div class="p-6 border-b border-line bg-ivory/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-lg text-ink">Menu Unggulan & Best Seller</h3>
+                                <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold" x-text="settings.best_seller_ids.length + ' Ditandai'"></span>
+                            </div>
+                            <p class="text-xs text-muted">Pilih produk favorit yang akan dipromosikan di rak sorotan menu pelanggan.</p>
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col gap-4">
+                        <!-- Search & Filter Controls -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="relative flex-1">
+                                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-muted text-xs"></i>
+                                <input type="text" x-model="bestSellerSearch" placeholder="Cari nama menu..." class="w-full border border-line rounded-xl pl-9 pr-4 py-2 text-xs focus:border-primary focus:outline-none bg-white">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="bestSellerFilter = 'all'" :class="bestSellerFilter === 'all' ? 'bg-ink text-white font-bold' : 'bg-ivory text-muted hover:text-ink border border-line'" class="px-3 py-1.5 rounded-xl text-xs transition-colors">
+                                    Semua (<span x-text="allShopProducts.length"></span>)
+                                </button>
+                                <button type="button" @click="bestSellerFilter = 'selected'" :class="bestSellerFilter === 'selected' ? 'bg-amber-600 text-white font-bold' : 'bg-ivory text-muted hover:text-ink border border-line'" class="px-3 py-1.5 rounded-xl text-xs transition-colors flex items-center gap-1.5">
+                                    <i class="fas fa-star text-[10px]"></i>
+                                    <span>Ditandai</span> (<span x-text="settings.best_seller_ids.length"></span>)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Product List -->
+                        <div class="border border-line rounded-2xl overflow-hidden max-h-72 overflow-y-auto divide-y divide-line">
+                            <template x-for="prod in filteredBestSellerProducts" :key="prod.id">
+                                <div class="p-3 flex items-center justify-between gap-3 hover:bg-ivory/50 transition-colors" :class="settings.best_seller_ids.includes(prod.id) ? 'bg-amber-50/50' : 'bg-white'">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <img :src="prod.image_url || '/Assests/null%20image.webp'" class="w-10 h-10 rounded-xl object-cover border border-line shrink-0" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'">
+                                        <div class="truncate">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-xs font-bold text-ink truncate" x-text="prod.name"></span>
+                                                <span x-show="settings.best_seller_ids.includes(prod.id)" class="text-[10px] text-amber-600 font-extrabold flex items-center gap-0.5 shrink-0"><i class="fas fa-star text-[9px]"></i> Best Seller</span>
+                                            </div>
+                                            <span class="text-[11px] text-muted" x-text="formatRp(prod.price) + (prod.category?.name ? ' • ' + prod.category.name : '')"></span>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="toggleBestSeller(prod.id)" :class="settings.best_seller_ids.includes(prod.id) ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5">
+                                        <i class="fas" :class="settings.best_seller_ids.includes(prod.id) ? 'fa-check' : 'fa-plus'"></i>
+                                        <span x-text="settings.best_seller_ids.includes(prod.id) ? 'Terpilih' : 'Tandai'"></span>
+                                    </button>
+                                </div>
+                            </template>
+                            <div x-show="filteredBestSellerProducts.length === 0" class="p-8 text-center text-xs text-muted">
+                                <i class="fas fa-utensils text-2xl text-line mb-2"></i>
+                                <p>Tidak ada menu yang sesuai pencarian.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Operasional & Kontak -->
+                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                    <div class="p-6 border-b border-line bg-ivory/50">
+                        <h3 class="font-bold text-lg text-ink">Operasional & Tautan Media Sosial</h3>
+                        <p class="text-xs text-muted">Atur jam buka operasional dan pilih sosmed yang ingin ditampilkan di menu pelanggan.</p>
                     </div>
                     
                     <!-- Jam Operasional -->
@@ -179,19 +431,89 @@
                         </div>
                     </div>
 
-                    <div class="p-6 flex flex-col gap-5">
-                        <h4 class="text-sm font-bold text-ink">Tautan & Sosial Media</h4>
-                        <div class="flex items-center">
-                            <span class="bg-ivory border border-line border-r-0 rounded-l-xl px-4 py-3 text-muted font-mono text-sm flex-shrink-0 flex items-center gap-2"><i class="fab fa-instagram text-pink-500 text-lg"></i> instagram.com/</span>
-                            <input type="text" x-model="settings.instagram_link" class="w-full border border-line rounded-r-xl px-4 py-3 text-sm focus:border-primary focus:outline-none" placeholder="username">
+                    <!-- Tautan Sosial Media & Toggles -->
+                    <div class="p-6 flex flex-col gap-4">
+                        <div>
+                            <h4 class="text-sm font-bold text-ink">Tautan & Visibilitas Media Sosial</h4>
+                            <p class="text-xs text-muted">Centang "Tampil di Menu" agar ikon tampil pada footer menu pelanggan.</p>
                         </div>
-                        <div class="flex items-center">
-                            <span class="bg-ivory border border-line border-r-0 rounded-l-xl px-4 py-3 text-green-500 flex-shrink-0 w-12 flex justify-center"><i class="fab fa-whatsapp text-lg"></i></span>
-                            <input type="text" x-model="settings.whatsapp_number" class="w-full border border-line rounded-r-xl px-4 py-3 text-sm focus:border-primary focus:outline-none" placeholder="628123456789 (Awali 62)">
+
+                        <!-- TikTok -->
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-3.5 rounded-2xl border border-line bg-white">
+                            <div class="flex items-center gap-3 flex-1">
+                                <span class="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0">
+                                    <i class="fab fa-tiktok text-lg"></i>
+                                </span>
+                                <div class="flex-1">
+                                    <div class="flex items-center">
+                                        <span class="bg-ivory border border-line border-r-0 rounded-l-xl px-3 py-2 text-muted font-mono text-xs shrink-0">tiktok.com/@</span>
+                                        <input type="text" x-model="settings.tiktok_link" class="w-full border border-line rounded-r-xl px-3 py-2 text-xs focus:border-primary focus:outline-none" placeholder="username_toko">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between sm:justify-end gap-2 pl-12 sm:pl-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-line">
+                                <label class="text-xs font-semibold text-ink cursor-pointer flex items-center gap-2">
+                                    <input type="checkbox" x-model="settings.social_settings.show_tiktok" class="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary">
+                                    <span>Tampil di Menu</span>
+                                </label>
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <span class="bg-ivory border border-line border-r-0 rounded-l-xl px-4 py-3 text-red-500 flex-shrink-0 w-12 flex justify-center"><i class="fas fa-map-marker-alt text-lg"></i></span>
-                            <input type="text" x-model="settings.maps_link" class="w-full border border-line rounded-r-xl px-4 py-3 text-sm focus:border-primary focus:outline-none" placeholder="Link Google Maps lokasi toko">
+
+                        <!-- Instagram -->
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-3.5 rounded-2xl border border-line bg-white">
+                            <div class="flex items-center gap-3 flex-1">
+                                <span class="w-10 h-10 rounded-xl bg-pink-500 text-white flex items-center justify-center shrink-0">
+                                    <i class="fab fa-instagram text-lg"></i>
+                                </span>
+                                <div class="flex-1">
+                                    <div class="flex items-center">
+                                        <span class="bg-ivory border border-line border-r-0 rounded-l-xl px-3 py-2 text-muted font-mono text-xs shrink-0">instagram.com/</span>
+                                        <input type="text" x-model="settings.instagram_link" class="w-full border border-line rounded-r-xl px-3 py-2 text-xs focus:border-primary focus:outline-none" placeholder="username_toko">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between sm:justify-end gap-2 pl-12 sm:pl-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-line">
+                                <label class="text-xs font-semibold text-ink cursor-pointer flex items-center gap-2">
+                                    <input type="checkbox" x-model="settings.social_settings.show_instagram" class="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary">
+                                    <span>Tampil di Menu</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp -->
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-3.5 rounded-2xl border border-line bg-white">
+                            <div class="flex items-center gap-3 flex-1">
+                                <span class="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center shrink-0">
+                                    <i class="fab fa-whatsapp text-lg"></i>
+                                </span>
+                                <div class="flex-1">
+                                    <input type="text" x-model="settings.whatsapp_number" class="w-full border border-line rounded-xl px-3 py-2 text-xs focus:border-primary focus:outline-none" placeholder="Nomor WhatsApp (Awali 62, contoh: 6281234567890)">
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between sm:justify-end gap-2 pl-12 sm:pl-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-line">
+                                <label class="text-xs font-semibold text-ink cursor-pointer flex items-center gap-2">
+                                    <input type="checkbox" x-model="settings.social_settings.show_whatsapp" class="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary">
+                                    <span>Tampil di Menu</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Google Maps -->
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-3.5 rounded-2xl border border-line bg-white">
+                            <div class="flex items-center gap-3 flex-1">
+                                <span class="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center shrink-0">
+                                    <i class="fas fa-map-marker-alt text-lg"></i>
+                                </span>
+                                <div class="flex-1">
+                                    <input type="text" x-model="settings.maps_link" class="w-full border border-line rounded-xl px-3 py-2 text-xs focus:border-primary focus:outline-none" placeholder="Link tautan Google Maps lokasi cafe">
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between sm:justify-end gap-2 pl-12 sm:pl-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-line">
+                                <label class="text-xs font-semibold text-ink cursor-pointer flex items-center gap-2">
+                                    <input type="checkbox" x-model="settings.social_settings.show_maps" class="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary">
+                                    <span>Tampil di Menu</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -209,9 +531,21 @@
                 <!-- Notch -->
                 <div class="absolute top-0 inset-x-0 h-6 bg-ink rounded-b-3xl w-40 mx-auto z-50"></div>
 
-                <!-- Template Customer Menu Real Structure -->
-                <div class="flex-1 overflow-y-auto hide-scroll pb-24 relative" style="background-image: radial-gradient(circle, #e5e7eb 1.5px, transparent 1.5px); background-size: 24px 24px;">
+                <!-- Template Customer Menu Real Structure with Dynamic Background -->
+                <div class="flex-1 overflow-y-auto hide-scroll pb-24 relative" 
+                     :style="settings.background_type === 'pattern' ? 
+                                (settings.background_pattern === 'grid' ? 'background-color: #fdfbf7; background-image: linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px); background-size: 14px 14px;' :
+                                (settings.background_pattern === 'cafe' ? 'background-color: #fdfbf7; background-image: radial-gradient(#8d6e63 1.5px, transparent 1.5px), radial-gradient(#bcaaa4 1px, transparent 1px); background-size: 20px 20px, 10px 10px; background-position: 0 0, 10px 10px;' :
+                                (settings.background_pattern === 'waves' ? 'background-color: #fdfbf7; background-image: repeating-radial-gradient(circle at 0 0, transparent 0, #fdfbf7 10px), repeating-linear-gradient(#f1f5f955, #e2e8f055);' :
+                                (settings.background_pattern === 'stripes' ? 'background-color: #fdfbf7; background-image: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(0, 0, 0, 0.04) 8px, rgba(0, 0, 0, 0.04) 16px);' :
+                                (settings.background_pattern === 'moroccan' ? 'background-color: #fdfbf7; background-image: radial-gradient(#00000010 2px, transparent 2px), radial-gradient(#00000010 2px, transparent 2px); background-size: 16px 16px; background-position: 0 0, 8px 8px;' :
+                                'background-color: #fdfbf7; background-image: radial-gradient(circle, #cbd5e1 1.5px, transparent 1.5px); background-size: 14px 14px;'))))) :
+                             (settings.background_type === 'solid' ? ('background-color: ' + (settings.background_color || '#fdfbf7')) : 
+                             ('background-image: url(' + (settings.backgroundImagePreview || '') + '); background-size: cover; background-position: center;'))">
                     
+                    <!-- Image Background Dimming Layer -->
+                    <div x-show="settings.background_type === 'image' && settings.backgroundImagePreview" class="absolute inset-0 pointer-events-none" :style="'background-color: rgba(253, 251, 247, ' + ((settings.background_overlay_opacity || 85) / 100) + ')'"></div>
+
                     <!-- Toko Tutup Overlay -->
                     <div x-show="!settings.is_open" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-[200] flex flex-col items-center justify-center p-6 text-center">
                         <i class="fas fa-store-slash text-5xl text-gray-400 mb-4"></i>
@@ -219,8 +553,8 @@
                         <p class="text-xs text-gray-500 font-medium">Mohon maaf, toko kami saat ini sedang tidak menerima pesanan.</p>
                     </div>
 
-                    <!-- Header APP (Logo, Notif, Profile) -->
-                    <header class="bg-white pt-7 pb-3 px-4 z-30 relative shadow-sm">
+                    <!-- Header APP (Logo, Slogan) -->
+                    <header class="bg-white/90 backdrop-blur-md pt-7 pb-3 px-4 z-30 relative shadow-sm">
                         <div class="flex items-center gap-2">
                             <template x-if="settings.logoPreview">
                                 <img :src="settings.logoPreview" alt="Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg shrink-0">
@@ -238,7 +572,7 @@
                     </header>
 
                     <!-- Location & Search Bar -->
-                    <div class="bg-white px-4 pb-5 relative z-30 border-b border-gray-100">
+                    <div class="bg-white/90 backdrop-blur-md px-4 pb-4 relative z-30 border-b border-gray-100">
                         <div class="bg-white rounded-full p-1.5 flex items-center shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] border border-gray-200">
                             <div class="flex items-center gap-2 pl-2 pr-3 border-r border-gray-200 rounded-l-full py-1.5 shrink-0 max-w-[55%]">
                                 <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0" :style="'background-color: ' + (settings.primary_color ? settings.primary_color + '15' : '#1c453215')">
@@ -259,106 +593,197 @@
                     </div>
 
                     <!-- Promo Carousel Section -->
-                    <div x-show="settings.is_banner_active" class="px-4 mt-5 mb-8">
-                        <div class="relative rounded-[20px] overflow-hidden shadow-lg h-40 group flex items-center justify-center" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                    <div x-show="settings.is_banner_active" class="px-4 mt-4 mb-4 relative z-10">
+                        <div class="relative rounded-[20px] overflow-hidden shadow-lg h-36 group flex items-center justify-center" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                             <template x-if="settings.banners.filter(b => b !== null).length > 0">
-                                <!-- Just show the first active banner as preview -->
                                 <img :src="settings.banners.find(b => b !== null)" class="w-full h-full object-cover">
                             </template>
                             <template x-if="settings.banners.filter(b => b !== null).length === 0">
-                                <div class="text-white/50 font-bold text-sm tracking-widest uppercase">Banner Promo</div>
+                                <div class="text-white/70 font-bold text-xs tracking-widest uppercase">Banner Promo</div>
                             </template>
-                            <div class="absolute bottom-3 w-full flex justify-center gap-1.5 z-10">
+                            <div class="absolute inset-x-0 bottom-0 h-1/2" :style="'background: linear-gradient(to top, ' + (settings.primary_color || '#1e5a7a') + ' 0%, transparent 100%)'"></div>
+                            <div class="absolute bottom-2.5 w-full flex justify-center gap-1.5 z-10">
                                 <template x-for="(_, i) in (settings.banners.filter(b => b !== null).length || 1)">
-                                    <div class="w-2 h-2 rounded-full" :class="i === 0 ? 'bg-white' : 'bg-white/50'"></div>
+                                    <div class="w-1.5 h-1.5 rounded-full" :class="i === 0 ? 'bg-white' : 'bg-white/50'"></div>
                                 </template>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Categories Square Grid -->
-                    <div class="sticky top-0 bg-white/90 backdrop-blur-md z-20 pt-3 pb-3 border-y border-gray-100 shadow-sm">
-                        <div class="flex overflow-x-auto px-4 gap-3 hide-scroll">
-                            <div class="flex flex-col items-center gap-1 min-w-[70px]">
-                                <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2" :style="'border-color: ' + (settings.primary_color || '#1e5a7a') + '; background-color: ' + (settings.primary_color ? settings.primary_color + '10' : '#1c453210')">
-                                    <i class="fas fa-star text-lg" :style="'color: ' + (settings.primary_color || '#1e5a7a')"></i>
-                                </div>
-                                <span class="text-[10px] font-bold" :style="'color: ' + (settings.primary_color || '#1e5a7a')">All Menu</span>
+                    <!-- Best Seller Highlight Shelf (Simulasi Live Preview) -->
+                    <div x-show="settings.best_seller_ids.length > 0" class="px-4 mt-3 mb-2 relative z-10">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs">⭐</span>
+                                <h3 class="text-xs font-black text-ink tracking-tight uppercase">Menu Unggulan</h3>
                             </div>
-                            <div class="flex flex-col items-center gap-1 min-w-[70px]">
-                                <div class="w-14 h-14 rounded-2xl flex items-center justify-center border border-gray-200 bg-white shadow-sm">
-                                    <i class="fas fa-coffee text-lg text-gold-600"></i>
+                            <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Pilihan Cafe</span>
+                        </div>
+                        <div class="flex gap-2.5 overflow-x-auto hide-scroll pb-1">
+                            <template x-for="bsId in settings.best_seller_ids.slice(0, 3)" :key="bsId">
+                                <div class="w-32 shrink-0 bg-white p-2 rounded-2xl shadow-sm border border-amber-200/80 flex flex-col justify-between relative">
+                                    <div class="w-full h-16 bg-amber-50 rounded-xl mb-1.5 flex items-center justify-center text-amber-500 overflow-hidden">
+                                        <template x-if="allShopProducts.find(p => p.id === bsId)?.image_url">
+                                            <img :src="allShopProducts.find(p => p.id === bsId)?.image_url" class="w-full h-full object-cover">
+                                        </template>
+                                        <template x-if="!allShopProducts.find(p => p.id === bsId)?.image_url">
+                                            <i class="fas fa-coffee text-xl"></i>
+                                        </template>
+                                    </div>
+                                    <span class="text-[11px] font-bold text-ink truncate" x-text="allShopProducts.find(p => p.id === bsId)?.name || 'Produk Favorit'"></span>
+                                    <span class="text-[10px] font-black" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(allShopProducts.find(p => p.id === bsId)?.price || 25000)"></span>
                                 </div>
-                                <span class="text-[10px] font-medium text-gray-500">Coffee</span>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Categories Bar -->
+                    <div class="sticky top-0 bg-white/95 backdrop-blur-md z-20 pt-2.5 pb-2.5 border-y border-gray-100 shadow-sm">
+                        <div class="flex overflow-x-auto px-4 gap-2.5 hide-scroll">
+                            <div class="flex flex-col items-center gap-1 min-w-[60px]">
+                                <div class="w-12 h-12 rounded-2xl flex items-center justify-center border-2" :style="'border-color: ' + (settings.primary_color || '#1e5a7a') + '; background-color: ' + (settings.primary_color ? settings.primary_color + '10' : '#1c453210')">
+                                    <i class="fas fa-star text-sm" :style="'color: ' + (settings.primary_color || '#1e5a7a')"></i>
+                                </div>
+                                <span class="text-[9px] font-bold" :style="'color: ' + (settings.primary_color || '#1e5a7a')">All</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-1 min-w-[60px]">
+                                <div class="w-12 h-12 rounded-2xl flex items-center justify-center border border-gray-200 bg-white shadow-sm">
+                                    <i class="fas fa-coffee text-sm text-gold-600"></i>
+                                </div>
+                                <span class="text-[9px] font-medium text-gray-500">Coffee</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Menu List Header -->
-                    <div class="px-4 mt-5 flex justify-between items-center mb-1">
-                        <h2 class="font-extrabold text-[19px] text-gray-800">Popular Picks</h2>
-                        <span class="text-[11px] font-bold cursor-pointer" :style="'color: ' + (settings.primary_color || '#1e5a7a')">View All &rarr;</span>
-                    </div>
-                    
-                    <h3 class="px-4 mt-4 mb-2 font-bold text-[15px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Coffee</h3>
-                    <div class="px-4 mb-4"><div class="h-px bg-gray-200 w-full"></div></div>
-
-                    <!-- Menu Items View (List vs Grid) -->
-                    <div class="px-4">
-                        <!-- Grid View -->
-                        <div x-show="settings.theme_style === 'grid'" class="grid grid-cols-2 gap-4">
-                            <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 relative">
-                                <div class="w-full aspect-[4/3] bg-gray-100 rounded-xl mb-3 flex flex-col items-center justify-center text-gray-300">
-                                    <i class="fas fa-image text-3xl mb-1"></i>
-                                    <span class="text-[8px] font-bold tracking-wider">NO IMAGE</span>
+                    <!-- Menu Items View (List vs Grid vs Compact vs Cards) -->
+                    <div class="p-4 relative z-10">
+                        <!-- Grid View (2 Kolom) -->
+                        <div x-show="settings.theme_style === 'grid'" class="grid grid-cols-2 gap-3">
+                            <div class="bg-white p-2.5 rounded-[18px] shadow-sm border border-gray-100 relative">
+                                <div class="w-full aspect-[4/3] bg-gray-100 rounded-xl mb-2 flex flex-col items-center justify-center text-gray-300">
+                                    <i class="fas fa-coffee text-2xl"></i>
                                 </div>
                                 <h4 class="font-bold text-xs text-gray-800 leading-tight">Vanilla Latte</h4>
-                                <p class="font-black text-[13px] mt-1" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 25.000</p>
-                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                <p class="font-black text-xs mt-1" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 25.000</p>
+                                <button class="absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
-                            <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 relative">
-                                <div class="w-full aspect-[4/3] bg-gray-100 rounded-xl mb-3 flex flex-col items-center justify-center text-gray-300">
-                                    <i class="fas fa-image text-3xl mb-1"></i>
+                            <div class="bg-white p-2.5 rounded-[18px] shadow-sm border border-gray-100 relative">
+                                <div class="w-full aspect-[4/3] bg-gray-100 rounded-xl mb-2 flex flex-col items-center justify-center text-gray-300">
+                                    <i class="fas fa-coffee text-2xl"></i>
                                 </div>
                                 <h4 class="font-bold text-xs text-gray-800 leading-tight">Americano</h4>
-                                <p class="font-black text-[13px] mt-1" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 18.000</p>
-                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                <p class="font-black text-xs mt-1" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 18.000</p>
+                                <button class="absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- List View -->
-                        <div x-show="settings.theme_style === 'list'" class="flex flex-col gap-4">
-                            <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 flex gap-3 relative">
-                                <div class="w-20 h-20 bg-gray-100 rounded-xl shrink-0 flex items-center justify-center text-gray-300">
-                                    <i class="fas fa-image text-2xl"></i>
+                        <!-- List View (Horizontal) -->
+                        <div x-show="settings.theme_style === 'list'" class="flex flex-col gap-3">
+                            <div class="bg-white p-2.5 rounded-[18px] shadow-sm border border-gray-100 flex gap-3 relative">
+                                <div class="w-16 h-16 bg-gray-100 rounded-xl shrink-0 flex items-center justify-center text-gray-300">
+                                    <i class="fas fa-coffee text-xl"></i>
                                 </div>
                                 <div class="flex-1 flex flex-col justify-center pr-6">
-                                    <h4 class="font-bold text-sm text-gray-800 leading-tight">Vanilla Latte</h4>
-                                    <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">Kopi susu vanilla lezat...</p>
-                                    <p class="font-black text-sm mt-1.5" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 25.000</p>
+                                    <h4 class="font-bold text-xs text-gray-800 leading-tight">Vanilla Latte</h4>
+                                    <p class="text-[9px] text-gray-500 mt-0.5 line-clamp-1">Kopi susu vanilla lezat...</p>
+                                    <p class="font-black text-xs mt-1" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 25.000</p>
                                 </div>
-                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                <button class="absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
-                            <div class="bg-white p-3 rounded-[20px] shadow-sm border border-gray-100 flex gap-3 relative">
-                                <div class="w-20 h-20 bg-gray-100 rounded-xl shrink-0 flex items-center justify-center text-gray-300">
-                                    <i class="fas fa-image text-2xl"></i>
+                            <div class="bg-white p-2.5 rounded-[18px] shadow-sm border border-gray-100 flex gap-3 relative">
+                                <div class="w-16 h-16 bg-gray-100 rounded-xl shrink-0 flex items-center justify-center text-gray-300">
+                                    <i class="fas fa-coffee text-xl"></i>
                                 </div>
                                 <div class="flex-1 flex flex-col justify-center pr-6">
-                                    <h4 class="font-bold text-sm text-gray-800 leading-tight">Americano</h4>
-                                    <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">Espresso dengan air matang</p>
-                                    <p class="font-black text-sm mt-1.5" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 18.000</p>
+                                    <h4 class="font-bold text-xs text-gray-800 leading-tight">Americano</h4>
+                                    <p class="text-[9px] text-gray-500 mt-0.5 line-clamp-1">Espresso dengan air matang</p>
+                                    <p class="font-black text-xs mt-1" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 18.000</p>
                                 </div>
-                                <button class="absolute bottom-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                <button class="absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Compact View (Dense List) -->
+                        <div x-show="settings.theme_style === 'compact'" class="flex flex-col gap-2">
+                            <div class="bg-white px-3 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="w-8 h-8 bg-gray-100 rounded-lg shrink-0 flex items-center justify-center text-gray-400 text-xs">
+                                        <i class="fas fa-coffee"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <h4 class="font-bold text-xs text-gray-800 truncate">Vanilla Latte</h4>
+                                        <p class="font-bold text-[10px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 25.000</p>
+                                    </div>
+                                </div>
+                                <button class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[9px] shadow-sm shrink-0" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="bg-white px-3 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="w-8 h-8 bg-gray-100 rounded-lg shrink-0 flex items-center justify-center text-gray-400 text-xs">
+                                        <i class="fas fa-coffee"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <h4 class="font-bold text-xs text-gray-800 truncate">Americano</h4>
+                                        <p class="font-bold text-[10px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 18.000</p>
+                                    </div>
+                                </div>
+                                <button class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-[9px] shadow-sm shrink-0" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Hero Cards View -->
+                        <div x-show="settings.theme_style === 'cards'" class="flex flex-col gap-3">
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
+                                <div class="w-full h-24 bg-gray-100 flex items-center justify-center text-gray-300">
+                                    <i class="fas fa-coffee text-3xl"></i>
+                                </div>
+                                <div class="p-3">
+                                    <h4 class="font-bold text-sm text-gray-800">Vanilla Latte</h4>
+                                    <p class="text-[10px] text-gray-500 line-clamp-1 mt-0.5">Kopi susu vanilla manis pas dengan double shot espresso.</p>
+                                    <div class="flex items-center justify-between mt-2">
+                                        <span class="font-black text-sm" :style="'color: ' + (settings.primary_color || '#1e5a7a')">Rp 25.000</span>
+                                        <button class="px-3 py-1 rounded-xl text-white text-xs font-bold shadow-sm" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                            Tambah
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Media Sosial di Menu -->
+                    <div class="px-4 py-4 mt-2 flex flex-col items-center justify-center text-center opacity-80 relative z-10">
+                        <div class="flex gap-2.5 mb-2">
+                            <!-- TikTok -->
+                            <div x-show="settings.social_settings.show_tiktok && settings.tiktok_link" class="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center text-xs shadow-sm">
+                                <i class="fab fa-tiktok"></i>
+                            </div>
+                            <!-- Instagram -->
+                            <div x-show="settings.social_settings.show_instagram && settings.instagram_link" class="w-7 h-7 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center text-xs shadow-sm">
+                                <i class="fab fa-instagram"></i>
+                            </div>
+                            <!-- WhatsApp -->
+                            <div x-show="settings.social_settings.show_whatsapp && settings.whatsapp_number" class="w-7 h-7 rounded-full bg-green-100 text-green-500 flex items-center justify-center text-xs shadow-sm">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <!-- Maps -->
+                            <div x-show="settings.social_settings.show_maps && settings.maps_link" class="w-7 h-7 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-xs shadow-sm">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                        </div>
+                        <p class="text-[9px] text-gray-400 font-medium">Powered by Menu Oqari</p>
                     </div>
                 </div>
 

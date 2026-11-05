@@ -98,7 +98,8 @@
                         categoryId: item.category_id || (item.category ? item.category.id : item.category_name),
                         categoryName: item.category ? item.category.name : (item.category_name || ''),
                         img: item.image_url ? item.image_url : '/Assests/null image.webp',
-                        soldOut: item.is_sold_out
+                        soldOut: item.is_sold_out,
+                        isBestSeller: Boolean(item.is_best_seller)
                     }));
                 }
                 return localStorage.getItem(tableName) ? JSON.parse(localStorage.getItem(tableName)) : [];

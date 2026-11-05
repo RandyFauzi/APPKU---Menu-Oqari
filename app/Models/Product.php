@@ -23,12 +23,16 @@ class Product extends Model
         'price',
         'image_path',
         'is_sold_out',
+        'is_best_seller',
         'cogs',
         'hpp_overhead_cost',
         'hpp_target_margin', 'hpp_settings',
     ];
 
-    protected $casts = ['hpp_settings' => 'array'];
+    protected $casts = [
+        'hpp_settings' => 'array',
+        'is_best_seller' => 'boolean',
+    ];
 
     protected $appends = [
         'image_url',
