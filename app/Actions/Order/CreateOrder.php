@@ -8,6 +8,7 @@ use App\Models\Shop;
 use App\Models\Table;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Persists a resolved cart (from CalculateCart + ApplyDiscount) as a new Order.
@@ -58,12 +59,21 @@ class CreateOrder
 
             // 4. Bulk-insert order items
             $now = now();
-            $rows = array_map(fn ($item) => array_merge($item, [
-                'order_id' => $order->id,
-                'modifiers' => $item['modifiers'] ? json_encode($item['modifiers']) : null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]), $cart['items']);
+            $hasPriceColumn = Schema::hasColumn('order_items', 'price');
+            $rows = array_map(function ($item) use ($order, $now, $hasPriceColumn) {
+                $row = array_merge($item, [
+                    'order_id' => $order->id,
+                    'modifiers' => $item['modifiers'] ? json_encode($item['modifiers']) : null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+
+                if ($hasPriceColumn && ! isset($row['price'])) {
+                    $row['price'] = $row['unit_price'] ?? 0;
+                }
+
+                return $row;
+            }, $cart['items']);
 
             OrderItem::insert($rows);
 

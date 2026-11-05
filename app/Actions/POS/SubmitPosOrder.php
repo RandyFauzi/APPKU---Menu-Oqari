@@ -11,6 +11,7 @@ use App\Models\Table;
 use App\Models\User;
 use App\Services\InventoryService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 class SubmitPosOrder
@@ -45,7 +46,11 @@ class SubmitPosOrder
                 }
 
                 $order->items()->delete();
+                $hasPriceColumn = Schema::hasColumn('order_items', 'price');
                 foreach ($cart['items'] as $item) {
+                    if ($hasPriceColumn && ! isset($item['price'])) {
+                        $item['price'] = $item['unit_price'] ?? 0;
+                    }
                     $order->items()->create($item);
                 }
                 $tableId = $order->table_id;

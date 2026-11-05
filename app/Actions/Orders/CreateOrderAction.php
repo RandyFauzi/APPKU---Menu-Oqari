@@ -12,6 +12,7 @@ use App\Models\Table;
 use App\Services\InventoryService;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CreateOrderAction
 {
@@ -130,8 +131,12 @@ class CreateOrderAction
             ]);
 
             // 4. Attach Items
+            $hasPriceColumn = Schema::hasColumn('order_items', 'price');
             foreach ($orderItems as $orderItem) {
                 $orderItem['order_id'] = $order->id;
+                if ($hasPriceColumn && ! isset($orderItem['price'])) {
+                    $orderItem['price'] = $orderItem['unit_price'] ?? 0;
+                }
                 OrderItem::create($orderItem);
             }
 

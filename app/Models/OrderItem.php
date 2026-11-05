@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class OrderItem extends Model
 {
@@ -11,6 +12,7 @@ class OrderItem extends Model
         'product_id',
         'quantity',
         'unit_price',
+        'price',
         'product_name',
         'discount_amount',
         'tax_amount',
@@ -19,8 +21,21 @@ class OrderItem extends Model
         'variant_id',
         'variant_name',
         'modifiers',
+        'cogs_total',
+    ];
 
-        'cogs_total', ];
+    protected static function booted(): void
+    {
+        static::creating(function (OrderItem $item): void {
+            if (Schema::hasColumn('order_items', 'price')) {
+                if (isset($item->unit_price) && ! isset($item->price)) {
+                    $item->price = $item->unit_price;
+                }
+            } else {
+                unset($item->attributes['price']);
+            }
+        });
+    }
 
     protected $casts = [
         'modifiers' => 'array',

@@ -8,7 +8,9 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Shop;
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
@@ -115,6 +117,29 @@ class PosItemNotesTest extends TestCase
         $cashier->update(['role' => 'barista']);
         $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), ['items' => [['id' => $product->id, 'qty' => 1, 'notes' => 'Hidden']]])->assertForbidden();
         $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_pos_order_creation_supports_legacy_price_column_if_present(): void
+    {
+        if (! Schema::hasColumn('order_items', 'price')) {
+            Schema::table('order_items', function (Blueprint $table) {
+                $table->decimal('price', 12, 2);
+            });
+        }
+
+        [$cashier, $product] = $this->scenario();
+        $this->openRegister($cashier);
+        $items = [['id' => $product->id, 'qty' => 1, 'notes' => 'Legacy test']];
+        $payload = $this->payment($items);
+
+        $response = $this->actingAs($cashier)->postJson(route('admin.pos.orders.submit'), $payload)->assertOk();
+        $orderId = $response->json('order_id');
+
+        $this->assertDatabaseHas('order_items', [
+            'order_id' => $orderId,
+            'unit_price' => 25000,
+            'price' => 25000,
+        ]);
     }
 
     /** @return array{User, Product} */
