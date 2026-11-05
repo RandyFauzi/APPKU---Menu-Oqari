@@ -97,7 +97,7 @@
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- MAIN WORKSPACE (Figma 45:12192)                             --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
-<div class="flex-1 p-4 lg:p-[24px] flex flex-col lg:flex-row items-start gap-[18px] pb-24 lg:pb-[24px]">
+<div class="flex-1 p-3 sm:p-4 lg:p-[20px] xl:p-[24px] flex flex-col lg:flex-row items-start gap-4 lg:gap-[18px] pb-24 lg:pb-[24px]">
 
     {{-- LEFT COLUMN: Antrean + Menu (Figma 45:12193) --}}
     <div class="flex-1 w-full min-w-0 flex flex-col gap-[16px]">
@@ -300,10 +300,10 @@
     </div>
 
     {{-- MOBILE CART BAR --}}
-    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-[#e6e5e0] shadow-lg z-30"
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 p-3 pb-[max(12px,env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-sm border-t border-[#e6e5e0] shadow-lg z-30 transition-transform duration-300 ease-in-out"
          :class="showMobileCart ? 'translate-y-full' : 'translate-y-0'">
         <button type="button" @click="showMobileCart = true"
-            class="w-full py-3 px-4 rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] text-white font-semibold text-[13px] flex items-center justify-between shadow-sm">
+            class="w-full py-3 px-4 rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] text-white font-semibold text-[13px] flex items-center justify-between shadow-sm hover:opacity-95 active:scale-[0.99] transition">
             <div class="flex items-center gap-2">
                 <span class="bg-white/20 px-2 py-0.5 rounded text-[11px] font-bold"><span x-text="cart.reduce((s,i)=>s+i.qty,0)"></span> Item</span>
                 <span>Lihat Pesanan Baru</span>
@@ -317,16 +317,19 @@
 
     {{-- RIGHT SIDEBAR: CURRENT ORDER / Pesanan Baru (Figma 45:12496) --}}
     <aside :class="showMobileCart ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
-        class="fixed inset-y-0 right-0 z-40 w-full sm:w-[390px] lg:static lg:z-0 lg:w-[374px] shrink-0 transition-transform duration-300 ease-in-out bg-white border border-[#e6e5e0] lg:rounded-[16px] flex flex-col overflow-hidden shadow-2xl lg:shadow-none max-h-screen lg:max-h-none">
+        class="fixed inset-y-0 right-0 z-40 w-full sm:w-[400px] lg:sticky lg:top-[68px] lg:right-auto lg:bottom-auto lg:z-10 lg:w-[350px] xl:w-[374px] shrink-0 transition-transform duration-300 ease-in-out bg-white border border-[#e6e5e0] lg:rounded-[16px] flex flex-col overflow-hidden shadow-2xl lg:shadow-none h-full h-[100dvh] max-h-[100dvh] lg:h-[calc(100dvh-84px)] lg:max-h-[calc(100dvh-84px)]">
 
         {{-- Mobile Close Bar --}}
-        <div class="lg:hidden flex items-center justify-between px-4 py-3 bg-[#f6f5f2] border-b border-[#e6e5e0]">
-            <span class="text-[13px] font-bold text-[#111827]">Detail Pesanan</span>
-            <button type="button" @click="showMobileCart = false" class="text-[12px] font-semibold text-[#df5826]">Tutup</button>
+        <div class="lg:hidden flex items-center justify-between px-4 py-3 bg-[#f6f5f2] border-b border-[#e6e5e0] shrink-0">
+            <div class="flex items-center gap-2">
+                <span class="text-[13px] font-bold text-[#111827]">Detail Pesanan</span>
+                <span class="bg-[#fff6f0] text-[#df5826] text-[11px] font-bold px-2 py-0.5 rounded-full" x-text="cart.reduce((s,i)=>s+i.qty,0) + ' Item'"></span>
+            </div>
+            <button type="button" @click="showMobileCart = false" class="text-[12px] font-semibold text-[#df5826] hover:underline px-2 py-1">Tutup</button>
         </div>
 
         {{-- Order Header + Mode Tabs + Customer/Table Inputs (Figma 45:12497) --}}
-        <div class="p-[16px] border-b border-[#e6e5e0] flex flex-col gap-[12px]">
+        <div class="p-3.5 sm:p-[16px] border-b border-[#e6e5e0] flex flex-col gap-2.5 sm:gap-[12px] shrink-0 bg-white">
             <div class="flex items-start justify-between gap-2">
                 <div>
                     <p class="text-[11px] font-medium text-[#f04c17] uppercase tracking-[0.22px] leading-[16.5px]">CURRENT ORDER</p>
@@ -392,7 +395,7 @@
         </div>
 
         {{-- Cart Items List (Figma 45:12532) --}}
-        <div class="p-[16px] flex-1 overflow-y-auto flex flex-col gap-[10px]">
+        <div class="p-3.5 sm:p-[16px] flex-1 min-h-0 overflow-y-auto flex flex-col gap-[10px] overscroll-contain">
             <template x-if="cart.length === 0">
                 <div class="py-12 px-4 text-center flex flex-col items-center justify-center border border-dashed border-[#d8dce2] rounded-[12px] bg-[#f8f9fa]/60">
                     <div class="w-10 h-10 rounded-full bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center mb-2.5">
@@ -487,7 +490,7 @@
         </div>
 
         {{-- Order Summary & CTA Footer (Figma 45:12649) --}}
-        <div class="p-[16px] border-t border-[#e6e5e0] bg-[#fcfcfd] flex flex-col gap-[12px] shrink-0">
+        <div class="p-3.5 sm:p-[16px] border-t border-[#e6e5e0] bg-[#fcfcfd] flex flex-col gap-2.5 sm:gap-[12px] shrink-0 sticky bottom-0 z-10 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] pb-[max(14px,env(safe-area-inset-bottom))]">
             <div class="flex flex-col gap-[6px]">
                 <div class="flex items-center justify-between text-[11px] leading-[16.5px]">
                     <span class="text-[#53565a] font-normal">Subtotal</span>
@@ -509,9 +512,12 @@
 
             @can('manage-payments')
             <button type="button" @click="openPayment()" :disabled="cart.length === 0"
-                class="w-full py-[10px] px-[16px] rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_0px_rgba(223,88,38,0.18)] flex items-center justify-center gap-[6px] text-white text-[12px] font-semibold leading-[18px] hover:opacity-95 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                class="w-full py-[11px] px-[16px] rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_4px_0px_rgba(223,88,38,0.22)] flex items-center justify-center gap-[6px] text-white text-[12.5px] font-semibold leading-[18px] hover:opacity-95 active:scale-[0.99] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                 <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
-                <span>Buat Pesanan</span>
+                <span class="flex items-center gap-1.5">
+                    <span>Buat Pesanan</span>
+                    <span class="hidden sm:inline-block text-[10.5px] font-normal opacity-85">(F4)</span>
+                </span>
             </button>
             @else
             <p class="text-[11.5px] text-[#8b8e93] text-center py-2">Pembayaran memerlukan izin dari Owner.</p>
@@ -605,8 +611,8 @@
 <div x-show="paymentModal.show" x-cloak x-transition
     class="fixed inset-0 z-50 bg-[#1e211f]/60 backdrop-blur-[2px] flex items-center justify-center p-4"
     @click.self="paymentModal.show = false">
-    <div class="bg-white border border-[#e6e5e0] rounded-[20px] shadow-2xl w-full max-w-sm overflow-hidden">
-        <div class="p-5 border-b border-[#e6e5e0] flex items-center justify-between">
+    <div class="bg-white border border-[#e6e5e0] rounded-[20px] shadow-2xl w-full max-w-sm max-h-[92dvh] flex flex-col overflow-hidden">
+        <div class="p-5 border-b border-[#e6e5e0] flex items-center justify-between shrink-0">
             <div>
                 <p class="text-[11px] font-medium text-[#f04c17] uppercase tracking-wider">KONFIRMASI PEMBAYARAN</p>
                 <h3 class="font-bold text-[16px] text-[#111827]">Total Tagihan</h3>
@@ -614,7 +620,7 @@
             <p class="text-[22px] font-bold text-[#df5826]">Rp<span x-text="formatRp(subtotal)"></span></p>
         </div>
 
-        <div class="p-5 space-y-4">
+        <div class="p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
             {{-- Fulfillment Type Summary --}}
             <div class="bg-[#f8f9fa] p-1 rounded-[10px] grid grid-cols-3 gap-1">
                 <template x-for="mode in ['DINE_IN', 'TAKEAWAY', 'DELIVERY']" :key="mode">
