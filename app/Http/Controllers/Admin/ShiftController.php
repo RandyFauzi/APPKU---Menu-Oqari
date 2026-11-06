@@ -54,20 +54,46 @@ class ShiftController extends Controller
         $filters = $request->validate(['date' => ['nullable', 'date_format:Y-m-d']]);
         $timezone = config('attendance.timezone');
         $start = CarbonImmutable::parse($filters['date'] ?? CarbonImmutable::today($timezone)->toDateString(), $timezone);
-        $shifts = CrewShift::where('shop_id', $request->user()->shop_id)->with('user:id,name')
+        $shifts = CrewShift::where('shop_id', $request->user()->shop_id)->with('user:id,name,role')
             ->whereBetween('date', [$start->toDateString(), $start->addDays(6)->toDateString()])
             ->orderBy('date')->orderBy('start_time')->orderBy('id')->get()->map(fn (CrewShift $shift): array => [
-                'id' => $shift->id, 'user_id' => $shift->user_id, 'user_name' => $shift->user?->name ?? 'Staf tidak tersedia',
-                'date' => $shift->date->format('Y-m-d'), 'date_label' => $shift->date->locale('id')->translatedFormat('d M Y'),
-                'start_time' => substr($shift->start_time, 0, 5), 'end_time' => substr($shift->end_time, 0, 5),
+                'id' => $shift->id,
+                'user_id' => $shift->user_id,
+                'user_name' => $shift->user?->name ?? 'Staf tidak tersedia',
+                'user_role' => config('access.roles.'.$shift->user?->role, $shift->user?->role ?? 'Karyawan'),
+                'user_initials' => mb_strtoupper(mb_substr($shift->user?->name ?? '?', 0, 2)),
+                'date' => $shift->date->format('Y-m-d'),
+                'date_label' => $shift->date->locale('id')->translatedFormat('d M Y'),
+                'day_name' => $shift->date->locale('id')->translatedFormat('l'),
+                'start_time' => substr($shift->start_time, 0, 5),
+                'end_time' => substr($shift->end_time, 0, 5),
                 'overnight' => $shift->endsAt()->toDateString() !== $shift->startsAt()->toDateString(),
-                'position' => $shift->position, 'notes' => $shift->notes,
+                'position' => $shift->position,
+                'notes' => $shift->notes,
+                'duration_minutes' => $shift->durationMinutes(),
             ]);
         $employees = User::where('shop_id', $request->user()->shop_id)->unarchived()->where('role', '!=', 'superadmin')
             ->orderBy('name')->get()->filter(fn (User $user): bool => $user->isAccountActive())->values()
-            ->map(fn (User $user): array => ['id' => $user->id, 'name' => $user->name, 'role' => config('access.roles.'.$user->role, $user->role)]);
+            ->map(fn (User $user): array => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'role' => config('access.roles.'.$user->role, $user->role),
+                'initials' => mb_strtoupper(mb_substr($user->name, 0, 2)),
+            ]);
 
-        return response()->json(['data' => $shifts, 'employees' => $employees, 'timezone' => $timezone]);
+        $today = CarbonImmutable::today($timezone);
+
+        return response()->json([
+            'data' => $shifts,
+            'employees' => $employees,
+            'timezone' => $timezone,
+            'start_date' => $start->toDateString(),
+            'end_date' => $start->addDays(6)->toDateString(),
+            'date_range_label' => $start->locale('id')->translatedFormat('d M').' – '.$start->addDays(6)->locale('id')->translatedFormat('d M Y'),
+            'today' => $today->toDateString(),
+            'current_time' => CarbonImmutable::now($timezone)->format('H:i'),
+            'current_user_id' => $request->user()->id,
+        ]);
     }
 
     public function store(SaveShiftRequest $request, CreateShift $createShift): JsonResponse

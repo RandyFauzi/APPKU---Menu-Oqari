@@ -2581,32 +2581,159 @@ if (res.ok) {
                     }
                 },
                 shifts: [],
-                logs: [],
-                logsLoading: false,
-                logsError: '',
-                logSearch: '',
-                logDate: '',
-                logPage: 1,
-                logLastPage: 1,
-                logTotal: 0,
+                shiftSubTab: (new URLSearchParams(window.location.search).get('sub') === 'my') ? 'my' : 'team',
+                shiftViewMode: 'timeline',
+                shiftSearchStaff: '',
                 shiftsLoading: false,
                 shiftsError: '',
                 shiftSaving: false,
                 shiftDeletingId: null,
                 shiftFormError: '',
                 shiftDate: '{{ now(config('attendance.timezone'))->format('Y-m-d') }}',
+                shiftTodayDate: '{{ now(config('attendance.timezone'))->format('Y-m-d') }}',
+                shiftDateRangeLabel: '',
                 shiftSearch: '',
                 shiftEmployees: [],
-                shiftTimezone: '',
+                shiftTimezone: '{{ config('attendance.timezone') }}',
+                currentUserId: {{ auth()->id() ?? 0 }},
                 newShift: { id: null, user_id: '', date: '', start_time: '', end_time: '', position: '', notes: '' },
                 get filteredShifts() {
                     const term = this.shiftSearch.trim().toLowerCase();
-                    return this.shifts.filter(shift => (shift.user_name + ' ' + (shift.position || '')).toLowerCase().includes(term));
+                    const staffFilter = this.shiftSearchStaff ? String(this.shiftSearchStaff) : '';
+                    return this.shifts.filter(shift => {
+                        const matchTerm = ((shift.user_name || '') + ' ' + (shift.position || '') + ' ' + (shift.notes || '')).toLowerCase().includes(term);
+                        const matchStaff = !staffFilter || String(shift.user_id) === staffFilter;
+                        return matchTerm && matchStaff;
+                    });
                 },
-                openShift(shift = null) {
+                get groupedShiftsByDay() {
+                    if (!this.shiftDate) return [];
+                    const result = [];
+                    const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+                    const parts = this.shiftDate.split('-');
+                    if (parts.length !== 3) return [];
+                    const baseDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+
+                    for (let i = 0; i < 7; i++) {
+                        const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + i);
+                        const year = d.getFullYear();
+                        const month = String(d.getMonth() + 1).padStart(2, '0');
+                        const dateNum = String(d.getDate()).padStart(2, '0');
+                        const dateStr = `${year}-${month}-${dateNum}`;
+
+                        const isToday = (dateStr === this.shiftTodayDate);
+                        const todayParts = this.shiftTodayDate.split('-');
+                        const dToday = new Date(parseInt(todayParts[0], 10), parseInt(todayParts[1], 10) - 1, parseInt(todayParts[2], 10));
+                        const isPast = d < dToday;
+
+                        const dayShifts = this.filteredShifts.filter(s => s.date === dateStr);
+
+                        result.push({
+                            date: dateStr,
+                            dateNum: dateNum,
+                            dayName: dayNames[d.getDay()],
+                            monthName: monthNames[d.getMonth()],
+                            dateLabel: `${dateNum} ${monthNames[d.getMonth()]} ${year}`,
+                            isToday: isToday,
+                            isPast: isPast,
+                            shifts: dayShifts
+                        });
+                    }
+                    return result;
+                },
+                get myShifts() {
+                    return this.shifts.filter(s => Number(s.user_id) === Number(this.currentUserId));
+                },
+                get myTodayShift() {
+                    return this.myShifts.find(s => s.date === this.shiftTodayDate);
+                },
+                get todayOnDutyShifts() {
+                    return this.shifts.filter(s => s.date === this.shiftTodayDate);
+                },
+                get teamTotalDurationText() {
+                    const totalMin = this.filteredShifts.reduce((acc, s) => acc + (s.duration_minutes || 0), 0);
+                    const h = Math.floor(totalMin / 60);
+                    const m = totalMin % 60;
+                    return m > 0 ? `${h} jam ${m} mnt` : `${h} jam`;
+                },
+                get myTotalDurationText() {
+                    const totalMin = this.myShifts.reduce((acc, s) => acc + (s.duration_minutes || 0), 0);
+                    const h = Math.floor(totalMin / 60);
+                    const m = totalMin % 60;
+                    return m > 0 ? `${h} jam ${m} mnt` : `${h} jam`;
+                },
+                shiftDurationCalc(startTime, endTime) {
+                    if (!startTime || !endTime) return '—';
+                    const [sh, sm] = startTime.split(':').map(Number);
+                    const [eh, em] = endTime.split(':').map(Number);
+                    if (isNaN(sh) || isNaN(sm) || isNaN(eh) || isNaN(em)) return '—';
+                    let startMin = sh * 60 + sm;
+                    let endMin = eh * 60 + em;
+                    if (endMin <= startMin) endMin += 24 * 60;
+                    const diff = endMin - startMin;
+                    const h = Math.floor(diff / 60);
+                    const m = diff % 60;
+                    return m > 0 ? `${h} jam ${m} menit` : `${h} jam`;
+                },
+                isShiftLive(shift) {
+                    if (!shift || shift.date !== this.shiftTodayDate) return false;
+                    const now = new Date();
+                    const currentHours = now.getHours();
+                    const currentMinutes = now.getMinutes();
+                    const currentTotal = currentHours * 60 + currentMinutes;
+
+                    const [sh, sm] = (shift.start_time || '00:00').split(':').map(Number);
+                    const [eh, em] = (shift.end_time || '00:00').split(':').map(Number);
+                    const startTotal = sh * 60 + sm;
+                    let endTotal = eh * 60 + em;
+                    if (endTotal <= startTotal) {
+                        return currentTotal >= startTotal || currentTotal < endTotal;
+                    }
+                    return currentTotal >= startTotal && currentTotal <= endTotal;
+                },
+                prevWeek() {
+                    const parts = this.shiftDate.split('-');
+                    const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                    d.setDate(d.getDate() - 7);
+                    this.shiftDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    this.fetchShifts();
+                },
+                nextWeek() {
+                    const parts = this.shiftDate.split('-');
+                    const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                    d.setDate(d.getDate() + 7);
+                    this.shiftDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    this.fetchShifts();
+                },
+                todayWeek() {
+                    this.shiftDate = this.shiftTodayDate;
+                    this.fetchShifts();
+                },
+                openShift(shift = null, targetDate = null) {
                     this.shiftFormError = '';
-                    this.newShift = shift ? { ...shift } : { id: null, user_id: '', date: this.shiftDate, start_time: '', end_time: '', position: '', notes: '' };
+                    if (shift) {
+                        this.newShift = { ...shift };
+                    } else {
+                        this.newShift = {
+                            id: null,
+                            user_id: this.shiftEmployees.length > 0 ? this.shiftEmployees[0].id : '',
+                            date: targetDate || this.shiftDate || this.shiftTodayDate,
+                            start_time: '08:00',
+                            end_time: '16:00',
+                            position: 'Barista',
+                            notes: ''
+                        };
+                    }
                     this.$refs.shiftDialog.showModal();
+                },
+                applyShiftPreset(startTime, endTime, defaultPosition = '') {
+                    this.newShift.start_time = startTime;
+                    this.newShift.end_time = endTime;
+                    if (defaultPosition && (!this.newShift.position || this.newShift.position === 'Barista' || this.newShift.position === 'Kasir')) {
+                        this.newShift.position = defaultPosition;
+                    }
                 },
                 async fetchShifts() {
                     if (!this.can('manage-crew') || this.shiftsLoading) return;
@@ -2619,12 +2746,21 @@ if (res.ok) {
                         this.shifts = data.data;
                         this.shiftEmployees = data.employees;
                         this.shiftTimezone = data.timezone;
+                        this.shiftDateRangeLabel = data.date_range_label || '';
                     } catch (e) {
                         this.shiftsError = 'Jadwal gagal dimuat. Silakan coba lagi.';
                     } finally {
                         this.shiftsLoading = false;
                     }
                 },
+                logs: [],
+                logsLoading: false,
+                logsError: '',
+                logSearch: '',
+                logDate: '',
+                logPage: 1,
+                logLastPage: 1,
+                logTotal: 0,
                 async fetchLogs(page = 1) {
                     if (!this.can('view-reports') || this.logsLoading) return;
                     this.logsLoading = true;
