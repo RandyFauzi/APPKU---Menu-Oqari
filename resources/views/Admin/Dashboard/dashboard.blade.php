@@ -2582,7 +2582,16 @@ if (res.ok) {
                 },
                 shifts: [],
                 shiftSubTab: (new URLSearchParams(window.location.search).get('sub') === 'my') ? 'my' : 'team',
-                shiftViewMode: 'timeline',
+                shiftViewMode: 'matrix', // 'matrix' (default), 'timeline', 'table'
+                currentMatrixMonth: '{{ now(config('attendance.timezone'))->format('Y-m') }}',
+                currentMatrixMonthLabel: '{{ now(config('attendance.timezone'))->locale('id')->translatedFormat('F Y') }}',
+                matrixActiveTool: 'auto', // 'auto', '1', '2', '3', '4', 'delete'
+                shiftPresets: {
+                    '1': { code: '1', name: 'Shift 1 (Pagi)', start_time: '07:00', end_time: '15:00', duration_minutes: 480, label: 'Pagi', position: 'Barista', badgeClass: 'bg-blue-600 text-white' },
+                    '2': { code: '2', name: 'Shift 2 (Middle)', start_time: '11:00', end_time: '19:00', duration_minutes: 480, label: 'Middle', position: 'Kasir', badgeClass: 'bg-emerald-600 text-white' },
+                    '3': { code: '3', name: 'Shift 3 (Malam)', start_time: '15:00', end_time: '23:00', duration_minutes: 480, label: 'Malam', position: 'Barista', badgeClass: 'bg-purple-600 text-white' },
+                    '4': { code: '4', name: 'Shift 4 (Full Day)', start_time: '08:00', end_time: '17:00', duration_minutes: 540, label: 'Full', position: 'Leader', badgeClass: 'bg-amber-600 text-white' }
+                },
                 shiftSearchStaff: '',
                 shiftsLoading: false,
                 shiftsError: '',
@@ -2605,6 +2614,179 @@ if (res.ok) {
                         const matchStaff = !staffFilter || String(shift.user_id) === staffFilter;
                         return matchTerm && matchStaff;
                     });
+                },
+                get matrixDays() {
+                    const parts = (this.currentMatrixMonth || '{{ now(config('attendance.timezone'))->format('Y-m') }}').split('-');
+                    const year = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10);
+                    const daysInMonth = new Date(year, month, 0).getDate();
+                    const result = [];
+                    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const d = new Date(year, month - 1, day);
+                        const dayNum = String(day).padStart(2, '0');
+                        const monthNum = String(month).padStart(2, '0');
+                        const dateStr = `${year}-${monthNum}-${dayNum}`;
+                        const dayOfWeek = d.getDay();
+                        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                        const isToday = (dateStr === this.shiftTodayDate);
+
+                        result.push({
+                            day: day,
+                            dayNum: dayNum,
+                            dateStr: dateStr,
+                            dayName: dayNames[dayOfWeek],
+                            isWeekend: isWeekend,
+                            isToday: isToday
+                        });
+                    }
+                    return result;
+                },
+                get shiftMatrixMap() {
+                    const map = {};
+                    for (const shift of this.shifts) {
+                        const key = `${shift.user_id}_${shift.date}`;
+                        map[key] = shift;
+                    }
+                    return map;
+                },
+                get currentMonthShortName() {
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                    const parts = (this.currentMatrixMonth || '2026-11').split('-');
+                    const m = parseInt(parts[1], 10) - 1;
+                    return monthNames[m] || '';
+                },
+                countWorkersForDate(dateStr) {
+                    return this.shifts.filter(s => s.date === dateStr).length;
+                },
+                countWorkerMonthShifts(userId) {
+                    return this.shifts.filter(s => Number(s.user_id) === Number(userId)).length;
+                },
+                calcWorkerMonthHours(userId) {
+                    const totalMin = this.shifts.filter(s => Number(s.user_id) === Number(userId)).reduce((acc, s) => acc + (s.duration_minutes || 0), 0);
+                    const h = Math.floor(totalMin / 60);
+                    return `${h} jam`;
+                },
+                prevMonth() {
+                    const parts = this.currentMatrixMonth.split('-');
+                    const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 2, 1);
+                    this.currentMatrixMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    this.fetchShifts();
+                },
+                nextMonth() {
+                    const parts = this.currentMatrixMonth.split('-');
+                    const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10), 1);
+                    this.currentMatrixMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    this.fetchShifts();
+                },
+                thisMonth() {
+                    this.currentMatrixMonth = '{{ now(config('attendance.timezone'))->format('Y-m') }}';
+                    this.fetchShifts();
+                },
+                async onMatrixCellClick(employee, day) {
+                    const key = `${employee.id}_${day.dateStr}`;
+                    const existing = this.shiftMatrixMap[key];
+
+                    let targetCode = '1';
+                    if (this.matrixActiveTool === 'auto') {
+                        if (!existing) {
+                            targetCode = '1';
+                        } else if (existing.code === '1') {
+                            targetCode = '2';
+                        } else if (existing.code === '2') {
+                            targetCode = '3';
+                        } else if (existing.code === '3') {
+                            targetCode = '4';
+                        } else {
+                            targetCode = 'delete';
+                        }
+                    } else if (this.matrixActiveTool === 'delete') {
+                        targetCode = 'delete';
+                    } else {
+                        if (existing && existing.code === this.matrixActiveTool) {
+                            targetCode = 'delete';
+                        } else {
+                            targetCode = this.matrixActiveTool;
+                        }
+                    }
+
+                    if (targetCode === 'delete') {
+                        if (!existing) return;
+                        const shiftId = existing.id;
+                        const oldShifts = [...this.shifts];
+                        this.shifts = this.shifts.filter(s => s.id !== shiftId);
+
+                        try {
+                            const res = await fetch(`/admin/api/shifts/${shiftId}`, {
+                                method: 'DELETE',
+                                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                            });
+                            if (!res.ok) throw new Error('delete failed');
+                            this.addToast(`Shift ${employee.name} tanggal ${day.day} dihapus`, 'success');
+                        } catch (e) {
+                            this.shifts = oldShifts;
+                            this.addToast('Gagal menghapus shift', 'error');
+                        }
+                    } else {
+                        const preset = this.shiftPresets[targetCode] || this.shiftPresets['1'];
+                        const payload = {
+                            id: existing ? existing.id : null,
+                            user_id: employee.id,
+                            date: day.dateStr,
+                            start_time: preset.start_time,
+                            end_time: preset.end_time,
+                            position: employee.role || preset.position || 'Barista',
+                            notes: preset.name
+                        };
+
+                        const tempId = existing ? existing.id : 'temp_' + Date.now();
+                        const optimisticShift = {
+                            id: tempId,
+                            user_id: employee.id,
+                            user_name: employee.name,
+                            user_role: employee.role,
+                            user_initials: employee.initials,
+                            date: day.dateStr,
+                            date_label: `${day.day} ${this.currentMonthShortName}`,
+                            day_name: day.dayName,
+                            start_time: preset.start_time,
+                            end_time: preset.end_time,
+                            overnight: preset.start_time > preset.end_time,
+                            position: payload.position,
+                            notes: payload.notes,
+                            code: targetCode,
+                            duration_minutes: preset.duration_minutes
+                        };
+
+                        const oldShifts = [...this.shifts];
+                        if (existing) {
+                            this.shifts = this.shifts.map(s => s.id === existing.id ? optimisticShift : s);
+                        } else {
+                            this.shifts.push(optimisticShift);
+                        }
+
+                        try {
+                            const res = await fetch('/admin/api/shifts', {
+                                method: 'POST',
+                                headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                                body: JSON.stringify(payload)
+                            });
+                            const data = await res.json();
+                            if (!res.ok) {
+                                this.shifts = oldShifts;
+                                this.addToast(data.message || 'Gagal menyimpan shift', 'error');
+                                return;
+                            }
+                            if (data.shift && data.shift.id) {
+                                this.shifts = this.shifts.map(s => s.id === tempId ? { ...s, id: data.shift.id } : s);
+                            }
+                            this.addToast(`${employee.name}: ${preset.name} (${day.day} ${this.currentMonthShortName})`, 'success');
+                        } catch (e) {
+                            this.shifts = oldShifts;
+                            this.addToast('Gagal menyimpan shift', 'error');
+                        }
+                    }
                 },
                 get groupedShiftsByDay() {
                     if (!this.shiftDate) return [];
@@ -2740,13 +2922,17 @@ if (res.ok) {
                     this.shiftsLoading = true;
                     this.shiftsError = '';
                     try {
-                        const res = await fetch('/admin/api/shifts?' + new URLSearchParams({ date: this.shiftDate }), { headers: { Accept: 'application/json' } });
+                        const params = this.shiftViewMode === 'matrix'
+                            ? { month: this.currentMatrixMonth }
+                            : { month: this.currentMatrixMonth, date: this.shiftDate };
+                        const res = await fetch('/admin/api/shifts?' + new URLSearchParams(params), { headers: { Accept: 'application/json' } });
                         if (!res.ok) throw new Error('shifts');
                         const data = await res.json();
                         this.shifts = data.data;
                         this.shiftEmployees = data.employees;
                         this.shiftTimezone = data.timezone;
                         this.shiftDateRangeLabel = data.date_range_label || '';
+                        if (data.month_label) this.currentMatrixMonthLabel = data.month_label;
                     } catch (e) {
                         this.shiftsError = 'Jadwal gagal dimuat. Silakan coba lagi.';
                     } finally {

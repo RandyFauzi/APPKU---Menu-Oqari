@@ -234,9 +234,9 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/ShiftController.php": {
-    "mtime": 1793963709.4907103,
-    "seen": 1793963725.377609,
-    "ast_hash": "f21e939be35a39c5e951de977a8c88ac",
+    "mtime": 1793964498.0335662,
+    "seen": 1793964791.6136942,
+    "ast_hash": "848fd7caa709242e01ac9dd6e961cad1",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Api/GoBizWebhookController.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793963535.2221546,
-    "seen": 1793963725.378041,
-    "ast_hash": "f8e8bc85ce522193bb06912229590641",
+    "mtime": 1793964574.766517,
+    "seen": 1793964791.6141653,
+    "ast_hash": "503cb19929d001f30090aa7f5cb7f458",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
@@ -1158,9 +1158,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/shifts.blade.php": {
-    "mtime": 1793963634.553018,
-    "seen": 1793963725.378063,
-    "ast_hash": "bd41f22492748f72d1a259e0bfd07017",
+    "mtime": 1793964671.9319415,
+    "seen": 1793964791.6141891,
+    "ast_hash": "e71d50183fe66b23515e8f090496cf93",
     "semantic_hash": ""
   },
   "resources/views/Admin/Layouts/admin-auth-master.blade.php": {
