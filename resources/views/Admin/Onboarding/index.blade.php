@@ -26,8 +26,14 @@
             <span class="font-black text-lg text-gray-800 tracking-tight"><x-hellenic-emblem class="inline-block h-5 w-5 mr-1 align-middle" />OQARI</span>
         </div>
         
-        <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 font-semibold">
-            <i class="fas fa-headset"></i> Butuh Bantuan?
+        <div class="flex items-center gap-3">
+            <button type="button" @click="completeOnboarding()" :disabled="loading" class="text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50">
+                <span>Lewati ke Dashboard</span>
+                <i class="fas fa-arrow-right text-xs"></i>
+            </button>
+            <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 font-semibold">
+                <i class="fas fa-headset"></i> Butuh Bantuan?
+            </div>
         </div>
     </div>
 

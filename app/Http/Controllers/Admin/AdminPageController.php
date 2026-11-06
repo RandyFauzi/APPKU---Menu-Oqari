@@ -68,8 +68,9 @@ class AdminPageController extends Controller
         $shop = Shop::find($shopId);
 
         // ONBOARDING GUARD
-        // Hanya Owner dan Manager yang bisa mengakses / melanjutkan onboarding.
-        if ($shop && $shop->onboarding_status !== 'completed' && $user->can('manage-settings')) {
+        // Hanya arahkan ke onboarding jika pengguna membuka dashboard utama dan setup toko belum selesai.
+        // Halaman pengaturan spesifik (seperti Meja & QR, Toko Saya, Jam Operasional, Struk, dll.) tetap dapat diakses langsung.
+        if ($page === 'dashboard' && $shop && $shop->onboarding_status !== 'completed' && $user->can('manage-settings')) {
             return redirect()->route('admin.onboarding');
         }
 
