@@ -86,6 +86,14 @@
         {{-- Topbar Datetime (Standardized Sparta Component) --}}
         <x-topbar-datetime />
 
+        {{-- Minimized Cart Shortcut (Desktop & Tablet) --}}
+        <button type="button" x-show="isCartMinimized" x-cloak @click="isCartMinimized = false"
+                class="hidden lg:inline-flex items-center gap-1.5 h-[34px] px-2.5 rounded-[9px] bg-[#fff6f0] border border-[#df5826] text-[#df5826] text-[11px] font-bold shadow-xs hover:bg-[#ffece0] transition cursor-pointer">
+            <i class="fas fa-shopping-bag text-xs"></i>
+            <span>Pesanan</span>
+            <span class="bg-[#df5826] text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold" x-text="cart.reduce((s,i)=>s+i.qty,0)"></span>
+        </button>
+
         @if($activeSession)
         <a href="{{ route('admin.register.index') }}" class="h-[34px] px-[10px] rounded-[9px] bg-white border border-[#e6e5e0] hover:border-[#df5826] text-[11px] font-semibold text-[#1e211f] inline-flex items-center gap-1.5 transition">
             <span>Kas &amp; Tutup Shift</span>
@@ -320,8 +328,47 @@
     {{-- MOBILE OVERLAY --}}
     <div x-show="showMobileCart" x-cloak x-transition.opacity class="fixed inset-0 bg-black/50 z-30 lg:hidden" @click="showMobileCart = false"></div>
 
+    {{-- FLOATING MINIMIZED CART DOCK (Desktop & Tablet) --}}
+    <div x-show="isCartMinimized" x-cloak 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+         x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+         class="hidden lg:flex fixed bottom-6 right-6 z-40 bg-white/95 backdrop-blur-md border border-[#d8dce2] rounded-[18px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.18)] p-3.5 items-center gap-4">
+        
+        <div class="flex items-center gap-3 cursor-pointer group" @click="isCartMinimized = false">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#df5826] to-[#f06428] text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                <i class="fas fa-shopping-bag text-sm"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-[12px] font-bold text-[#111827]">Pesanan Kasir</span>
+                    <span class="bg-[#fff6f0] text-[#df5826] text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-[#f5d5c6]" x-text="cart.reduce((s,i)=>s+i.qty,0) + ' Item'"></span>
+                </div>
+                <div class="text-[14px] font-black text-[#111827]">Rp<span x-text="formatRp(subtotal)"></span></div>
+            </div>
+        </div>
+
+        <div class="h-8 w-[1px] bg-gray-200 mx-1"></div>
+
+        <div class="flex items-center gap-2">
+            <button type="button" @click="isCartMinimized = false" 
+                    class="px-3 py-2 rounded-[10px] border border-[#d8dce2] bg-[#f8f9fa] hover:bg-gray-100 text-[11.5px] font-bold text-[#111827] transition flex items-center gap-1.5 cursor-pointer">
+                <i class="fas fa-expand-alt text-xs text-gray-500"></i>
+                <span>Buka Panel</span>
+            </button>
+            <button type="button" @click="openPayment()" :disabled="cart.length === 0"
+                    class="px-4 py-2 rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] text-white text-[11.5px] font-bold shadow-xs hover:opacity-95 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5">
+                <span>Bayar</span>
+                <span class="opacity-80 text-[10px]">(F4)</span>
+            </button>
+        </div>
+    </div>
+
     {{-- RIGHT SIDEBAR: CURRENT ORDER / Pesanan Baru (Figma 45:12496) --}}
-    <aside :class="showMobileCart ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
+    <aside :class="showMobileCart ? 'translate-x-0' : (isCartMinimized ? 'translate-x-full lg:hidden' : 'translate-x-full lg:translate-x-0')"
         class="fixed inset-y-0 right-0 z-40 w-full sm:w-[400px] lg:sticky lg:top-[68px] lg:right-auto lg:bottom-auto lg:z-10 lg:w-[350px] xl:w-[374px] shrink-0 transition-transform duration-300 ease-in-out bg-white border border-[#e6e5e0] lg:rounded-[16px] flex flex-col overflow-hidden shadow-2xl lg:shadow-none h-full h-[100dvh] max-h-[100dvh] lg:h-[calc(100dvh-84px)] lg:max-h-[calc(100dvh-84px)]">
 
         {{-- Mobile Close Bar --}}
@@ -336,12 +383,19 @@
         {{-- Order Header + Mode Tabs + Customer/Table Inputs (Figma 45:12497) --}}
         <div class="p-3.5 sm:p-[16px] border-b border-[#e6e5e0] flex flex-col gap-2.5 sm:gap-[12px] shrink-0 bg-white">
             <div class="flex items-start justify-between gap-2">
-                <div>
-                    <p class="text-[11px] font-medium text-[#f04c17] uppercase tracking-[0.22px] leading-[16.5px]">CURRENT ORDER</p>
-                    <h2 class="text-[14px] font-bold text-[#111827] leading-[21px]">
-                        <span>Pesanan Baru</span>
-                        <span x-show="recalledOrderId" x-cloak class="text-[#df5826]">#<span x-text="recalledOrderId"></span></span>
-                    </h2>
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="isCartMinimized = true"
+                        class="hidden lg:flex w-7 h-7 rounded-[8px] border border-[#d8dce2] bg-[#f8f9fa] hover:bg-gray-100 hover:border-gray-400 items-center justify-center text-[#53565a] hover:text-[#111827] transition shrink-0 cursor-pointer"
+                        title="Minimalkan panel pesanan">
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </button>
+                    <div>
+                        <p class="text-[11px] font-medium text-[#f04c17] uppercase tracking-[0.22px] leading-[16.5px]">CURRENT ORDER</p>
+                        <h2 class="text-[14px] font-bold text-[#111827] leading-[21px]">
+                            <span>Pesanan Baru</span>
+                            <span x-show="recalledOrderId" x-cloak class="text-[#df5826]">#<span x-text="recalledOrderId"></span></span>
+                        </h2>
+                    </div>
                 </div>
                 <div class="flex items-center gap-2" x-show="cart.length > 0" x-cloak>
                     <button type="button" @click="holdCart()" class="px-2.5 py-1 rounded-[7px] border border-[#d8dce2] bg-[#f8f9fa] hover:border-[#df5826] text-[11px] font-semibold text-[#53565a] transition">
@@ -400,7 +454,7 @@
         </div>
 
         {{-- Cart Items List (Figma 45:12532) --}}
-        <div class="p-3.5 sm:p-[16px] flex-1 min-h-0 overflow-y-auto flex flex-col gap-[10px] overscroll-contain">
+        <div class="p-3.5 sm:p-[16px] flex-1 min-h-0 overflow-y-auto flex flex-col gap-[10px] overscroll-contain pb-10 sm:pb-16">
             <template x-if="cart.length === 0">
                 <div class="py-12 px-4 text-center flex flex-col items-center justify-center border border-dashed border-[#d8dce2] rounded-[12px] bg-[#f8f9fa]/60">
                     <div class="w-10 h-10 rounded-full bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center mb-2.5">
@@ -432,7 +486,7 @@
                                x-text="item.modifiers.map(m => m.name).join(' · ')"></p>
                         </div>
 
-                        <button type="button" @click="removeItem(idx)" class="w-[16px] h-[16px] shrink-0 hover:opacity-75 transition" title="Hapus item">
+                        <button type="button" @click="removeItem(idx)" class="w-[16px] h-[16px] shrink-0 hover:opacity-75 transition cursor-pointer" title="Hapus item">
                             <img src="{{ asset('images/sparta/pos-trash-red.svg') }}" alt="Hapus" class="w-[16px] h-[16px]">
                         </button>
                     </div>
@@ -441,7 +495,7 @@
                     <button type="button"
                         x-show="!item.showNotes && !item.notes"
                         @click="item.showNotes = true; $nextTick(() => document.getElementById('item-notes-' + idx)?.focus())"
-                        class="flex items-center gap-[4px] text-left w-fit hover:opacity-80 transition">
+                        class="flex items-center gap-[4px] text-left w-fit hover:opacity-80 transition cursor-pointer">
                         <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-[14px] h-[14px]">
                         <span class="text-[11px] font-semibold text-[#df5826] leading-[14.3px]">Buat Catatan Customer</span>
                     </button>
@@ -460,32 +514,37 @@
 
                         <div class="grid grid-cols-2 gap-[10px]">
                             <button type="button" @click="item.notes = ''; item.showNotes = false" :disabled="paymentPending"
-                                class="border border-[#d8dce2] rounded-[9px] py-[6px] px-[8px] flex items-center justify-center gap-[4px] bg-white hover:bg-gray-50 transition disabled:opacity-50">
+                                class="border border-[#d8dce2] rounded-[9px] py-[6px] px-[8px] flex items-center justify-center gap-[4px] bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
                                 <img src="{{ asset('images/sparta/pos-trash-dark.svg') }}" alt="" class="w-[14px] h-[14px] shrink-0">
                                 <span class="text-[11px] font-semibold text-[#111827] leading-[16.5px] truncate">Hapus Catatan</span>
                             </button>
                             <button type="button" @click="splitItem(idx)" :disabled="paymentPending || item.qty <= 1 || cart.length >= 50"
-                                class="border border-[#d8dce2] rounded-[9px] py-[6px] px-[8px] flex items-center justify-center gap-[4px] bg-white hover:bg-gray-50 transition disabled:opacity-50">
+                                class="border border-[#d8dce2] rounded-[9px] py-[6px] px-[8px] flex items-center justify-center gap-[4px] bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
                                 <img src="{{ asset('images/sparta/pos-split.svg') }}" alt="" class="w-[14px] h-[14px] shrink-0">
                                 <span class="text-[11px] font-semibold text-[#111827] leading-[16.5px] truncate">Pisahkan 1 Item</span>
                             </button>
                         </div>
                     </div>
 
-                    {{-- Price & Stepper Row (Figma 45:12569) --}}
-                    <div class="flex items-center justify-between">
-                        <span class="text-[12px] font-medium text-[#111827] leading-[18px]">
-                            Rp<span x-text="formatRp(item.subtotal)"></span>
-                        </span>
+                    {{-- Price & Stepper Row --}}
+                    <div class="flex items-center justify-between pt-1">
+                        <div>
+                            <span class="text-[13px] font-bold text-[#111827] leading-[18px]">
+                                Rp<span x-text="formatRp(item.subtotal)"></span>
+                            </span>
+                            <span x-show="item.qty > 1" class="block text-[10.5px] text-[#8b8e93]">
+                                @ Rp<span x-text="formatRp(item.price)"></span>
+                            </span>
+                        </div>
 
-                        <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[3px] flex items-center gap-[4px]">
+                        <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[3px] px-1 flex items-center gap-[5px] shadow-2xs">
                             <button type="button" @click="changeQty(idx, -1)"
-                                class="w-[22px] h-[22px] rounded-full flex items-center justify-center hover:bg-gray-200 transition">
+                                class="w-[26px] h-[26px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
                                 <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[14px] h-[14px]">
                             </button>
-                            <span class="w-[18px] text-center text-[12px] font-semibold text-[#111827] leading-[18px]" x-text="item.qty"></span>
+                            <span class="w-[20px] text-center text-[12.5px] font-bold text-[#111827] leading-[18px]" x-text="item.qty"></span>
                             <button type="button" @click="changeQty(idx, 1)"
-                                class="w-[22px] h-[22px] rounded-full bg-[#111827] flex items-center justify-center hover:opacity-90 transition">
+                                class="w-[26px] h-[26px] rounded-full bg-[#111827] hover:bg-[#df5826] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
                                 <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[14px] h-[14px]">
                             </button>
                         </div>
@@ -494,39 +553,70 @@
             </template>
         </div>
 
-        {{-- Order Summary & CTA Footer (Figma 45:12649) --}}
-        <div class="p-3.5 sm:p-[16px] border-t border-[#e6e5e0] bg-[#fcfcfd] flex flex-col gap-2.5 sm:gap-[12px] shrink-0 sticky bottom-0 z-10 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] pb-[max(14px,env(safe-area-inset-bottom))]">
-            <div class="flex flex-col gap-[6px]">
-                <div class="flex items-center justify-between text-[11px] leading-[16.5px]">
-                    <span class="text-[#53565a] font-normal">Subtotal</span>
-                    <span class="text-[12px] font-medium text-[#111827]">Rp<span x-text="formatRp(subtotal)"></span></span>
-                </div>
-                <div class="flex items-center justify-between text-[11px] leading-[16.5px]">
-                    <span class="text-[#53565a] font-normal">Tax (0%)</span>
-                    <span class="text-[12px] font-medium text-[#111827]">Rp0</span>
-                </div>
-                <div class="flex items-center justify-between text-[11px] leading-[16.5px]">
-                    <span class="text-[#53565a] font-normal">Additional fee</span>
-                    <span class="text-[12px] font-medium text-[#53565a]">—</span>
-                </div>
-                <div class="pt-[11px] mt-[4px] border-t border-dashed border-[#d8dce2] flex items-center justify-between">
-                    <span class="text-[12px] font-semibold text-[#111827] leading-[18px]">Total</span>
-                    <span class="text-[16px] font-bold text-[#111827] tracking-[-0.16px] leading-[24px]">Rp<span x-text="formatRp(subtotal)"></span></span>
+        {{-- Order Summary & CTA Footer with Pull-Tab Accordion --}}
+        <div class="border-t border-[#e6e5e0] bg-[#fcfcfd] flex flex-col shrink-0 sticky bottom-0 z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(14px,env(safe-area-inset-bottom))]">
+            
+            {{-- Pull Tab Handle & Total Summary Header --}}
+            <div @click="showPriceBreakdown = !showPriceBreakdown" 
+                 class="px-4 pt-2.5 pb-2 cursor-pointer hover:bg-gray-100/70 select-none transition-colors group">
+                
+                {{-- Centered Drag / Pull Pill Handle --}}
+                <div class="w-10 h-1 bg-[#d8dce2] group-hover:bg-[#df5826]/70 rounded-full mx-auto mb-2 transition-colors"></div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[12.5px] font-bold text-[#111827]">Total</span>
+                        <button type="button" 
+                                class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#df5826] bg-[#fff6f0] hover:bg-[#ffede3] px-2 py-0.5 rounded-full border border-[#f5d5c6] transition">
+                            <span x-text="showPriceBreakdown ? 'Tutup Rincian' : 'Rincian Harga'"></span>
+                            <i class="fas fa-chevron-up text-[9px] transition-transform duration-200" :class="showPriceBreakdown ? 'rotate-180' : ''"></i>
+                        </button>
+                    </div>
+                    <span class="text-[16px] font-black text-[#111827] tracking-tight">
+                        Rp<span x-text="formatRp(subtotal)"></span>
+                    </span>
                 </div>
             </div>
 
-            @can('manage-payments')
-            <button type="button" @click="openPayment()" :disabled="cart.length === 0"
-                class="w-full py-[11px] px-[16px] rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_4px_0px_rgba(223,88,38,0.22)] flex items-center justify-center gap-[6px] text-white text-[12.5px] font-semibold leading-[18px] hover:opacity-95 active:scale-[0.99] transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-                <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
-                <span class="flex items-center gap-1.5">
-                    <span>Buat Pesanan</span>
-                    <span class="hidden sm:inline-block text-[10.5px] font-normal opacity-85">(F4)</span>
-                </span>
-            </button>
-            @else
-            <p class="text-[11.5px] text-[#8b8e93] text-center py-2">Pembayaran memerlukan izin dari Owner.</p>
-            @endcan
+            {{-- Expandable Price Breakdown (Subtotal, Tax, Additional fee) --}}
+            <div x-show="showPriceBreakdown" 
+                 x-cloak
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-1"
+                 class="px-4 py-2.5 border-t border-dashed border-[#e6e5e0] bg-[#f8f9fa] flex flex-col gap-1.5 text-[11.5px]">
+                <div class="flex items-center justify-between">
+                    <span class="text-[#53565a]">Subtotal Menu (<span x-text="cart.reduce((s,i)=>s+i.qty,0)"></span> item)</span>
+                    <span class="font-semibold text-[#111827]">Rp<span x-text="formatRp(subtotal)"></span></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[#53565a]">Pajak Resto (0%)</span>
+                    <span class="font-medium text-[#111827]">Rp0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[#53565a]">Biaya Layanan</span>
+                    <span class="font-medium text-[#53565a]">—</span>
+                </div>
+            </div>
+
+            {{-- CTA Button (Buat Pesanan F4) --}}
+            <div class="px-4 pt-1.5 pb-2">
+                @can('manage-payments')
+                <button type="button" @click="openPayment()" :disabled="cart.length === 0"
+                    class="w-full py-[11px] px-[16px] rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_6px_0px_rgba(223,88,38,0.25)] flex items-center justify-center gap-[8px] text-white text-[13px] font-bold hover:opacity-95 active:scale-[0.99] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
+                    <span class="flex items-center gap-1.5">
+                        <span>Buat Pesanan & Bayar</span>
+                        <span class="hidden sm:inline-block text-[10.5px] font-normal opacity-85">(F4)</span>
+                    </span>
+                </button>
+                @else
+                <p class="text-[11.5px] text-[#8b8e93] text-center py-2">Pembayaran memerlukan izin dari Owner.</p>
+                @endcan
+            </div>
         </div>
     </aside>
 </div>
@@ -790,6 +880,8 @@ function posApp() {
         // State
         cart: [],
         showMobileCart: false,
+        isCartMinimized: false,
+        showPriceBreakdown: false,
         activeCategory: null,
         search: '',
         fulfillmentType: 'DINE_IN',
