@@ -90,6 +90,26 @@ class InventoryController extends Controller
     }
 
     /**
+     * Hapus banyak bahan baku sekaligus (Bulk Soft Delete).
+     */
+    public function bulkDeleteMaterials(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer'],
+        ]);
+
+        $shopId = Auth::user()->shop_id;
+        $count = RawMaterial::where('shop_id', $shopId)->whereIn('id', $validated['ids'])->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} bahan baku berhasil dihapus.",
+            'deleted_ids' => $validated['ids'],
+        ]);
+    }
+
+    /**
      * Penyesuaian stok (Restok / Opname / Rusak-Waste).
      */
     public function adjustStock(AdjustInventoryStockRequest $request, AdjustStock $adjustStock): JsonResponse

@@ -1068,9 +1068,20 @@
 {{-- OPEN BILL SUCCESS MODAL                                     --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <div x-show="openBillSuccessModal.show" x-cloak x-transition
-    class="fixed inset-0 z-50 bg-[#1e211f]/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white border border-[#e6e5e0] rounded-[24px] p-6 max-w-sm w-full text-center shadow-2xl">
-        <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3.5">
+    class="fixed inset-0 z-[70] bg-[#1e211f]/70 backdrop-blur-sm flex items-center justify-center p-4"
+    @keydown.escape.window="closeOpenBillSuccessModal()">
+    <div class="bg-white border border-[#e6e5e0] rounded-[24px] p-6 max-w-sm w-full text-center shadow-2xl relative"
+         @click.outside="closeOpenBillSuccessModal()">
+        
+        <!-- Close Button (X) Top-Right -->
+        <button type="button" 
+                @click="closeOpenBillSuccessModal()" 
+                class="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition cursor-pointer"
+                title="Tutup">
+            <i class="fas fa-times text-xs"></i>
+        </button>
+
+        <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3.5 shadow-xs">
             <i class="fas fa-bookmark text-2xl"></i>
         </div>
         <span class="text-[11px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200"
@@ -1082,17 +1093,17 @@
         </p>
 
         <div class="space-y-2 mt-2">
-            <button type="button" @click="printKitchenTicket(openBillSuccessModal.orderId); openBillSuccessModal.show = false"
-                class="w-full py-2.5 px-4 bg-[#059669] hover:bg-[#047857] text-white rounded-[10px] text-[12px] font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+            <button type="button" @click="printKitchenTicket(openBillSuccessModal.orderId); closeOpenBillSuccessModal()"
+                class="w-full py-2.5 px-4 bg-[#059669] hover:bg-[#047857] text-white rounded-[10px] text-[12px] font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
                 <i class="fas fa-utensils"></i> Cetak Tiket Dapur / Bar
             </button>
             <div class="grid grid-cols-2 gap-2">
-                <button type="button" @click="printTempBill(openBillSuccessModal.orderId); openBillSuccessModal.show = false"
-                    class="py-2.5 px-3 bg-[#f8f9fa] hover:bg-gray-100 border border-[#d8dce2] text-[#111827] rounded-[10px] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5">
+                <button type="button" @click="printTempBill(openBillSuccessModal.orderId); closeOpenBillSuccessModal()"
+                    class="py-2.5 px-3 bg-[#f8f9fa] hover:bg-gray-100 border border-[#d8dce2] text-[#111827] rounded-[10px] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer">
                     <i class="fas fa-receipt text-[#df5826]"></i> Bill Sementara
                 </button>
-                <button type="button" @click="openBillSuccessModal.show = false"
-                    class="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-[#53565a] rounded-[10px] text-[11.5px] font-semibold transition">
+                <button type="button" @click="closeOpenBillSuccessModal()"
+                    class="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-[#53565a] rounded-[10px] text-[11.5px] font-semibold transition cursor-pointer">
                     Tutup (Selesai)
                 </button>
             </div>
@@ -1917,6 +1928,11 @@ function posApp() {
             this.openBillConfirmModal.show = true;
         },
 
+        closeOpenBillSuccessModal() {
+            this.openBillSuccessModal.show = false;
+            this.openBillConfirmModal.show = false;
+        },
+
         async executeHoldCart() {
             this.openBillConfirmModal.show = false;
             await this.holdCart();
@@ -2153,7 +2169,7 @@ function posApp() {
                 case 'F6': e.preventDefault(); if (this.paymentModal.show) this.paymentModal.method='QRIS'; break;
                 case 'F7': e.preventDefault(); if (this.successScreen.show) this.printReceipt('customer'); break;
                 case 'F8': e.preventDefault(); if (this.successScreen.show) this.printReceipt('kitchen'); break;
-                case 'Escape': this.modifierModal.show = false; this.paymentModal.show = false; this.openBillConfirmModal.show = false; this.discountModal.show = false; break;
+                case 'Escape': this.modifierModal.show = false; this.paymentModal.show = false; this.openBillConfirmModal.show = false; this.openBillSuccessModal.show = false; this.discountModal.show = false; break;
             }
         },
 

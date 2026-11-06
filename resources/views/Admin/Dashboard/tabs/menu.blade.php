@@ -488,7 +488,10 @@
                              @resize.window="if(openDropdown) openDropdown = false"
                              @keydown.escape.window="openDropdown = false"
                              :class="openDropdown ? 'z-30 relative' : 'z-10 relative'"
-                             class="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 bg-white rounded-[16px] border border-[#e9ebf0] shadow-xs hover:border-[#dcdfe5] transition">
+                             class="flex flex-col gap-3.5 p-4 bg-white rounded-[16px] border border-[#e9ebf0] shadow-xs hover:border-[#dcdfe5] transition">
+                            
+                            <!-- Top Row: Image + Inputs Grid + Delete Button -->
+                            <div class="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
                             
                             <!-- Image Box -->
                             <div class="w-full md:w-[150px] h-[100px] shrink-0 relative rounded-[14px] overflow-hidden flex flex-col items-center justify-center group cursor-pointer transition border border-dashed border-[#e9ebf0] hover:border-[#df5826] bg-[#fafbfc]">
@@ -523,21 +526,9 @@
                                 
                                 <!-- Category with Modern Custom Dropdown + Quick Add -->
                                 <div class="relative">
-                                    <div class="flex items-center justify-between mb-1.5">
-                                        <div class="flex items-center gap-1.5">
-                                            <label class="block text-[11px] font-semibold text-[#53565a]">Category</label>
-                                            <span class="text-[10px] text-[#7f837e] font-normal" x-text="'(' + (categories ? categories.length : 0) + ')'"></span>
-                                        </div>
-                                        <button type="button" 
-                                                x-ref="addCatTrigger"
-                                                @click.stop="openWithAddMode()" 
-                                                class="text-[11px] font-semibold text-[#df5826] hover:text-[#c94d00] flex items-center gap-1 cursor-pointer transition group"
-                                                title="Buat kategori baru langsung di sini">
-                                            <span class="w-3.5 h-3.5 rounded-full bg-[#df5826]/10 text-[#df5826] group-hover:bg-[#df5826] group-hover:text-white flex items-center justify-center text-[9px] transition">
-                                                <i class="fas fa-plus"></i>
-                                            </span>
-                                            <span>Tambah Baru</span>
-                                        </button>
+                                    <div class="flex items-center gap-1.5 mb-1.5">
+                                        <label class="block text-[11px] font-semibold text-[#53565a]">Category</label>
+                                        <span class="text-[10px] text-[#7f837e] font-normal" x-text="'(' + (categories ? categories.length : 0) + ')'"></span>
                                     </div>
 
                                     <!-- Dropdown Trigger Button -->
@@ -767,8 +758,16 @@
                                 </div>
                             </div>
 
-                            <!-- Promo / Discount Pricing Strip -->
-                            <div class="w-full mt-3 pt-3 border-t border-dashed border-[#e9ebf0] rounded-[12px] bg-[#fffaf5] p-3 border border-[#ffecd9]">
+                                <!-- Delete Row Button on Right (only shown if more than 1 row) -->
+                                <template x-if="draftMenus.length > 1">
+                                    <button type="button" @click="removeDraftRow(index)" class="shrink-0 w-9 h-9 rounded-[10px] bg-white border border-[#e9ebf0] text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 flex items-center justify-center transition cursor-pointer shadow-xs self-end md:self-center" title="Hapus Baris">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                </template>
+                            </div>
+
+                            <!-- Promo / Discount Pricing Strip (Full Width Below) -->
+                            <div class="w-full pt-3 border-t border-dashed border-[#e9ebf0] rounded-[12px] bg-[#fffaf5] p-3 border border-[#ffecd9]">
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <!-- Toggle Switch -->
                                     <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
@@ -782,7 +781,7 @@
 
                                     <!-- Promo Price Input + Live Badge -->
                                     <div x-show="draft.is_discount_active" x-transition class="flex items-center gap-2 w-full sm:w-auto">
-                                        <div class="relative flex-1 sm:w-40">
+                                        <div class="relative flex-1 sm:w-44">
                                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-[#7f837e] font-medium pointer-events-none">Rp</span>
                                             <input type="number" x-model="draft.discount_price" placeholder="Harga Promo" 
                                                    class="w-full bg-white border border-[#ffdec9] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] rounded-[8px] pl-9 pr-3 py-1.5 text-[12.5px] font-bold text-[#df5826] outline-none">
@@ -803,20 +802,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Action Buttons on the Right -->
-                            <div class="shrink-0 flex items-center gap-1.5 self-end md:self-center pt-2 md:pt-4">
-                                <template x-if="!(draftMenus.length === 1 && draftMenus[0].id)">
-                                    <button type="button" @click="addDraftRow()" class="w-9 h-9 rounded-[10px] bg-white border border-[#df5826] text-[#df5826] hover:bg-[#fff6f0] flex items-center justify-center transition cursor-pointer shadow-xs" title="Tambah Baris Menu">
-                                        <i class="fas fa-plus text-xs"></i>
-                                    </button>
-                                </template>
-                                <template x-if="draftMenus.length > 1">
-                                    <button type="button" @click="removeDraftRow(index)" class="w-9 h-9 rounded-[10px] bg-white border border-[#e9ebf0] text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 flex items-center justify-center transition cursor-pointer shadow-xs" title="Hapus Baris">
-                                        <i class="fas fa-trash-alt text-xs"></i>
-                                    </button>
-                                </template>
-                            </div>
                         </div>
                     </template>
 
@@ -827,7 +812,7 @@
                                     @click="addDraftRow()" 
                                     class="px-4 py-2.5 bg-[#fff6f0] border border-dashed border-[#df5826] hover:bg-[#ffece0] text-[#df5826] font-semibold text-[12px] rounded-[12px] transition flex items-center gap-2 cursor-pointer shadow-2xs">
                                 <i class="fas fa-plus text-xs"></i>
-                                <span>+ Tambah Baris Menu</span>
+                                <span>Tambah Baris Menu</span>
                             </button>
                             <span class="text-[11px] text-[#7f837e]">Bisa tambah banyak menu sekaligus beserta kategorinya</span>
                         </div>

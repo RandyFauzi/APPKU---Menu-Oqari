@@ -948,6 +948,46 @@
                     });
                 },
 
+                deleteSelectedMaterials() {
+                    if (!this.selectedMaterialIds || this.selectedMaterialIds.length === 0) return;
+                    const count = this.selectedMaterialIds.length;
+                    Swal.fire({
+                        title: `Hapus ${count} Bahan Baku?`,
+                        text: `Sebanyak ${count} bahan terpilih akan dihapus dari daftar inventori.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#df5826',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: `Ya, Hapus (${count})`,
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch('/admin/api/inventory/materials/bulk-delete', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({ ids: this.selectedMaterialIds })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    this.addToast(data.message, 'success');
+                                    this.selectedMaterialIds = [];
+                                    this.fetchInventory();
+                                } else {
+                                    this.addToast(data.message || 'Gagal menghapus bahan terpilih', 'error');
+                                }
+                            })
+                            .catch(err => {
+                                this.addToast('Terjadi kesalahan koneksi', 'error');
+                            });
+                        }
+                    });
+                },
+
                 openStockAdjustModal(materialId = null) {
                     this.adjustForm = {
                         raw_material_id: materialId || (this.rawMaterials.length > 0 ? this.rawMaterials[0].id : ''),

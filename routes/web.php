@@ -124,6 +124,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/api/inventory', [InventoryController::class, 'index']);
         Route::post('/admin/api/inventory/material', [InventoryController::class, 'saveMaterial']);
         Route::delete('/admin/api/inventory/material/{id}', [InventoryController::class, 'deleteMaterial']);
+        Route::post('/admin/api/inventory/materials/bulk-delete', [InventoryController::class, 'bulkDeleteMaterials']);
         Route::post('/admin/api/inventory/adjust', [InventoryController::class, 'adjustStock']);
         Route::get('/admin/api/inventory/recipes/{productId}', [InventoryController::class, 'getProductRecipes']);
         Route::post('/admin/api/inventory/recipes/{productId}', [InventoryController::class, 'saveProductRecipes']);

@@ -98,16 +98,16 @@
         </div>
 
         <!-- Table Controls Right (Visible on materials sub-tab) -->
-        <div class="flex items-center gap-1.5 flex-wrap" x-show="inventorySubTab === 'materials'">
+        <div class="flex items-center gap-2 flex-wrap" x-show="inventorySubTab === 'materials'">
             <!-- Search Box -->
-            <div class="bg-[#f8f9fa] border border-[#e9ebf0] focus-within:border-[#df5826] focus-within:bg-white rounded-[8px] h-[30px] px-2.5 flex items-center gap-1.5 w-36 sm:w-44 transition">
-                <img src="/images/sparta/solar-magnifer.svg" alt="Search" class="w-3 h-3 shrink-0">
-                <input type="text" x-model="materialSearch" @input="materialPage = 1" placeholder="Cari nama bahan..." class="bg-transparent border-none outline-none text-[11px] text-[#111827] placeholder-[#7f837e] w-full">
+            <div class="bg-[#f8f9fa] border border-[#e9ebf0] focus-within:border-[#df5826] focus-within:bg-white rounded-[10px] h-[36px] px-3 flex items-center gap-2 w-36 sm:w-48 transition shadow-2xs">
+                <img src="/images/sparta/solar-magnifer.svg" alt="Search" class="w-3.5 h-3.5 shrink-0">
+                <input type="text" x-model="materialSearch" @input="materialPage = 1" placeholder="Cari nama bahan..." class="bg-transparent border-none outline-none text-[12px] text-[#111827] placeholder-[#7f837e] w-full">
             </div>
 
             <!-- Kategori Dropdown -->
             <div class="relative">
-                <select x-model="materialFilterCategory" @change="materialPage = 1" class="appearance-none bg-white border border-[#e9ebf0] hover:border-gray-300 rounded-[8px] h-[30px] pl-2.5 pr-6 text-[11px] font-medium text-[#111827] cursor-pointer outline-none transition">
+                <select x-model="materialFilterCategory" @change="materialPage = 1" class="appearance-none bg-white border border-[#e9ebf0] hover:border-gray-300 rounded-[10px] h-[36px] pl-3 pr-7 text-[12px] font-medium text-[#111827] cursor-pointer outline-none transition shadow-2xs flex items-center">
                     <option value="all">Semua Kategori</option>
                     <option value="Coffee">Coffee</option>
                     <option value="Dairy">Dairy</option>
@@ -118,27 +118,27 @@
                     <option value="Cooking">Cooking</option>
                     <option value="Bahan Baku">Lainnya</option>
                 </select>
-                <svg class="w-2.5 h-2.5 text-[#53565a] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5">
+                <svg class="w-2.5 h-2.5 text-[#53565a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M1 1L5 5L9 1" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
 
             <!-- Status Dropdown -->
             <div class="relative">
-                <select x-model="materialFilterStatus" @change="materialPage = 1" class="appearance-none bg-white border border-[#e9ebf0] hover:border-gray-300 rounded-[8px] h-[30px] pl-2.5 pr-6 text-[11px] font-medium text-[#111827] cursor-pointer outline-none transition">
+                <select x-model="materialFilterStatus" @change="materialPage = 1" class="appearance-none bg-white border border-[#e9ebf0] hover:border-gray-300 rounded-[10px] h-[36px] pl-3 pr-7 text-[12px] font-medium text-[#111827] cursor-pointer outline-none transition shadow-2xs flex items-center">
                     <option value="all">Semua Status</option>
                     <option value="Aman">Aman</option>
                     <option value="Menipis">Menipis</option>
                     <option value="Habis">Habis</option>
                 </select>
-                <svg class="w-2.5 h-2.5 text-[#53565a] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5">
+                <svg class="w-2.5 h-2.5 text-[#53565a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M1 1L5 5L9 1" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
 
             <!-- Sort Dropdown -->
             <div class="relative">
-                <select x-model="materialSortOrder" @change="materialPage = 1" class="appearance-none bg-white border border-[#e9ebf0] hover:border-gray-300 rounded-[8px] h-[30px] pl-2.5 pr-6 text-[11px] font-medium text-[#111827] cursor-pointer outline-none transition">
+                <select x-model="materialSortOrder" @change="materialPage = 1" class="appearance-none bg-white border border-[#e9ebf0] hover:border-gray-300 rounded-[10px] h-[36px] pl-3 pr-7 text-[12px] font-medium text-[#111827] cursor-pointer outline-none transition shadow-2xs flex items-center">
                     <option value="name_asc">Urutkan: Nama A-Z</option>
                     <option value="name_desc">Urutkan: Nama Z-A</option>
                     <option value="stock_asc">Stok: Paling Sedikit</option>
@@ -146,7 +146,7 @@
                     <option value="cost_desc">Harga: Tertinggi</option>
                     <option value="cost_asc">Harga: Terendah</option>
                 </select>
-                <svg class="w-2.5 h-2.5 text-[#53565a] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5">
+                <svg class="w-2.5 h-2.5 text-[#53565a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M1 1L5 5L9 1" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
@@ -154,9 +154,9 @@
             <!-- Refresh Button -->
             <button type="button" 
                     @click="fetchInventory()" 
-                    class="bg-white border border-[#e9ebf0] hover:bg-gray-50 rounded-[8px] w-[30px] h-[30px] flex items-center justify-center transition cursor-pointer shadow-xs" 
+                    class="bg-white border border-[#e9ebf0] hover:bg-gray-50 rounded-[10px] w-[36px] h-[36px] flex items-center justify-center transition cursor-pointer shadow-2xs" 
                     title="Refresh Data">
-                <img src="/images/sparta/solar-refresh.svg" alt="Refresh" class="w-3 h-3" :class="isLoadingInventory ? 'animate-spin' : ''">
+                <img src="/images/sparta/solar-refresh.svg" alt="Refresh" class="w-3.5 h-3.5" :class="isLoadingInventory ? 'animate-spin' : ''">
             </button>
         </div>
     </div>
@@ -502,6 +502,38 @@
         </div>
     </div>
 
+
+    <!-- FLOATING BULK ACTIONS BAR (Muncul saat select all atau ada bahan yang dipilih) -->
+    <div x-show="selectedMaterialIds.length > 0 && inventorySubTab === 'materials'" 
+         x-cloak
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-6 scale-95"
+         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+         x-transition:leave-end="opacity-0 translate-y-6 scale-95"
+         class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#111827]/95 backdrop-blur-md text-white px-5 py-3 rounded-full shadow-[0_16px_40px_-6px_rgba(0,0,0,0.35)] flex items-center gap-4 border border-gray-700/60 font-sans">
+        
+        <div class="flex items-center gap-2 font-medium text-[12.5px]">
+            <span class="w-5 h-5 rounded-full bg-[#df5826] text-white flex items-center justify-center text-[10px] font-bold shadow-xs" x-text="selectedMaterialIds.length"></span>
+            <span>Bahan Terpilih</span>
+        </div>
+
+        <div class="h-4 w-px bg-gray-700"></div>
+
+        <button type="button" 
+                @click="deleteSelectedMaterials()" 
+                class="text-red-400 hover:text-red-300 font-bold text-[12px] flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-red-950/40 transition cursor-pointer">
+            <i class="fas fa-trash-alt text-xs"></i>
+            <span>Hapus Terpilih</span>
+        </button>
+
+        <button type="button" 
+                @click="selectedMaterialIds = []" 
+                class="text-gray-400 hover:text-white font-medium text-[12px] px-2.5 py-1 rounded-full hover:bg-white/10 transition cursor-pointer">
+            Batal
+        </button>
+    </div>
     <!-- MODAL: PENYESUAIAN STOK (RESTOK / OPNAME / WASTE) -->
     <div x-show="showAdjustModal" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center p-4 font-sans">
         <div @click="showAdjustModal = false" class="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity"></div>

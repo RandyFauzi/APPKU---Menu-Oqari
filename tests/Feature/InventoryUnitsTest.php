@@ -177,6 +177,24 @@ class InventoryUnitsTest extends TestCase
         ]);
     }
 
+    public function test_bulk_delete_materials_deletes_specified_records_belonging_to_shop(): void
+    {
+        $user = $this->owner();
+        $mat1 = RawMaterial::create(['shop_id' => $user->shop_id, 'name' => 'Bahan 1', 'unit' => 'pcs', 'current_stock' => 10]);
+        $mat2 = RawMaterial::create(['shop_id' => $user->shop_id, 'name' => 'Bahan 2', 'unit' => 'pcs', 'current_stock' => 5]);
+        $otherShop = Shop::factory()->create();
+        $matOther = RawMaterial::create(['shop_id' => $otherShop->id, 'name' => 'Bahan Toko Lain', 'unit' => 'pcs', 'current_stock' => 20]);
+
+        $res = $this->actingAs($user)->postJson('/admin/api/inventory/materials/bulk-delete', [
+            'ids' => [$mat1->id, $mat2->id, $matOther->id],
+        ]);
+
+        $res->assertOk();
+        $this->assertSoftDeleted('raw_materials', ['id' => $mat1->id]);
+        $this->assertSoftDeleted('raw_materials', ['id' => $mat2->id]);
+        $this->assertNotSoftDeleted('raw_materials', ['id' => $matOther->id]);
+    }
+
     private function owner(): User
     {
         return User::factory()->create(['shop_id' => Shop::factory()->create(['onboarding_status' => 'completed'])->id, 'role' => 'owner']);
