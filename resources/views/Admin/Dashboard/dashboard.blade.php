@@ -616,10 +616,26 @@
             shopProducts: {{ Illuminate\Support\Js::from($shopProducts ?? []) }}
         };
 
-        const formatRp = (num) => 'Rp ' + Number(num).toLocaleString('id-ID');
+        const formatRp = (num) => {
+            if (num === null || num === undefined || num === '') return 'Rp 0';
+            if (typeof num === 'string') {
+                const trimmed = num.trim();
+                if (trimmed.startsWith('Rp')) {
+                    const stripped = trimmed.replace(/^Rp\s*/i, '').replace(/\./g, '').replace(/,/g, '.');
+                    const parsed = parseFloat(stripped);
+                    if (!isNaN(parsed)) return 'Rp ' + Math.round(parsed).toLocaleString('id-ID');
+                    return trimmed;
+                }
+                const parsed = parseFloat(trimmed);
+                if (!isNaN(parsed)) return 'Rp ' + Math.round(parsed).toLocaleString('id-ID');
+            }
+            const cleanNum = Number(num);
+            return 'Rp ' + (isNaN(cleanNum) ? 0 : Math.round(cleanNum)).toLocaleString('id-ID');
+        };
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('dashboardApp', () => ({
+                formatRp(n) { return formatRp(n); },
                 user: window.INITIAL_DATA.user || {},
                 can(ability) { return window.INITIAL_DATA.permissions.includes(ability); },
                 isMinimized: window.innerWidth < 1024,

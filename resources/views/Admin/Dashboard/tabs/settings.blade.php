@@ -885,28 +885,28 @@
         </div>
 
         <!-- Kanan: Live Preview (Mobile Frame) -->
-        <div class="xl:col-span-4 xl:sticky xl:top-8 mt-8 xl:mt-0 flex flex-col items-center">
-            <div class="flex items-center gap-2 mb-3">
+        <div class="xl:col-span-4 xl:sticky xl:top-[88px] mt-8 xl:mt-0 flex flex-col items-center self-start z-30">
+            <div class="flex items-center gap-2 mb-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <h3 class="font-bold text-[14px] text-ink flex items-center gap-2">
+                <h3 class="font-bold text-[13px] text-ink flex items-center gap-1.5">
                     <i class="fas fa-mobile-alt text-primary"></i>
                     <span>Live Preview Menu</span>
                 </h3>
-                <span class="text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">Non-scrollable Snapshot</span>
+                <span class="text-[9.5px] font-semibold text-gray-500 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-full">Tampilan Pelanggan</span>
             </div>
             
-            <!-- Mobile Frame Container (iPhone 16 Pro Style Titanium Bezel) -->
-            <div class="relative mx-auto w-[320px] h-[640px] bg-[#1a1a1a] rounded-[48px] p-[9px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.08)_inset] flex flex-col font-sans select-none pointer-events-none"
+            <!-- Mobile Frame Container (iPhone 16 Pro Titanium Bezel - Fits screen perfectly) -->
+            <div class="relative mx-auto w-[285px] xl:w-[295px] h-[550px] xl:h-[570px] max-h-[calc(100vh-130px)] bg-[#18181b] rounded-[44px] p-[8px] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.08)_inset] flex flex-col font-sans select-none pointer-events-none"
                  :style="'font-family: ' + getFontFamilyCss(settings.font_family)">
                 
                 <!-- Side Physical Button Accents -->
-                <div class="absolute -left-[2px] top-[95px] w-[3px] h-[26px] bg-[#2e2e32] rounded-l-xs shadow-xs"></div>
-                <div class="absolute -left-[2px] top-[135px] w-[3px] h-[44px] bg-[#2e2e32] rounded-l-xs shadow-xs"></div>
-                <div class="absolute -left-[2px] top-[188px] w-[3px] h-[44px] bg-[#2e2e32] rounded-l-xs shadow-xs"></div>
-                <div class="absolute -right-[2px] top-[140px] w-[3px] h-[58px] bg-[#2e2e32] rounded-r-xs shadow-xs"></div>
+                <div class="absolute -left-[2px] top-[85px] w-[2.5px] h-[24px] bg-[#2e2e32] rounded-l-xs shadow-xs"></div>
+                <div class="absolute -left-[2px] top-[120px] w-[2.5px] h-[38px] bg-[#2e2e32] rounded-l-xs shadow-xs"></div>
+                <div class="absolute -left-[2px] top-[168px] w-[2.5px] h-[38px] bg-[#2e2e32] rounded-l-xs shadow-xs"></div>
+                <div class="absolute -right-[2px] top-[125px] w-[2.5px] h-[50px] bg-[#2e2e32] rounded-r-xs shadow-xs"></div>
 
-                <!-- Inner Phone Screen (Zero Corner Bleed, Non-Scrollable Static View) -->
-                <div class="w-full h-full rounded-[39px] overflow-hidden flex flex-col relative bg-[#fdfbf7]"
+                <!-- Inner Phone Screen (Zero Bleed, Non-Scrollable Static View) -->
+                <div class="w-full h-full rounded-[36px] overflow-hidden flex flex-col relative bg-[#fdfbf7]"
                      :style="settings.background_type === 'pattern' ? 
                                 (settings.background_pattern === 'grid' ? 'background-color: #fdfbf7; background-image: linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px); background-size: 14px 14px;' :
                                 (settings.background_pattern === 'cafe' ? 'background-color: #fdfbf7; background-image: radial-gradient(#8d6e63 1.5px, transparent 1.5px), radial-gradient(#bcaaa4 1px, transparent 1px); background-size: 20px 20px, 10px 10px; background-position: 0 0, 10px 10px;' :
@@ -922,88 +922,88 @@
 
                     <!-- Toko Tutup Overlay -->
                     <div x-show="!settings.is_open" class="absolute inset-0 bg-white/88 backdrop-blur-xs z-[100] flex flex-col items-center justify-center p-6 text-center">
-                        <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-xl mb-3 shadow-2xs">
+                        <div class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-lg mb-2 shadow-2xs">
                             <i class="fas fa-store-slash"></i>
                         </div>
-                        <h4 class="text-[13px] font-bold text-gray-800 mb-1">Toko Sedang Tutup</h4>
-                        <p class="text-[10px] text-gray-500 leading-relaxed max-w-[200px]">Mohon maaf, toko saat ini sedang tidak menerima pesanan.</p>
+                        <h4 class="text-[12px] font-bold text-gray-800 mb-1">Toko Sedang Tutup</h4>
+                        <p class="text-[9px] text-gray-500 leading-relaxed max-w-[180px]">Mohon maaf, toko saat ini sedang tidak menerima pesanan.</p>
                     </div>
 
                     <!-- Top Status Bar with Clean Dynamic Island -->
-                    <div class="h-[28px] px-5 pt-1.5 flex items-center justify-between text-[10px] font-bold text-gray-800 z-50 shrink-0 bg-white/95 backdrop-blur-md">
-                        <span class="text-[10.5px] font-bold text-gray-900 tracking-tight">09:41</span>
-                        <div class="w-[74px] h-[16px] bg-black rounded-full flex items-center justify-between px-2 shadow-2xs">
+                    <div class="h-[26px] px-4 pt-1.5 flex items-center justify-between text-[10px] font-bold text-gray-800 z-50 shrink-0 bg-white/95 backdrop-blur-md">
+                        <span class="text-[10px] font-bold text-gray-900 tracking-tight">09:41</span>
+                        <div class="w-[68px] h-[15px] bg-black rounded-full flex items-center justify-between px-2 shadow-2xs">
                             <div class="w-1.5 h-1.5 rounded-full bg-[#1c1c1e]"></div>
                             <div class="w-2 h-2 rounded-full bg-[#0d0d0e] border border-white/10"></div>
                         </div>
-                        <div class="flex items-center gap-1 text-[9px] text-gray-900">
-                            <i class="fas fa-signal text-[8px]"></i>
-                            <i class="fas fa-wifi text-[8.5px]"></i>
-                            <i class="fas fa-battery-full text-[10.5px]"></i>
+                        <div class="flex items-center gap-1 text-[8.5px] text-gray-900">
+                            <i class="fas fa-signal text-[7.5px]"></i>
+                            <i class="fas fa-wifi text-[8px]"></i>
+                            <i class="fas fa-battery-full text-[10px]"></i>
                         </div>
                     </div>
 
                     <!-- Shop Header (Real Logo, Real Name, Real Slogan) -->
-                    <header class="bg-white/95 backdrop-blur-md pb-2 px-3.5 z-30 shrink-0 border-b border-gray-100/60 shadow-2xs">
+                    <header class="bg-white/95 backdrop-blur-md pb-1.5 px-3 z-30 shrink-0 border-b border-gray-100/60 shadow-2xs">
                         <div class="flex items-center gap-2">
                             <template x-if="settings.logoPreview">
-                                <img :src="settings.logoPreview" alt="Logo" class="h-8 w-8 object-contain rounded-lg shrink-0 border border-gray-100 shadow-2xs">
+                                <img :src="settings.logoPreview" alt="Logo" class="h-7 w-7 object-contain rounded-lg shrink-0 border border-gray-100 shadow-2xs">
                             </template>
                             <template x-if="!settings.logoPreview">
-                                <div class="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 shadow-2xs" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
-                                    <i class="fas fa-store text-white text-[11px]"></i>
+                                <div class="h-7 w-7 rounded-lg flex items-center justify-center shrink-0 shadow-2xs" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                    <i class="fas fa-store text-white text-[10px]"></i>
                                 </div>
                             </template>
                             <div class="flex flex-col min-w-0 flex-1">
-                                <span class="font-black text-[13px] leading-tight tracking-tight uppercase truncate" 
+                                <span class="font-black text-[12px] leading-tight tracking-tight uppercase truncate" 
                                       :style="'color: ' + (settings.primary_color || '#1e5a7a') + '; font-family: ' + getFontFamilyCss(settings.title_font_family)" 
                                       x-text="settings.name || 'WARUNG LOKAL'"></span>
-                                <span class="text-[7.5px] font-bold text-gray-400 tracking-[0.18em] mt-0.5 uppercase truncate" 
+                                <span class="text-[7px] font-bold text-gray-400 tracking-[0.16em] mt-0.5 uppercase truncate" 
                                       x-text="settings.slogan || 'COFFEE & EATERY'"></span>
                             </div>
                         </div>
                     </header>
 
                     <!-- Location & Search Bar (Deliver to / Meja) -->
-                    <div class="bg-white/95 backdrop-blur-md px-3 pb-2 shrink-0 z-30 border-b border-gray-100">
-                        <div class="bg-[#f8f9fa] rounded-full p-1 flex items-center shadow-2xs border border-gray-200/70 text-[10px]">
-                            <div class="flex items-center gap-1.5 pl-2 pr-2.5 border-r border-gray-200 py-0.5 shrink-0 max-w-[55%]">
-                                <div class="w-4.5 h-4.5 rounded-full flex items-center justify-center shrink-0" :style="'background-color: ' + (settings.primary_color ? settings.primary_color + '15' : '#1c453215')">
-                                    <i class="fas fa-map-marker-alt text-[8px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')"></i>
+                    <div class="bg-white/95 backdrop-blur-md px-2.5 pb-1.5 shrink-0 z-30 border-b border-gray-100">
+                        <div class="bg-[#f8f9fa] rounded-full p-0.5 flex items-center shadow-2xs border border-gray-200/70 text-[9.5px]">
+                            <div class="flex items-center gap-1 pl-1.5 pr-2 border-r border-gray-200 py-0.5 shrink-0 max-w-[55%]">
+                                <div class="w-4 h-4 rounded-full flex items-center justify-center shrink-0" :style="'background-color: ' + (settings.primary_color ? settings.primary_color + '15' : '#1c453215')">
+                                    <i class="fas fa-map-marker-alt text-[7px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')"></i>
                                 </div>
                                 <div class="flex flex-col leading-none min-w-0">
-                                    <span class="text-[7px] text-gray-400 font-bold uppercase tracking-wider truncate">DELIVER TO / MEJA</span>
-                                    <span class="text-[9.5px] font-bold text-gray-800 flex items-center gap-0.5 truncate">
-                                        (...) <i class="fas fa-chevron-down text-[6.5px] text-gray-400"></i>
+                                    <span class="text-[6.5px] text-gray-400 font-bold uppercase tracking-wider truncate">DELIVER TO / MEJA</span>
+                                    <span class="text-[8.5px] font-bold text-gray-800 flex items-center gap-0.5 truncate">
+                                        (...) <i class="fas fa-chevron-down text-[6px] text-gray-400"></i>
                                     </span>
                                 </div>
                             </div>
-                            <div class="flex-1 flex items-center px-2 text-gray-400">
-                                <i class="fas fa-search text-[9px] mr-1.5 shrink-0"></i>
-                                <span class="text-[9.5px] font-normal truncate">Cari menu...</span>
+                            <div class="flex-1 flex items-center px-1.5 text-gray-400">
+                                <i class="fas fa-search text-[8px] mr-1 shrink-0"></i>
+                                <span class="text-[9px] font-normal truncate">Cari menu...</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Non-Scrollable Static Showcase Content Body -->
-                    <div class="flex-1 px-3 py-2 flex flex-col justify-between overflow-hidden relative z-10">
+                    <div class="flex-1 px-2.5 py-1.5 flex flex-col justify-between overflow-hidden relative z-10">
                         
-                        <!-- Top Part: Banner Promo + Categories -->
-                        <div class="space-y-2">
+                        <!-- Top Part: Banner + Categories -->
+                        <div class="space-y-1.5">
                             <!-- Real Promo Banner Carousel -->
-                            <div x-show="settings.is_banner_active" class="relative rounded-[14px] overflow-hidden shadow-xs h-[100px] shrink-0 flex items-center justify-center border border-black/5" 
+                            <div x-show="settings.is_banner_active" class="relative rounded-[12px] overflow-hidden shadow-2xs h-[88px] shrink-0 flex items-center justify-center border border-black/5" 
                                  :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                 <template x-if="settings.banners.filter(b => b !== null).length > 0">
                                     <img :src="settings.banners.find(b => b !== null)" class="w-full h-full object-cover">
                                 </template>
                                 <template x-if="settings.banners.filter(b => b !== null).length === 0">
-                                    <div class="text-white/80 font-bold text-[10px] tracking-widest uppercase flex items-center gap-1.5">
+                                    <div class="text-white/80 font-bold text-[9px] tracking-widest uppercase flex items-center gap-1.5">
                                         <i class="fas fa-image"></i>
                                         <span>Banner Promo Toko</span>
                                     </div>
                                 </template>
                                 <div class="absolute inset-x-0 bottom-0 h-1/2" :style="'background: linear-gradient(to top, ' + (settings.primary_color || '#1e5a7a') + ' 0%, transparent 100%)'"></div>
-                                <div class="absolute bottom-1.5 w-full flex justify-center gap-1 z-10">
+                                <div class="absolute bottom-1 w-full flex justify-center gap-1 z-10">
                                     <template x-for="(_, i) in (settings.banners.filter(b => b !== null).length || 1)">
                                         <div class="w-1.5 h-1.5 rounded-full" :class="i === 0 ? 'bg-white' : 'bg-white/50'"></div>
                                     </template>
@@ -1011,23 +1011,23 @@
                             </div>
 
                             <!-- Real Categories Bar -->
-                            <div class="flex items-center gap-2 overflow-hidden py-1">
+                            <div class="flex items-center gap-1.5 overflow-hidden py-0.5">
                                 <!-- All Category (Active) -->
-                                <div class="flex flex-col items-center gap-1 shrink-0">
-                                    <div class="w-10 h-10 rounded-[12px] flex items-center justify-center border-2 shadow-2xs" 
+                                <div class="flex flex-col items-center gap-0.5 shrink-0">
+                                    <div class="w-9 h-9 rounded-[10px] flex items-center justify-center border-2 shadow-2xs" 
                                          :style="'border-color: ' + (settings.primary_color || '#1e5a7a') + '; background-color: ' + (settings.primary_color ? settings.primary_color + '12' : '#1c453212')">
-                                        <i class="fas fa-star text-xs" :style="'color: ' + (settings.primary_color || '#1e5a7a')"></i>
+                                        <i class="fas fa-star text-[11px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')"></i>
                                     </div>
-                                    <span class="text-[8.5px] font-bold" :style="'color: ' + (settings.primary_color || '#1e5a7a')">All</span>
+                                    <span class="text-[8px] font-bold" :style="'color: ' + (settings.primary_color || '#1e5a7a')">All</span>
                                 </div>
 
                                 <!-- Dynamic Real Shop Categories -->
                                 <template x-for="cat in previewCategories" :key="cat.id">
-                                    <div class="flex flex-col items-center gap-1 shrink-0">
-                                        <div class="w-10 h-10 rounded-[12px] flex items-center justify-center border border-gray-200/80 bg-white shadow-2xs">
-                                            <i class="fas text-xs text-gray-500" :class="getCategoryIcon(cat.name)"></i>
+                                    <div class="flex flex-col items-center gap-0.5 shrink-0">
+                                        <div class="w-9 h-9 rounded-[10px] flex items-center justify-center border border-gray-200/80 bg-white shadow-2xs">
+                                            <i class="fas text-[11px] text-gray-500" :class="getCategoryIcon(cat.name)"></i>
                                         </div>
-                                        <span class="text-[8.5px] font-medium text-gray-600 truncate max-w-[48px]" x-text="cat.name"></span>
+                                        <span class="text-[8px] font-medium text-gray-600 truncate max-w-[44px]" x-text="cat.name"></span>
                                     </div>
                                 </template>
                             </div>
@@ -1037,32 +1037,32 @@
                         <div class="my-auto py-1">
                             
                             <!-- 1. Grid Theme (2 Columns) -->
-                            <div x-show="settings.theme_style === 'grid'" class="grid grid-cols-2 gap-2">
+                            <div x-show="settings.theme_style === 'grid'" class="grid grid-cols-2 gap-1.5">
                                 <template x-for="item in previewProducts" :key="item.id">
-                                    <div class="bg-white p-2 rounded-[14px] shadow-2xs border border-gray-100 flex flex-col justify-between relative overflow-hidden">
-                                        <div class="w-full aspect-[4/3] bg-gray-100 rounded-[10px] mb-1.5 flex items-center justify-center text-gray-300 overflow-hidden relative">
+                                    <div class="bg-white p-1.5 rounded-[12px] shadow-2xs border border-gray-100 flex flex-col justify-between relative overflow-hidden">
+                                        <div class="w-full aspect-[4/3] bg-gray-100 rounded-[8px] mb-1 flex items-center justify-center text-gray-300 overflow-hidden relative">
                                             <template x-if="item.image_url">
                                                 <img :src="item.image_url" :alt="item.name" class="w-full h-full object-cover">
                                             </template>
                                             <template x-if="!item.image_url">
-                                                <i class="fas fa-coffee text-lg text-gray-300"></i>
+                                                <i class="fas fa-coffee text-base text-gray-300"></i>
                                             </template>
                                             <template x-if="item.is_best_seller">
-                                                <span class="absolute top-1 left-1 bg-amber-500 text-white text-[7.5px] font-black px-1.5 py-0.2 rounded shadow-2xs">⭐ Best</span>
+                                                <span class="absolute top-1 left-1 bg-amber-500 text-white text-[7px] font-black px-1 rounded shadow-2xs">⭐ Best</span>
                                             </template>
                                             <template x-if="item.has_active_discount">
-                                                <span class="absolute top-1 right-1 bg-red-600 text-white text-[7.5px] font-black px-1 rounded shadow-2xs" x-text="'-' + item.discount_percentage + '%'"></span>
+                                                <span class="absolute top-1 right-1 bg-red-600 text-white text-[7px] font-black px-1 rounded shadow-2xs" x-text="'-' + item.discount_percentage + '%'"></span>
                                             </template>
                                         </div>
-                                        <h4 class="font-bold text-[10.5px] text-gray-800 leading-tight truncate" x-text="item.name"></h4>
+                                        <h4 class="font-bold text-[10px] text-gray-800 leading-tight truncate" x-text="item.name"></h4>
                                         <div class="flex items-center justify-between mt-1">
                                             <div class="flex flex-col leading-none">
                                                 <template x-if="item.has_active_discount">
-                                                    <span class="text-[8px] text-gray-400 line-through" x-text="formatRp(item.price)"></span>
+                                                    <span class="text-[7.5px] text-gray-400 line-through" x-text="formatRp(item.price)"></span>
                                                 </template>
-                                                <span class="font-black text-[11px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
+                                                <span class="font-black text-[10px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
                                             </div>
-                                            <div class="w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] shadow-2xs" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                            <div class="w-4.5 h-4.5 rounded-full flex items-center justify-center text-white text-[7.5px] shadow-2xs" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                                 <i class="fas fa-plus"></i>
                                             </div>
                                         </div>
@@ -1073,32 +1073,32 @@
                             <!-- 2. List Theme (GoFood Style Horizontal) -->
                             <div x-show="settings.theme_style === 'list'" class="flex flex-col gap-1.5">
                                 <template x-for="item in previewProducts" :key="item.id">
-                                    <div class="bg-white p-2 rounded-[14px] shadow-2xs border border-gray-100 flex gap-2.5 items-center relative overflow-hidden">
-                                        <div class="w-13 h-13 bg-gray-100 rounded-[10px] shrink-0 flex items-center justify-center text-gray-300 overflow-hidden relative">
+                                    <div class="bg-white p-1.5 rounded-[12px] shadow-2xs border border-gray-100 flex gap-2 items-center relative overflow-hidden">
+                                        <div class="w-12 h-12 bg-gray-100 rounded-[8px] shrink-0 flex items-center justify-center text-gray-300 overflow-hidden relative">
                                             <template x-if="item.image_url">
                                                 <img :src="item.image_url" :alt="item.name" class="w-full h-full object-cover">
                                             </template>
                                             <template x-if="!item.image_url">
-                                                <i class="fas fa-coffee text-base text-gray-300"></i>
+                                                <i class="fas fa-coffee text-sm text-gray-300"></i>
                                             </template>
                                             <template x-if="item.is_best_seller">
-                                                <span class="absolute top-0.5 left-0.5 bg-amber-500 text-white text-[6.5px] font-black px-1 rounded shadow-2xs">⭐</span>
+                                                <span class="absolute top-0.5 left-0.5 bg-amber-500 text-white text-[6px] font-black px-1 rounded shadow-2xs">⭐</span>
                                             </template>
                                         </div>
-                                        <div class="flex-1 min-w-0 pr-6">
-                                            <h4 class="font-bold text-[11px] text-gray-800 leading-tight truncate" x-text="item.name"></h4>
-                                            <p class="text-[8.5px] text-gray-400 mt-0.5 line-clamp-1" x-text="item.description || 'Menu pilihan terbaik kami.'"></p>
-                                            <div class="flex items-center gap-1.5 mt-0.5">
-                                                <span class="font-black text-[11px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
+                                        <div class="flex-1 min-w-0 pr-5">
+                                            <h4 class="font-bold text-[10.5px] text-gray-800 leading-tight truncate" x-text="item.name"></h4>
+                                            <p class="text-[8px] text-gray-400 mt-0.5 line-clamp-1" x-text="item.description || 'Menu pilihan terbaik kami.'"></p>
+                                            <div class="flex items-center gap-1 mt-0.5">
+                                                <span class="font-black text-[10px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
                                                 <template x-if="item.has_active_discount">
-                                                    <span class="text-[8px] text-gray-400 line-through" x-text="formatRp(item.price)"></span>
+                                                    <span class="text-[7.5px] text-gray-400 line-through" x-text="formatRp(item.price)"></span>
                                                 </template>
                                                 <template x-if="item.has_active_discount">
-                                                    <span class="bg-red-500 text-white text-[7.5px] font-black px-1 rounded" x-text="'-' + item.discount_percentage + '%'"></span>
+                                                    <span class="bg-red-500 text-white text-[7px] font-black px-1 rounded" x-text="'-' + item.discount_percentage + '%'"></span>
                                                 </template>
                                             </div>
                                         </div>
-                                        <div class="absolute right-2 bottom-2 w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] shadow-2xs" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                        <div class="absolute right-1.5 bottom-1.5 w-4.5 h-4.5 rounded-full flex items-center justify-center text-white text-[7.5px] shadow-2xs" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                             <i class="fas fa-plus"></i>
                                         </div>
                                     </div>
@@ -1106,24 +1106,24 @@
                             </div>
 
                             <!-- 3. Compact Theme (Dense Rows) -->
-                            <div x-show="settings.theme_style === 'compact'" class="flex flex-col gap-1.5">
+                            <div x-show="settings.theme_style === 'compact'" class="flex flex-col gap-1">
                                 <template x-for="item in previewProducts" :key="item.id">
-                                    <div class="bg-white px-2.5 py-1.5 rounded-[10px] shadow-2xs border border-gray-100 flex items-center justify-between">
-                                        <div class="flex items-center gap-2 min-w-0">
-                                            <div class="w-7 h-7 bg-gray-100 rounded-[7px] shrink-0 flex items-center justify-center overflow-hidden">
+                                    <div class="bg-white px-2 py-1 rounded-[8px] shadow-2xs border border-gray-100 flex items-center justify-between">
+                                        <div class="flex items-center gap-1.5 min-w-0">
+                                            <div class="w-6 h-6 bg-gray-100 rounded-[6px] shrink-0 flex items-center justify-center overflow-hidden">
                                                 <template x-if="item.image_url">
                                                     <img :src="item.image_url" class="w-full h-full object-cover">
                                                 </template>
                                                 <template x-if="!item.image_url">
-                                                    <i class="fas fa-coffee text-[10px] text-gray-400"></i>
+                                                    <i class="fas fa-coffee text-[9px] text-gray-400"></i>
                                                 </template>
                                             </div>
                                             <div class="truncate leading-none">
-                                                <h4 class="font-bold text-[10.5px] text-gray-800 truncate" x-text="item.name"></h4>
-                                                <span class="font-bold text-[9.5px] mt-0.5 inline-block" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
+                                                <h4 class="font-bold text-[10px] text-gray-800 truncate" x-text="item.name"></h4>
+                                                <span class="font-bold text-[9px] mt-0.5 inline-block" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
                                             </div>
                                         </div>
-                                        <div class="w-5 h-5 rounded-[6px] flex items-center justify-center text-white text-[8px] shadow-2xs shrink-0" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                        <div class="w-4.5 h-4.5 rounded-[5px] flex items-center justify-center text-white text-[7.5px] shadow-2xs shrink-0" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                             <i class="fas fa-plus"></i>
                                         </div>
                                     </div>
@@ -1133,32 +1133,32 @@
                             <!-- 4. Hero Cards Theme -->
                             <div x-show="settings.theme_style === 'cards'" class="flex flex-col">
                                 <template x-if="previewProducts.length > 0">
-                                    <div class="bg-white rounded-[14px] shadow-2xs border border-gray-100 overflow-hidden relative">
-                                        <div class="w-full h-20 bg-gray-100 flex items-center justify-center text-gray-300 overflow-hidden relative">
+                                    <div class="bg-white rounded-[12px] shadow-2xs border border-gray-100 overflow-hidden relative">
+                                        <div class="w-full h-18 bg-gray-100 flex items-center justify-center text-gray-300 overflow-hidden relative">
                                             <template x-if="previewProducts[0].image_url">
                                                 <img :src="previewProducts[0].image_url" class="w-full h-full object-cover">
                                             </template>
                                             <template x-if="!previewProducts[0].image_url">
-                                                <i class="fas fa-coffee text-2xl text-gray-300"></i>
+                                                <i class="fas fa-coffee text-xl text-gray-300"></i>
                                             </template>
                                             <template x-if="previewProducts[0].is_best_seller">
-                                                <span class="absolute top-1.5 left-1.5 bg-amber-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-2xs">⭐ Best Seller</span>
+                                                <span class="absolute top-1 left-1 bg-amber-500 text-white text-[7.5px] font-black px-1.5 py-0.2 rounded shadow-2xs">⭐ Best</span>
                                             </template>
                                             <template x-if="previewProducts[0].has_active_discount">
-                                                <span class="absolute top-1.5 right-1.5 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-2xs" x-text="'-' + previewProducts[0].discount_percentage + '%'"></span>
+                                                <span class="absolute top-1 right-1 bg-red-600 text-white text-[7.5px] font-black px-1 rounded shadow-2xs" x-text="'-' + previewProducts[0].discount_percentage + '%'"></span>
                                             </template>
                                         </div>
-                                        <div class="p-2">
-                                            <h4 class="font-bold text-[11px] text-gray-800 leading-tight truncate" x-text="previewProducts[0].name"></h4>
-                                            <p class="text-[8.5px] text-gray-400 line-clamp-1 mt-0.5" x-text="previewProducts[0].description || 'Menu unggulan terbaik dengan rasa istimewa.'"></p>
-                                            <div class="flex items-center justify-between mt-1.5">
-                                                <div class="flex items-center gap-1.5">
-                                                    <span class="font-black text-[12px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(previewProducts[0].effective_price || previewProducts[0].price)"></span>
+                                        <div class="p-1.5">
+                                            <h4 class="font-bold text-[10.5px] text-gray-800 leading-tight truncate" x-text="previewProducts[0].name"></h4>
+                                            <p class="text-[8px] text-gray-400 line-clamp-1 mt-0.5" x-text="previewProducts[0].description || 'Menu unggulan terbaik dengan rasa istimewa.'"></p>
+                                            <div class="flex items-center justify-between mt-1">
+                                                <div class="flex items-center gap-1">
+                                                    <span class="font-black text-[11px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(previewProducts[0].effective_price || previewProducts[0].price)"></span>
                                                     <template x-if="previewProducts[0].has_active_discount">
-                                                        <span class="text-[8.5px] text-gray-400 line-through" x-text="formatRp(previewProducts[0].price)"></span>
+                                                        <span class="text-[8px] text-gray-400 line-through" x-text="formatRp(previewProducts[0].price)"></span>
                                                     </template>
                                                 </div>
-                                                <div class="px-2.5 py-0.5 rounded-lg text-white text-[9px] font-bold shadow-2xs" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
+                                                <div class="px-2 py-0.5 rounded text-white text-[8px] font-bold shadow-2xs" :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                                     + Tambah
                                                 </div>
                                             </div>
@@ -1169,30 +1169,30 @@
                         </div>
 
                         <!-- Bottom Part: Floating Cart Bar & Home Indicator -->
-                        <div class="shrink-0 pt-1 space-y-1.5">
+                        <div class="shrink-0 pt-0.5 space-y-1">
                             <!-- Floating Cart Button -->
-                            <div class="w-full h-9 rounded-full shadow-md flex items-center justify-between px-3 text-white" 
+                            <div class="w-full h-8 rounded-full shadow-sm flex items-center justify-between px-3 text-white" 
                                  :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                 <div class="flex flex-col justify-center leading-none">
-                                    <span class="text-[7px] text-white/75 font-semibold">Total Pesanan</span>
-                                    <span class="font-bold text-[11px] mt-0.5">Rp 0</span>
+                                    <span class="text-[6.5px] text-white/75 font-semibold">Total Pesanan</span>
+                                    <span class="font-bold text-[10px] mt-0.5">Rp 0</span>
                                 </div>
-                                <div class="bg-white px-2.5 py-1 rounded-full font-bold shadow-xs flex items-center gap-1.5" 
+                                <div class="bg-white px-2 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1" 
                                      :style="'color: ' + (settings.primary_color || '#1e5a7a')">
-                                    <i class="fas fa-shopping-cart text-[9px]"></i>
-                                    <span class="bg-gray-800 text-white text-[8px] px-1.5 py-0.2 rounded-full">0</span>
+                                    <i class="fas fa-shopping-cart text-[8px]"></i>
+                                    <span class="bg-gray-800 text-white text-[7.5px] px-1 py-0.2 rounded-full">0</span>
                                 </div>
                             </div>
 
                             <!-- iOS Home Indicator Bar -->
-                            <div class="w-24 h-1 bg-gray-400/70 rounded-full mx-auto"></div>
+                            <div class="w-20 h-0.5 bg-gray-400/70 rounded-full mx-auto"></div>
                         </div>
 
                     </div>
                 </div>
             </div>
             
-            <p class="text-center text-[11px] text-muted mt-3">
+            <p class="text-center text-[11px] text-muted mt-2">
                 <i class="fas fa-eye mr-1 text-primary"></i> Live preview mencerminkan tampilan asli customer.
             </p>
         </div>

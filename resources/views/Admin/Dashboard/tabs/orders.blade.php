@@ -303,10 +303,6 @@
                             </div>
                         </template>
                     </div>
-                                Dibatalkan
-                            </button>
-                        </template>
-                    </div>
                 </div>
             </div>
         </template>
