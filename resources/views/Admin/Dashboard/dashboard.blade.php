@@ -1353,6 +1353,18 @@
                                 { id: 2, name: 'Printer Dapur / Bar', location: 'kitchen', connection_type: 'browser', ip_address: '', port: 9100, paper_width: '58mm', category_ids: [], is_active: true, auto_print: false }
                             ]),
                     receiptPreviewTab: 'customer',
+                    discount_settings: Object.assign({
+                        is_enabled: true,
+                        allow_custom: true,
+                        presets: [
+                            { id: 'p1', name: '5%', type: 'percentage', value: 5 },
+                            { id: 'p2', name: '10%', type: 'percentage', value: 10 },
+                            { id: 'p3', name: '15%', type: 'percentage', value: 15 },
+                            { id: 'p4', name: '20%', type: 'percentage', value: 20 },
+                            { id: 'p5', name: 'Rp 5.000', type: 'fixed', value: 5000 },
+                            { id: 'p6', name: 'Rp 10.000', type: 'fixed', value: 10000 }
+                        ]
+                    }, window.INITIAL_DATA.shop?.discount_settings || {}),
                     instagram_link: window.INITIAL_DATA.shop?.instagram_link || '',
                     tiktok_link: window.INITIAL_DATA.shop?.tiktok_link || '',
                     social_settings: Object.assign({
@@ -1865,6 +1877,7 @@
                     if (this.currentTab === 'dashboard') this.initAnalytics();
                     if (['menu', 'inventory'].includes(this.currentTab)) this.loadMenu();
                     if (['menu', 'inventory'].includes(this.currentTab)) this.fetchInventory();
+                    this.loadVouchers();
                     if (window.INITIAL_DATA.shop) {
                         this.settings.name = window.INITIAL_DATA.shop.name || '';
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
@@ -2666,6 +2679,186 @@ if (res.ok) {
                     };
                     reader.readAsDataURL(file);
                 },
+                // ── Vouchers & POS Discount Presets ────────────────
+                vouchers: [],
+                isLoadingVouchers: false,
+                isSavingVoucher: false,
+                voucherModal: {
+                    show: false,
+                    isEdit: false,
+                    id: null,
+                    code: '',
+                    name: '',
+                    discount_type: 'percentage',
+                    discount_value: '',
+                    min_spend: '',
+                    max_discount: '',
+                    usage_limit: '',
+                    expires_at: '',
+                    is_active: true
+                },
+                newPreset: {
+                    name: '',
+                    type: 'percentage',
+                    value: ''
+                },
+                addDiscountPreset() {
+                    if (!this.newPreset.name || !this.newPreset.value) {
+                        this.addToast('Nama dan nilai preset harus diisi!', 'error');
+                        return;
+                    }
+                    if (!this.settings.discount_settings) {
+                        this.settings.discount_settings = { is_enabled: true, allow_custom: true, presets: [] };
+                    }
+                    if (!Array.isArray(this.settings.discount_settings.presets)) {
+                        this.settings.discount_settings.presets = [];
+                    }
+                    this.settings.discount_settings.presets.push({
+                        id: 'preset_' + Date.now(),
+                        name: this.newPreset.name.trim(),
+                        type: this.newPreset.type,
+                        value: Number(this.newPreset.value)
+                    });
+                    this.newPreset = { name: '', type: 'percentage', value: '' };
+                    this.addToast('Preset shortcut ditambahkan! Klik "Simpan Perubahan" untuk menyimpan.', 'info');
+                },
+                removeDiscountPreset(index) {
+                    if (this.settings.discount_settings?.presets) {
+                        this.settings.discount_settings.presets.splice(index, 1);
+                    }
+                },
+                async loadVouchers() {
+                    this.isLoadingVouchers = true;
+                    try {
+                        const res = await fetch('/admin/api/vouchers', {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.vouchers = data.vouchers || [];
+                        }
+                    } catch (e) {
+                        console.error('Failed to load vouchers', e);
+                    } finally {
+                        this.isLoadingVouchers = false;
+                    }
+                },
+                openCreateVoucherModal() {
+                    this.voucherModal = {
+                        show: true,
+                        isEdit: false,
+                        id: null,
+                        code: '',
+                        name: '',
+                        discount_type: 'percentage',
+                        discount_value: '',
+                        min_spend: '',
+                        max_discount: '',
+                        usage_limit: '',
+                        expires_at: '',
+                        is_active: true
+                    };
+                },
+                openEditVoucherModal(v) {
+                    this.voucherModal = {
+                        show: true,
+                        isEdit: true,
+                        id: v.id,
+                        code: v.code,
+                        name: v.name,
+                        discount_type: v.discount_type,
+                        discount_value: v.discount_value,
+                        min_spend: v.min_spend || '',
+                        max_discount: v.max_discount || '',
+                        usage_limit: v.usage_limit || '',
+                        expires_at: v.expires_at ? v.expires_at.substring(0, 10) : '',
+                        is_active: Boolean(v.is_active)
+                    };
+                },
+                async saveVoucher() {
+                    if (!this.voucherModal.code || !this.voucherModal.name || !this.voucherModal.discount_value) {
+                        this.addToast('Kode voucher, nama promo, dan nilai diskon wajib diisi!', 'error');
+                        return;
+                    }
+                    this.isSavingVoucher = true;
+                    const url = this.voucherModal.isEdit
+                        ? `/admin/api/vouchers/${this.voucherModal.id}`
+                        : '/admin/api/vouchers';
+                    const method = this.voucherModal.isEdit ? 'PUT' : 'POST';
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    try {
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token || ''
+                            },
+                            body: JSON.stringify({
+                                code: this.voucherModal.code,
+                                name: this.voucherModal.name,
+                                discount_type: this.voucherModal.discount_type,
+                                discount_value: Number(this.voucherModal.discount_value),
+                                min_spend: this.voucherModal.min_spend ? Number(this.voucherModal.min_spend) : 0,
+                                max_discount: this.voucherModal.max_discount ? Number(this.voucherModal.max_discount) : null,
+                                usage_limit: this.voucherModal.usage_limit ? Number(this.voucherModal.usage_limit) : null,
+                                expires_at: this.voucherModal.expires_at || null,
+                                is_active: this.voucherModal.is_active
+                            })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            this.addToast(data.message || 'Voucher berhasil disimpan!', 'success');
+                            this.voucherModal.show = false;
+                            this.loadVouchers();
+                        } else {
+                            this.addToast(data.message || (data.errors ? Object.values(data.errors)[0][0] : 'Gagal menyimpan voucher'), 'error');
+                        }
+                    } catch (e) {
+                        this.addToast('Terjadi kesalahan saat menyimpan voucher', 'error');
+                    } finally {
+                        this.isSavingVoucher = false;
+                    }
+                },
+                async toggleVoucher(v) {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    try {
+                        const res = await fetch(`/admin/api/vouchers/${v.id}/toggle`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token || ''
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            v.is_active = !v.is_active;
+                            this.addToast(data.message, 'success');
+                        }
+                    } catch (e) {
+                        this.addToast('Gagal mengubah status voucher', 'error');
+                    }
+                },
+                async deleteVoucher(v) {
+                    if (!confirm(`Hapus voucher "${v.code}"?`)) return;
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    try {
+                        const res = await fetch(`/admin/api/vouchers/${v.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token || ''
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.vouchers = this.vouchers.filter(item => item.id !== v.id);
+                            this.addToast('Voucher berhasil dihapus!', 'success');
+                        }
+                    } catch (e) {
+                        this.addToast('Gagal menghapus voucher', 'error');
+                    }
+                },
                 saveSettings() {
                     if (!this.settings.name || !this.settings.slug) {
                         this.addToast('Nama dan Slug toko wajib diisi!', 'error');
@@ -2687,6 +2880,7 @@ if (res.ok) {
                     formData.append('receipt_footer', this.settings.receipt_footer || '');
                     formData.append('receipt_settings', JSON.stringify(this.settings.receipt_settings || {}));
                     formData.append('printers', JSON.stringify(this.settings.printers || []));
+                    formData.append('discount_settings', JSON.stringify(this.settings.discount_settings || {}));
                     formData.append('instagram_link', this.settings.instagram_link || '');
                     formData.append('tiktok_link', this.settings.tiktok_link || '');
                     formData.append('social_settings', JSON.stringify(this.settings.social_settings));
@@ -2774,6 +2968,126 @@ if (res.ok) {
             }))
         });
     </script>
+
+    <!-- MODAL TAMBAH / EDIT VOUCHER PROMO -->
+    <div x-show="voucherModal.show" x-cloak class="fixed inset-0 z-[9990] flex items-center justify-center p-4">
+        <div x-show="voucherModal.show" x-transition.opacity class="absolute inset-0 bg-ink/60 backdrop-blur-sm" @click="voucherModal.show = false"></div>
+
+        <div x-show="voucherModal.show"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            class="bg-white rounded-[24px] border border-line w-full max-w-lg shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[92vh]">
+
+            <div class="p-5 border-b border-line flex items-center justify-between bg-ivory/50">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                        <i class="fas fa-ticket-alt"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-bold text-base text-ink" x-text="voucherModal.isEdit ? 'Edit Voucher Promo' : 'Buat Voucher Promo Baru'"></h3>
+                        <p class="text-xs text-muted">Atur kode kupon dan aturan diskon untuk pelanggan.</p>
+                    </div>
+                </div>
+                <button type="button" @click="voucherModal.show = false" class="w-8 h-8 flex items-center justify-center text-muted hover:text-ink rounded-full transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form @submit.prevent="saveVoucher" class="p-6 overflow-y-auto space-y-4 text-xs">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-ink mb-1.5">Kode Voucher (Unik) *</label>
+                        <input type="text" x-model="voucherModal.code" @input="voucherModal.code = voucherModal.code.toUpperCase().replace(/\s+/g, '')"
+                            class="w-full border border-line rounded-xl px-3.5 py-2.5 font-mono uppercase font-black text-sm tracking-wider focus:border-primary focus:outline-none"
+                            placeholder="MISAL: HEMAT20" required>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-ink mb-1.5">Nama / Keterangan Promo *</label>
+                        <input type="text" x-model="voucherModal.name"
+                            class="w-full border border-line rounded-xl px-3.5 py-2.5 focus:border-primary focus:outline-none"
+                            placeholder="Contoh: Promo Tanggal Muda" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-ink mb-1.5">Tipe & Besaran Diskon *</label>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <button type="button" @click="voucherModal.discount_type = 'percentage'"
+                            :class="voucherModal.discount_type === 'percentage' ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-line bg-ivory/40 text-muted font-medium'"
+                            class="py-2 rounded-xl border transition flex items-center justify-center gap-1.5">
+                            <i class="fas fa-percent text-xs"></i>
+                            <span>Persentase (%)</span>
+                        </button>
+                        <button type="button" @click="voucherModal.discount_type = 'fixed'"
+                            :class="voucherModal.discount_type === 'fixed' ? 'border-primary bg-primary/10 text-primary font-bold' : 'border-line bg-ivory/40 text-muted font-medium'"
+                            class="py-2 rounded-xl border transition flex items-center justify-center gap-1.5">
+                            <i class="fas fa-coins text-xs"></i>
+                            <span>Nominal Tetap (Rp)</span>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted font-bold"
+                              x-text="voucherModal.discount_type === 'percentage' ? '%' : 'Rp'"></span>
+                        <input type="number" x-model.number="voucherModal.discount_value" :min="0.1" :max="voucherModal.discount_type === 'percentage' ? 100 : 10000000" step="any"
+                            class="w-full pl-10 pr-4 py-2.5 border border-line rounded-xl font-bold focus:border-primary focus:outline-none"
+                            :placeholder="voucherModal.discount_type === 'percentage' ? 'Besaran persen, misal: 20' : 'Nominal rupiah, misal: 15000'" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div x-show="voucherModal.discount_type === 'percentage'">
+                        <label class="block font-bold text-ink mb-1.5">Maksimal Diskon (Rp, Opsional)</label>
+                        <input type="number" x-model.number="voucherModal.max_discount" min="0" step="1000"
+                            class="w-full border border-line rounded-xl px-3.5 py-2.5 focus:border-primary focus:outline-none"
+                            placeholder="Tanpa batas maksimal">
+                        <span class="text-[10px] text-muted">Batas maksimal potongan untuk diskon persen.</span>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-ink mb-1.5">Minimal Belanja (Rp)</label>
+                        <input type="number" x-model.number="voucherModal.min_spend" min="0" step="1000"
+                            class="w-full border border-line rounded-xl px-3.5 py-2.5 focus:border-primary focus:outline-none"
+                            placeholder="0 (Tanpa minimum)">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-ink mb-1.5">Batas Kuota Pemakaian (Opsional)</label>
+                        <input type="number" x-model.number="voucherModal.usage_limit" min="1"
+                            class="w-full border border-line rounded-xl px-3.5 py-2.5 focus:border-primary focus:outline-none"
+                            placeholder="Tanpa kuota (unlimited)">
+                        <span class="text-[10px] text-muted">Total berapa kali voucher ini bisa dipakai.</span>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-ink mb-1.5">Masa Berlaku Hingga (Opsional)</label>
+                        <input type="date" x-model="voucherModal.expires_at"
+                            class="w-full border border-line rounded-xl px-3.5 py-2.5 focus:border-primary focus:outline-none">
+                        <span class="text-[10px] text-muted">Kosongkan jika berlaku selamanya.</span>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <label class="inline-flex items-center gap-2 cursor-pointer font-bold text-ink">
+                        <input type="checkbox" x-model="voucherModal.is_active" class="w-4 h-4 text-primary rounded border-line focus:ring-primary">
+                        <span>Aktifkan voucher ini langsung</span>
+                    </label>
+                </div>
+
+                <div class="pt-3 border-t border-line flex items-center justify-end gap-2.5">
+                    <button type="button" @click="voucherModal.show = false"
+                        class="px-4 py-2.5 rounded-xl border border-line font-bold text-muted hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+                    <button type="submit" :disabled="isSavingVoucher"
+                        class="px-5 py-2.5 rounded-xl bg-primary hover:bg-brand-700 text-white font-bold transition flex items-center gap-2 shadow-sm disabled:opacity-50">
+                        <i class="fas fa-spinner fa-spin" x-show="isSavingVoucher" x-cloak></i>
+                        <span x-text="isSavingVoucher ? 'Menyimpan...' : (voucherModal.isEdit ? 'Simpan Perubahan' : 'Buat Voucher')"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div class="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-[9999] flex flex-col gap-3 pointer-events-none">

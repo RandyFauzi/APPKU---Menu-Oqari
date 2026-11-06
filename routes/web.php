@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ShiftController;
+use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\ShopController;
@@ -82,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/pos/orders/{order}/recall', [PosController::class, 'recallOrder'])->name('admin.pos.orders.recall');
         Route::delete('/admin/pos/orders/{order}/hold', [PosController::class, 'cancelHeldOrder'])->name('admin.pos.orders.hold.cancel');
         Route::get('/admin/pos/products', [PosController::class, 'products'])->name('admin.pos.products');
+        Route::post('/admin/pos/vouchers/validate', [VoucherController::class, 'validateCode'])->name('admin.pos.vouchers.validate');
         // Legacy order status updates
     });
 
@@ -137,6 +139,14 @@ Route::middleware(['auth'])->group(function () {
         // Table & QR Management
         Route::post('/admin/api/table', [DashboardController::class, 'saveTable']);
         Route::put('/admin/api/table', [DashboardController::class, 'updateTableQR']);
+
+        // Voucher & Promotion Management
+        Route::get('/admin/api/vouchers', [VoucherController::class, 'index'])->name('admin.vouchers.index');
+        Route::post('/admin/api/vouchers', [VoucherController::class, 'store'])->name('admin.vouchers.store');
+        Route::put('/admin/api/vouchers/{voucher}', [VoucherController::class, 'update'])->whereNumber('voucher')->name('admin.vouchers.update');
+        Route::patch('/admin/api/vouchers/{voucher}/toggle', [VoucherController::class, 'toggle'])->whereNumber('voucher')->name('admin.vouchers.toggle');
+        Route::delete('/admin/api/vouchers/{voucher}', [VoucherController::class, 'destroy'])->whereNumber('voucher')->name('admin.vouchers.destroy');
+        Route::post('/admin/api/vouchers/validate', [VoucherController::class, 'validateCode'])->name('admin.vouchers.validate');
     });
 
     // Crew Management (Owner/Manager)

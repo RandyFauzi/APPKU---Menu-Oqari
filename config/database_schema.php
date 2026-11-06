@@ -16,7 +16,7 @@ return [
             'modifiers' => ['id', 'modifier_group_id', 'name', 'price_adjustment', 'is_active'],
         ],
         'orders' => [
-            'orders' => ['id', 'shop_id', 'table_id', 'customer_name', 'customer_phone', 'customer_email', 'subtotal', 'discount_amount', 'tax_amount', 'service_charge_amount', 'grand_total', 'total_cogs', 'order_status', 'payment_status', 'payment_method', 'fulfillment_type', 'created_at', 'updated_at'],
+            'orders' => ['id', 'shop_id', 'table_id', 'customer_name', 'customer_phone', 'customer_email', 'subtotal', 'discount_amount', 'voucher_code', 'discount_reason', 'tax_amount', 'service_charge_amount', 'grand_total', 'total_cogs', 'order_status', 'payment_status', 'payment_method', 'fulfillment_type', 'created_at', 'updated_at'],
             'order_items' => ['id', 'order_id', 'product_id', 'product_name', 'variant_name', 'quantity', 'unit_price', 'subtotal', 'discount_amount', 'tax_amount', 'cogs_total', 'modifiers', 'notes', 'created_at', 'updated_at'],
             'tables' => ['id', 'shop_id', 'name', 'public_token'],
         ],
@@ -61,9 +61,10 @@ return [
         ],
         'settings' => [
             'shop_slug_histories' => ['id', 'shop_id', 'old_slug'],
-            'shops' => ['id', 'name', 'slug', 'logo_path', 'banner_paths', 'primary_color', 'theme_style', 'business_type', 'sales_modes', 'onboarding_status', 'onboarding_step', 'is_open', 'slogan', 'font_family', 'title_font_family', 'receipt_header', 'receipt_footer', 'receipt_settings', 'printer_settings', 'instagram_link', 'whatsapp_number', 'maps_link', 'is_banner_active', 'operating_hours', 'address', 'email'],
+            'shops' => ['id', 'name', 'slug', 'logo_path', 'banner_paths', 'primary_color', 'theme_style', 'business_type', 'sales_modes', 'onboarding_status', 'onboarding_step', 'is_open', 'slogan', 'font_family', 'title_font_family', 'receipt_header', 'receipt_footer', 'receipt_settings', 'printer_settings', 'discount_settings', 'instagram_link', 'whatsapp_number', 'maps_link', 'is_banner_active', 'operating_hours', 'address', 'email'],
             'payment_methods' => ['id', 'shop_id', 'name', 'code', 'type', 'is_active'],
             'printers' => ['id', 'shop_id', 'name', 'location', 'connection_type', 'ip_address', 'port', 'paper_width', 'category_ids', 'is_active', 'auto_print', 'created_at', 'updated_at'],
+            'vouchers' => ['id', 'shop_id', 'code', 'name', 'discount_type', 'discount_value', 'min_spend', 'max_discount', 'usage_limit', 'used_count', 'expires_at', 'is_active', 'created_at', 'updated_at'],
         ],
         'reports' => [
             'payments' => ['id', 'shop_id', 'order_id', 'payment_method', 'amount', 'cancelled_at', 'created_at'],

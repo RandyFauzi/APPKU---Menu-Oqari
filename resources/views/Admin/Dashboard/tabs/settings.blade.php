@@ -697,6 +697,190 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Section 6: Pengaturan Diskon Kasir & Shortcut Dinamis -->
+                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                    <div class="p-6 border-b border-line bg-ivory/50 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-lg text-ink">Pengaturan Diskon Kasir (POS)</h3>
+                            <p class="text-xs text-muted">Aktifkan fitur diskon, atur shortcut cepat untuk kasir, dan izinkan input manual.</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-orange-100 text-[#df5826] flex items-center justify-center text-lg">
+                            <i class="fas fa-percent"></i>
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col gap-6">
+                        <!-- Toggles Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Toggle 1: Fitur Diskon Aktif -->
+                            <div class="p-4 rounded-2xl border border-line bg-ivory/30 flex items-center justify-between gap-4">
+                                <div>
+                                    <h4 class="font-bold text-sm text-ink mb-1">Fitur Diskon di Kasir</h4>
+                                    <p class="text-xs text-muted">Tampilkan tombol diskon dan voucher pada menu kasir POS.</p>
+                                </div>
+                                <div @click="settings.discount_settings.is_enabled = !settings.discount_settings.is_enabled" class="relative inline-flex items-center cursor-pointer group p-1 shrink-0">
+                                    <div class="w-11 h-6 rounded-full transition-colors duration-300 relative shadow-inner" :class="settings.discount_settings.is_enabled ? 'bg-primary' : 'bg-gray-300'">
+                                        <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 absolute top-1 left-1" :class="settings.discount_settings.is_enabled ? 'translate-x-5' : 'translate-x-0'"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Toggle 2: Diskon Manual Fleksibel -->
+                            <div class="p-4 rounded-2xl border border-line bg-ivory/30 flex items-center justify-between gap-4" :class="!settings.discount_settings.is_enabled ? 'opacity-50 pointer-events-none' : ''">
+                                <div>
+                                    <h4 class="font-bold text-sm text-ink mb-1">Izinkan Diskon Manual Bebas</h4>
+                                    <p class="text-xs text-muted">Kasir dapat menginput angka nominal atau persentase bebas.</p>
+                                </div>
+                                <div @click="settings.discount_settings.allow_custom = !settings.discount_settings.allow_custom" class="relative inline-flex items-center cursor-pointer group p-1 shrink-0">
+                                    <div class="w-11 h-6 rounded-full transition-colors duration-300 relative shadow-inner" :class="settings.discount_settings.allow_custom ? 'bg-primary' : 'bg-gray-300'">
+                                        <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 absolute top-1 left-1" :class="settings.discount_settings.allow_custom ? 'translate-x-5' : 'translate-x-0'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shortcut Presets Manager -->
+                        <div :class="!settings.discount_settings.is_enabled ? 'opacity-50 pointer-events-none' : ''">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h4 class="font-bold text-sm text-ink">Shortcut Preset Diskon Cepat (POS)</h4>
+                                    <p class="text-xs text-muted">Tombol shortcut 1-tap yang langsung muncul di layar kasir untuk mempermudah transaksi.</p>
+                                </div>
+                            </div>
+
+                            <!-- Preset list -->
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+                                <template x-for="(preset, pIdx) in (settings.discount_settings.presets || [])" :key="preset.id || pIdx">
+                                    <div class="p-3 rounded-xl border border-line bg-white shadow-2xs flex items-center justify-between gap-2 group hover:border-primary transition">
+                                        <div class="truncate">
+                                            <span class="font-bold text-xs text-ink block truncate" x-text="preset.name"></span>
+                                            <span class="text-[10px] font-semibold text-primary" x-text="preset.type === 'percentage' ? preset.value + '%' : 'Rp ' + Number(preset.value).toLocaleString('id-ID')"></span>
+                                        </div>
+                                        <button type="button" @click="removeDiscountPreset(pIdx)" class="text-muted hover:text-red-500 p-1 rounded-full opacity-60 group-hover:opacity-100 transition cursor-pointer" title="Hapus shortcut">
+                                            <i class="fas fa-trash-alt text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Add new preset inline form -->
+                            <div class="p-4 rounded-2xl border border-dashed border-line bg-ivory/40 flex flex-col md:flex-row items-center gap-3">
+                                <div class="w-full md:w-1/3">
+                                    <input type="text" x-model="newPreset.name" class="w-full border border-line rounded-xl px-3.5 py-2 text-xs focus:border-primary focus:outline-none bg-white" placeholder="Nama Shortcut (misal: Diskon 25%, VIP)">
+                                </div>
+                                <div class="w-full md:w-1/4">
+                                    <select x-model="newPreset.type" class="w-full border border-line rounded-xl px-3.5 py-2 text-xs focus:border-primary focus:outline-none bg-white">
+                                        <option value="percentage">Persentase (%)</option>
+                                        <option value="fixed">Nominal Tetap (Rp)</option>
+                                    </select>
+                                </div>
+                                <div class="w-full md:w-1/4">
+                                    <input type="number" x-model.number="newPreset.value" min="1" class="w-full border border-line rounded-xl px-3.5 py-2 text-xs focus:border-primary focus:outline-none bg-white" placeholder="Nilai (misal: 25 atau 10000)">
+                                </div>
+                                <div class="w-full md:w-auto shrink-0">
+                                    <button type="button" @click="addDiscountPreset" class="w-full md:w-auto px-4 py-2 bg-ink hover:bg-black text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                                        <i class="fas fa-plus text-[10px]"></i>
+                                        <span>Tambah Shortcut</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 7: Kelola Voucher & Kupon Promo -->
+                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                    <div class="p-6 border-b border-line bg-ivory/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-lg text-ink">Kelola Voucher & Kupon Promosi</h3>
+                            <p class="text-xs text-muted">Buat kode kupon promo khusus pelanggan (contoh: HEMAT20, KOPIASIK).</p>
+                        </div>
+                        <button type="button" @click="openCreateVoucherModal()" class="px-5 py-2.5 rounded-xl bg-primary hover:bg-brand-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition shrink-0 cursor-pointer">
+                            <i class="fas fa-plus"></i>
+                            <span>Buat Voucher Baru</span>
+                        </button>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- Loading State -->
+                        <div x-show="isLoadingVouchers" class="py-12 text-center text-muted">
+                            <i class="fas fa-spinner fa-spin text-2xl text-primary mb-2"></i>
+                            <p class="text-xs">Memuat daftar voucher...</p>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div x-show="!isLoadingVouchers && vouchers.length === 0" class="py-12 text-center text-muted border-2 border-dashed border-line rounded-2xl bg-ivory/30">
+                            <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-ticket-alt text-xl"></i>
+                            </div>
+                            <h4 class="font-bold text-sm text-ink mb-1">Belum Ada Voucher</h4>
+                            <p class="text-xs text-muted max-w-sm mx-auto mb-4">Buat kode voucher pertama Anda untuk menarik lebih banyak pembeli atau beri reward khusus pelanggan setia.</p>
+                            <button type="button" @click="openCreateVoucherModal()" class="px-4 py-2 rounded-xl bg-ink text-white font-bold text-xs hover:bg-black transition cursor-pointer">
+                                + Buat Voucher Sekarang
+                            </button>
+                        </div>
+
+                        <!-- Vouchers Table -->
+                        <div x-show="!isLoadingVouchers && vouchers.length > 0" class="overflow-x-auto -mx-6 px-6">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="border-b border-line text-muted uppercase text-[10px] font-bold">
+                                        <th class="py-3 px-3">Kode & Nama Voucher</th>
+                                        <th class="py-3 px-3">Besaran Diskon</th>
+                                        <th class="py-3 px-3">Min. Belanja</th>
+                                        <th class="py-3 px-3">Kuota / Terpakai</th>
+                                        <th class="py-3 px-3">Masa Berlaku</th>
+                                        <th class="py-3 px-3 text-center">Status</th>
+                                        <th class="py-3 px-3 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-line">
+                                    <template x-for="v in vouchers" :key="v.id">
+                                        <tr class="hover:bg-ivory/50 transition group">
+                                            <td class="py-3 px-3">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-mono font-black text-xs px-2 py-0.5 rounded bg-gray-100 text-ink border border-line tracking-wider" x-text="v.code"></span>
+                                                    <span class="font-bold text-ink" x-text="v.name"></span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-3 font-semibold text-emerald-700">
+                                                <span x-text="v.discount_type === 'percentage' ? v.discount_value + '%' : 'Rp ' + Number(v.discount_value).toLocaleString('id-ID')"></span>
+                                                <span x-show="v.max_discount" class="text-[10px] text-muted block" x-text="'Maks Rp ' + Number(v.max_discount).toLocaleString('id-ID')"></span>
+                                            </td>
+                                            <td class="py-3 px-3 text-muted">
+                                                <span x-text="v.min_spend > 0 ? 'Rp ' + Number(v.min_spend).toLocaleString('id-ID') : 'Tanpa Min.'"></span>
+                                            </td>
+                                            <td class="py-3 px-3">
+                                                <span class="font-bold text-ink" x-text="v.used_count"></span>
+                                                <span class="text-muted" x-text="v.usage_limit ? ' / ' + v.usage_limit : ' (Tanpa batas)'"></span>
+                                            </td>
+                                            <td class="py-3 px-3 text-muted">
+                                                <span x-text="v.expires_at ? new Date(v.expires_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}) : 'Selamanya'"></span>
+                                            </td>
+                                            <td class="py-3 px-3 text-center">
+                                                <button type="button" @click="toggleVoucher(v)"
+                                                    :class="v.is_active ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-gray-100 text-gray-500 border-gray-300'"
+                                                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition cursor-pointer">
+                                                    <span x-text="v.is_active ? 'Aktif' : 'Nonaktif'"></span>
+                                                </button>
+                                            </td>
+                                            <td class="py-3 px-3 text-right">
+                                                <div class="flex items-center justify-end gap-1.5">
+                                                    <button type="button" @click="openEditVoucherModal(v)" class="p-1.5 text-muted hover:text-primary transition cursor-pointer" title="Edit Voucher">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" @click="deleteVoucher(v)" class="p-1.5 text-muted hover:text-red-500 transition cursor-pointer" title="Hapus Voucher">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
 

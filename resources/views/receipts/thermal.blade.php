@@ -204,7 +204,7 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 
     @if($receiptData->discount > 0)
         <div class="flex-between mb-1">
-            <span>Diskon</span>
+            <span>Diskon{{ $receiptData->discountReason ? ' ('.$receiptData->discountReason.')' : '' }}</span>
             <span>-{{ number_format($receiptData->discount, 0, ',', '.') }}</span>
         </div>
     @endif

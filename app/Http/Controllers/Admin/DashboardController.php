@@ -626,6 +626,7 @@ class DashboardController extends Controller
             'receipt_footer' => 'nullable|string|max:500',
             'receipt_settings' => 'nullable',
             'printer_settings' => 'nullable',
+            'discount_settings' => 'nullable',
             'printers' => 'nullable',
             'instagram_link' => 'nullable|string|max:255',
             'tiktok_link' => 'nullable|string|max:255',
@@ -684,6 +685,10 @@ class DashboardController extends Controller
         if ($request->has('printer_settings')) {
             $rawPrinter = $request->input('printer_settings');
             $shop->printer_settings = is_array($rawPrinter) ? $rawPrinter : json_decode($rawPrinter, true);
+        }
+        if ($request->has('discount_settings')) {
+            $rawDiscount = $request->input('discount_settings');
+            $shop->discount_settings = is_array($rawDiscount) ? $rawDiscount : json_decode($rawDiscount, true);
         }
         if ($request->has('printers')) {
             $rawPrinters = $request->input('printers');

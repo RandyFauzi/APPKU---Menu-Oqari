@@ -74,7 +74,8 @@ class ReceiptService
             change: (float) ($order->change_amount ?? 0),
             serviceCharge: (float) ($order->service_charge_amount ?? 0),
             cashierName: (auth()->check() ? auth()->user()->name : null),
-            receiptSettings: $shop->receipt_settings ?? []
+            receiptSettings: $shop->receipt_settings ?? [],
+            discountReason: $order->voucher_code ? ($order->voucher_code.($order->discount_reason && $order->discount_reason !== $order->voucher_code ? ' ('.$order->discount_reason.')' : '')) : $order->discount_reason
         );
     }
 }

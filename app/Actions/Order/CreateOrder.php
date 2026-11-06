@@ -48,6 +48,8 @@ class CreateOrder
                 'payment_method' => $data['payment_method'],
                 'subtotal' => $cart['subtotal'],
                 'discount_amount' => $cart['discount_amount'] ?? 0,
+                'voucher_code' => $cart['voucher_code'] ?? ($data['voucher_code'] ?? null),
+                'discount_reason' => $cart['discount_reason'] ?? ($data['discount_reason'] ?? null),
                 'tax_amount' => 0,
                 'service_charge_amount' => 0,
                 'grand_total' => $netSales,

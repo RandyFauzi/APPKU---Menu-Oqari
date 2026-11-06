@@ -26,7 +26,8 @@ class ReceiptData
         public float $change = 0,
         public float $serviceCharge = 0,
         public ?string $cashierName = null,
-        public array $receiptSettings = []
+        public array $receiptSettings = [],
+        public ?string $discountReason = null
     ) {}
 
     public function toArray(): array

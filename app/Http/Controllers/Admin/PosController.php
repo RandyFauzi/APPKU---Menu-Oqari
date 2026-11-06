@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Order\CreateOrder;
+use App\Actions\POS\ApplyDiscount;
 use App\Actions\POS\CalculateCart;
 use App\Actions\POS\SubmitPosOrder;
 use App\Events\OrderCreated;
@@ -143,6 +144,7 @@ class PosController extends Controller
 
         $calcCart = app(CalculateCart::class);
         $cart = $calcCart->execute($shop, $validated['items']);
+        $cart = app(ApplyDiscount::class)->execute($shop, $cart, $validated);
 
         // Check if updating an existing Open Bill / Unpaid Order
         if (! empty($validated['recalled_order_id'])) {
@@ -175,9 +177,11 @@ class PosController extends Controller
                     'table_id' => $tableId,
                     'customer_name' => $validated['customer_name'] ?? $order->customer_name,
                     'subtotal' => $cart['subtotal'],
-                    'grand_total' => $cart['subtotal'],
+                    'grand_total' => $cart['net_sales'] ?? $cart['subtotal'],
                     'total_cogs' => $cart['total_cogs'],
-                    'discount_amount' => 0,
+                    'discount_amount' => $cart['discount_amount'] ?? 0,
+                    'voucher_code' => $cart['voucher_code'] ?? null,
+                    'discount_reason' => $cart['discount_reason'] ?? null,
                     'tax_amount' => 0,
                     'service_charge_amount' => 0,
                     'order_status' => 'HOLD',
@@ -295,7 +299,11 @@ class PosController extends Controller
             'success' => true,
             'order' => [
                 'id' => $order->id,
-                'total' => $order->grand_total,
+                'total' => (float) $order->grand_total,
+                'subtotal' => (float) $order->subtotal,
+                'discount_amount' => (float) $order->discount_amount,
+                'voucher_code' => $order->voucher_code,
+                'discount_reason' => $order->discount_reason,
                 'customer_name' => $order->customer_name,
                 'table' => $order->table?->name,
                 'fulfillment_type' => $order->fulfillment_type ?? 'DINE_IN',

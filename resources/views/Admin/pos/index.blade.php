@@ -587,6 +587,50 @@
             </template>
         </div>
 
+        {{-- Quick Discount / Voucher Strip (Visible when cart has items & feature enabled) --}}
+        <template x-if="discountSettings?.is_enabled && cart.length > 0">
+            <div>
+                {{-- State A: Discount is applied --}}
+                <div x-show="discountAmount > 0" class="px-3.5 py-2 bg-emerald-50 border-t border-b border-emerald-200/90 flex items-center justify-between text-[11px] transition-all">
+                    <div class="flex items-center gap-1.5 min-w-0 pr-2">
+                        <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 text-[10px] font-bold">
+                            <i class="fas fa-tag"></i>
+                        </span>
+                        <div class="truncate">
+                            <span class="font-bold text-emerald-900 truncate block" x-text="discount.code ? ('Voucher: ' + discount.code) : (discount.reason || 'Diskon Aktif')"></span>
+                            <span class="text-[9.5px] text-emerald-700 font-medium" x-text="discount.code ? (discount.reason || 'Promo Kupon') : 'Potongan Terpasang'"></span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <span class="font-black text-emerald-700 text-[12px]">-Rp<span x-text="formatRp(discountAmount)"></span></span>
+                        <button type="button" @click="removeDiscount()" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition cursor-pointer" title="Hapus Diskon">
+                            <i class="fas fa-times text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- State B: No discount applied yet, show quick triggers --}}
+                <div x-show="discountAmount === 0" class="px-3 py-1.5 bg-[#fbfbfa] border-t border-[#e6e5e0] flex items-center justify-between gap-1.5 text-[11px]">
+                    <button type="button" @click="openDiscountModal()" class="inline-flex items-center gap-1 text-[#df5826] hover:text-[#c44719] font-bold text-[11px] shrink-0 transition cursor-pointer">
+                        <i class="fas fa-tags text-[10.5px]"></i>
+                        <span>Diskon / Voucher</span>
+                        <span class="text-[9.5px] font-normal text-gray-400">(F3)</span>
+                    </button>
+                    <div class="flex items-center gap-1 overflow-x-auto hide-scroll py-0.5">
+                        <template x-for="p in (discountSettings?.presets || []).slice(0, 3)" :key="p.id || p.name">
+                            <button type="button" @click="applyPresetDiscount(p)"
+                                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white hover:bg-orange-50 text-gray-700 hover:text-[#df5826] border border-gray-200 hover:border-orange-300 transition shadow-2xs shrink-0 cursor-pointer"
+                                x-text="p.name">
+                            </button>
+                        </template>
+                        <button type="button" @click="openDiscountModal()" class="text-[10px] font-semibold text-gray-400 hover:text-gray-600 px-1 shrink-0 cursor-pointer" title="Pilihan diskon lainnya">
+                            &raquo;
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
         {{-- Order Summary & CTA Footer with Pull-Tab Accordion --}}
         <div class="border-t border-[#e6e5e0] bg-[#fcfcfd] flex flex-col shrink-0 sticky bottom-0 z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(14px,env(safe-area-inset-bottom))]">
             
@@ -606,9 +650,16 @@
                             <i class="fas fa-chevron-up text-[9px] transition-transform duration-200" :class="showPriceBreakdown ? 'rotate-180' : ''"></i>
                         </button>
                     </div>
-                    <span class="text-[16px] font-black text-[#111827] tracking-tight">
-                        Rp<span x-text="formatRp(subtotal)"></span>
-                    </span>
+                    <div class="text-right">
+                        <template x-if="discountAmount > 0">
+                            <div class="text-[10px] text-gray-400 line-through leading-tight">
+                                Rp<span x-text="formatRp(subtotal)"></span>
+                            </div>
+                        </template>
+                        <span class="text-[16px] font-black text-[#111827] tracking-tight">
+                            Rp<span x-text="formatRp(grandTotal)"></span>
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -626,6 +677,31 @@
                     <span class="text-[#53565a]">Subtotal Menu (<span x-text="cart.reduce((s,i)=>s+i.qty,0)"></span> item)</span>
                     <span class="font-semibold text-[#111827]">Rp<span x-text="formatRp(subtotal)"></span></span>
                 </div>
+                <template x-if="discountSettings?.is_enabled">
+                    <div class="flex items-center justify-between py-1 border-t border-dashed border-[#e6e5e0]">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-emerald-700 font-semibold flex items-center gap-1">
+                                <i class="fas fa-tags text-[10px]"></i>
+                                <span x-text="discount.code ? ('Voucher: ' + discount.code) : (discount.reason || 'Diskon')"></span>
+                            </span>
+                            <template x-if="discountAmount > 0">
+                                <button type="button" @click.stop="removeDiscount()" class="text-red-500 hover:text-red-700 p-0.5 rounded" title="Hapus Diskon">
+                                    <i class="fas fa-times text-[9px]"></i>
+                                </button>
+                            </template>
+                        </div>
+                        <div>
+                            <template x-if="discountAmount > 0">
+                                <span class="font-bold text-emerald-600">-Rp<span x-text="formatRp(discountAmount)"></span></span>
+                            </template>
+                            <template x-if="discountAmount === 0">
+                                <button type="button" @click.stop="openDiscountModal()" class="text-[10.5px] font-bold text-[#df5826] hover:underline flex items-center gap-1">
+                                    + Diskon / Voucher (F3)
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
                 <div class="flex items-center justify-between">
                     <span class="text-[#53565a]">Pajak Resto (0%)</span>
                     <span class="font-medium text-[#111827]">Rp0</span>
@@ -649,6 +725,12 @@
                     </button>
                     <button type="button" @click="openPayment()" :disabled="cart.length === 0"
                         class="flex-1 py-[11px] px-[16px] rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_6px_0px_rgba(223,88,38,0.25)] flex items-center justify-center gap-[8px] text-white text-[13px] font-bold hover:opacity-95 active:scale-[0.99] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                        <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
+                        <span class="flex items-center gap-1.5">
+                            <span>Bayar</span>
+                            <span class="hidden sm:inline-block text-[10.5px] font-normal opacity-85">(F4)</span>
+                        </span>
+                    </button>
                         <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
                         <span class="flex items-center gap-1.5">
                             <span>Bayar</span>
@@ -754,8 +836,16 @@
             <div>
                 <p class="text-[11px] font-medium text-[#f04c17] uppercase tracking-wider">KONFIRMASI PEMBAYARAN</p>
                 <h3 class="font-bold text-[16px] text-[#111827]">Total Tagihan</h3>
+                <template x-if="discountAmount > 0">
+                    <span class="text-[10.5px] text-emerald-700 font-semibold" x-text="'Hemat Rp ' + formatRp(discountAmount) + (discount.code ? ' (' + discount.code + ')' : '')"></span>
+                </template>
             </div>
-            <p class="text-[22px] font-bold text-[#df5826]">Rp<span x-text="formatRp(subtotal)"></span></p>
+            <div class="text-right">
+                <template x-if="discountAmount > 0">
+                    <div class="text-[11px] text-gray-400 line-through leading-tight">Rp<span x-text="formatRp(subtotal)"></span></div>
+                </template>
+                <p class="text-[22px] font-bold text-[#df5826]">Rp<span x-text="formatRp(grandTotal)"></span></p>
+            </div>
         </div>
 
         <div class="p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
@@ -787,7 +877,7 @@
                 <p class="text-[11px] font-bold text-[#53565a] uppercase tracking-wider mb-2">Metode Pembayaran</p>
                 <div class="grid grid-cols-3 gap-2">
                     <template x-for="m in ['CASH','QRIS','CARD']" :key="m">
-                    <button type="button" @click="paymentModal.method = m; paymentModal.amountPaid = m === 'CASH' ? subtotal : subtotal"
+                    <button type="button" @click="paymentModal.method = m; paymentModal.amountPaid = grandTotal"
                         :class="paymentModal.method === m ? 'border-[#df5826] bg-[#fff6f0] text-[#df5826]' : 'border-[#d8dce2] bg-[#f8f9fa] text-[#53565a] hover:border-[#8b8e93]'"
                         class="py-2.5 rounded-[10px] border font-semibold text-[12px] transition text-center">
                         <i :class="m === 'CASH' ? 'fas fa-money-bill-wave' : m === 'QRIS' ? 'fas fa-qrcode' : 'fas fa-credit-card'" class="block text-base mb-1"></i>
@@ -807,7 +897,7 @@
                         class="w-full pl-10 pr-4 py-2.5 rounded-[10px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] outline-none text-right font-bold text-[16px] text-[#111827]">
                 </div>
                 <div class="flex gap-1.5 mt-2 flex-wrap">
-                    <button type="button" @click="paymentModal.amountPaid = subtotal"
+                    <button type="button" @click="paymentModal.amountPaid = grandTotal"
                         class="text-[11px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] hover:bg-[#ffece0] px-2.5 py-1 rounded-[7px] font-bold transition cursor-pointer">
                         Uang Pas
                     </button>
@@ -817,9 +907,9 @@
                         x-text="'Rp' + formatRp(quick)"></button>
                     </template>
                 </div>
-                <div x-show="paymentModal.amountPaid >= subtotal" x-cloak class="mt-3 bg-[#eaf7ef] border border-[#bfe5cd] rounded-[10px] p-3 flex items-center justify-between">
+                <div x-show="paymentModal.amountPaid >= grandTotal" x-cloak class="mt-3 bg-[#eaf7ef] border border-[#bfe5cd] rounded-[10px] p-3 flex items-center justify-between">
                     <span class="text-[12px] text-[#1e211f] font-medium">Kembalian</span>
-                    <span class="text-[15px] font-bold text-[#289e5c]">Rp<span x-text="formatRp(paymentModal.amountPaid - subtotal)"></span></span>
+                    <span class="text-[15px] font-bold text-[#289e5c]">Rp<span x-text="formatRp(paymentModal.amountPaid - grandTotal)"></span></span>
                 </div>
             </div>
             </template>
@@ -1010,6 +1100,191 @@
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- DISCOUNT & VOUCHER MODAL                                    --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<div x-show="discountModal.show" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div x-show="discountModal.show" x-transition.opacity class="absolute inset-0 bg-[#1e211f]/60 backdrop-blur-sm" @click="discountModal.show = false"></div>
+
+    <div x-show="discountModal.show"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        class="bg-white border border-[#e6e5e0] rounded-[22px] w-full max-w-md shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+
+        {{-- Header --}}
+        <div class="p-4 px-5 border-b border-[#e6e5e0] flex items-center justify-between bg-[#fcfcfd]">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center">
+                    <i class="fas fa-tags text-sm"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-[15px] text-[#111827]">Diskon & Voucher Promo</h3>
+                    <p class="text-[11px] text-[#53565a]">Subtotal: <strong class="text-[#111827]">Rp<span x-text="formatRp(subtotal)"></span></strong></p>
+                </div>
+            </div>
+            <button type="button" @click="discountModal.show = false" class="w-8 h-8 flex items-center justify-center text-[#8b8e93] hover:text-[#111827] rounded-full transition">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        {{-- Tabs --}}
+        <div class="p-2.5 px-5 bg-[#f8f9fa] border-b border-[#e6e5e0]">
+            <div class="grid grid-cols-3 gap-1 bg-white p-1 rounded-xl border border-[#d8dce2] shadow-2xs">
+                <button type="button" @click="discountModal.tab = 'preset'"
+                    :class="discountModal.tab === 'preset' ? 'bg-[#df5826] text-white shadow-xs font-bold' : 'text-[#53565a] hover:text-[#111827] font-semibold'"
+                    class="py-1.5 px-2 rounded-lg text-[11.5px] transition text-center flex items-center justify-center gap-1 cursor-pointer">
+                    <i class="fas fa-bolt text-[10px]"></i>
+                    <span>Shortcut</span>
+                </button>
+                <template x-if="discountSettings?.allow_custom !== false">
+                    <button type="button" @click="discountModal.tab = 'manual'"
+                        :class="discountModal.tab === 'manual' ? 'bg-[#df5826] text-white shadow-xs font-bold' : 'text-[#53565a] hover:text-[#111827] font-semibold'"
+                        class="py-1.5 px-2 rounded-lg text-[11.5px] transition text-center flex items-center justify-center gap-1 cursor-pointer">
+                        <i class="fas fa-edit text-[10px]"></i>
+                        <span>Manual</span>
+                    </button>
+                </template>
+                <button type="button" @click="discountModal.tab = 'voucher'"
+                    :class="discountModal.tab === 'voucher' ? 'bg-[#df5826] text-white shadow-xs font-bold' : 'text-[#53565a] hover:text-[#111827] font-semibold'"
+                    class="py-1.5 px-2 rounded-lg text-[11.5px] transition text-center flex items-center justify-center gap-1 cursor-pointer">
+                    <i class="fas fa-ticket-alt text-[10px]"></i>
+                    <span>Kode Voucher</span>
+                </button>
+            </div>
+        </div>
+
+        {{-- Tab Content --}}
+        <div class="p-5 overflow-y-auto flex-1 min-h-0 space-y-4">
+            
+            {{-- TAB 1: SHORTCUT PRESETS --}}
+            <div x-show="discountModal.tab === 'preset'" class="space-y-3">
+                <p class="text-[11px] font-bold text-[#53565a] uppercase tracking-wider">Pilih Preset Diskon Cepat</p>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <template x-for="p in (discountSettings?.presets || [])" :key="p.id || p.name">
+                        <button type="button" @click="applyPresetDiscount(p)"
+                            class="p-3 rounded-xl border border-[#d8dce2] bg-[#f8f9fa] hover:bg-[#fff6f0] hover:border-[#df5826] text-left transition group shadow-2xs cursor-pointer flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-bold text-[13px] text-[#111827] group-hover:text-[#df5826]" x-text="p.name"></span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200/80 group-hover:bg-[#df5826]/10 text-gray-700 group-hover:text-[#df5826]"
+                                      x-text="p.type === 'percentage' ? p.value + '%' : 'Rp ' + formatRp(p.value)"></span>
+                            </div>
+                            <span class="text-[10.5px] text-[#8b8e93] font-medium"
+                                  x-text="p.type === 'percentage' 
+                                    ? 'Hemat Rp ' + formatRp((subtotal * p.value)/100)
+                                    : 'Hemat Rp ' + formatRp(Math.min(subtotal, p.value))"></span>
+                        </button>
+                    </template>
+                </div>
+                <template x-if="(!discountSettings?.presets || discountSettings?.presets.length === 0)">
+                    <div class="p-6 text-center text-[#8b8e93] bg-[#f8f9fa] rounded-xl border border-dashed border-[#d8dce2]">
+                        <i class="fas fa-inbox text-2xl mb-2 text-gray-300"></i>
+                        <p class="text-xs">Belum ada shortcut diskon. Atur shortcut di Pengaturan Toko.</p>
+                    </div>
+                </template>
+            </div>
+
+            {{-- TAB 2: MANUAL INPUT --}}
+            <div x-show="discountModal.tab === 'manual'" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-[#53565a] uppercase tracking-wider mb-2">Tipe Diskon</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" @click="discountModal.manualType = 'percentage'"
+                            :class="discountModal.manualType === 'percentage' ? 'border-[#df5826] bg-[#fff6f0] text-[#df5826] font-bold' : 'border-[#d8dce2] bg-[#f8f9fa] text-[#53565a] font-medium'"
+                            class="py-2.5 rounded-xl border text-[12px] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fas fa-percent text-xs"></i>
+                            <span>Persentase (%)</span>
+                        </button>
+                        <button type="button" @click="discountModal.manualType = 'fixed'"
+                            :class="discountModal.manualType === 'fixed' ? 'border-[#df5826] bg-[#fff6f0] text-[#df5826] font-bold' : 'border-[#d8dce2] bg-[#f8f9fa] text-[#53565a] font-medium'"
+                            class="py-2.5 rounded-xl border text-[12px] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fas fa-coins text-xs"></i>
+                            <span>Nominal Tetap (Rp)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-[#53565a] uppercase tracking-wider mb-1.5"
+                           x-text="discountModal.manualType === 'percentage' ? 'Besaran Diskon (%)' : 'Jumlah Potongan (Rp)'"></label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"
+                              x-text="discountModal.manualType === 'percentage' ? '%' : 'Rp'"></span>
+                        <input type="number" x-model.number="discountModal.manualValue" :min="0" :max="discountModal.manualType === 'percentage' ? 100 : subtotal"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] outline-none font-bold text-[15px] text-[#111827]"
+                            :placeholder="discountModal.manualType === 'percentage' ? 'Contoh: 10' : 'Contoh: 15000'">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-[#53565a] uppercase tracking-wider mb-1.5">Alasan / Catatan Diskon (Opsional)</label>
+                    <input type="text" x-model="discountModal.manualReason" maxlength="100"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] outline-none text-[12.5px] text-[#111827]"
+                        placeholder="Misal: Member VIP, Teman Owner, Promo Khusus">
+                </div>
+
+                {{-- Live preview calculation --}}
+                <div x-show="discountModal.manualValue > 0" class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-[12px]">
+                    <span class="text-emerald-800 font-medium">Estimasi Potongan:</span>
+                    <span class="text-emerald-700 font-bold text-[13px]">
+                        -Rp<span x-text="formatRp(discountModal.manualType === 'percentage' ? Math.min(subtotal, (subtotal * discountModal.manualValue)/100) : Math.min(subtotal, discountModal.manualValue))"></span>
+                    </span>
+                </div>
+
+                <button type="button" @click="applyManualDiscount()" :disabled="!discountModal.manualValue || discountModal.manualValue <= 0"
+                    class="w-full py-2.5 px-4 bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white font-bold text-[12.5px] rounded-xl shadow-sm hover:opacity-95 transition disabled:opacity-50 cursor-pointer">
+                    Terapkan Diskon Manual
+                </button>
+            </div>
+
+            {{-- TAB 3: VOUCHER CODE --}}
+            <div x-show="discountModal.tab === 'voucher'" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-[#53565a] uppercase tracking-wider mb-1.5">Masukkan Kode Voucher Promo</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">
+                            <i class="fas fa-ticket-alt text-[#df5826]"></i>
+                        </span>
+                        <input type="text" x-model="discountModal.voucherCode" @input="discountModal.voucherCode = discountModal.voucherCode.toUpperCase()"
+                            @keydown.enter="applyVoucherCode()"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] outline-none font-mono uppercase font-black text-[15px] tracking-wider text-[#111827]"
+                            placeholder="Contoh: HEMAT10, KOPIASIK">
+                    </div>
+                    <p class="text-[10.5px] text-[#8b8e93] mt-1.5">Ketik kode kupon yang dibagikan kepada pelanggan atau promosi aktif toko.</p>
+                </div>
+
+                {{-- Voucher error alert --}}
+                <div x-show="discountModal.voucherError" x-cloak class="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-start gap-2">
+                    <i class="fas fa-exclamation-circle text-red-500 mt-0.5 shrink-0"></i>
+                    <span x-text="discountModal.voucherError"></span>
+                </div>
+
+                <button type="button" @click="applyVoucherCode()" :disabled="!discountModal.voucherCode || discountModal.voucherLoading"
+                    class="w-full py-2.5 px-4 bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white font-bold text-[12.5px] rounded-xl shadow-sm hover:opacity-95 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fas fa-spinner fa-spin" x-show="discountModal.voucherLoading" x-cloak></i>
+                    <span x-text="discountModal.voucherLoading ? 'Memeriksa Voucher...' : 'Terapkan Voucher Promo'"></span>
+                </button>
+            </div>
+        </div>
+
+        {{-- Footer --}}
+        <div class="p-3 px-5 border-t border-[#e6e5e0] bg-[#fcfcfd] flex items-center justify-between">
+            <template x-if="discountAmount > 0">
+                <button type="button" @click="removeDiscount(); discountModal.show = false"
+                    class="text-xs text-red-600 hover:text-red-700 font-bold flex items-center gap-1.5 px-2 py-1 rounded hover:bg-red-50 transition cursor-pointer">
+                    <i class="fas fa-trash-alt text-[11px]"></i>
+                    <span>Hapus Diskon Aktif</span>
+                </button>
+            </template>
+            <div x-show="discountAmount === 0"></div>
+            <button type="button" @click="discountModal.show = false"
+                class="px-4 py-2 rounded-xl border border-[#d8dce2] text-xs font-semibold text-[#53565a] hover:bg-gray-100 transition cursor-pointer">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- ALPINE JS CONTROLLER                                        --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <script>
@@ -1045,6 +1320,38 @@ function posApp() {
         tableSetupModal: { show: false, name: '', loading: false },
 
         quickCash: [10000, 20000, 50000, 100000],
+
+        // Discount & Voucher state
+        discountSettings: {{ Illuminate\Support\Js::from($shop->discount_settings ?? [
+            'is_enabled' => true,
+            'allow_custom' => true,
+            'presets' => [
+                ['id' => 'p1', 'name' => '5%', 'type' => 'percentage', 'value' => 5],
+                ['id' => 'p2', 'name' => '10%', 'type' => 'percentage', 'value' => 10],
+                ['id' => 'p3', 'name' => '15%', 'type' => 'percentage', 'value' => 15],
+                ['id' => 'p4', 'name' => '20%', 'type' => 'percentage', 'value' => 20],
+                ['id' => 'p5', 'name' => 'Rp 5.000', 'type' => 'fixed', 'value' => 5000],
+                ['id' => 'p6', 'name' => 'Rp 10.000', 'type' => 'fixed', 'value' => 10000],
+            ]
+        ]) }},
+        discount: {
+            type: null,
+            value: 0,
+            amount: 0,
+            reason: '',
+            code: null,
+            maxDiscount: null
+        },
+        discountModal: {
+            show: false,
+            tab: 'preset',
+            manualType: 'percentage',
+            manualValue: '',
+            manualReason: '',
+            voucherCode: '',
+            voucherLoading: false,
+            voucherError: ''
+        },
 
         incomingCount: 0,
         lastKnownOrderIds: [],
@@ -1176,6 +1483,27 @@ function posApp() {
         get subtotal() {
             return this.cart.reduce((s, i) => s + i.subtotal, 0);
         },
+        get discountAmount() {
+            if (!this.discount || (!this.discount.type && !this.discount.amount)) return 0;
+            const sub = this.subtotal;
+            if (sub <= 0) return 0;
+            if (this.discount.amount && !this.discount.type) {
+                return Math.min(sub, Number(this.discount.amount));
+            }
+            let calculated = 0;
+            if (this.discount.type === 'percentage') {
+                calculated = (sub * Number(this.discount.value || 0)) / 100;
+                if (this.discount.maxDiscount && Number(this.discount.maxDiscount) > 0) {
+                    calculated = Math.min(calculated, Number(this.discount.maxDiscount));
+                }
+            } else {
+                calculated = Number(this.discount.value || 0);
+            }
+            return Math.min(sub, Math.max(0, calculated));
+        },
+        get grandTotal() {
+            return Math.max(0, this.subtotal - this.discountAmount);
+        },
         get modalTotal() {
             if (!this.modifierModal.product) return 0;
             let base = Number(this.modifierModal.product.price);
@@ -1184,7 +1512,7 @@ function posApp() {
             return base;
         },
         get smartQuickCash() {
-            const tot = Number(this.subtotal) || 0;
+            const tot = Number(this.grandTotal) || 0;
             if (tot <= 0) return [10000, 20000, 50000, 100000];
             const options = new Set();
             const stepCeils = [
@@ -1295,6 +1623,116 @@ function posApp() {
             this.checkoutRequestId = null;
             this.customerName = '';
             this.selectedTable = '';
+            this.discount = {
+                type: null,
+                value: 0,
+                amount: 0,
+                reason: '',
+                code: null,
+                maxDiscount: null
+            };
+        },
+
+        // ── Discount & Voucher Actions ───────────
+        openDiscountModal() {
+            if (this.cart.length === 0) {
+                this.notify('Pilih menu terlebih dahulu untuk menerapkan diskon', 'error');
+                return;
+            }
+            this.discountModal.voucherError = '';
+            this.discountModal.voucherLoading = false;
+            this.discountModal.show = true;
+        },
+        applyPresetDiscount(preset) {
+            this.discount = {
+                type: preset.type,
+                value: Number(preset.value),
+                amount: 0,
+                reason: preset.name,
+                code: null,
+                maxDiscount: null
+            };
+            this.discountModal.show = false;
+            this.notify(`Diskon ${preset.name} berhasil diterapkan!`, 'success');
+        },
+        applyManualDiscount() {
+            const val = Number(this.discountModal.manualValue);
+            if (!val || val <= 0) {
+                this.notify('Masukkan nilai diskon yang valid', 'error');
+                return;
+            }
+            if (this.discountModal.manualType === 'percentage' && val > 100) {
+                this.notify('Persentase diskon maksimal 100%', 'error');
+                return;
+            }
+            const defaultReason = this.discountModal.manualType === 'percentage'
+                ? `Diskon ${val}%`
+                : `Potongan Rp ${this.formatRp(val)}`;
+            this.discount = {
+                type: this.discountModal.manualType,
+                value: val,
+                amount: 0,
+                reason: (this.discountModal.manualReason || '').trim() || defaultReason,
+                code: null,
+                maxDiscount: null
+            };
+            this.discountModal.show = false;
+            this.notify('Diskon manual berhasil diterapkan!', 'success');
+        },
+        async applyVoucherCode() {
+            const code = (this.discountModal.voucherCode || '').trim();
+            if (!code) {
+                this.discountModal.voucherError = 'Silakan ketik kode voucher.';
+                return;
+            }
+            this.discountModal.voucherLoading = true;
+            this.discountModal.voucherError = '';
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const res = await fetch('{{ route('admin.pos.vouchers.validate') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token || ''
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        subtotal: this.subtotal
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    this.discount = {
+                        type: data.voucher.discount_type,
+                        value: Number(data.voucher.discount_value),
+                        amount: Number(data.discount_amount),
+                        reason: data.voucher.name,
+                        code: data.voucher.code,
+                        maxDiscount: data.voucher.max_discount
+                    };
+                    this.discountModal.show = false;
+                    this.discountModal.voucherCode = '';
+                    this.notify(`Voucher "${data.voucher.code}" berhasil diterapkan!`, 'success');
+                } else {
+                    this.discountModal.voucherError = data.message || 'Kode voucher tidak valid.';
+                }
+            } catch (e) {
+                this.discountModal.voucherError = 'Gagal memeriksa voucher. Silakan coba lagi.';
+            } finally {
+                this.discountModal.voucherLoading = false;
+            }
+        },
+        removeDiscount() {
+            this.discount = {
+                type: null,
+                value: 0,
+                amount: 0,
+                reason: '',
+                code: null,
+                maxDiscount: null
+            };
+            this.notify('Diskon / voucher dihapus', 'info');
         },
 
         // ── Open Bill (Hold / Recall) ─────────────────────
@@ -1320,6 +1758,11 @@ function posApp() {
                 fulfillment_type: this.fulfillmentType || 'DINE_IN',
                 customer_name: (this.customerName || '').trim() || null,
                 recalled_order_id: this.recalledOrderId || null,
+                voucher_code: this.discount.code || null,
+                discount_type: this.discount.type || null,
+                discount_value: this.discount.value || 0,
+                discount_amount: this.discountAmount,
+                discount_reason: this.discount.reason || null,
             };
             try {
                 const res = await this.post('{{ route('admin.pos.orders.hold') }}', payload);
@@ -1406,6 +1849,16 @@ function posApp() {
                     this.customerName = res.order.customer_name || '';
                     this.selectedTable = res.order.table || '';
                     this.fulfillmentType = res.order.fulfillment_type || 'DINE_IN';
+                    if (res.order.discount_amount > 0 || res.order.voucher_code) {
+                        this.discount = {
+                            type: null,
+                            value: 0,
+                            amount: Number(res.order.discount_amount || 0),
+                            reason: res.order.discount_reason || '',
+                            code: res.order.voucher_code || null,
+                            maxDiscount: null
+                        };
+                    }
                     res.order.items.forEach(i => {
                         this.cart.push({
                             id: i.id, name: i.name,
@@ -1429,12 +1882,12 @@ function posApp() {
             this.paymentModal = {
                 show: true,
                 method: 'CASH',
-                amountPaid: this.subtotal,
+                amountPaid: this.grandTotal,
                 fulfillment: this.fulfillmentType || 'DINE_IN'
             };
         },
         canPay() {
-            if (this.paymentModal.method === 'CASH') return Number(this.paymentModal.amountPaid) >= this.subtotal;
+            if (this.paymentModal.method === 'CASH') return Number(this.paymentModal.amountPaid) >= this.grandTotal;
             return true;
         },
         newCheckoutRequestId() {
@@ -1449,7 +1902,7 @@ function posApp() {
             if (this.paymentPending || !this.canPay()) return;
             this.paymentPending = true;
             this.checkoutRequestId ??= this.newCheckoutRequestId();
-            const amountPaid = this.paymentModal.method === 'CASH' ? Number(this.paymentModal.amountPaid) : this.subtotal;
+            const amountPaid = this.paymentModal.method === 'CASH' ? Number(this.paymentModal.amountPaid) : this.grandTotal;
             const payload = {
                 request_id: this.checkoutRequestId,
                 recalled_order_id: this.recalledOrderId,
@@ -1459,6 +1912,11 @@ function posApp() {
                 fulfillment_type: this.paymentModal.fulfillment,
                 customer_name: (this.customerName || '').trim() || null,
                 table: this.paymentModal.fulfillment === 'DINE_IN' ? (this.selectedTable || null) : null,
+                voucher_code: this.discount.code || null,
+                discount_type: this.discount.type || null,
+                discount_value: this.discount.value || 0,
+                discount_amount: this.discountAmount,
+                discount_reason: this.discount.reason || null,
             };
             try {
                 const res = await this.post('{{ route('admin.pos.orders.submit') }}', payload);
@@ -1516,13 +1974,13 @@ function posApp() {
             switch (e.key) {
                 case 'F1': e.preventDefault(); this.$refs.searchInput?.focus(); break;
                 case 'F2': e.preventDefault(); this.confirmOpenBill(); break;
-                case 'F3': e.preventDefault(); break;
+                case 'F3': e.preventDefault(); if (this.cart.length > 0 && this.discountSettings?.is_enabled) this.openDiscountModal(); break;
                 case 'F4': e.preventDefault(); if (this.cart.length > 0) this.openPayment(); break;
                 case 'F5': e.preventDefault(); if (this.paymentModal.show) { this.paymentModal.method='CASH'; this.$nextTick(() => this.$refs.cashInput?.focus()); } break;
                 case 'F6': e.preventDefault(); if (this.paymentModal.show) this.paymentModal.method='QRIS'; break;
                 case 'F7': e.preventDefault(); if (this.successScreen.show) this.printReceipt('customer'); break;
                 case 'F8': e.preventDefault(); if (this.successScreen.show) this.printReceipt('kitchen'); break;
-                case 'Escape': this.modifierModal.show = false; this.paymentModal.show = false; this.openBillConfirmModal.show = false; break;
+                case 'Escape': this.modifierModal.show = false; this.paymentModal.show = false; this.openBillConfirmModal.show = false; this.discountModal.show = false; break;
             }
         },
 

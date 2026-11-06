@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Shop;
 use App\Models\Table;
 use App\Models\User;
+use App\Models\Voucher;
 use App\Services\InventoryService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -18,6 +19,7 @@ class SubmitPosOrder
 {
     public function __construct(
         private CalculateCart $calculateCart,
+        private ApplyDiscount $applyDiscount,
         private CreateOrder $createOrder,
         private ProcessPayment $processPayment,
         private InventoryService $inventory,
@@ -37,6 +39,7 @@ class SubmitPosOrder
             }
 
             $cart = $this->calculateCart->execute($shop, $data['items']);
+            $cart = $this->applyDiscount->execute($shop, $cart, $data);
 
             if (! empty($data['recalled_order_id'])) {
                 $order = Order::where('shop_id', $shop->id)
@@ -66,9 +69,11 @@ class SubmitPosOrder
                     'table_id' => $tableId,
                     'customer_name' => $data['customer_name'] ?? $order->customer_name,
                     'subtotal' => $cart['subtotal'],
-                    'grand_total' => $cart['subtotal'],
+                    'grand_total' => $cart['net_sales'] ?? $cart['subtotal'],
                     'total_cogs' => $cart['total_cogs'],
-                    'discount_amount' => 0,
+                    'discount_amount' => $cart['discount_amount'] ?? 0,
+                    'voucher_code' => $cart['voucher_code'] ?? null,
+                    'discount_reason' => $cart['discount_reason'] ?? null,
                     'tax_amount' => 0,
                     'service_charge_amount' => 0,
                     'order_status' => 'CONFIRMED',
@@ -82,6 +87,15 @@ class SubmitPosOrder
             $order->update(['checkout_request_id' => $data['request_id']]);
             $this->processPayment->execute($order, $data['payment_method'], (float) $data['amount_paid']);
             $order->refresh();
+
+            if (! empty($cart['voucher'])) {
+                $cart['voucher']->increment('used_count');
+            } elseif (! empty($order->voucher_code)) {
+                Voucher::where('shop_id', $shop->id)
+                    ->where('code', $order->voucher_code)
+                    ->increment('used_count');
+            }
+
             $this->inventory->deductStockForOrder($order);
             OrderCreated::dispatch($order);
 

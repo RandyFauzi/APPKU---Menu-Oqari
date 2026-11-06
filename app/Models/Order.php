@@ -19,6 +19,8 @@ class Order extends Model
         'payment_method',
         'subtotal',
         'discount_amount',
+        'voucher_code',
+        'discount_reason',
         'tax_amount',
         'service_charge_amount',
         'rounding',
