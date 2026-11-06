@@ -186,46 +186,23 @@
                             </div>
                         </div>
 
-                        <!-- Palet Warna Cafe & Custom Color Picker -->
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <div>
-                                    <label class="block text-sm font-bold text-ink">Warna Aksen Cafe / Brand</label>
-                                    <p class="text-xs text-muted">Pilih dari koleksi palet warna cafe atau tentukan warna hex kustom bebas.</p>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-mono font-bold text-ink bg-ivory px-2.5 py-1 rounded-lg border border-line uppercase" x-text="settings.primary_color"></span>
-                                    <span class="w-7 h-7 rounded-full border border-line shadow-sm" :style="'background-color: ' + settings.primary_color"></span>
-                                </div>
-                            </div>
-
-                            <!-- Palette Swatches Grid -->
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 mb-4">
-                                <template x-for="(label, color) in brandColorOptions" :key="color">
-                                    <button type="button" @click="settings.primary_color = color" :class="settings.primary_color.toLowerCase() === color.toLowerCase() ? 'border-primary bg-primary/5 ring-2 ring-primary/20 font-bold' : 'border-line bg-white hover:border-gray-300'" class="flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all">
-                                        <span class="w-6 h-6 rounded-full shrink-0 shadow-sm border border-black/10 flex items-center justify-center text-white text-[10px]" :style="'background-color: ' + color">
-                                            <i class="fas fa-check" x-show="settings.primary_color.toLowerCase() === color.toLowerCase()"></i>
-                                        </span>
-                                        <span class="text-xs text-ink truncate" x-text="label"></span>
-                                    </button>
-                                </template>
-                            </div>
-
-                            <!-- Custom Color Picker -->
-                            <div class="p-3.5 rounded-2xl border border-line bg-ivory/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="relative w-10 h-10 rounded-xl overflow-hidden shadow-inner border border-line cursor-pointer shrink-0">
-                                        <input type="color" x-model="settings.primary_color" class="absolute -top-4 -left-4 w-20 h-20 cursor-pointer border-0 p-0">
-                                    </div>
-                                    <div>
-                                        <span class="block text-xs font-bold text-ink">Warna Kustom Bebas (Color Palette All)</span>
-                                        <span class="block text-[11px] text-muted">Klik kotak warna atau masukkan kode HEX apa saja</span>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-muted">HEX:</span>
-                                    <input type="text" x-model="settings.primary_color" class="w-28 border border-line rounded-xl px-3 py-1.5 text-xs font-mono font-bold uppercase focus:border-primary focus:outline-none bg-white">
-                                </div>
+                        <!-- Warna Aksen Cafe / Brand -->
+                        <div class="space-y-3">
+                            <label class="block text-sm font-bold text-ink">Warna Aksen Cafe / Brand</label>
+                            <div class="flex items-center gap-3">
+                                <input type="color" 
+                                       x-model="settings.primary_color" 
+                                       class="w-10 h-10 rounded-xl cursor-pointer border border-line p-0 bg-white shadow-xs hover:border-gray-400 transition-all">
+                                <input type="text" 
+                                       x-model="settings.primary_color" 
+                                       placeholder="#1E5A7A"
+                                       @blur="if (settings.primary_color && !settings.primary_color.startsWith('#')) settings.primary_color = '#' + settings.primary_color"
+                                       class="w-32 border border-line rounded-xl px-3 py-2 text-xs font-mono font-bold uppercase focus:border-primary focus:outline-none bg-white shadow-xs">
+                                <button type="button" 
+                                        @click="settings.primary_color = '#1E5A7A'" 
+                                        class="text-xs text-muted hover:text-ink underline">
+                                    Reset ke Standar (#1E5A7A)
+                                </button>
                             </div>
                         </div>
                     </div>
