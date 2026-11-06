@@ -14,15 +14,31 @@
     
     @php
         $font = $shop->font_family ?? 'poppins';
-        if ($font == 'playfair') {
-            echo '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">';
-            $fontFamily = "'Playfair Display', serif";
-        } elseif ($font == 'nunito') {
-            echo '<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">';
-            $fontFamily = "'Nunito', sans-serif";
-        } else {
-            echo '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">';
-            $fontFamily = "'Poppins', sans-serif";
+        $titleFont = $shop->title_font_family ?? $font;
+
+        $fontMap = [
+            'poppins' => ['family' => "'Poppins', sans-serif", 'gfont' => 'Poppins:wght@400;500;600;700;800;900'],
+            'playfair' => ['family' => "'Playfair Display', serif", 'gfont' => 'Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,600'],
+            'nunito' => ['family' => "'Nunito', sans-serif", 'gfont' => 'Nunito:wght@400;500;600;700;800;900'],
+            'jakarta' => ['family' => "'Plus Jakarta Sans', sans-serif", 'gfont' => 'Plus+Jakarta+Sans:wght@400;500;600;700;800'],
+            'lora' => ['family' => "'Lora', serif", 'gfont' => 'Lora:ital,wght@0,400;0,500;0,600;0,700;1,400'],
+            'cinzel' => ['family' => "'Cinzel', serif", 'gfont' => 'Cinzel:wght@500;600;700;800;900'],
+            'montserrat' => ['family' => "'Montserrat', sans-serif", 'gfont' => 'Montserrat:wght@400;500;600;700;800;900'],
+            'oswald' => ['family' => "'Oswald', sans-serif", 'gfont' => 'Oswald:wght@400;500;600;700'],
+            'caveat' => ['family' => "'Caveat', cursive", 'gfont' => 'Caveat:wght@500;600;700'],
+            'quicksand' => ['family' => "'Quicksand', sans-serif", 'gfont' => 'Quicksand:wght@400;500;600;700'],
+            'cormorant' => ['family' => "'Cormorant Garamond', serif", 'gfont' => 'Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,600'],
+            'inter' => ['family' => "'Inter', sans-serif", 'gfont' => 'Inter:wght@400;500;600;700;800'],
+        ];
+
+        $bodyFontCfg = $fontMap[$font] ?? $fontMap['poppins'];
+        $titleFontCfg = $fontMap[$titleFont] ?? $fontMap['poppins'];
+        $fontFamily = $bodyFontCfg['family'];
+        $titleFontFamily = $titleFontCfg['family'];
+
+        $gFonts = array_unique([$bodyFontCfg['gfont'], $titleFontCfg['gfont']]);
+        foreach ($gFonts as $gf) {
+            echo '<link href="https://fonts.googleapis.com/css2?family='.$gf.'&display=swap" rel="stylesheet">';
         }
 
         $bgType = $shop->background_type ?? 'pattern';
@@ -97,7 +113,7 @@
         <div class="w-28 h-28 flex items-center justify-center p-2 mb-4 animate-bounce">
             <img src="{{ $shop->logo_url ? $shop->logo_url : asset('logo-oqari.webp') }}" alt="Logo" class="w-full h-full object-contain">
         </div>
-        <h1 class="text-primary text-3xl font-extrabold tracking-widest uppercase" style="{{ $shop->title_font_family === 'poppins' ? 'font-family: Poppins, sans-serif;' : ($shop->title_font_family === 'playfair' ? 'font-family: \'Playfair Display\', serif;' : ($shop->title_font_family === 'nunito' ? 'font-family: Nunito, sans-serif;' : '')) }}">{{ $shop->name }}</h1>
+        <h1 class="text-primary text-3xl font-extrabold tracking-widest uppercase" style="font-family: {!! $titleFontFamily !!};">{{ $shop->name }}</h1>
         <p class="text-gray-500 text-sm mt-1 font-medium tracking-wider uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</p>
     </div>
     <script>
@@ -119,7 +135,7 @@
                 <div class="flex items-center gap-2">
                     <img src="{{ $shop->logo_url ? $shop->logo_url : asset('logo-oqari.webp') }}" alt="{{ $shop->name }} Logo" class="h-10 w-10 object-contain drop-shadow-sm rounded-lg">
                     <div class="flex flex-col">
-                        <span class="font-extrabold text-[15px] leading-tight tracking-tight text-primary uppercase" style="{{ $shop->title_font_family === 'poppins' ? 'font-family: Poppins, sans-serif;' : ($shop->title_font_family === 'playfair' ? 'font-family: \'Playfair Display\', serif;' : ($shop->title_font_family === 'nunito' ? 'font-family: Nunito, sans-serif;' : '')) }}">{{ $shop->name }}</span>
+                        <span class="font-extrabold text-[15px] leading-tight tracking-tight text-primary uppercase" style="font-family: {!! $titleFontFamily !!};">{{ $shop->name }}</span>
                         <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase">{{ $shop->slogan ?? 'COFFEE & EATERY' }}</span>
                     </div>
                 </div>

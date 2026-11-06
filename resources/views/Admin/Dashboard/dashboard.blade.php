@@ -28,8 +28,8 @@
     <!-- Vite Assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:wght@600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Fonts (Curated Cafe & Typography Options) -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     
     <!-- Auth Guard removed, using Laravel middleware instead -->
     
@@ -1234,6 +1234,32 @@
                     this.toasts = this.toasts.filter(t => t.id !== id);
                 },
                 brandColorOptions: window.OQARI_THEME.primaryOptions,
+                fontOptions: [
+                    { id: 'poppins', name: 'Poppins', category: 'Modern Sans', family: "'Poppins', sans-serif", preview: 'Modern, bersih & mudah dibaca' },
+                    { id: 'playfair', name: 'Playfair Display', category: 'Elegan Serif', family: "'Playfair Display', serif", preview: 'Elegan, mewah & klasik' },
+                    { id: 'nunito', name: 'Nunito', category: 'Rounded Sans', family: "'Nunito', sans-serif", preview: 'Ramah, hangat & santai' },
+                    { id: 'jakarta', name: 'Plus Jakarta Sans', category: 'Trendy Sans', family: "'Plus Jakarta Sans', sans-serif", preview: 'Dinamis, bersih & profesional' },
+                    { id: 'lora', name: 'Lora', category: 'Bistro Serif', family: "'Lora', serif", preview: 'Artisan bistro & coffeehouse' },
+                    { id: 'cinzel', name: 'Cinzel', category: 'Luxury Display', family: "'Cinzel', serif", preview: 'Eksklusif, megah & berkelas' },
+                    { id: 'montserrat', name: 'Montserrat', category: 'Urban Sans', family: "'Montserrat', sans-serif", preview: 'Tegas, urban & kontemporer' },
+                    { id: 'oswald', name: 'Oswald', category: 'Industrial Display', family: "'Oswald', sans-serif", preview: 'BOLD ROASTERY & ESPRESSO' },
+                    { id: 'caveat', name: 'Caveat', category: 'Handwritten', family: "'Caveat', cursive", preview: 'Sentuhan kapur tulis papan cafe' },
+                    { id: 'quicksand', name: 'Quicksand', category: 'Soft Casual', family: "'Quicksand', sans-serif", preview: 'Lembut, manis & dessert bakery' },
+                    { id: 'cormorant', name: 'Cormorant Garamond', category: 'Vintage Serif', family: "'Cormorant Garamond', serif", preview: 'Klasik Eropa & warisan cafe' },
+                    { id: 'inter', name: 'Inter', category: 'Minimalist Sans', family: "'Inter', sans-serif", preview: 'Ultra minimalis & presisi tinggi' },
+                ],
+                getFontFamilyCss(key) {
+                    const found = this.fontOptions.find(f => f.id === key);
+                    return found ? found.family : "'Poppins', sans-serif";
+                },
+                getFontName(key) {
+                    const found = this.fontOptions.find(f => f.id === key);
+                    return found ? found.name : (key ? key.charAt(0).toUpperCase() + key.slice(1) : 'Poppins');
+                },
+                getFontCategory(key) {
+                    const found = this.fontOptions.find(f => f.id === key);
+                    return found ? found.category : 'Sans-serif';
+                },
                 allShopProducts: (window.INITIAL_DATA.shopProducts || []).map(p => ({
                     ...p,
                     is_best_seller: Boolean(p.is_best_seller)

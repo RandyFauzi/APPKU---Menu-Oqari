@@ -101,8 +101,8 @@
                 </div>
 
                 <!-- Section 2: Tampilan & UI -->
-                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
-                    <div class="p-6 border-b border-line bg-ivory/50">
+                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line">
+                    <div class="p-6 border-b border-line bg-ivory/50 rounded-t-[24px]">
                         <h3 class="font-bold text-lg text-ink">Tampilan (UI/UX)</h3>
                         <p class="text-xs text-muted">Ubah layout, tipografi, dan warna menu agar selaras dengan citra cafe Anda.</p>
                     </div>
@@ -166,23 +166,226 @@
                             </div>
                         </div>
 
-                        <!-- Tipografi -->
+                        <!-- Tipografi Pilihan (Custom Dropdown UI) -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-bold text-ink mb-2">Tipografi Utama (Teks)</label>
-                                <select x-model="settings.font_family" class="w-full border border-line rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none bg-white">
-                                    <option value="poppins">Modern (Poppins)</option>
-                                    <option value="playfair">Elegan (Playfair Display)</option>
-                                    <option value="nunito">Fun & Friendly (Nunito)</option>
-                                </select>
+                            <!-- Dropdown 1: Tipografi Utama (Teks) -->
+                            <div x-data="{ 
+                                    open: false, 
+                                    search: '', 
+                                    get filteredFonts() {
+                                        if (!this.search.trim()) return fontOptions;
+                                        const q = this.search.toLowerCase();
+                                        return fontOptions.filter(f => f.name.toLowerCase().includes(q) || f.category.toLowerCase().includes(q));
+                                    }
+                                 }" 
+                                 @click.outside="open = false" 
+                                 class="relative">
+                                <label class="block text-sm font-bold text-ink mb-2">Tipografi Utama (Teks Menu & Konten)</label>
+                                
+                                <!-- Trigger Button -->
+                                <button type="button" 
+                                        @click="open = !open" 
+                                        class="w-full bg-white border rounded-[14px] px-3.5 py-2.5 text-left flex items-center justify-between transition-all cursor-pointer shadow-xs outline-none"
+                                        :class="open ? 'border-primary ring-2 ring-primary/15 shadow-sm' : 'border-line hover:border-gray-400 hover:bg-[#fafbfc]'">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-ivory border border-line flex items-center justify-center text-xs font-bold shrink-0 text-ink shadow-2xs" 
+                                              :style="'font-family: ' + getFontFamilyCss(settings.font_family)">
+                                            Aa
+                                        </span>
+                                        <div class="flex flex-col min-w-0">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-xs font-bold text-ink truncate" x-text="getFontName(settings.font_family)"></span>
+                                                <span class="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-ivory text-muted border border-line shrink-0" x-text="getFontCategory(settings.font_family)"></span>
+                                            </div>
+                                            <span class="text-[11px] text-muted truncate mt-0.5" :style="'font-family: ' + getFontFamilyCss(settings.font_family)">Contoh Teks Menu Cafe</span>
+                                        </div>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-colors ml-1"
+                                         :class="open ? 'bg-primary/10 text-primary' : 'text-gray-400'">
+                                        <i class="fas fa-chevron-down text-[11px] transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
+                                    </div>
+                                </button>
+
+                                <!-- Popover Menu -->
+                                <div x-show="open" 
+                                     x-transition:enter="transition ease-out duration-150"
+                                     x-transition:enter-start="opacity-0 translate-y-1 scale-[0.98]"
+                                     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                     x-transition:leave="transition ease-in duration-100"
+                                     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                     x-transition:leave-end="opacity-0 translate-y-1 scale-[0.98]"
+                                     x-cloak
+                                     class="absolute left-0 right-0 top-full mt-2 z-50 bg-white border border-[#e5e7eb] rounded-[18px] shadow-[0_24px_60px_-12px_rgba(15,23,42,0.25),0_6px_20px_rgba(15,23,42,0.08)] p-3 min-w-[280px]">
+                                    
+                                    <!-- Header inside Dropdown -->
+                                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-[#f1f3f5] text-[11px]">
+                                        <div class="flex items-center gap-1.5 font-bold text-[#111827] uppercase tracking-wider text-[10px]">
+                                            <i class="fas fa-font text-primary"></i>
+                                            <span>Daftar Tipografi</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#f8f9fa] border border-[#e9ebf0] text-[#7f837e]" 
+                                              x-text="filteredFonts.length + ' font'"></span>
+                                    </div>
+
+                                    <!-- Search input inside dropdown -->
+                                    <div class="relative mb-2">
+                                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none"></i>
+                                        <input type="text" 
+                                               x-model="search" 
+                                               placeholder="Cari nama font / gaya..." 
+                                               style="padding-left: 34px; padding-right: 28px;"
+                                               class="w-full bg-[#f8f9fa] border border-[#e5e7eb] focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10 rounded-[10px] py-1.5 text-xs text-[#111827] placeholder:text-[#9ca3af] outline-none transition-all">
+                                        <button type="button" 
+                                                x-show="search.length > 0" 
+                                                @click="search = ''" 
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 w-4 h-4 rounded-full flex items-center justify-center hover:bg-gray-200 transition text-[10px]">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Scrollable Options List -->
+                                    <div class="max-h-60 overflow-y-auto custom-scroll space-y-1 pr-1">
+                                        <template x-for="font in filteredFonts" :key="font.id">
+                                            <button type="button" 
+                                                    @click="settings.font_family = font.id; open = false; search = ''" 
+                                                    class="w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between group cursor-pointer"
+                                                    :class="settings.font_family === font.id ? 'bg-primary/5 border border-primary/20 text-primary font-bold' : 'hover:bg-[#f8f9fa] text-[#111827] border border-transparent'">
+                                                <div class="flex items-center gap-2.5 min-w-0">
+                                                    <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0 transition-colors"
+                                                          :class="settings.font_family === font.id ? 'bg-primary text-white shadow-xs' : 'bg-ivory text-muted group-hover:text-ink border border-line'"
+                                                          :style="'font-family: ' + font.family">
+                                                        Aa
+                                                    </span>
+                                                    <div class="flex flex-col min-w-0">
+                                                        <div class="flex items-center gap-1.5">
+                                                            <span class="text-xs font-bold truncate" x-text="font.name"></span>
+                                                            <span class="text-[9px] px-1.5 py-0.5 rounded font-medium"
+                                                                  :class="settings.font_family === font.id ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500'"
+                                                                  x-text="font.category"></span>
+                                                        </div>
+                                                        <span class="text-[11px] truncate mt-0.5 font-normal"
+                                                              :class="settings.font_family === font.id ? 'text-primary/80' : 'text-gray-500'"
+                                                              :style="'font-family: ' + font.family"
+                                                              x-text="font.preview"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="shrink-0 ml-2">
+                                                    <i class="fas fa-check-circle text-primary text-sm" x-show="settings.font_family === font.id"></i>
+                                                </div>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-bold text-ink mb-2">Font Judul Toko</label>
-                                <select x-model="settings.title_font_family" class="w-full border border-line rounded-xl px-4 py-3 text-sm focus:border-primary focus:outline-none bg-white">
-                                    <option value="poppins">Modern (Poppins)</option>
-                                    <option value="playfair">Elegan (Playfair Display)</option>
-                                    <option value="nunito">Fun & Friendly (Nunito)</option>
-                                </select>
+
+                            <!-- Dropdown 2: Font Judul Toko -->
+                            <div x-data="{ 
+                                    open: false, 
+                                    search: '', 
+                                    get filteredFonts() {
+                                        if (!this.search.trim()) return fontOptions;
+                                        const q = this.search.toLowerCase();
+                                        return fontOptions.filter(f => f.name.toLowerCase().includes(q) || f.category.toLowerCase().includes(q));
+                                    }
+                                 }" 
+                                 @click.outside="open = false" 
+                                 class="relative">
+                                <label class="block text-sm font-bold text-ink mb-2">Font Judul Toko (Nama Cafe & Brand)</label>
+                                
+                                <!-- Trigger Button -->
+                                <button type="button" 
+                                        @click="open = !open" 
+                                        class="w-full bg-white border rounded-[14px] px-3.5 py-2.5 text-left flex items-center justify-between transition-all cursor-pointer shadow-xs outline-none"
+                                        :class="open ? 'border-primary ring-2 ring-primary/15 shadow-sm' : 'border-line hover:border-gray-400 hover:bg-[#fafbfc]'">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-lg bg-ivory border border-line flex items-center justify-center text-xs font-bold shrink-0 text-ink shadow-2xs" 
+                                              :style="'font-family: ' + getFontFamilyCss(settings.title_font_family)">
+                                            Aa
+                                        </span>
+                                        <div class="flex flex-col min-w-0">
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="text-xs font-bold text-ink truncate" x-text="getFontName(settings.title_font_family)"></span>
+                                                <span class="text-[9px] font-semibold px-1.5 py-0.5 rounded-md bg-ivory text-muted border border-line shrink-0" x-text="getFontCategory(settings.title_font_family)"></span>
+                                            </div>
+                                            <span class="text-[11px] text-muted truncate mt-0.5 font-bold uppercase" :style="'font-family: ' + getFontFamilyCss(settings.title_font_family)" x-text="settings.name || 'BITTEN COFFEE'"></span>
+                                        </div>
+                                    </div>
+                                    <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-colors ml-1"
+                                         :class="open ? 'bg-primary/10 text-primary' : 'text-gray-400'">
+                                        <i class="fas fa-chevron-down text-[11px] transition-transform duration-200" :class="open ? 'rotate-180' : ''"></i>
+                                    </div>
+                                </button>
+
+                                <!-- Popover Menu -->
+                                <div x-show="open" 
+                                     x-transition:enter="transition ease-out duration-150"
+                                     x-transition:enter-start="opacity-0 translate-y-1 scale-[0.98]"
+                                     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                     x-transition:leave="transition ease-in duration-100"
+                                     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                     x-transition:leave-end="opacity-0 translate-y-1 scale-[0.98]"
+                                     x-cloak
+                                     class="absolute left-0 right-0 top-full mt-2 z-50 bg-white border border-[#e5e7eb] rounded-[18px] shadow-[0_24px_60px_-12px_rgba(15,23,42,0.25),0_6px_20px_rgba(15,23,42,0.08)] p-3 min-w-[280px]">
+                                    
+                                    <!-- Header inside Dropdown -->
+                                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-[#f1f3f5] text-[11px]">
+                                        <div class="flex items-center gap-1.5 font-bold text-[#111827] uppercase tracking-wider text-[10px]">
+                                            <i class="fas fa-heading text-primary"></i>
+                                            <span>Daftar Font Judul</span>
+                                        </div>
+                                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#f8f9fa] border border-[#e9ebf0] text-[#7f837e]" 
+                                              x-text="filteredFonts.length + ' font'"></span>
+                                    </div>
+
+                                    <!-- Search input inside dropdown -->
+                                    <div class="relative mb-2">
+                                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none"></i>
+                                        <input type="text" 
+                                               x-model="search" 
+                                               placeholder="Cari nama font / gaya..." 
+                                               style="padding-left: 34px; padding-right: 28px;"
+                                               class="w-full bg-[#f8f9fa] border border-[#e5e7eb] focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10 rounded-[10px] py-1.5 text-xs text-[#111827] placeholder:text-[#9ca3af] outline-none transition-all">
+                                        <button type="button" 
+                                                x-show="search.length > 0" 
+                                                @click="search = ''" 
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 w-4 h-4 rounded-full flex items-center justify-center hover:bg-gray-200 transition text-[10px]">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Scrollable Options List -->
+                                    <div class="max-h-60 overflow-y-auto custom-scroll space-y-1 pr-1">
+                                        <template x-for="font in filteredFonts" :key="font.id">
+                                            <button type="button" 
+                                                    @click="settings.title_font_family = font.id; open = false; search = ''" 
+                                                    class="w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between group cursor-pointer"
+                                                    :class="settings.title_font_family === font.id ? 'bg-primary/5 border border-primary/20 text-primary font-bold' : 'hover:bg-[#f8f9fa] text-[#111827] border border-transparent'">
+                                                <div class="flex items-center gap-2.5 min-w-0">
+                                                    <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold shrink-0 transition-colors"
+                                                          :class="settings.title_font_family === font.id ? 'bg-primary text-white shadow-xs' : 'bg-ivory text-muted group-hover:text-ink border border-line'"
+                                                          :style="'font-family: ' + font.family">
+                                                        Aa
+                                                    </span>
+                                                    <div class="flex flex-col min-w-0">
+                                                        <div class="flex items-center gap-1.5">
+                                                            <span class="text-xs font-bold truncate" x-text="font.name"></span>
+                                                            <span class="text-[9px] px-1.5 py-0.5 rounded font-medium"
+                                                                  :class="settings.title_font_family === font.id ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500'"
+                                                                  x-text="font.category"></span>
+                                                        </div>
+                                                        <span class="text-[12px] truncate mt-0.5 font-bold uppercase"
+                                                              :class="settings.title_font_family === font.id ? 'text-primary' : 'text-gray-800'"
+                                                              :style="'font-family: ' + font.family"
+                                                              x-text="settings.name || 'BITTEN COFFEE'"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="shrink-0 ml-2">
+                                                    <i class="fas fa-check-circle text-primary text-sm" x-show="settings.title_font_family === font.id"></i>
+                                                </div>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -504,7 +707,7 @@
             </div>
             
             <!-- Mobile Frame -->
-            <div class="relative mx-auto w-full max-w-[340px] h-[650px] bg-gray-50 rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border-[8px] border-ink overflow-hidden flex flex-col font-sans" :style="settings.font_family === 'poppins' ? 'font-family: Poppins, sans-serif;' : (settings.font_family === 'playfair' ? 'font-family: Playfair Display, serif;' : 'font-family: Nunito, sans-serif;')">
+            <div class="relative mx-auto w-full max-w-[340px] h-[650px] bg-gray-50 rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border-[8px] border-ink overflow-hidden flex flex-col font-sans" :style="'font-family: ' + getFontFamilyCss(settings.font_family)">
                 <!-- Notch -->
                 <div class="absolute top-0 inset-x-0 h-6 bg-ink rounded-b-3xl w-40 mx-auto z-50"></div>
 
@@ -542,7 +745,7 @@
                                 </div>
                             </template>
                             <div class="flex flex-col">
-                                <span class="font-extrabold text-[15px] leading-tight tracking-tight uppercase" :style="'color: ' + (settings.primary_color || '#1e5a7a') + '; ' + (settings.title_font_family === 'poppins' ? 'font-family: Poppins, sans-serif;' : (settings.title_font_family === 'playfair' ? 'font-family: Playfair Display, serif;' : 'font-family: Nunito, sans-serif;'))" x-text="settings.name || 'BITTEN COFFEE'"></span>
+                                <span class="font-extrabold text-[15px] leading-tight tracking-tight uppercase" :style="'color: ' + (settings.primary_color || '#1e5a7a') + '; font-family: ' + getFontFamilyCss(settings.title_font_family)" x-text="settings.name || 'BITTEN COFFEE'"></span>
                                 <span class="text-[8px] font-bold text-gray-500 tracking-[0.2em] mt-0.5 uppercase" x-text="settings.slogan || 'COFFEE & EATERY'"></span>
                             </div>
                         </div>
