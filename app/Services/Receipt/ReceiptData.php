@@ -21,7 +21,12 @@ class ReceiptData
         public ?string $pdfUrl = null,
         public ?string $logoPath = null,
         public ?string $fulfillmentType = 'DINE_IN',
-        public ?string $tableName = null
+        public ?string $tableName = null,
+        public float $amountPaid = 0,
+        public float $change = 0,
+        public float $serviceCharge = 0,
+        public ?string $cashierName = null,
+        public array $receiptSettings = []
     ) {}
 
     public function toArray(): array
@@ -33,7 +38,10 @@ class ReceiptData
             'subtotal' => $this->subtotal,
             'discount' => $this->discount,
             'tax' => $this->tax,
+            'service_charge' => $this->serviceCharge,
             'grand_total' => $this->grandTotal,
+            'amount_paid' => $this->amountPaid,
+            'change' => $this->change,
             'payment_method' => $this->paymentMethod,
             'payment_status' => $this->paymentStatus,
             'order_status' => $this->orderStatus,
@@ -43,6 +51,8 @@ class ReceiptData
             'pdf_url' => $this->pdfUrl,
             'fulfillment_type' => $this->fulfillmentType,
             'table_name' => $this->tableName,
+            'cashier_name' => $this->cashierName,
+            'receipt_settings' => $this->receiptSettings,
         ];
     }
 }

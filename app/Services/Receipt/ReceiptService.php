@@ -34,10 +34,15 @@ class ReceiptService
 
         $itemsData = $order->items->map(function ($item) {
             return [
-                'name' => $item->product ? $item->product->name : 'Item',
+                'id' => $item->id,
+                'name' => $item->product_name ?? ($item->product ? $item->product->name : 'Item'),
+                'variant' => $item->variant_name ?? null,
+                'category_id' => $item->product?->category_id,
+                'category_name' => $item->product?->category_name ?? $item->product?->category?->name,
                 'quantity' => $item->quantity,
-                'price' => (float) $item->unit_price,
+                'price' => (float) ($item->unit_price ?? $item->price ?? 0),
                 'subtotal' => (float) $item->subtotal,
+                'modifiers' => is_array($item->modifiers) ? $item->modifiers : (is_string($item->modifiers) ? json_decode($item->modifiers, true) : []),
                 'notes' => $item->notes,
             ];
         })->toArray();
@@ -64,7 +69,12 @@ class ReceiptService
             pdfUrl: $pdfUrl,
             logoPath: $logoPath,
             fulfillmentType: $order->fulfillment_type ?? 'DINE_IN',
-            tableName: $order->table?->name
+            tableName: $order->table?->name,
+            amountPaid: (float) ($order->amount_paid ?? 0),
+            change: (float) ($order->change_amount ?? 0),
+            serviceCharge: (float) ($order->service_charge_amount ?? 0),
+            cashierName: (auth()->check() ? auth()->user()->name : null),
+            receiptSettings: $shop->receipt_settings ?? []
         );
     }
 }

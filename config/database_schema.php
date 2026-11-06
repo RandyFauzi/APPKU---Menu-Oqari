@@ -61,8 +61,9 @@ return [
         ],
         'settings' => [
             'shop_slug_histories' => ['id', 'shop_id', 'old_slug'],
-            'shops' => ['id', 'name', 'slug', 'logo_path', 'banner_paths', 'primary_color', 'theme_style', 'business_type', 'sales_modes', 'onboarding_status', 'onboarding_step', 'is_open', 'slogan', 'font_family', 'title_font_family', 'receipt_header', 'receipt_footer', 'instagram_link', 'whatsapp_number', 'maps_link', 'is_banner_active', 'operating_hours', 'address', 'email'],
+            'shops' => ['id', 'name', 'slug', 'logo_path', 'banner_paths', 'primary_color', 'theme_style', 'business_type', 'sales_modes', 'onboarding_status', 'onboarding_step', 'is_open', 'slogan', 'font_family', 'title_font_family', 'receipt_header', 'receipt_footer', 'receipt_settings', 'printer_settings', 'instagram_link', 'whatsapp_number', 'maps_link', 'is_banner_active', 'operating_hours', 'address', 'email'],
             'payment_methods' => ['id', 'shop_id', 'name', 'code', 'type', 'is_active'],
+            'printers' => ['id', 'shop_id', 'name', 'location', 'connection_type', 'ip_address', 'port', 'paper_width', 'category_ids', 'is_active', 'auto_print', 'created_at', 'updated_at'],
         ],
         'reports' => [
             'payments' => ['id', 'shop_id', 'order_id', 'payment_method', 'amount', 'cancelled_at', 'created_at'],

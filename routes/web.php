@@ -86,6 +86,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/admin/api/orders/live', [DashboardController::class, 'getLiveOrders'])->middleware(['can:view-orders', 'schema:orders']);
     Route::post('/admin/api/orders/{order}/status', [DashboardController::class, 'updateOrderStatus'])->middleware(['can:manage-orders', 'schema:orders']);
+    Route::get('/admin/api/orders/sample/test-print', [DashboardController::class, 'testPrint'])->middleware(['can:manage-settings']);
     Route::get('/admin/api/orders/{order}/print', [DashboardController::class, 'printOrder'])->middleware(['can:view-orders', 'schema:orders']);
 
     // Cash Register / Shift Session

@@ -843,11 +843,19 @@
             <p class="text-[18px] font-bold text-[#df5826]">Rp<span x-text="formatRp(successScreen.change)"></span></p>
         </div>
         </template>
-        <div class="flex gap-2.5 justify-center mt-2">
-            <button type="button" @click="printReceipt()" class="flex-1 py-3 px-4 bg-[#f8f9fa] hover:bg-gray-200 border border-[#d8dce2] rounded-[10px] text-[12px] font-semibold text-[#111827] transition">
-                <i class="fas fa-print mr-1.5"></i> Cetak Struk
+        <div class="grid grid-cols-2 gap-2 mt-3">
+            <button type="button" @click="printReceipt('customer')" class="py-2.5 px-3 bg-[#f8f9fa] hover:bg-gray-200 border border-[#d8dce2] rounded-[10px] text-[12px] font-semibold text-[#111827] transition flex items-center justify-center gap-1.5">
+                <i class="fas fa-receipt text-[#df5826]"></i> Struk Pelanggan
             </button>
-            <button type="button" @click="newOrder()" class="flex-1 py-3 px-4 bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] rounded-[10px] text-white text-[12px] font-semibold shadow-sm transition hover:opacity-95">
+            <button type="button" @click="printReceipt('kitchen')" class="py-2.5 px-3 bg-[#f8f9fa] hover:bg-gray-200 border border-[#d8dce2] rounded-[10px] text-[12px] font-semibold text-[#111827] transition flex items-center justify-center gap-1.5">
+                <i class="fas fa-utensils text-[#059669]"></i> Tiket Dapur
+            </button>
+        </div>
+        <div class="flex gap-2 justify-center mt-2.5">
+            <button type="button" @click="printAll()" class="w-2/5 py-2.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-[10px] text-[11px] font-bold transition flex items-center justify-center gap-1">
+                <i class="fas fa-print"></i> Cetak Semua
+            </button>
+            <button type="button" @click="newOrder()" class="flex-1 py-2.5 px-3 bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] rounded-[10px] text-white text-[12px] font-bold shadow-sm transition hover:opacity-95">
                 Pesanan Baru
             </button>
         </div>
@@ -1261,9 +1269,16 @@ function posApp() {
         },
 
         // ── Success / New Order ───────────────
-        printReceipt() {
+        printReceipt(type = 'customer') {
             if (!this.successScreen.orderId) return;
-            window.open(`/admin/api/orders/${this.successScreen.orderId}/print`, '_blank');
+            window.open(`/admin/api/orders/${this.successScreen.orderId}/print?type=${type}`, '_blank');
+        },
+        printAll() {
+            if (!this.successScreen.orderId) return;
+            window.open(`/admin/api/orders/${this.successScreen.orderId}/print?type=customer`, '_blank');
+            setTimeout(() => {
+                window.open(`/admin/api/orders/${this.successScreen.orderId}/print?type=kitchen`, '_blank');
+            }, 500);
         },
         newOrder() {
             this.successScreen = { show: false, total: 0, change: 0, orderId: null };
@@ -1290,6 +1305,8 @@ function posApp() {
                 case 'F4': e.preventDefault(); if (this.cart.length > 0) this.openPayment(); break;
                 case 'F5': e.preventDefault(); if (this.paymentModal.show) { this.paymentModal.method='CASH'; this.$nextTick(() => this.$refs.cashInput?.focus()); } break;
                 case 'F6': e.preventDefault(); if (this.paymentModal.show) this.paymentModal.method='QRIS'; break;
+                case 'F7': e.preventDefault(); if (this.successScreen.show) this.printReceipt('customer'); break;
+                case 'F8': e.preventDefault(); if (this.successScreen.show) this.printReceipt('kitchen'); break;
                 case 'Escape': this.modifierModal.show = false; this.paymentModal.show = false; break;
             }
         },

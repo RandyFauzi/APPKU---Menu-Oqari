@@ -1327,6 +1327,32 @@
                     title_font_family: window.INITIAL_DATA.shop?.title_font_family || 'poppins',
                     receipt_header: window.INITIAL_DATA.shop?.receipt_header || '',
                     receipt_footer: window.INITIAL_DATA.shop?.receipt_footer || 'Terima kasih atas kunjungan Anda!\nSilakan datang kembali.',
+                    receipt_settings: Object.assign({
+                        show_logo: true,
+                        show_address: true,
+                        show_phone: true,
+                        show_social: true,
+                        show_wifi: false,
+                        wifi_ssid: '',
+                        wifi_password: '',
+                        show_qr: false,
+                        qr_type: 'menu',
+                        paper_width: '58mm',
+                        kitchen_ticket_title: 'TIKET PESANAN DAPUR',
+                        kitchen_show_prices: false,
+                        kitchen_font_size: 'normal',
+                        kitchen_highlight_notes: true,
+                        kitchen_show_cashier: true
+                    }, window.INITIAL_DATA.shop?.receipt_settings || {}),
+                    printers: (window.INITIAL_DATA.shop?.printers && window.INITIAL_DATA.shop?.printers.length > 0)
+                        ? window.INITIAL_DATA.shop.printers
+                        : ((window.INITIAL_DATA.shop?.printer_settings && window.INITIAL_DATA.shop?.printer_settings.length > 0)
+                            ? window.INITIAL_DATA.shop.printer_settings
+                            : [
+                                { id: 1, name: 'Printer Kasir Utama', location: 'cashier', connection_type: 'browser', ip_address: '', port: 9100, paper_width: '58mm', category_ids: [], is_active: true, auto_print: true },
+                                { id: 2, name: 'Printer Dapur / Bar', location: 'kitchen', connection_type: 'browser', ip_address: '', port: 9100, paper_width: '58mm', category_ids: [], is_active: true, auto_print: false }
+                            ]),
+                    receiptPreviewTab: 'customer',
                     instagram_link: window.INITIAL_DATA.shop?.instagram_link || '',
                     tiktok_link: window.INITIAL_DATA.shop?.tiktok_link || '',
                     social_settings: Object.assign({
@@ -2654,6 +2680,8 @@ if (res.ok) {
                     formData.append('title_font_family', this.settings.title_font_family || '');
                     formData.append('receipt_header', this.settings.receipt_header || '');
                     formData.append('receipt_footer', this.settings.receipt_footer || '');
+                    formData.append('receipt_settings', JSON.stringify(this.settings.receipt_settings || {}));
+                    formData.append('printers', JSON.stringify(this.settings.printers || []));
                     formData.append('instagram_link', this.settings.instagram_link || '');
                     formData.append('tiktok_link', this.settings.tiktok_link || '');
                     formData.append('social_settings', JSON.stringify(this.settings.social_settings));

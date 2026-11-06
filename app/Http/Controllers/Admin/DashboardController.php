@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Order;
+use App\Models\Printer;
 use App\Models\Product;
 use App\Models\ProductRecipe;
 use App\Models\Shop;
@@ -14,11 +15,13 @@ use App\Models\Table;
 use App\Models\User;
 use App\Services\InventoryService;
 use App\Services\MediaService;
+use App\Services\Receipt\ReceiptData;
 use App\Services\Receipt\ReceiptService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -92,9 +95,9 @@ class DashboardController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function printOrder($orderId)
+    public function printOrder($orderId, Request $request)
     {
-        $order = Order::with('items.product', 'table', 'shop')->where('shop_id', Auth::user()->shop_id)->findOrFail($orderId);
+        $order = Order::with('items.product.category', 'table', 'shop')->where('shop_id', Auth::user()->shop_id)->findOrFail($orderId);
 
         // Ensure the logged in user belongs to the same shop
         if (auth()->user()->shop_id !== $order->shop_id) {
@@ -103,8 +106,92 @@ class DashboardController extends Controller
 
         $receiptData = app(ReceiptService::class)->build($order);
         $shop = $order->shop;
+        $printType = $request->query('type', 'customer');
+        $paperWidth = $request->query('width', ($shop->receipt_settings['paper_width'] ?? '58mm'));
+        $categoryId = $request->query('category_id');
 
-        return view('receipts.thermal', compact('receiptData', 'shop'));
+        if ($printType === 'kitchen') {
+            if ($categoryId) {
+                $categoryIds = array_map('intval', explode(',', $categoryId));
+                $receiptData->items = array_values(array_filter($receiptData->items, function ($item) use ($categoryIds) {
+                    return isset($item['category_id']) && in_array((int) $item['category_id'], $categoryIds, true);
+                }));
+            }
+
+            return view('receipts.kitchen', compact('receiptData', 'shop', 'paperWidth'));
+        }
+
+        return view('receipts.thermal', compact('receiptData', 'shop', 'paperWidth'));
+    }
+
+    public function testPrint(Request $request)
+    {
+        $shop = Auth::user()->shop;
+        abort_unless($shop, 404);
+
+        $printType = $request->query('type', 'customer');
+        $paperWidth = $request->query('width', ($shop->receipt_settings['paper_width'] ?? '58mm'));
+
+        $sampleItems = [
+            [
+                'id' => 1,
+                'name' => 'Americano (Ice)',
+                'variant' => 'Regular',
+                'category_id' => 1,
+                'quantity' => 2,
+                'price' => 25000,
+                'subtotal' => 50000,
+                'modifiers' => [['name' => 'Less Sugar']],
+                'notes' => 'Gelas take-away',
+            ],
+            [
+                'id' => 2,
+                'name' => 'Sate Kambing Mix Tahu',
+                'variant' => 'Porsi Sedang',
+                'category_id' => 2,
+                'quantity' => 1,
+                'price' => 55000,
+                'subtotal' => 55000,
+                'modifiers' => [],
+                'notes' => 'Bumbu kacang dipisah, tanpa bawang goreng',
+            ],
+        ];
+
+        $receiptData = new ReceiptData(
+            shop: [
+                'name' => $shop->name ?? 'OQARI CAFE',
+                'logo_url' => $shop->logo_url,
+                'address' => $shop->address ?? 'Jl. Utama Kopi No. 12',
+                'phone' => $shop->whatsapp_number ?? '08123456789',
+                'slogan' => $shop->slogan,
+                'receipt_header' => $shop->receipt_header,
+                'receipt_footer' => $shop->receipt_footer,
+            ],
+            customer: ['name' => 'Pelanggan Uji Coba'],
+            items: $sampleItems,
+            subtotal: 105000,
+            discount: 0,
+            tax: 10500,
+            grandTotal: 115500,
+            paymentMethod: 'CASH',
+            paymentStatus: 'PAID',
+            orderStatus: 'CONFIRMED',
+            orderNumber: 'TEST-'.now()->format('Ymd').'-0001',
+            date: now()->format('d M Y, H:i'),
+            fulfillmentType: 'DINE_IN',
+            tableName: '04',
+            amountPaid: 150000,
+            change: 34500,
+            serviceCharge: 0,
+            cashierName: Auth::user()->name,
+            receiptSettings: $shop->receipt_settings ?? []
+        );
+
+        if ($printType === 'kitchen') {
+            return view('receipts.kitchen', compact('receiptData', 'shop', 'paperWidth'));
+        }
+
+        return view('receipts.thermal', compact('receiptData', 'shop', 'paperWidth'));
     }
 
     public function deleteMenu($id)
@@ -537,6 +624,9 @@ class DashboardController extends Controller
             'title_font_family' => 'nullable|string|max:50',
             'receipt_header' => 'nullable|string|max:500',
             'receipt_footer' => 'nullable|string|max:500',
+            'receipt_settings' => 'nullable',
+            'printer_settings' => 'nullable',
+            'printers' => 'nullable',
             'instagram_link' => 'nullable|string|max:255',
             'tiktok_link' => 'nullable|string|max:255',
             'social_settings' => 'nullable',
@@ -586,6 +676,42 @@ class DashboardController extends Controller
         }
         if ($request->has('receipt_footer')) {
             $shop->receipt_footer = $request->receipt_footer;
+        }
+        if ($request->has('receipt_settings')) {
+            $rawReceipt = $request->input('receipt_settings');
+            $shop->receipt_settings = is_array($rawReceipt) ? $rawReceipt : json_decode($rawReceipt, true);
+        }
+        if ($request->has('printer_settings')) {
+            $rawPrinter = $request->input('printer_settings');
+            $shop->printer_settings = is_array($rawPrinter) ? $rawPrinter : json_decode($rawPrinter, true);
+        }
+        if ($request->has('printers')) {
+            $rawPrinters = $request->input('printers');
+            $printersArray = is_array($rawPrinters) ? $rawPrinters : json_decode($rawPrinters, true);
+            if (is_array($printersArray)) {
+                $currentPrinterSettings = is_array($shop->printer_settings) ? $shop->printer_settings : [];
+                $currentPrinterSettings['printers'] = $printersArray;
+                $shop->printer_settings = $currentPrinterSettings;
+                if (Schema::hasTable('printers')) {
+                    Printer::where('shop_id', $shopId)->delete();
+                    foreach ($printersArray as $p) {
+                        if (! empty($p['name'])) {
+                            Printer::create([
+                                'shop_id' => $shopId,
+                                'name' => $p['name'],
+                                'location' => $p['location'] ?? 'cashier',
+                                'connection_type' => $p['connection_type'] ?? 'browser',
+                                'ip_address' => $p['ip_address'] ?? null,
+                                'port' => (int) ($p['port'] ?? 9100),
+                                'paper_width' => $p['paper_width'] ?? '58mm',
+                                'category_ids' => ! empty($p['category_ids']) ? array_map('intval', (array) $p['category_ids']) : null,
+                                'is_active' => isset($p['is_active']) ? (bool) $p['is_active'] : true,
+                                'auto_print' => isset($p['auto_print']) ? (bool) $p['auto_print'] : false,
+                            ]);
+                        }
+                    }
+                }
+            }
         }
         if ($request->has('instagram_link')) {
             $shop->instagram_link = $request->instagram_link;

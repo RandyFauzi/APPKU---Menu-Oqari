@@ -45,6 +45,8 @@ class Shop extends Model
         'title_font_family',
         'receipt_header',
         'receipt_footer',
+        'receipt_settings',
+        'printer_settings',
         'instagram_link',
         'tiktok_link',
         'social_settings',
@@ -83,6 +85,8 @@ class Shop extends Model
         'social_settings' => 'array',
         'operating_hours' => 'array',
         'sales_modes' => 'array',
+        'receipt_settings' => 'array',
+        'printer_settings' => 'array',
         'is_open' => 'boolean',
         'is_banner_active' => 'boolean',
         'background_overlay_opacity' => 'integer',
@@ -106,6 +110,11 @@ class Shop extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function printers()
+    {
+        return $this->hasMany(Printer::class);
     }
 
     public function getLogoUrlAttribute()
