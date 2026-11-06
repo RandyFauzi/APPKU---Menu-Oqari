@@ -8,6 +8,8 @@ use App\Models\Shop;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
@@ -246,6 +248,182 @@ class AttendanceTest extends TestCase
         $employee->delete();
         $this->actingAs($manager)->get(route('admin.attendance.index', ['tab' => 'team']))->assertOk()->assertSee('Historical Employee')->assertSee('Akun telah dihapus');
         $this->assertNull($attendance->fresh()->user_id);
+    }
+
+    public function test_check_in_with_photo_and_gps_records_verification_data(): void
+    {
+        Storage::fake('public');
+        $employee = $this->employee();
+        $shop = $employee->shop;
+        $shop->update(['latitude' => -6.2000000, 'longitude' => 106.8166667, 'attendance_radius_meters' => 100]);
+
+        $this->travelTo(Carbon::parse('2026-10-20 08:00:00', 'Asia/Jakarta'));
+        $photo = UploadedFile::fake()->image('selfie.jpg', 640, 480);
+
+        $response = $this->actingAs($employee)->post(route('admin.attendance.store'), [
+            'type' => 'check_in',
+            'latitude' => -6.2000200,
+            'longitude' => 106.8166800,
+            'accuracy' => 10.5,
+            'photo' => $photo,
+        ]);
+
+        $response->assertRedirect(route('admin.attendance.index'));
+        $attendance = Attendance::firstOrFail();
+        $this->assertNotNull($attendance->check_in_photo_path);
+        Storage::disk('public')->assertExists($attendance->check_in_photo_path);
+        $this->assertEquals(-6.2000200, $attendance->check_in_latitude);
+        $this->assertEquals(106.8166800, $attendance->check_in_longitude);
+        $this->assertEquals(10.5, $attendance->check_in_accuracy);
+        $this->assertTrue($attendance->check_in_in_radius);
+        $this->assertLessThan(50, $attendance->check_in_distance_meters);
+    }
+
+    public function test_check_in_with_base64_photo_decodes_and_stores_image(): void
+    {
+        Storage::fake('public');
+        $employee = $this->employee();
+        $this->travelTo(Carbon::parse('2026-10-20 08:00:00', 'Asia/Jakarta'));
+
+        // 1x1 transparent PNG as base64
+        $base64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+        $this->actingAs($employee)->postJson(route('admin.attendance.store'), [
+            'type' => 'check_in',
+            'latitude' => -6.2000000,
+            'longitude' => 106.8166667,
+            'photo_base64' => $base64,
+        ])->assertOk();
+
+        $attendance = Attendance::firstOrFail();
+        $this->assertNotNull($attendance->check_in_photo_path);
+        Storage::disk('public')->assertExists($attendance->check_in_photo_path);
+    }
+
+    public function test_check_in_rejected_when_photo_required_by_shop_but_missing(): void
+    {
+        $employee = $this->employee();
+        $employee->shop->update(['attendance_require_photo' => true]);
+        $this->travelTo(Carbon::parse('2026-10-20 08:00:00', 'Asia/Jakarta'));
+
+        $this->actingAs($employee)->postJson(route('admin.attendance.store'), [
+            'type' => 'check_in',
+        ])->assertUnprocessable()->assertJsonValidationErrors('photo');
+    }
+
+    public function test_check_in_rejected_when_gps_required_by_shop_but_missing(): void
+    {
+        $employee = $this->employee();
+        $employee->shop->update(['attendance_require_gps' => true]);
+        $this->travelTo(Carbon::parse('2026-10-20 08:00:00', 'Asia/Jakarta'));
+
+        $this->actingAs($employee)->postJson(route('admin.attendance.store'), [
+            'type' => 'check_in',
+        ])->assertUnprocessable()->assertJsonValidationErrors('gps');
+    }
+
+    public function test_check_in_outside_radius_is_rejected_when_strict_location_enabled(): void
+    {
+        $employee = $this->employee();
+        $employee->shop->update([
+            'latitude' => -6.2000000,
+            'longitude' => 106.8166667,
+            'attendance_radius_meters' => 100,
+            'attendance_strict_location' => true,
+        ]);
+        $this->travelTo(Carbon::parse('2026-10-20 08:00:00', 'Asia/Jakarta'));
+
+        // Location ~500m away
+        $response = $this->actingAs($employee)->postJson(route('admin.attendance.store'), [
+            'type' => 'check_in',
+            'latitude' => -6.2050000,
+            'longitude' => 106.8166667,
+        ]);
+
+        $response->assertUnprocessable()->assertJsonValidationErrors('gps');
+        $this->assertStringContainsString('radius maksimal', $response->json('errors.gps.0'));
+        $this->assertDatabaseCount('attendances', 0);
+    }
+
+    public function test_check_in_outside_radius_is_flagged_with_warning_when_strict_location_disabled(): void
+    {
+        $employee = $this->employee();
+        $employee->shop->update([
+            'latitude' => -6.2000000,
+            'longitude' => 106.8166667,
+            'attendance_radius_meters' => 100,
+            'attendance_strict_location' => false,
+        ]);
+        $this->travelTo(Carbon::parse('2026-10-20 08:00:00', 'Asia/Jakarta'));
+
+        $this->actingAs($employee)->postJson(route('admin.attendance.store'), [
+            'type' => 'check_in',
+            'latitude' => -6.2050000,
+            'longitude' => 106.8166667,
+        ])->assertOk();
+
+        $attendance = Attendance::firstOrFail();
+        $this->assertFalse($attendance->check_in_in_radius);
+        $this->assertGreaterThan(100, $attendance->check_in_distance_meters);
+    }
+
+    public function test_check_out_with_photo_and_gps_records_checkout_verification(): void
+    {
+        Storage::fake('public');
+        $employee = $this->employee();
+        $this->travelTo(Carbon::parse('2026-10-20 08:00:00', 'Asia/Jakarta'));
+        $this->actingAs($employee)->postJson(route('admin.attendance.store'), ['type' => 'check_in'])->assertOk();
+
+        $this->travel(8)->hours();
+        $photo = UploadedFile::fake()->image('checkout.jpg', 640, 480);
+        $this->post(route('admin.attendance.store'), [
+            'type' => 'check_out',
+            'latitude' => -6.2000100,
+            'longitude' => 106.8166700,
+            'accuracy' => 8.0,
+            'photo' => $photo,
+        ])->assertRedirect(route('admin.attendance.index'));
+
+        $attendance = Attendance::firstOrFail();
+        $this->assertNotNull($attendance->check_out_photo_path);
+        Storage::disk('public')->assertExists($attendance->check_out_photo_path);
+        $this->assertEquals(-6.2000100, $attendance->check_out_latitude);
+        $this->assertEquals(106.8166700, $attendance->check_out_longitude);
+    }
+
+    public function test_owner_can_update_attendance_location_settings(): void
+    {
+        $owner = $this->employee('owner');
+        $response = $this->actingAs($owner)->putJson(route('admin.attendance.location'), [
+            'latitude' => -6.2088888,
+            'longitude' => 106.8455555,
+            'attendance_radius_meters' => 150,
+            'attendance_require_photo' => true,
+            'attendance_require_gps' => true,
+            'attendance_strict_location' => true,
+        ]);
+
+        $response->assertOk();
+        $shop = $owner->shop->fresh();
+        $this->assertEquals(-6.2088888, $shop->latitude);
+        $this->assertEquals(106.8455555, $shop->longitude);
+        $this->assertEquals(150, $shop->attendance_radius_meters);
+        $this->assertTrue($shop->attendance_require_photo);
+        $this->assertTrue($shop->attendance_require_gps);
+        $this->assertTrue($shop->attendance_strict_location);
+    }
+
+    public function test_staff_cannot_update_attendance_location_settings(): void
+    {
+        $crew = $this->employee('crew');
+        $this->actingAs($crew)->putJson(route('admin.attendance.location'), [
+            'latitude' => -6.2088888,
+            'longitude' => 106.8455555,
+            'attendance_radius_meters' => 150,
+            'attendance_require_photo' => true,
+            'attendance_require_gps' => true,
+            'attendance_strict_location' => true,
+        ])->assertForbidden();
     }
 
     private function employee(string $role = 'crew'): User

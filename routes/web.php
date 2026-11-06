@@ -48,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/admin/attendance', [AttendanceController::class, 'index'])->middleware('schema:attendance')->name('admin.attendance.index');
     Route::post('/admin/attendance', [AttendanceController::class, 'store'])->middleware('schema:attendance')->middleware('throttle:20,1')->name('admin.attendance.store');
+    Route::put('/admin/attendance/location', [AttendanceController::class, 'updateLocationSettings'])->middleware('schema:attendance')->name('admin.attendance.location');
     Route::get('/admin/attendance/report', [AttendanceController::class, 'report'])->middleware('schema:attendance')->name('admin.attendance.report');
 
     // Dashboard (accessible to all authenticated users)

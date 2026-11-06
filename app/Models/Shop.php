@@ -73,6 +73,12 @@ class Shop extends Model
         'suspended_at',
         'suspended_reason',
         'suspended_by',
+        'latitude',
+        'longitude',
+        'attendance_radius_meters',
+        'attendance_require_photo',
+        'attendance_require_gps',
+        'attendance_strict_location',
     ];
 
     protected $appends = [
@@ -97,7 +103,18 @@ class Shop extends Model
         'last_active_at' => 'datetime',
         'suspended_at' => 'datetime',
         'mrr' => 'decimal:2',
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'attendance_radius_meters' => 'integer',
+        'attendance_require_photo' => 'boolean',
+        'attendance_require_gps' => 'boolean',
+        'attendance_strict_location' => 'boolean',
     ];
+
+    public function hasLocation(): bool
+    {
+        return ! is_null($this->latitude) && ! is_null($this->longitude);
+    }
 
     public function users()
     {

@@ -6,7 +6,7 @@
     <title>Absensi — {{ $shop->name ?? 'OQARI' }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -15,14 +15,14 @@
     </style>
     <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="sparta-attendance min-h-screen bg-[#f6f5f2] text-[#1e211f] antialiased">
+<body class="sparta-attendance min-h-screen bg-[#f6f5f2] text-[#1e211f] antialiased" x-data="attendanceRoot()">
 <div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content flex flex-col min-h-screen bg-[#f6f5f2]">
     <a href="#attendance-content" class="sr-only focus:not-sr-only">Lewati navigasi</a>
 
     {{-- TOP HEADER BAR (Sparta Style) --}}
     <header class="h-[52px] bg-[#f6f5f2] border-b border-[#e6e5e0] px-4 lg:px-[26px] flex items-center justify-between shrink-0 sticky top-0 z-20">
         <div class="flex items-center gap-3">
-            <button type="button" x-data @click="$dispatch('toggle-mobile-nav')" aria-label="Buka menu navigasi" aria-controls="app-sidebar"
+            <button type="button" @click="$dispatch('toggle-mobile-nav')" aria-label="Buka menu navigasi" aria-controls="app-sidebar"
                 class="w-9 h-9 rounded-lg bg-[#eae8e3] flex items-center justify-center text-[#1e211f] hover:bg-[#dfddd7] transition-colors md:hidden">
                 <i class="fas fa-bars text-base"></i>
             </button>
@@ -47,18 +47,33 @@
                 </p>
             </div>
 
-            <nav aria-label="Tampilan absensi" class="bg-white border border-[#e6e5e0] p-1 rounded-[11px] inline-flex items-center gap-1 self-start sm:self-auto shadow-[0px_1px_2px_rgba(0,0,0,0.02)]">
-                <a href="{{ route('admin.attendance.index', ['month' => $filters['month']]) }}" @if(!$isReport) aria-current="page" @endif
-                   class="px-3.5 py-1.5 rounded-[8px] text-[12px] transition {{ !$isReport ? 'bg-[#fff6f0] border border-[#df5826] text-[#df5826] font-semibold' : 'text-[#53565a] font-medium hover:text-[#111827]' }}">
-                    Absensi Saya
-                </a>
-                @if(auth()->user()->role === 'owner' && auth()->user()->can('view-attendance'))
-                <a href="{{ route('admin.attendance.index', ['tab' => 'team', 'month' => $filters['month']]) }}" @if($isReport) aria-current="page" @endif
-                   class="px-3.5 py-1.5 rounded-[8px] text-[12px] transition {{ $isReport ? 'bg-[#fff6f0] border border-[#df5826] text-[#df5826] font-semibold' : 'text-[#53565a] font-medium hover:text-[#111827]' }}">
-                    Rekap Tim
-                </a>
+            <div class="flex flex-wrap items-center gap-2">
+                <nav aria-label="Tampilan absensi" class="bg-white border border-[#e6e5e0] p-1 rounded-[11px] inline-flex items-center gap-1 self-start sm:self-auto shadow-[0px_1px_2px_rgba(0,0,0,0.02)]">
+                    <a href="{{ route('admin.attendance.index', ['month' => $filters['month']]) }}" @if(!$isReport) aria-current="page" @endif
+                       class="px-3.5 py-1.5 rounded-[8px] text-[12px] transition {{ !$isReport ? 'bg-[#fff6f0] border border-[#df5826] text-[#df5826] font-semibold' : 'text-[#53565a] font-medium hover:text-[#111827]' }}">
+                        Absensi Saya
+                    </a>
+                    @if(auth()->user()->role === 'owner' && auth()->user()->can('view-attendance'))
+                    <a href="{{ route('admin.attendance.index', ['tab' => 'team', 'month' => $filters['month']]) }}" @if($isReport) aria-current="page" @endif
+                       class="px-3.5 py-1.5 rounded-[8px] text-[12px] transition {{ $isReport ? 'bg-[#fff6f0] border border-[#df5826] text-[#df5826] font-semibold' : 'text-[#53565a] font-medium hover:text-[#111827]' }}">
+                        Rekap Tim
+                    </a>
+                    @endif
+                </nav>
+
+                @if(auth()->user()->role === 'owner')
+                <button type="button" @click="showLocationModal = true" 
+                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-[10px] bg-white border border-[#e6e5e0] hover:bg-gray-50 text-[12px] font-semibold text-[#111827] shadow-[0px_1px_2px_rgba(0,0,0,0.02)] transition">
+                    <i class="fas fa-location-dot text-[#df5826]"></i>
+                    <span>Atur Lokasi Kafe</span>
+                    @if($shop && $shop->hasLocation())
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500" title="Titik lokasi GPS kafe aktif"></span>
+                    @else
+                        <span class="inline-block w-2 h-2 rounded-full bg-amber-400" title="Titik lokasi belum disetel"></span>
+                    @endif
+                </button>
                 @endif
-            </nav>
+            </div>
         </div>
 
         {{-- ALERTS --}}
@@ -79,19 +94,30 @@
             </div>
         @endif
 
-        {{-- CATAT KEHADIRAN CARD (Personal Check-In / Check-Out) --}}
+        {{-- CATAT KEHADIRAN CARD (Personal Check-In / Check-Out with Selfie & GPS) --}}
         @unless($isReport)
-            <section aria-labelledby="record-title" class="bg-white border border-[#e6e5e0] rounded-[16px] p-5 md:p-6 pl-6 relative overflow-hidden shadow-[0px_3px_12px_rgba(38,39,35,0.04)]">
+            <section aria-labelledby="record-title" class="bg-white border border-[#e6e5e0] rounded-[16px] p-5 md:p-6 pl-6 relative overflow-hidden shadow-[0px_3px_12px_rgba(38,39,35,0.04)]"
+                     x-data="attendanceCapture({
+                         shopLat: {{ $shop && $shop->latitude !== null ? $shop->latitude : 'null' }},
+                         shopLng: {{ $shop && $shop->longitude !== null ? $shop->longitude : 'null' }},
+                         shopRadius: {{ $shop->attendance_radius_meters ?? 100 }},
+                         requirePhoto: {{ ($shop && $shop->attendance_require_photo) ? 'true' : 'false' }},
+                         requireGps: {{ ($shop && $shop->attendance_require_gps) ? 'true' : 'false' }},
+                         strictLocation: {{ ($shop && $shop->attendance_strict_location) ? 'true' : 'false' }}
+                     })"
+                     x-init="init()">
                 {{-- Left Accent Bar --}}
                 <div class="w-[3.5px] absolute left-0 top-0 bottom-0 {{ $active ? 'bg-[#df5826]' : ($todayRecord ? 'bg-[#289e5c]' : 'bg-[#df5826]') }}"></div>
 
                 <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-[#e6e5e0]">
                     <div class="flex items-start gap-3">
                         <div class="w-10 h-10 rounded-[10px] {{ $active ? 'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]' : ($todayRecord ? 'bg-[#eaf7ef] border-[#bfe5cd] text-[#289e5c]' : 'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]') }} border flex items-center justify-center shrink-0">
-                            <i class="fas {{ $active ? 'fa-user-clock' : ($todayRecord ? 'fa-user-check' : 'fa-fingerprint') }} text-base"></i>
+                            <i class="fas {{ $active ? 'fa-user-clock' : ($todayRecord ? 'fa-user-check' : 'fa-camera') }} text-base"></i>
                         </div>
                         <div>
-                            <h2 id="record-title" class="text-[15px] font-bold text-[#1e211f] leading-tight">Catat Kehadiran</h2>
+                            <h2 id="record-title" class="text-[15px] font-bold text-[#1e211f] leading-tight">
+                                Catat Kehadiran
+                            </h2>
                             @if($active)
                                 <p class="mt-1 text-[12.5px] text-[#53565a]">
                                     Anda masuk pada <strong class="font-semibold text-[#111827]">{{ $active->checked_in_at->setTimezone($active->timezone)->format('d/m/Y H:i') }}</strong> ({{ $active->timezone }}).
@@ -102,7 +128,7 @@
                                 </p>
                             @else
                                 <p class="mt-1 text-[12.5px] text-[#53565a]">
-                                    Waktu dicatat oleh server. Jadwal yang tersedia digunakan untuk menghitung keterlambatan.
+                                    Ambil foto selfie dan pastikan GPS aktif untuk memverifikasi kehadiran di kafe.
                                 </p>
                             @endif
                         </div>
@@ -136,29 +162,234 @@
                 @endif
 
                 @if($active || !$todayRecord)
-                    <form method="POST" action="{{ route('admin.attendance.store') }}" class="mt-4 space-y-3" x-data="{ submitting: false }" @submit="submitting = true">
+                    <form method="POST" action="{{ route('admin.attendance.store') }}" enctype="multipart/form-data" class="mt-5 space-y-4" @submit="handleSubmit($event)">
                         @csrf
                         <input type="hidden" name="type" value="{{ $active ? 'check_out' : 'check_in' }}">
+                        <input type="hidden" name="latitude" :value="latitude || ''">
+                        <input type="hidden" name="longitude" :value="longitude || ''">
+                        <input type="hidden" name="accuracy" :value="accuracy || ''">
+                        <input type="hidden" name="photo_base64" :value="photoBase64 || ''">
 
-                        <div>
-                            <label for="attendance-note" class="block text-[12px] font-semibold text-[#111827] mb-1.5">
-                                Catatan {{ $active ? 'pulang' : 'masuk' }} <span class="font-normal text-[#8b8e93]">(opsional)</span>
-                            </label>
-                            <textarea id="attendance-note" name="note" maxlength="500" rows="2"
-                                placeholder="Contoh: {{ $active ? 'Menyelesaikan penutupan shift sore' : 'Hadir tepat waktu' }}..."
-                                class="w-full rounded-[10px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] focus:ring-0 px-3.5 py-2.5 text-[12.5px] text-[#111827] placeholder-[#8b8e93] outline-none transition"
-                                aria-describedby="note-help">{{ old('note') }}</textarea>
-                            <p id="note-help" class="text-[11px] text-[#8b8e93] mt-1">
-                                Maksimal 500 karakter. Satu sesi kehadiran per hari kerja. Absensi tidak menutup shift kasir.
-                            </p>
-                        </div>
+                        <!-- Two Column Verification Layout: Left = Selfie Camera, Right = GPS & Notes -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                            
+                            <!-- COL 1: Live Selfie Camera (5 cols on lg) -->
+                            <div class="lg:col-span-5 flex flex-col">
+                                <label class="block text-[12px] font-bold text-[#111827] mb-1.5">
+                                    <i class="fas fa-camera text-[#df5826] mr-1"></i>
+                                    Foto Selfie Kehadiran
+                                    <template x-if="requirePhoto"><span class="text-red-500 font-bold">*</span></template>
+                                    <template x-if="!requirePhoto"><span class="text-[11px] text-[#7f837e] font-normal">(opsional)</span></template>
+                                </label>
 
-                        <div class="pt-1">
-                            <button type="submit" :disabled="submitting"
-                                class="inline-flex items-center justify-center gap-2 py-2.5 px-5 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-[12.5px] font-semibold hover:opacity-95 transition disabled:opacity-60 disabled:cursor-wait">
-                                <i class="fas {{ $active ? 'fa-sign-out-alt' : 'fa-sign-in-alt' }} text-xs"></i>
-                                <span x-text="submitting ? 'Mencatat…' : '{{ $active ? 'Absen Pulang' : 'Absen Masuk' }}'">{{ $active ? 'Absen Pulang' : 'Absen Masuk' }}</span>
-                            </button>
+                                <div class="relative w-full rounded-2xl overflow-hidden bg-gray-900 border border-[#e6e5e0] min-h-[240px] flex items-center justify-center flex-1">
+                                    
+                                    <!-- STATE 1: Live Video Stream -->
+                                    <div x-show="cameraStatus === 'streaming'" class="w-full h-full relative flex items-center justify-center">
+                                        <video x-ref="video" autoplay playsinline muted class="w-full h-[240px] sm:h-[260px] object-cover scale-x-[-1]"></video>
+                                        
+                                        <!-- Oval Face Framing Guide -->
+                                        <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+                                            <div class="w-36 h-48 border-2 border-dashed border-white/60 rounded-[50%] shadow-[0_0_20px_rgba(0,0,0,0.4)]"></div>
+                                        </div>
+
+                                        <!-- Top Info Bar -->
+                                        <div class="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                                            <span class="inline-flex items-center gap-1 rounded-md bg-black/50 backdrop-blur-xs px-2 py-0.5 text-[10px] font-semibold text-white">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Kamera Aktif
+                                            </span>
+                                        </div>
+
+                                        <!-- Shutter Button Overlay -->
+                                        <div class="absolute bottom-3 inset-x-0 flex items-center justify-center gap-3">
+                                            <button type="button" @click="takeSnapshot()" 
+                                                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[#111827] text-xs font-bold shadow-lg hover:bg-gray-100 active:scale-95 transition">
+                                                <i class="fas fa-circle-dot text-[#df5826] text-sm"></i>
+                                                <span>Ambil Foto</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- STATE 2: Photo Captured -->
+                                    <div x-show="cameraStatus === 'captured'" class="w-full h-full relative flex flex-col items-center justify-center">
+                                        <img :src="photoBase64" alt="Hasil Foto Selfie" class="w-full h-[240px] sm:h-[260px] object-cover">
+                                        <div class="absolute top-2 right-2">
+                                            <span class="inline-flex items-center gap-1 rounded-md bg-emerald-600/90 backdrop-blur-xs px-2 py-0.5 text-[11px] font-bold text-white shadow">
+                                                <i class="fas fa-check"></i>Foto Siap
+                                            </span>
+                                        </div>
+                                        <div class="absolute bottom-3 inset-x-0 flex items-center justify-center">
+                                            <button type="button" @click="retake()" 
+                                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/70 backdrop-blur-xs text-white text-xs font-semibold hover:bg-black/90 transition shadow">
+                                                <i class="fas fa-rotate-right text-xs"></i>
+                                                <span>Foto Ulang</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- STATE 3: Loading Camera -->
+                                    <div x-show="cameraStatus === 'loading'" class="p-6 text-center text-white/80">
+                                        <i class="fas fa-circle-notch fa-spin text-2xl text-[#df5826] mb-2"></i>
+                                        <p class="text-xs">Menyiapkan kamera...</p>
+                                    </div>
+
+                                    <!-- STATE 4: Camera Error / Permission Denied / Fallback -->
+                                    <div x-show="cameraStatus === 'error'" class="p-5 text-center text-white space-y-3">
+                                        <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center">
+                                            <i class="fas fa-video-slash text-base"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-white leading-snug" x-text="cameraErrorMsg"></p>
+                                            <p class="text-[11px] text-gray-300 mt-1">Gunakan tombol di bawah untuk membuka kamera perangkat atau unggah file selfie.</p>
+                                        </div>
+                                        <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+                                            <button type="button" @click="$refs.fileInput.click()" 
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-[#111827] text-xs font-bold hover:bg-gray-100 transition">
+                                                <i class="fas fa-camera text-[#df5826]"></i>
+                                                <span>Pilih / Foto via HP</span>
+                                            </button>
+                                            <button type="button" @click="startCamera()" 
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/20 text-white text-xs font-medium hover:bg-white/30 transition">
+                                                <i class="fas fa-redo"></i>Coba Lagi
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hidden File Input Fallback -->
+                                <input type="file" x-ref="fileInput" accept="image/*" capture="user" class="hidden" @change="handleFileUpload($event)">
+
+                                <p class="text-[11px] text-[#7f837e] mt-1.5">
+                                    💡 Pastikan wajah terlihat jelas dan pencahayaan memadai.
+                                </p>
+                            </div>
+
+                            <!-- COL 2: GPS Verification & Notes (7 cols on lg) -->
+                            <div class="lg:col-span-7 flex flex-col justify-between space-y-4">
+                                
+                                <!-- GPS Geolocation Status Box -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label class="block text-[12px] font-bold text-[#111827]">
+                                            <i class="fas fa-location-dot text-[#df5826] mr-1"></i>
+                                            Lokasi GPS Kehadiran
+                                            <template x-if="requireGps"><span class="text-red-500 font-bold">*</span></template>
+                                            <template x-if="!requireGps"><span class="text-[11px] text-[#7f837e] font-normal">(opsional)</span></template>
+                                        </label>
+                                        <button type="button" @click="detectLocation()" :disabled="gpsStatus === 'loading'" 
+                                            class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#df5826] hover:underline disabled:opacity-50">
+                                            <i class="fas fa-rotate-right" :class="gpsStatus === 'loading' ? 'fa-spin' : ''"></i>
+                                            <span>Deteksi Ulang</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- GPS Card Info -->
+                                    <div class="rounded-xl border p-3.5 transition-all"
+                                         :class="gpsStatus === 'success' ? (inRadius ? 'border-emerald-200 bg-emerald-50/50' : 'border-amber-200 bg-amber-50/50') : (gpsStatus === 'error' ? 'border-red-200 bg-red-50/60' : 'border-[#e6e5e0] bg-[#f8f9fa]')">
+                                        
+                                        <!-- Loading GPS -->
+                                        <div x-show="gpsStatus === 'loading'" class="flex items-center gap-3 text-xs text-[#53565a]">
+                                            <i class="fas fa-circle-notch fa-spin text-base text-[#df5826]"></i>
+                                            <div>
+                                                <p class="font-semibold text-[#111827]">Mendeteksi posisi koordinat GPS...</p>
+                                                <p class="text-[11px] text-[#7f837e]">Pastikan browser diizinkan mengakses lokasi perangkat.</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Success GPS -->
+                                        <div x-show="gpsStatus === 'success'" class="space-y-2">
+                                            <div class="flex items-start justify-between gap-2">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                                                         :class="inRadius ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'">
+                                                        <i class="fas" :class="inRadius ? 'fa-check text-xs' : 'fa-exclamation-triangle text-xs'"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-xs font-bold" :class="inRadius ? 'text-emerald-900' : 'text-amber-900'"
+                                                           x-text="inRadius ? 'Lokasi Valid — Berada di Area Kafe' : 'Peringatan: Berada di Luar Radius Kafe'">
+                                                        </p>
+                                                        <p class="text-[11px] text-[#53565a]">
+                                                            Koordinat: <span class="font-mono" x-text="latitude + ', ' + longitude"></span>
+                                                            <span class="text-[#7f837e]" x-text="'(Akurasi ±' + accuracy + 'm)'"></span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Google Maps Link -->
+                                                <a :href="'https://www.google.com/maps?q=' + latitude + ',' + longitude" target="_blank"
+                                                   class="inline-flex items-center gap-1 rounded-md bg-white border border-gray-200 px-2 py-1 text-[11px] font-semibold text-[#53565a] hover:text-[#111827] shadow-2xs shrink-0"
+                                                   title="Buka titik koordinat di Google Maps">
+                                                    <i class="fas fa-map-location-dot text-[#df5826]"></i>
+                                                    <span>Buka Peta</span>
+                                                </a>
+                                            </div>
+
+                                            <!-- Distance Comparison Badge (if shop has coordinates) -->
+                                            <template x-if="distanceMeters !== null">
+                                                <div class="rounded-lg p-2 text-xs flex items-center justify-between"
+                                                     :class="inRadius ? 'bg-emerald-100/70 text-emerald-800' : 'bg-amber-100/70 text-amber-800'">
+                                                    <span>Jarak ke Kafe: <strong class="font-bold" x-text="distanceMeters + ' meter'"></strong> (Maks radius: <span x-text="shopRadius + 'm'"></span>)</span>
+                                                    <span class="font-bold" x-text="inRadius ? '✓ Dalam Radius' : '⚠️ Luar Radius'"></span>
+                                                </div>
+                                            </template>
+
+                                            <template x-if="strictLocation && !inRadius">
+                                                <p class="text-[11px] text-red-600 font-bold">
+                                                    ⛔ Validasi ketat aktif: Absensi diblokir karena Anda berada di luar radius kafe.
+                                                </p>
+                                            </template>
+                                        </div>
+
+                                        <!-- Error GPS / Permission Denied -->
+                                        <div x-show="gpsStatus === 'error'" class="space-y-2">
+                                            <div class="flex items-start gap-2.5 text-red-700">
+                                                <i class="fas fa-triangle-exclamation text-base shrink-0 mt-0.5"></i>
+                                                <div>
+                                                    <p class="text-xs font-bold leading-tight">Gagal Mengakses Lokasi GPS</p>
+                                                    <p class="text-[11px] mt-0.5" x-text="gpsErrorMsg"></p>
+                                                </div>
+                                            </div>
+                                            <div class="text-[11px] text-[#53565a] bg-white/80 p-2 rounded-lg border border-red-100">
+                                                💡 <strong>Cara Mengizinkan:</strong> Klik ikon gembok/setelan di kiri address bar browser Anda, pilih <em>Izinkan Lokasi (Location)</em>, lalu klik tombol "Deteksi Ulang".
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Catatan Kehadiran (Opsional) -->
+                                <div>
+                                    <label for="attendance-note" class="block text-[12px] font-semibold text-[#111827] mb-1.5">
+                                        Catatan {{ $active ? 'pulang' : 'masuk' }} <span class="font-normal text-[#8b8e93]">(opsional)</span>
+                                    </label>
+                                    <textarea id="attendance-note" name="note" maxlength="500" rows="2"
+                                        placeholder="Contoh: {{ $active ? 'Menyelesaikan penutupan shift sore' : 'Hadir tepat waktu' }}..."
+                                        class="w-full rounded-[10px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] focus:ring-0 px-3.5 py-2.5 text-[12.5px] text-[#111827] placeholder-[#8b8e93] outline-none transition"
+                                        aria-describedby="note-help">{{ old('note') }}</textarea>
+                                </div>
+
+                                <!-- Validation Summary Hint & Submit Action Button -->
+                                <div class="pt-2 border-t border-[#e6e5e0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div class="text-[11.5px] text-[#7f837e]">
+                                        <template x-if="!canSubmit">
+                                            <span class="text-amber-600 font-semibold flex items-center gap-1.5">
+                                                <i class="fas fa-circle-info"></i>
+                                                <span x-text="submitBlockReason"></span>
+                                            </span>
+                                        </template>
+                                        <template x-if="canSubmit">
+                                            <span class="text-emerald-600 font-semibold flex items-center gap-1">
+                                                <i class="fas fa-check-circle"></i> Data verifikasi foto &amp; lokasi lengkap.
+                                            </span>
+                                        </template>
+                                    </div>
+
+                                    <button type="submit" :disabled="!canSubmit"
+                                        class="inline-flex items-center justify-center gap-2 py-2.5 px-6 rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-[13px] font-bold hover:opacity-95 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <i class="fas {{ $active ? 'fa-sign-out-alt' : 'fa-sign-in-alt' }} text-xs"></i>
+                                        <span x-text="submitting ? 'Mencatat…' : '{{ $active ? 'Absen Pulang Sekarang' : 'Absen Masuk Sekarang' }}'">{{ $active ? 'Absen Pulang' : 'Absen Masuk' }}</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 @endif
@@ -220,7 +451,7 @@
                         {{ $isReport ? 'Kehadiran Tim' : 'Riwayat Kehadiran' }}
                     </h2>
                     <p class="text-[11.5px] text-[#8b8e93] mt-0.5">
-                        Daftar catatan kehadiran periode {{ $filters['month'] }}
+                        Daftar catatan kehadiran periode {{ $filters['month'] }} beserta bukti verifikasi foto selfie &amp; lokasi GPS
                     </p>
                 </div>
 
@@ -268,9 +499,13 @@
                     <caption class="sr-only">Daftar kehadiran periode {{ $filters['month'] }}</caption>
                     <thead class="bg-[#f8f9fa] border-b border-[#e6e5e0] text-[11px] font-semibold text-[#8b8e93] uppercase tracking-wider">
                         <tr>
-                            @foreach(['Hari Kerja', 'Karyawan', 'Masuk / Pulang', 'Kehadiran', 'Durasi', 'Catatan'] as $heading)
-                                <th scope="col" class="px-4 py-3 whitespace-nowrap">{{ $heading }}</th>
-                            @endforeach
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Hari Kerja</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Karyawan</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Masuk / Pulang</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Verifikasi (Foto &amp; GPS)</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Kehadiran</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Durasi</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Catatan</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#e6e5e0]">
@@ -306,6 +541,98 @@
                                         <span class="text-[10.5px] text-[#8b8e93] block pl-3">{{ $attendance->timezone }}</span>
                                     </div>
                                 </td>
+
+                                {{-- Verification Column: Photos & GPS --}}
+                                <td class="px-4 py-3.5">
+                                    <div class="space-y-2 min-w-[170px]">
+                                        <!-- Masuk Verification -->
+                                        <div class="flex items-center gap-2">
+                                            @if($attendance->check_in_photo_path)
+                                                <button type="button" @click="openPhotoPreview('{{ $attendance->check_in_photo_url }}', '{{ $empName }} (Masuk)', '{{ $attendance->checked_in_at->setTimezone($attendance->timezone)->format('d/m/Y H:i') }}', '{{ $attendance->check_in_latitude }}', '{{ $attendance->check_in_longitude }}', {{ $attendance->check_in_distance_meters ?? 'null' }}, {{ $attendance->check_in_in_radius !== null ? ($attendance->check_in_in_radius ? 'true' : 'false') : 'null' }})"
+                                                    class="relative w-8 h-8 rounded-lg overflow-hidden border border-emerald-300 shadow-2xs hover:scale-105 transition shrink-0 group"
+                                                    title="Lihat foto selfie masuk">
+                                                    <img src="{{ $attendance->check_in_photo_url }}" alt="Foto Masuk" class="w-full h-full object-cover">
+                                                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent flex items-center justify-center text-white text-[9px]">
+                                                        <i class="fas fa-search"></i>
+                                                    </div>
+                                                </button>
+                                            @else
+                                                <span class="w-8 h-8 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs shrink-0" title="Tanpa foto masuk">
+                                                    <i class="fas fa-camera-slash text-[10px]"></i>
+                                                </span>
+                                            @endif
+
+                                            <div class="text-[11px] leading-tight">
+                                                <div class="flex items-center gap-1 font-semibold text-[#111827]">
+                                                    <span class="text-[10px] text-emerald-600 font-bold">IN:</span>
+                                                    @if($attendance->check_in_latitude && $attendance->check_in_longitude)
+                                                        <a href="https://www.google.com/maps?q={{ $attendance->check_in_latitude }},{{ $attendance->check_in_longitude }}" target="_blank"
+                                                           class="inline-flex items-center gap-0.5 hover:underline"
+                                                           :class="{{ $attendance->check_in_in_radius !== false ? "'text-emerald-700'" : "'text-amber-700'" }}"
+                                                           title="Buka titik GPS di Google Maps">
+                                                            <i class="fas fa-location-dot text-[9px]"></i>
+                                                            @if($attendance->check_in_distance_meters !== null)
+                                                                <span>{{ $attendance->check_in_distance_meters }}m</span>
+                                                            @else
+                                                                <span>GPS</span>
+                                                            @endif
+                                                        </a>
+                                                        @if($attendance->check_in_in_radius === false)
+                                                            <span class="rounded bg-amber-100 px-1 text-[9px] font-bold text-amber-700" title="Di luar radius kafe">Luar</span>
+                                                        @endif
+                                                    @else
+                                                        <span class="text-gray-400 font-normal">Tanpa GPS</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Pulang Verification -->
+                                        @if($attendance->checked_out_at)
+                                            <div class="flex items-center gap-2 pt-1 border-t border-gray-100">
+                                                @if($attendance->check_out_photo_path)
+                                                    <button type="button" @click="openPhotoPreview('{{ $attendance->check_out_photo_url }}', '{{ $empName }} (Pulang)', '{{ $attendance->checked_out_at->setTimezone($attendance->timezone)->format('d/m/Y H:i') }}', '{{ $attendance->check_out_latitude }}', '{{ $attendance->check_out_longitude }}', {{ $attendance->check_out_distance_meters ?? 'null' }}, {{ $attendance->check_out_in_radius !== null ? ($attendance->check_out_in_radius ? 'true' : 'false') : 'null' }})"
+                                                        class="relative w-8 h-8 rounded-lg overflow-hidden border border-orange-300 shadow-2xs hover:scale-105 transition shrink-0 group"
+                                                        title="Lihat foto selfie pulang">
+                                                        <img src="{{ $attendance->check_out_photo_url }}" alt="Foto Pulang" class="w-full h-full object-cover">
+                                                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent flex items-center justify-center text-white text-[9px]">
+                                                            <i class="fas fa-search"></i>
+                                                        </div>
+                                                    </button>
+                                                @else
+                                                    <span class="w-8 h-8 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs shrink-0" title="Tanpa foto pulang">
+                                                        <i class="fas fa-camera-slash text-[10px]"></i>
+                                                    </span>
+                                                @endif
+
+                                                <div class="text-[11px] leading-tight">
+                                                    <div class="flex items-center gap-1 font-semibold text-[#111827]">
+                                                        <span class="text-[10px] text-[#df5826] font-bold">OUT:</span>
+                                                        @if($attendance->check_out_latitude && $attendance->check_out_longitude)
+                                                            <a href="https://www.google.com/maps?q={{ $attendance->check_out_latitude }},{{ $attendance->check_out_longitude }}" target="_blank"
+                                                               class="inline-flex items-center gap-0.5 hover:underline"
+                                                               :class="{{ $attendance->check_out_in_radius !== false ? "'text-emerald-700'" : "'text-amber-700'" }}"
+                                                               title="Buka titik GPS di Google Maps">
+                                                                <i class="fas fa-location-dot text-[9px]"></i>
+                                                                @if($attendance->check_out_distance_meters !== null)
+                                                                    <span>{{ $attendance->check_out_distance_meters }}m</span>
+                                                                @else
+                                                                    <span>GPS</span>
+                                                                @endif
+                                                            </a>
+                                                            @if($attendance->check_out_in_radius === false)
+                                                                <span class="rounded bg-amber-100 px-1 text-[9px] font-bold text-amber-700" title="Di luar radius kafe">Luar</span>
+                                                            @endif
+                                                        @else
+                                                            <span class="text-gray-400 font-normal">Tanpa GPS</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
+
                                 <td class="px-4 py-3.5">
                                     <div class="flex flex-col items-start gap-1">
                                         @if(!$attendance->scheduled_start_at)
@@ -337,7 +664,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-12 px-4 text-center">
+                                <td colspan="7" class="py-12 px-4 text-center">
                                     <div class="w-11 h-11 rounded-[12px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center mx-auto mb-2.5">
                                         <i class="fas fa-calendar-times text-sm"></i>
                                     </div>
@@ -361,6 +688,399 @@
             Durasi adalah selisih waktu masuk dan pulang, belum dikurangi istirahat. Catatan tanpa jadwal tidak dihitung sebagai keterlambatan. Rekap ini bukan perhitungan gaji atau lembur.
         </p>
     </main>
+
+    {{-- MODAL 1: FULL RESOLUTION PHOTO & GPS PREVIEW --}}
+    <div x-show="previewPhotoModal" x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+         @keydown.escape.window="previewPhotoModal = false">
+        <div class="relative w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl space-y-4" @click.away="previewPhotoModal = false">
+            <div class="flex items-center justify-between border-b pb-3 border-[#e6e5e0]">
+                <div>
+                    <h3 class="text-sm font-bold text-[#111827]" x-text="activePhoto.title"></h3>
+                    <p class="text-[11px] text-[#7f837e]" x-text="activePhoto.timestamp"></p>
+                </div>
+                <button type="button" @click="previewPhotoModal = false" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#53565a] flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="overflow-hidden rounded-xl bg-gray-900 border border-gray-200 max-h-[380px] flex items-center justify-center">
+                <img :src="activePhoto.url" alt="Foto Bukti Kehadiran" class="w-full h-auto max-h-[380px] object-contain">
+            </div>
+
+            <!-- GPS Detail in Modal -->
+            <div class="rounded-xl bg-gray-50 p-3 border border-[#e6e5e0] text-xs space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-[#7f837e]">Status Lokasi:</span>
+                    <span class="font-bold" :class="activePhoto.inRadius ? 'text-emerald-700' : 'text-amber-700'" 
+                          x-text="activePhoto.inRadius ? '✓ Dalam Radius Kafe' : (activePhoto.inRadius === false ? '⚠️ Di Luar Radius Kafe' : 'Tanpa Lokasi')"></span>
+                </div>
+                <template x-if="activePhoto.distance !== null">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[#7f837e]">Jarak ke Kafe:</span>
+                        <span class="font-bold text-[#111827]" x-text="activePhoto.distance + ' meter'"></span>
+                    </div>
+                </template>
+                <template x-if="activePhoto.lat && activePhoto.lng">
+                    <div class="flex items-center justify-between pt-1 border-t border-gray-200">
+                        <span class="text-[11px] font-mono text-[#53565a]" x-text="activePhoto.lat + ', ' + activePhoto.lng"></span>
+                        <a :href="'https://www.google.com/maps?q=' + activePhoto.lat + ',' + activePhoto.lng" target="_blank"
+                           class="inline-flex items-center gap-1 text-[11px] font-bold text-[#df5826] hover:underline">
+                            <i class="fas fa-location-arrow"></i>
+                            <span>Buka di Google Maps</span>
+                        </a>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL 2: OWNER CAFE LOCATION SETTINGS --}}
+    @if(auth()->user()->role === 'owner')
+    <div x-show="showLocationModal" x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+         @keydown.escape.window="showLocationModal = false">
+        <div class="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl space-y-5" @click.away="showLocationModal = false">
+            <div class="flex items-center justify-between border-b pb-3 border-[#e6e5e0]">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center">
+                        <i class="fas fa-map-location-dot text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-[#111827]">Atur Titik Lokasi &amp; Aturan Absensi Kafe</h3>
+                        <p class="text-[11px] text-[#7f837e]">Tentukan titik koordinat GPS kafe dan radius validasi absensi kru.</p>
+                    </div>
+                </div>
+                <button type="button" @click="showLocationModal = false" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#53565a] flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form method="POST" action="{{ route('admin.attendance.location') }}" class="space-y-4">
+                @csrf
+                @method('PUT')
+
+                <!-- 1-Click Get Current Location Button -->
+                <div class="rounded-xl bg-[#fff6f0] border border-[#f5d5c6] p-3.5 flex items-center justify-between gap-3">
+                    <div class="text-xs">
+                        <p class="font-bold text-[#111827]">Sedang berada di lokasi kafe?</p>
+                        <p class="text-[11px] text-[#7f837e]">Klik tombol untuk mengisi koordinat secara otomatis.</p>
+                    </div>
+                    <button type="button" @click="getOwnerCurrentLocation()" :disabled="locatingOwner"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#df5826] hover:bg-[#c94d00] text-white text-xs font-bold shadow-xs transition disabled:opacity-50">
+                        <i class="fas" :class="locatingOwner ? 'fa-spinner fa-spin' : 'fa-crosshairs'"></i>
+                        <span x-text="locatingOwner ? 'Mendeteksi…' : 'Gunakan Posisi Saya'">Gunakan Posisi Saya</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="shop-lat" class="block text-xs font-semibold text-[#111827] mb-1">Latitude</label>
+                        <input id="shop-lat" type="number" step="any" name="latitude" x-model="modalLat" placeholder="-6.2088..."
+                            class="w-full rounded-[9px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] px-3 py-2 text-xs font-mono">
+                    </div>
+                    <div>
+                        <label for="shop-lng" class="block text-xs font-semibold text-[#111827] mb-1">Longitude</label>
+                        <input id="shop-lng" type="number" step="any" name="longitude" x-model="modalLng" placeholder="106.8455..."
+                            class="w-full rounded-[9px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] px-3 py-2 text-xs font-mono">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="shop-radius" class="block text-xs font-semibold text-[#111827] mb-1">
+                        Radius Maksimal Absensi (Meter)
+                    </label>
+                    <input id="shop-radius" type="number" name="attendance_radius_meters" x-model="modalRadius" min="10" max="5000"
+                        class="w-full rounded-[9px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] px-3 py-2 text-xs font-semibold">
+                    <p class="text-[11px] text-[#7f837e] mt-1">Jarak toleransi maksimal staf dari titik kafe saat melakukan absensi (rekomendasi: 50 – 150 meter).</p>
+                </div>
+
+                <!-- Toggles -->
+                <div class="space-y-2.5 pt-2 border-t border-[#e6e5e0]">
+                    <!-- Require Photo -->
+                    <label class="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                        <div>
+                            <span class="text-xs font-bold text-[#111827] block">Wajibkan Foto Selfie</span>
+                            <span class="text-[11px] text-[#7f837e]">Kru wajib mengambil foto selfie saat absen masuk dan pulang.</span>
+                        </div>
+                        <input type="checkbox" name="attendance_require_photo" value="1" x-model="modalReqPhoto"
+                            class="w-4 h-4 text-[#df5826] rounded border-gray-300 focus:ring-[#df5826]">
+                    </label>
+
+                    <!-- Require GPS -->
+                    <label class="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                        <div>
+                            <span class="text-xs font-bold text-[#111827] block">Wajibkan Lokasi GPS</span>
+                            <span class="text-[11px] text-[#7f837e]">Kru wajib mengaktifkan GPS lokasi saat melakukan absensi.</span>
+                        </div>
+                        <input type="checkbox" name="attendance_require_gps" value="1" x-model="modalReqGps"
+                            class="w-4 h-4 text-[#df5826] rounded border-gray-300 focus:ring-[#df5826]">
+                    </label>
+
+                    <!-- Strict Location Enforcement -->
+                    <label class="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 cursor-pointer">
+                        <div>
+                            <span class="text-xs font-bold text-[#111827] block">Validasi Ketat Radius Kafe</span>
+                            <span class="text-[11px] text-[#7f837e]">Tolak absensi jika kru berada di luar radius. Jika dinonaktifkan, absensi tetap diterima namun ditandai peringatan "Luar Radius".</span>
+                        </div>
+                        <input type="checkbox" name="attendance_strict_location" value="1" x-model="modalStrictLoc"
+                            class="w-4 h-4 text-[#df5826] rounded border-gray-300 focus:ring-[#df5826]">
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-[#e6e5e0]">
+                    <button type="button" @click="showLocationModal = false" class="px-4 py-2 rounded-[9px] border border-gray-200 text-xs font-semibold text-[#53565a] hover:bg-gray-50">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] text-white text-xs font-bold hover:opacity-95 shadow-sm">
+                        Simpan Pengaturan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
 </div></div>
+
+<script>
+function attendanceRoot() {
+    return {
+        showLocationModal: false,
+        locatingOwner: false,
+        modalLat: '{{ $shop->latitude ?? '' }}',
+        modalLng: '{{ $shop->longitude ?? '' }}',
+        modalRadius: {{ $shop->attendance_radius_meters ?? 100 }},
+        modalReqPhoto: {{ ($shop && $shop->attendance_require_photo) ? 'true' : 'false' }},
+        modalReqGps: {{ ($shop && $shop->attendance_require_gps) ? 'true' : 'false' }},
+        modalStrictLoc: {{ ($shop && $shop->attendance_strict_location) ? 'true' : 'false' }},
+
+        previewPhotoModal: false,
+        activePhoto: {
+            url: '',
+            title: '',
+            timestamp: '',
+            lat: null,
+            lng: null,
+            distance: null,
+            inRadius: null,
+        },
+
+        openPhotoPreview(url, title, timestamp, lat, lng, distance, inRadius) {
+            this.activePhoto = { url, title, timestamp, lat, lng, distance, inRadius };
+            this.previewPhotoModal = true;
+        },
+
+        getOwnerCurrentLocation() {
+            if (!navigator.geolocation) {
+                alert('Geolocation tidak didukung oleh browser ini.');
+                return;
+            }
+            this.locatingOwner = true;
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    this.locatingOwner = false;
+                    this.modalLat = pos.coords.latitude.toFixed(7);
+                    this.modalLng = pos.coords.longitude.toFixed(7);
+                },
+                (err) => {
+                    this.locatingOwner = false;
+                    alert('Gagal mendeteksi lokasi: ' + (err.message || 'Izin lokasi tidak diberikan.'));
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+    };
+}
+
+function attendanceCapture(config) {
+    return {
+        shopLat: config.shopLat,
+        shopLng: config.shopLng,
+        shopRadius: config.shopRadius || 100,
+        requirePhoto: config.requirePhoto,
+        requireGps: config.requireGps,
+        strictLocation: config.strictLocation,
+
+        // GPS State
+        gpsStatus: 'idle', // 'idle' | 'loading' | 'success' | 'error'
+        gpsErrorMsg: '',
+        latitude: null,
+        longitude: null,
+        accuracy: null,
+        distanceMeters: null,
+        inRadius: true,
+
+        // Camera State
+        cameraStatus: 'idle', // 'idle' | 'loading' | 'streaming' | 'captured' | 'error'
+        cameraErrorMsg: '',
+        photoBase64: '',
+        videoStream: null,
+        facingMode: 'user',
+
+        submitting: false,
+
+        init() {
+            this.detectLocation();
+            this.startCamera();
+        },
+
+        calcDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return Math.round(R * c);
+        },
+
+        detectLocation() {
+            if (!navigator.geolocation) {
+                this.gpsStatus = 'error';
+                this.gpsErrorMsg = 'Browser Anda tidak mendukung deteksi lokasi (Geolocation).';
+                return;
+            }
+            this.gpsStatus = 'loading';
+            this.gpsErrorMsg = '';
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    this.latitude = Number(pos.coords.latitude.toFixed(7));
+                    this.longitude = Number(pos.coords.longitude.toFixed(7));
+                    this.accuracy = Math.round(pos.coords.accuracy);
+                    this.gpsStatus = 'success';
+
+                    if (this.shopLat !== null && this.shopLng !== null) {
+                        this.distanceMeters = this.calcDistance(this.latitude, this.longitude, this.shopLat, this.shopLng);
+                        this.inRadius = (this.distanceMeters <= this.shopRadius);
+                    } else {
+                        this.distanceMeters = null;
+                        this.inRadius = true;
+                    }
+                },
+                (err) => {
+                    this.gpsStatus = 'error';
+                    if (err.code === 1) {
+                        this.gpsErrorMsg = 'Izin lokasi (GPS) ditolak oleh browser. Harap izinkan akses lokasi di setelan browser untuk mencatat absensi.';
+                    } else if (err.code === 2) {
+                        this.gpsErrorMsg = 'Posisi GPS tidak dapat diperoleh. Pastikan GPS perangkat aktif dan sinyal memadai.';
+                    } else if (err.code === 3) {
+                        this.gpsErrorMsg = 'Waktu permintaan lokasi habis (timeout). Silakan klik Deteksi Ulang.';
+                    } else {
+                        this.gpsErrorMsg = 'Gagal mendeteksi lokasi: ' + (err.message || 'Error tidak diketahui');
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+            );
+        },
+
+        async startCamera() {
+            this.cameraStatus = 'loading';
+            this.cameraErrorMsg = '';
+            try {
+                if (this.videoStream) {
+                    this.videoStream.getTracks().forEach(track => track.stop());
+                }
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: this.facingMode, width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: false
+                });
+                this.videoStream = stream;
+                this.cameraStatus = 'streaming';
+                this.$nextTick(() => {
+                    const videoEl = this.$refs.video;
+                    if (videoEl) {
+                        videoEl.srcObject = stream;
+                        videoEl.play();
+                    }
+                });
+            } catch (err) {
+                this.cameraStatus = 'error';
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    this.cameraErrorMsg = 'Izin kamera tidak diizinkan di browser.';
+                } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                    this.cameraErrorMsg = 'Kamera tidak ditemukan pada perangkat Anda.';
+                } else {
+                    this.cameraErrorMsg = 'Kamera tidak dapat diakses (' + (err.message || 'Error') + ').';
+                }
+            }
+        },
+
+        takeSnapshot() {
+            const video = this.$refs.video;
+            if (!video) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            const ctx = canvas.getContext('2d');
+            
+            // Mirror selfie horizontally
+            if (this.facingMode === 'user') {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            this.photoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+            this.cameraStatus = 'captured';
+            this.stopStream();
+        },
+
+        retake() {
+            this.photoBase64 = '';
+            this.startCamera();
+        },
+
+        stopStream() {
+            if (this.videoStream) {
+                this.videoStream.getTracks().forEach(track => track.stop());
+                this.videoStream = null;
+            }
+        },
+
+        handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                this.photoBase64 = evt.target.result;
+                this.cameraStatus = 'captured';
+                this.stopStream();
+            };
+            reader.readAsDataURL(file);
+        },
+
+        get canSubmit() {
+            if (this.submitting) return false;
+            if (this.requirePhoto && !this.photoBase64) return false;
+            if (this.requireGps && (this.latitude === null || this.longitude === null)) return false;
+            if (this.strictLocation && !this.inRadius) return false;
+            return true;
+        },
+
+        get submitBlockReason() {
+            if (this.requirePhoto && !this.photoBase64) {
+                return 'Ambil foto selfie kehadiran terlebih dahulu.';
+            }
+            if (this.requireGps && (this.latitude === null || this.longitude === null)) {
+                return 'Aktifkan GPS & izinkan akses lokasi browser.';
+            }
+            if (this.strictLocation && !this.inRadius) {
+                return 'Anda berada di luar radius kafe.';
+            }
+            return '';
+        },
+
+        handleSubmit(e) {
+            if (!this.canSubmit) {
+                e.preventDefault();
+                return;
+            }
+            this.submitting = true;
+        }
+    };
+}
+</script>
 </body>
 </html>

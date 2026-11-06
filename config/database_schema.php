@@ -54,14 +54,14 @@ return [
             'crew_shifts' => ['id', 'shop_id', 'user_id', 'shift_template_id', 'position', 'date', 'start_time', 'end_time', 'notes', 'created_at', 'updated_at'],
         ],
         'attendance' => [
-            'attendances' => ['id', 'shop_id', 'user_id', 'employee_name', 'crew_shift_id', 'work_date', 'timezone', 'scheduled_start_at', 'scheduled_end_at', 'checked_in_at', 'checked_out_at', 'late_minutes', 'early_leave_minutes', 'worked_minutes', 'check_in_note', 'check_out_note', 'created_at', 'updated_at'],
+            'attendances' => ['id', 'shop_id', 'user_id', 'employee_name', 'crew_shift_id', 'work_date', 'timezone', 'scheduled_start_at', 'scheduled_end_at', 'checked_in_at', 'checked_out_at', 'late_minutes', 'early_leave_minutes', 'worked_minutes', 'check_in_note', 'check_out_note', 'check_in_photo_path', 'check_in_latitude', 'check_in_longitude', 'check_in_accuracy', 'check_in_distance_meters', 'check_in_in_radius', 'check_out_photo_path', 'check_out_latitude', 'check_out_longitude', 'check_out_accuracy', 'check_out_distance_meters', 'check_out_in_radius', 'created_at', 'updated_at'],
         ],
         'audit' => [
             'activity_logs' => ['id', 'shop_id', 'user_id', 'action', 'description', 'entity_type', 'entity_id', 'old_values', 'new_values', 'ip_address', 'user_agent', 'created_at', 'updated_at'],
         ],
         'settings' => [
             'shop_slug_histories' => ['id', 'shop_id', 'old_slug'],
-            'shops' => ['id', 'name', 'slug', 'logo_path', 'banner_paths', 'primary_color', 'theme_style', 'business_type', 'sales_modes', 'onboarding_status', 'onboarding_step', 'is_open', 'slogan', 'font_family', 'title_font_family', 'receipt_header', 'receipt_footer', 'receipt_settings', 'printer_settings', 'discount_settings', 'instagram_link', 'whatsapp_number', 'maps_link', 'is_banner_active', 'operating_hours', 'address', 'email'],
+            'shops' => ['id', 'name', 'slug', 'logo_path', 'banner_paths', 'primary_color', 'theme_style', 'business_type', 'sales_modes', 'onboarding_status', 'onboarding_step', 'is_open', 'slogan', 'font_family', 'title_font_family', 'receipt_header', 'receipt_footer', 'receipt_settings', 'printer_settings', 'discount_settings', 'instagram_link', 'whatsapp_number', 'maps_link', 'is_banner_active', 'operating_hours', 'address', 'email', 'latitude', 'longitude', 'attendance_radius_meters', 'attendance_require_photo', 'attendance_require_gps', 'attendance_strict_location'],
             'payment_methods' => ['id', 'shop_id', 'name', 'code', 'type', 'is_active'],
             'printers' => ['id', 'shop_id', 'name', 'location', 'connection_type', 'ip_address', 'port', 'paper_width', 'category_ids', 'is_active', 'auto_print', 'created_at', 'updated_at'],
             'vouchers' => ['id', 'shop_id', 'code', 'name', 'discount_type', 'discount_value', 'min_spend', 'max_discount', 'usage_limit', 'used_count', 'expires_at', 'is_active', 'created_at', 'updated_at'],
