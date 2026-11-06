@@ -999,6 +999,8 @@
                         id: null, 
                         name: '', 
                         price: '', 
+                        discount_price: null,
+                        is_discount_active: false,
                         categoryId: this.categories.length > 0 ? this.categories[0].id : '', 
                         desc: '',
                         imagePreview: null, 
@@ -1170,6 +1172,8 @@
                         formData.append(`items[${index}][price]`, item.price);
                         formData.append(`items[${index}][category_id]`, item.categoryId);
                         formData.append(`items[${index}][category_name]`, item.categoryId);
+                        formData.append(`items[${index}][discount_price]`, (item.discount_price !== undefined && item.discount_price !== null && item.discount_price !== '') ? item.discount_price : '');
+                        formData.append(`items[${index}][is_discount_active]`, item.is_discount_active ? '1' : '0');
                         if (item.desc) formData.append(`items[${index}][description]`, item.desc);
                         if (item.imageFile) formData.append(`images[${index}]`, item.imageFile);
                     });
@@ -1195,6 +1199,11 @@
                                         id: savedItem.id,
                                         name: savedItem.name,
                                         price: Number(savedItem.price),
+                                        discount_price: savedItem.discount_price !== null && savedItem.discount_price !== undefined ? Number(savedItem.discount_price) : null,
+                                        is_discount_active: Boolean(savedItem.is_discount_active),
+                                        effective_price: Number(savedItem.effective_price || savedItem.price),
+                                        discount_percentage: savedItem.discount_percentage || null,
+                                        has_active_discount: Boolean(savedItem.has_active_discount),
                                         category_name: savedItem.category ? savedItem.category.name : (savedItem.category_name || 'Coffee'),
                                         categoryId: savedItem.category_id,
                                         category_id: savedItem.category_id,
@@ -1950,6 +1959,8 @@
                         id: item.id,
                         name: item.name,
                         price: item.price,
+                        discount_price: item.discount_price !== undefined && item.discount_price !== null ? item.discount_price : null,
+                        is_discount_active: Boolean(item.is_discount_active),
                         categoryId: matchedCatId || (this.categories.length > 0 ? this.categories[0].id : ''),
                         desc: item.desc || item.description || '',
                         imagePreview: item.image || item.image_url || null,
@@ -2264,6 +2275,32 @@
                     }).catch(err => {
                         this.addToast('Gagal mengubah status menu', 'error');
                     });
+                },
+                async toggleMenuDiscount(item) {
+                    try {
+                        const res = await fetch(`/admin/api/menu/${item.id}/toggle-discount`, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            item.is_discount_active = data.is_discount_active;
+                            item.effective_price = data.effective_price;
+                            item.discount_percentage = data.discount_percentage;
+                            item.has_active_discount = data.has_active_discount;
+                            this.addToast(
+                                data.is_discount_active ? 'Harga diskon promo diaktifkan' : 'Harga promo dinonaktifkan',
+                                'success'
+                            );
+                        } else {
+                            this.addToast(data.message || 'Gagal mengubah status promo', 'error');
+                        }
+                    } catch(err) {
+                        this.addToast('Terjadi kesalahan jaringan', 'error');
+                    }
                 },
                 processIncomingQueue() {
                     if (!this.activeIncomingOrder && this.incomingOrderQueue.length > 0) {

@@ -273,6 +273,11 @@
                             'id' => $product->id,
                             'name' => $product->name,
                             'price' => (float) $product->price,
+                            'discount_price' => $product->discount_price !== null ? (float) $product->discount_price : null,
+                            'is_discount_active' => (bool) $product->is_discount_active,
+                            'effective_price' => (float) $product->effective_price,
+                            'discount_percentage' => $product->discount_percentage,
+                            'has_active_discount' => (bool) $product->has_active_discount,
                             'image_url' => $product->image_url,
                             'category_id' => $product->category_id,
                             'category_name' => $product->category_name ?? ($product->category?->name ?? 'Menu'),
@@ -287,6 +292,11 @@
                         class="product-card group bg-white border border-[#d8dce2] hover:border-[#df5826] rounded-[12px] pb-[8px] flex flex-col justify-between text-left shadow-[0px_4px_12px_0px_rgba(17,24,39,0.03)] focus:outline-none cursor-pointer">
                         {{-- Product Image --}}
                         <div class="bg-[#ede7dc] h-[120px] sm:h-[128px] xl:h-[135px] w-full rounded-[11px] overflow-hidden relative">
+                            @if($product->has_active_discount)
+                                <span class="absolute top-2 right-2 z-10 bg-red-600 text-white text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+                                    <i class="fas fa-tag text-[8px]"></i> -{{ $product->discount_percentage }}%
+                                </span>
+                            @endif
                             @if($product->is_best_seller)
                                 <span class="absolute top-2 left-2 z-10 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
                                     <i class="fas fa-crown text-[8px]"></i> Best
@@ -317,9 +327,20 @@
                                 <span>•</span>
                                 <span>{{ (int) ($product->sold_count ?? 0) }} sold</span>
                             </div>
-                            <span class="text-[13px] font-semibold text-[#111827] leading-[19.5px] shrink-0">
-                                Rp{{ number_format($product->price, 0, ',', '.') }}
-                            </span>
+                            @if($product->has_active_discount)
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-[10px] text-[#8b8e93] line-through">
+                                        Rp{{ number_format($product->price, 0, ',', '.') }}
+                                    </span>
+                                    <span class="text-[13px] font-bold text-[#df5826] leading-[19.5px]">
+                                        Rp{{ number_format($product->effective_price, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                            @else
+                                <span class="text-[13px] font-semibold text-[#111827] leading-[19.5px] shrink-0">
+                                    Rp{{ number_format($product->price, 0, ',', '.') }}
+                                </span>
+                            @endif
                         </div>
                     </button>
                     @endforeach
@@ -561,11 +582,19 @@
                     {{-- Price & Stepper Row --}}
                     <div class="flex items-center justify-between pt-0.5">
                         <div>
-                            <span class="text-[12.5px] font-bold text-[#111827] leading-tight">
-                                Rp<span x-text="formatRp(item.subtotal)"></span>
-                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[12.5px] font-bold text-[#111827] leading-tight">
+                                    Rp<span x-text="formatRp(item.subtotal)"></span>
+                                </span>
+                                <template x-if="item.has_discount">
+                                    <span class="bg-[#fff0e6] text-[#df5826] text-[9px] font-black px-1.5 py-0.2 rounded border border-[#ffd2b8]">PROMO</span>
+                                </template>
+                            </div>
                             <span x-show="item.qty > 1" class="block text-[10px] text-[#8b8e93]">
                                 @ Rp<span x-text="formatRp(item.price)"></span>
+                                <template x-if="item.has_discount && item.regular_price">
+                                    <span class="line-through text-[#adb5bd] ml-1" x-text="'Rp' + formatRp(item.regular_price)"></span>
+                                </template>
                             </span>
                         </div>
 
@@ -756,7 +785,15 @@
         <div class="p-5 border-b border-[#e6e5e0] flex items-center justify-between shrink-0">
             <div>
                 <h3 class="font-bold text-[16px] text-[#111827]" x-text="modifierModal.product?.name"></h3>
-                <p class="text-[#df5826] font-bold text-[13px]">Rp<span x-text="formatRp(modalTotal)"></span></p>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                    <template x-if="modifierModal.product?.has_active_discount">
+                        <span class="text-[11px] text-[#8b8e93] line-through" x-text="'Rp' + formatRp(modifierModal.product?.price)"></span>
+                    </template>
+                    <p class="text-[#df5826] font-bold text-[13px]">Rp<span x-text="formatRp(modalTotal)"></span></p>
+                    <template x-if="modifierModal.product?.has_active_discount && modifierModal.product?.discount_percentage">
+                        <span class="bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full" x-text="'-' + modifierModal.product.discount_percentage + '%'"></span>
+                    </template>
+                </div>
             </div>
             <button type="button" @click="modifierModal.show = false" class="w-8 h-8 rounded-full bg-[#f8f9fa] border border-[#d8dce2] flex items-center justify-center text-[#53565a] hover:bg-gray-200">
                 <i class="fas fa-times text-xs"></i>
@@ -1506,7 +1543,7 @@ function posApp() {
         },
         get modalTotal() {
             if (!this.modifierModal.product) return 0;
-            let base = Number(this.modifierModal.product.price);
+            let base = Number(this.modifierModal.product.effective_price || this.modifierModal.product.price);
             if (this.modifierModal.selectedVariant) base += Number(this.modifierModal.selectedVariant.price_adjustment || 0);
             this.modifierModal.selectedModifiers.forEach(m => base += Number(m.price_adjustment || 0));
             return base;
@@ -1554,6 +1591,7 @@ function posApp() {
             }
         },
         addToCartDirectly(p) {
+            const unitPrice = Number(p.effective_price !== undefined ? p.effective_price : p.price);
             const existing = this.cart.find(c => c.id === p.id && !c.variant_id && (!c.modifiers || c.modifiers.length === 0) && !c.notes);
             if (existing) {
                 existing.qty++;
@@ -1563,8 +1601,12 @@ function posApp() {
                     id: p.id, name: p.name,
                     image: p.image_url || null,
                     variant_id: null, variant: null,
-                    modifiers: [], notes: '', showNotes: false, qty: 1, price: Number(p.price),
-                    subtotal: Number(p.price),
+                    modifiers: [], notes: '', showNotes: false, qty: 1, 
+                    price: unitPrice,
+                    regular_price: Number(p.price),
+                    has_discount: Boolean(p.has_active_discount),
+                    discount_percentage: p.discount_percentage || null,
+                    subtotal: unitPrice,
                 });
             }
         },
@@ -1597,6 +1639,9 @@ function posApp() {
                 variant: variant?.name ?? null,
                 modifiers: mods,
                 notes, showNotes: Boolean(notes), qty, price,
+                regular_price: Number(p.price),
+                has_discount: Boolean(p.has_active_discount),
+                discount_percentage: p.discount_percentage || null,
                 subtotal: price * qty,
             });
 

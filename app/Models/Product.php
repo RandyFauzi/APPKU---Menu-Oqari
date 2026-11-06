@@ -21,6 +21,8 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'discount_price',
+        'is_discount_active',
         'image_path',
         'is_sold_out',
         'is_best_seller',
@@ -30,12 +32,18 @@ class Product extends Model
     ];
 
     protected $casts = [
+        'price' => 'float',
+        'discount_price' => 'float',
+        'is_discount_active' => 'boolean',
         'hpp_settings' => 'array',
         'is_best_seller' => 'boolean',
     ];
 
     protected $appends = [
         'image_url',
+        'effective_price',
+        'discount_percentage',
+        'has_active_discount',
     ];
 
     protected static function boot()
@@ -96,5 +104,31 @@ class Product extends Model
     public function getImageUrlAttribute()
     {
         return app(MediaService::class)->url($this->image_path);
+    }
+
+    public function getEffectivePriceAttribute(): float
+    {
+        if ($this->has_active_discount) {
+            return (float) $this->discount_price;
+        }
+
+        return (float) $this->price;
+    }
+
+    public function getDiscountPercentageAttribute(): ?int
+    {
+        if ($this->has_active_discount && (float) $this->price > 0) {
+            return (int) round((((float) $this->price - (float) $this->discount_price) / (float) $this->price) * 100);
+        }
+
+        return null;
+    }
+
+    public function getHasActiveDiscountAttribute(): bool
+    {
+        return (bool) $this->is_discount_active
+            && $this->discount_price !== null
+            && (float) $this->discount_price > 0
+            && (float) $this->discount_price < (float) $this->price;
     }
 }

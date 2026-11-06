@@ -107,6 +107,7 @@ Route::middleware(['auth'])->group(function () {
     // Menu Management
     Route::middleware(['can:manage-menu', 'schema:catalog,inventory,audit'])->group(function () {
         Route::post('/admin/api/menu/{menu}/toggle', [DashboardController::class, 'toggleMenuStatus']);
+        Route::post('/admin/api/menu/{menu}/toggle-discount', [DashboardController::class, 'toggleMenuDiscount']);
         Route::post('/admin/api/menu/bulk', [DashboardController::class, 'saveMenuBulk']);
         Route::post('/admin/api/menu', [DashboardController::class, 'saveMenu']);
         Route::delete('/admin/api/menu/{id}', [DashboardController::class, 'deleteMenu']);

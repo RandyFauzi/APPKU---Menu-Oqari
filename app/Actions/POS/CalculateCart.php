@@ -35,7 +35,7 @@ class CalculateCart
                 throw ValidationException::withMessages(['items' => 'Produk tidak tersedia atau sudah habis.']);
             }
 
-            $price = (float) $product->price;
+            $price = (float) $product->effective_price;
             $cogs = (float) ($product->cogs ?? 0);
             $variantId = $item['variant_id'] ?? null;
             $variantName = null;

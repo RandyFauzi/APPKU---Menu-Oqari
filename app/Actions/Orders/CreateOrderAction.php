@@ -47,7 +47,7 @@ class CreateOrderAction
                     throw new Exception('Produk tidak tersedia: '.$item['id']);
                 }
 
-                $price = $product->price;
+                $price = (float) $product->effective_price;
                 $cogs = $product->cogs;
 
                 $variantId = $item['variant_id'] ?? null;
@@ -90,8 +90,9 @@ class CreateOrderAction
                     }
                 }
 
-                $subtotal = $price * $item['qty'];
-                $itemCogs = $cogs * $item['qty'];
+                $qty = (int) ($item['qty'] ?? $item['quantity'] ?? 1);
+                $subtotal = $price * $qty;
+                $itemCogs = $cogs * $qty;
 
                 $total += $subtotal;
                 $totalCogs += $itemCogs;
@@ -102,7 +103,7 @@ class CreateOrderAction
                     'variant_id' => $variantId,
                     'variant_name' => $variantName,
                     'modifiers' => empty($modifiersSnapshot) ? null : $modifiersSnapshot,
-                    'quantity' => $item['qty'],
+                    'quantity' => $qty,
                     'unit_price' => $price,
                     'subtotal' => $subtotal,
                     'cogs_total' => $itemCogs,

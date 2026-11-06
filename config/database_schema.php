@@ -10,7 +10,7 @@ return [
         'catalog' => [
             'shop_slug_histories' => ['id', 'shop_id', 'old_slug'],
             'categories' => ['id', 'shop_id', 'name', 'slug', 'sort_order', 'is_active', 'created_at', 'updated_at'],
-            'products' => ['id', 'shop_id', 'category_id', 'category_name', 'name', 'description', 'price', 'cogs', 'image_path', 'is_sold_out', 'deleted_at', 'created_at', 'updated_at'],
+            'products' => ['id', 'shop_id', 'category_id', 'category_name', 'name', 'description', 'price', 'discount_price', 'is_discount_active', 'cogs', 'image_path', 'is_sold_out', 'deleted_at', 'created_at', 'updated_at'],
             'product_variants' => ['id', 'product_id', 'name', 'price_adjustment', 'is_active'],
             'modifier_groups' => ['id', 'product_id', 'name', 'is_required', 'min_selections', 'max_selections', 'is_active'],
             'modifiers' => ['id', 'modifier_group_id', 'name', 'price_adjustment', 'is_active'],

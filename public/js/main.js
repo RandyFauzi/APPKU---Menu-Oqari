@@ -110,7 +110,7 @@ function renderBestSellers() {
                     </div>
                     <div class="truncate">
                         <h4 class="font-bold text-xs text-gray-800 truncate">${escapeHtml(item.name)}</h4>
-                        <span class="font-extrabold text-primary text-xs mt-0.5 block">${formatRp(item.price)}</span>
+                        <div class="mt-0.5 block">${formatItemPriceHtml(item, 'text-xs')}</div>
                     </div>
                 </div>
             `).join('')}
@@ -451,6 +451,23 @@ function renderMenu() {
     }
 }
 
+function formatItemPriceHtml(item, textSize = 'text-sm') {
+    const isPromo = item.has_active_discount || (Boolean(item.is_discount_active) && item.discount_price > 0 && item.discount_price < item.price);
+    const effPrice = isPromo ? Number(item.effective_price || item.discount_price) : Number(item.price);
+
+    if (isPromo) {
+        const pct = item.discount_percentage || Math.round(((item.price - effPrice) / item.price) * 100);
+        return `
+            <div class="flex items-baseline gap-1.5 flex-wrap">
+                <span class="font-bold text-primary ${textSize}">${formatRp(effPrice)}</span>
+                <span class="text-[10.5px] text-gray-400 line-through font-normal">${formatRp(item.price)}</span>
+                ${pct ? `<span class="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full shadow-xs">-${pct}%</span>` : ''}
+            </div>
+        `;
+    }
+    return `<span class="font-bold text-primary ${textSize}">${formatRp(item.price)}</span>`;
+}
+
 function renderMenuItem(item) {
     const theme = typeof SHOP_THEME !== 'undefined' ? SHOP_THEME : 'list';
     
@@ -467,7 +484,7 @@ function renderMenuItem(item) {
                             <h4 class="font-bold text-xs text-textdark truncate">${escapeHtml(item.name)}</h4>
                             ${item.isBestSeller ? '<span class="text-[9px] text-amber-600 font-extrabold shrink-0 bg-amber-50 px-1 rounded">Best</span>' : ''}
                         </div>
-                        <span class="font-extrabold text-primary text-xs mt-0.5 block">${formatRp(item.price)}</span>
+                        <div class="mt-0.5 block">${formatItemPriceHtml(item, 'text-xs')}</div>
                     </div>
                 </div>
                 <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="bg-primary text-white h-7 w-7 rounded-lg flex items-center justify-center shadow-sm active:scale-95 transition-transform shrink-0">
@@ -488,7 +505,7 @@ function renderMenuItem(item) {
                 <div class="p-4 flex flex-col flex-grow">
                     <div class="flex justify-between items-start gap-2 mb-1">
                         <h3 class="font-extrabold text-textdark text-base leading-tight">${escapeHtml(item.name)}</h3>
-                        <span class="font-black text-primary text-base shrink-0">${formatRp(item.price)}</span>
+                        <div class="shrink-0 text-right">${formatItemPriceHtml(item, 'text-base')}</div>
                     </div>
                     ${item.desc ? `<p class="text-xs text-gray-500 line-clamp-2 mt-1 mb-3">${escapeHtml(item.desc)}</p>` : ''}
                     <div class="mt-auto pt-2 flex justify-end">
@@ -514,7 +531,7 @@ function renderMenuItem(item) {
                     <h3 class="font-bold text-textdark text-sm leading-tight mb-1 pr-6 truncate">${escapeHtml(item.name)}</h3>
                     <p class="text-xs text-gray-500 line-clamp-2 leading-snug">${escapeHtml(item.desc || '')}</p>
                     <div class="mt-auto flex justify-between items-end">
-                        <span class="font-bold text-primary text-sm">${formatRp(item.price)}</span>
+                        ${formatItemPriceHtml(item, 'text-sm')}
                     </div>
                 </div>
                 <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="absolute bottom-3 right-3 bg-primary text-white h-8 w-8 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
@@ -535,7 +552,7 @@ function renderMenuItem(item) {
             <div class="px-3 pb-3 pt-1 flex flex-col flex-grow relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
                 <h3 class="font-bold text-textdark text-xs leading-tight mb-1 truncate">${escapeHtml(item.name)}</h3>
                 <div class="mt-auto flex justify-between items-end">
-                    <span class="font-bold text-primary text-sm">${formatRp(item.price)}</span>
+                    ${formatItemPriceHtml(item, 'text-sm')}
                 </div>
             </div>
             <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="absolute bottom-2 right-2 bg-primary text-white h-7 w-7 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
@@ -563,7 +580,24 @@ function openItemDetail(itemId) {
     document.getElementById('detail-img').src = currentSelectedItem.image || currentSelectedItem.img || '/Assests/null%20image.webp';
     document.getElementById('detail-name').innerText = currentSelectedItem.name;
     document.getElementById('detail-desc').innerText = currentSelectedItem.desc;
-    document.getElementById('detail-price').innerText = formatRp(currentSelectedItem.price);
+    const isPromoDetail = currentSelectedItem.has_active_discount || (Boolean(currentSelectedItem.is_discount_active) && currentSelectedItem.discount_price > 0 && currentSelectedItem.discount_price < currentSelectedItem.price);
+    const effPriceDetail = isPromoDetail ? Number(currentSelectedItem.effective_price || currentSelectedItem.discount_price) : Number(currentSelectedItem.price);
+    const priceEl = document.getElementById('detail-price');
+    if (priceEl) {
+        if (isPromoDetail) {
+            const savings = currentSelectedItem.price - effPriceDetail;
+            const pct = currentSelectedItem.discount_percentage || Math.round((savings / currentSelectedItem.price) * 100);
+            priceEl.innerHTML = `
+                <div class="flex items-baseline gap-2 flex-wrap">
+                    <span class="text-xl font-bold text-primary">${formatRp(effPriceDetail)}</span>
+                    <span class="text-sm text-gray-400 line-through font-normal">${formatRp(currentSelectedItem.price)}</span>
+                    <span class="bg-red-50 text-red-600 border border-red-200 text-xs font-bold px-2 py-0.5 rounded-full">Hemat ${formatRp(savings)} (-${pct}%)</span>
+                </div>
+            `;
+        } else {
+            priceEl.innerText = formatRp(currentSelectedItem.price);
+        }
+    }
     
     document.getElementById('detail-notes').value = '';
     
@@ -616,9 +650,14 @@ function confirmAddToCart() {
         additionalPrice += parseInt(input.getAttribute('data-price') || '0');
     });
 
+    const isPromoAdd = currentSelectedItem.has_active_discount || (Boolean(currentSelectedItem.is_discount_active) && currentSelectedItem.discount_price > 0 && currentSelectedItem.discount_price < currentSelectedItem.price);
+    const effPriceAdd = isPromoAdd ? Number(currentSelectedItem.effective_price || currentSelectedItem.discount_price) : Number(currentSelectedItem.price);
+
     const itemToAdd = {
         ...currentSelectedItem,
-        price: currentSelectedItem.price + additionalPrice
+        price: effPriceAdd + additionalPrice,
+        regular_price: currentSelectedItem.price + additionalPrice,
+        has_discount: isPromoAdd
     };
 
     CartStore.add(itemToAdd, {}, notes);
@@ -695,7 +734,10 @@ function renderCartDetail() {
             <img src="${safeImageUrl(item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" loading="lazy" class="w-16 h-16 rounded-lg object-cover">
             <div class="flex-grow">
                 <h4 class="font-bold text-sm text-textdark leading-tight font-heading">${escapeHtml(item.name)}</h4>
-                <p class="text-primary font-bold text-sm mt-1">${formatRp(item.price)}</p>
+                <div class="flex items-center gap-1.5 mt-1">
+                    <p class="text-primary font-bold text-sm">${formatRp(item.price)}</p>
+                    ${item.has_discount ? '<span class="bg-[#fff0e6] text-primary text-[9px] font-bold px-1.5 py-0.5 rounded border border-[#ffd2b8]">PROMO</span>' : ''}
+                </div>
                 ${notesText}
             </div>
             <div class="flex flex-col items-center gap-1">

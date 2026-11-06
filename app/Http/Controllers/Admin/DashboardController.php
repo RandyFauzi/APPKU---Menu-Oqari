@@ -227,6 +227,21 @@ class DashboardController extends Controller
         return response()->json(['success' => true, 'is_sold_out' => $menu->is_sold_out]);
     }
 
+    public function toggleMenuDiscount(Request $request, $menuId)
+    {
+        $menu = Product::where('shop_id', Auth::user()->shop_id)->findOrFail($menuId);
+        $menu->is_discount_active = ! $menu->is_discount_active;
+        $menu->save();
+
+        return response()->json([
+            'success' => true,
+            'is_discount_active' => $menu->is_discount_active,
+            'effective_price' => $menu->effective_price,
+            'discount_percentage' => $menu->discount_percentage,
+            'has_active_discount' => $menu->has_active_discount,
+        ]);
+    }
+
     public function saveMenu(Request $request)
     {
         $user = Auth::user();
@@ -294,6 +309,15 @@ class DashboardController extends Controller
             'category_name' => $categoryName,
             'description' => $request->desc,
         ];
+
+        if ($request->has('discount_price')) {
+            $discPrice = $request->input('discount_price');
+            $data['discount_price'] = ($discPrice !== null && $discPrice !== '') ? (float) $discPrice : null;
+        }
+
+        if ($request->has('is_discount_active')) {
+            $data['is_discount_active'] = filter_var($request->input('is_discount_active'), FILTER_VALIDATE_BOOLEAN);
+        }
 
         if ($request->has('cogs')) {
             $data['cogs'] = $request->cogs;
@@ -557,6 +581,15 @@ class DashboardController extends Controller
                     'category_name' => $catName,
                     'description' => $itemData['description'] ?? ($itemData['desc'] ?? null),
                 ];
+
+                if (array_key_exists('discount_price', $itemData)) {
+                    $discPrice = $itemData['discount_price'];
+                    $productData['discount_price'] = ($discPrice !== null && $discPrice !== '') ? (float) $discPrice : null;
+                }
+
+                if (isset($itemData['is_discount_active'])) {
+                    $productData['is_discount_active'] = filter_var($itemData['is_discount_active'], FILTER_VALIDATE_BOOLEAN);
+                }
 
                 $menu = null;
                 if (! empty($itemData['id']) && is_numeric($itemData['id']) && (int) $itemData['id'] > 0) {

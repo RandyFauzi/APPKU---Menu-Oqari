@@ -216,7 +216,18 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 align-middle">
-                                <span class="text-[13px] font-bold text-[#111827] font-mono" x-text="formatRp(item.price)"></span>
+                                <template x-if="item.is_discount_active && item.discount_price > 0 && item.discount_price < item.price">
+                                    <div class="flex flex-col">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[13px] font-bold text-[#df5826] font-mono" x-text="formatRp(item.discount_price)"></span>
+                                            <span class="px-1.5 py-0.2 rounded-[5px] bg-[#fff6f0] border border-[#ffdec9] text-[#df5826] font-black text-[9.5px]" x-text="'-' + (item.discount_percentage || Math.round(((item.price - item.discount_price)/item.price)*100)) + '%'"></span>
+                                        </div>
+                                        <span class="text-[11px] text-[#8b8e93] line-through font-mono" x-text="formatRp(item.price)"></span>
+                                    </div>
+                                </template>
+                                <template x-if="!(item.is_discount_active && item.discount_price > 0 && item.discount_price < item.price)">
+                                    <span class="text-[13px] font-bold text-[#111827] font-mono" x-text="formatRp(item.price)"></span>
+                                </template>
                             </td>
                             <td class="px-4 py-3 align-middle">
                                 <div class="flex flex-col">
@@ -227,13 +238,25 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3 align-middle">
-                                <div class="flex items-center gap-1.5" x-show="!item.is_sold_out">
-                                    <span class="w-[8px] h-[8px] rounded-full bg-[#00643b]"></span>
-                                    <span class="text-[12px] font-semibold text-[#00643b]">Published</span>
-                                </div>
-                                <div class="flex items-center gap-1.5" x-show="item.is_sold_out">
-                                    <span class="w-[8px] h-[8px] rounded-full bg-[#ef4444]"></span>
-                                    <span class="text-[12px] font-semibold text-[#ef4444]">Sold Out</span>
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex items-center gap-1.5" x-show="!item.is_sold_out">
+                                        <span class="w-[8px] h-[8px] rounded-full bg-[#00643b]"></span>
+                                        <span class="text-[12px] font-semibold text-[#00643b]">Published</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5" x-show="item.is_sold_out">
+                                        <span class="w-[8px] h-[8px] rounded-full bg-[#ef4444]"></span>
+                                        <span class="text-[12px] font-semibold text-[#ef4444]">Sold Out</span>
+                                    </div>
+                                    <template x-if="item.discount_price > 0 && item.discount_price < item.price">
+                                        <button type="button" 
+                                                @click="toggleMenuDiscount(item)"
+                                                :title="item.is_discount_active ? 'Klik untuk nonaktifkan diskon' : 'Klik untuk aktifkan diskon'"
+                                                class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[5px] text-[10px] font-bold transition w-fit cursor-pointer"
+                                                :class="item.is_discount_active ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-gray-100 text-gray-500 border border-gray-200 hover:bg-gray-200'">
+                                            <i class="fas fa-tag text-[8.5px]"></i>
+                                            <span x-text="item.is_discount_active ? 'Promo On' : 'Promo Off'"></span>
+                                        </button>
+                                    </template>
                                 </div>
                             </td>
                             <td class="px-4 py-3 align-middle text-right pr-4">
@@ -740,6 +763,43 @@
                                     <div class="relative">
                                         <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] text-[#7f837e] font-medium pointer-events-none">Rp</span>
                                         <input type="number" x-model="draft.price" placeholder="0" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] pl-10 pr-3.5 py-2.5 text-[13px] text-[#111827] placeholder:text-[#9ca3af] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Promo / Discount Pricing Strip -->
+                            <div class="w-full mt-3 pt-3 border-t border-dashed border-[#e9ebf0] rounded-[12px] bg-[#fffaf5] p-3 border border-[#ffecd9]">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <!-- Toggle Switch -->
+                                    <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                                        <input type="checkbox" x-model="draft.is_discount_active" class="sr-only peer">
+                                        <div class="relative w-8 h-4.5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-[#df5826]"></div>
+                                        <span class="text-[12px] font-bold text-[#111827] flex items-center gap-1.5">
+                                            <i class="fas fa-tag text-[#df5826] text-[11px]"></i>
+                                            <span>Aktifkan Harga Diskon / Promo (Harga Coret)</span>
+                                        </span>
+                                    </label>
+
+                                    <!-- Promo Price Input + Live Badge -->
+                                    <div x-show="draft.is_discount_active" x-transition class="flex items-center gap-2 w-full sm:w-auto">
+                                        <div class="relative flex-1 sm:w-40">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-[#7f837e] font-medium pointer-events-none">Rp</span>
+                                            <input type="number" x-model="draft.discount_price" placeholder="Harga Promo" 
+                                                   class="w-full bg-white border border-[#ffdec9] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] rounded-[8px] pl-9 pr-3 py-1.5 text-[12.5px] font-bold text-[#df5826] outline-none">
+                                        </div>
+
+                                        <!-- Savings / % Badge -->
+                                        <template x-if="draft.price > 0 && draft.discount_price > 0 && Number(draft.discount_price) < Number(draft.price)">
+                                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#fff0e6] text-[#df5826] border border-[#ffd2b8] text-[11px] font-bold shrink-0">
+                                                <span x-text="'-' + Math.round(((draft.price - draft.discount_price) / draft.price) * 100) + '%'"></span>
+                                                <span class="text-[10px] font-medium text-[#c94d00]" x-text="'Hemat ' + formatRp(draft.price - draft.discount_price)"></span>
+                                            </div>
+                                        </template>
+                                        <template x-if="draft.price > 0 && draft.discount_price > 0 && Number(draft.discount_price) >= Number(draft.price)">
+                                            <span class="text-[10.5px] font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded border border-amber-200 shrink-0">
+                                                Harus lebih kecil dari Rp <span x-text="formatRp(draft.price)"></span>
+                                            </span>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
