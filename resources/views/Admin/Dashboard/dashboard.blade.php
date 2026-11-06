@@ -1269,10 +1269,25 @@
                     const found = this.fontOptions.find(f => f.id === key);
                     return found ? found.category : 'Sans-serif';
                 },
-                allShopProducts: (window.INITIAL_DATA.shopProducts || []).map(p => ({
-                    ...p,
-                    is_best_seller: Boolean(p.is_best_seller)
-                })),
+                allShopProducts: (window.INITIAL_DATA.shopProducts || []).map(p => {
+                    const price = Number(p.price || 0);
+                    const discPrice = (p.discount_price !== null && p.discount_price !== undefined && p.discount_price !== '') ? Number(p.discount_price) : null;
+                    const isDiscActive = Boolean(p.is_discount_active);
+                    const hasDiscount = isDiscActive && discPrice !== null && discPrice > 0 && discPrice < price;
+                    const effectivePrice = hasDiscount ? discPrice : price;
+                    const discountPct = hasDiscount ? Math.round(((price - discPrice) / price) * 100) : null;
+                    return {
+                        ...p,
+                        price,
+                        discount_price: discPrice,
+                        is_discount_active: isDiscActive,
+                        effective_price: effectivePrice,
+                        discount_percentage: discountPct,
+                        has_active_discount: hasDiscount,
+                        image_url: p.image_url || (p.image_path ? (p.image_path.startsWith('http') || p.image_path.startsWith('/') ? p.image_path : '/storage/' + p.image_path) : null),
+                        is_best_seller: Boolean(p.is_best_seller)
+                    };
+                }),
                 bestSellerSearch: '',
                 bestSellerFilter: 'all',
                 get filteredBestSellerProducts() {
@@ -1626,6 +1641,57 @@
                         return 'bg-[#fff7ed] text-[#c2410c]';
                     }
                     return 'bg-[#fdf8f3] text-[#74472d]';
+                },
+                getCategoryIcon(catName) {
+                    if (!catName) return 'fa-utensils';
+                    const name = catName.toLowerCase();
+                    if (name.includes('kopi') || name.includes('coffee') || name.includes('espresso')) return 'fa-coffee';
+                    if (name.includes('teh') || name.includes('tea') || name.includes('leaf') || name.includes('matcha')) return 'fa-leaf';
+                    if (name.includes('makan') || name.includes('food') || name.includes('rice') || name.includes('nasi') || name.includes('mie') || name.includes('ayam') || name.includes('sate')) return 'fa-utensils';
+                    if (name.includes('snack') || name.includes('cemilan') || name.includes('roti') || name.includes('toast') || name.includes('cookie') || name.includes('kentang')) return 'fa-cookie';
+                    if (name.includes('minum') || name.includes('drink') || name.includes('beverage') || name.includes('juice') || name.includes('boba') || name.includes('soda')) return 'fa-cocktail';
+                    if (name.includes('dessert') || name.includes('manis') || name.includes('ice') || name.includes('es')) return 'fa-ice-cream';
+                    return 'fa-layer-group';
+                },
+                get previewProducts() {
+                    if (this.allShopProducts && this.allShopProducts.length > 0) {
+                        return this.allShopProducts.slice(0, 2);
+                    }
+                    return [
+                        {
+                            id: 'mock-1',
+                            name: 'Kopi Susu Gula Aren',
+                            price: 22000,
+                            discount_price: 18000,
+                            effective_price: 18000,
+                            has_active_discount: true,
+                            discount_percentage: 18,
+                            description: 'Espresso dengan susu segar dan gula aren khas.',
+                            image_url: null,
+                            is_best_seller: true,
+                        },
+                        {
+                            id: 'mock-2',
+                            name: 'Butter Croissant',
+                            price: 25000,
+                            discount_price: null,
+                            effective_price: 25000,
+                            has_active_discount: false,
+                            discount_percentage: null,
+                            description: 'Pastry mentega renyah dan lembut di dalam.',
+                            image_url: null,
+                            is_best_seller: false,
+                        }
+                    ];
+                },
+                get previewCategories() {
+                    if (this.categories && this.categories.length > 0) {
+                        return this.categories.slice(0, 3);
+                    }
+                    return [
+                        { id: 'mock-cat-1', name: 'Coffee' },
+                        { id: 'mock-cat-2', name: 'Foods' }
+                    ];
                 },
                 get filteredOrders() {
                     let filtered = this.orders;
