@@ -35,7 +35,44 @@ class ShopController extends Controller
     public function show(Request $request, $slug)
     {
         $shop = $this->resolveShop($slug);
-        $menuItems = Product::where('shop_id', $shop->id)->where('is_sold_out', false)->with('category')->get();
+
+        $categories = Category::where('shop_id', $shop->id)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        $validCategoryIds = $categories->pluck('id')->all();
+
+        // Data reconciliation: ensure orphaned products from categories deleted in DB are cleaned up
+        if (empty($validCategoryIds)) {
+            Product::where('shop_id', $shop->id)
+                ->where(function ($q): void {
+                    $q->whereNotNull('category_id')->orWhereNotNull('category_name');
+                })
+                ->update(['category_id' => null, 'category_name' => null]);
+        } else {
+            Product::where('shop_id', $shop->id)
+                ->whereNotNull('category_id')
+                ->whereNotIn('category_id', $validCategoryIds)
+                ->update(['category_id' => null, 'category_name' => null]);
+
+            Product::where('shop_id', $shop->id)
+                ->whereNull('category_id')
+                ->whereNotNull('category_name')
+                ->whereNotIn('category_name', $categories->pluck('name')->all())
+                ->update(['category_name' => null]);
+        }
+
+        $menuItems = Product::where('shop_id', $shop->id)
+            ->where('is_sold_out', false)
+            ->with('category')
+            ->get()
+            ->each(function ($product) use ($validCategoryIds): void {
+                if (! $product->category || ! in_array($product->category_id, $validCategoryIds, true)) {
+                    $product->category_id = null;
+                    $product->category_name = null;
+                }
+            });
 
         $table = null;
         if ($request->filled('t')) {
@@ -47,7 +84,6 @@ class ShopController extends Controller
             // Fallback for legacy QR codes (temporary backward compatibility)
             $table = $request->query('table');
         }
-        $categories = Category::where('shop_id', $shop->id)->orderBy('sort_order')->get();
 
         return view('shop.menu', compact('shop', 'menuItems', 'table', 'categories'));
     }

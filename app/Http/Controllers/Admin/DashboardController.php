@@ -487,12 +487,17 @@ class DashboardController extends Controller
         $categoryName = $category->name;
 
         // Find fallback category if exists
-        $fallbackCat = Category::where('shop_id', $shopId)->where('id', '!=', $category->id)->first();
+        $fallbackCat = Category::where('shop_id', $shopId)->where('id', '!=', $category->id)->orderBy('sort_order')->first();
 
-        Product::where('shop_id', $shopId)->where('category_id', $category->id)->update([
-            'category_id' => $fallbackCat ? $fallbackCat->id : null,
-            'category_name' => $fallbackCat ? $fallbackCat->name : 'Uncategorized',
-        ]);
+        Product::where('shop_id', $shopId)
+            ->where(function ($query) use ($category, $categoryName): void {
+                $query->where('category_id', $category->id)
+                    ->orWhere('category_name', $categoryName);
+            })
+            ->update([
+                'category_id' => $fallbackCat ? $fallbackCat->id : null,
+                'category_name' => $fallbackCat ? $fallbackCat->name : null,
+            ]);
 
         $category->delete();
 
@@ -502,7 +507,7 @@ class DashboardController extends Controller
             'success' => true,
             'message' => 'Kategori berhasil dihapus!',
             'fallback_category_id' => $fallbackCat ? $fallbackCat->id : null,
-            'fallback_category_name' => $fallbackCat ? $fallbackCat->name : 'Uncategorized',
+            'fallback_category_name' => $fallbackCat ? $fallbackCat->name : null,
         ]);
     }
 

@@ -33,6 +33,31 @@ class Category extends Model
                 $category->slug = $slug;
             }
         });
+
+        static::updated(function (Category $category): void {
+            if ($category->wasChanged('name')) {
+                Product::where('shop_id', $category->shop_id)
+                    ->where('category_id', $category->id)
+                    ->update(['category_name' => $category->name]);
+            }
+        });
+
+        static::deleting(function (Category $category): void {
+            $fallback = static::where('shop_id', $category->shop_id)
+                ->where('id', '!=', $category->id)
+                ->orderBy('sort_order')
+                ->first();
+
+            Product::where('shop_id', $category->shop_id)
+                ->where(function ($query) use ($category): void {
+                    $query->where('category_id', $category->id)
+                        ->orWhere('category_name', $category->name);
+                })
+                ->update([
+                    'category_id' => $fallback?->id,
+                    'category_name' => $fallback?->name,
+                ]);
+        });
     }
 
     public function shop()

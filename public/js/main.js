@@ -215,19 +215,6 @@ function isItemInCategory(item, categoryTarget) {
         }
     }
 
-    // 3. Fallback: item.categoryId might contain category name (e.g. 'Coffee' or 'beverages')
-    if (item.categoryId && targetName) {
-        if (String(item.categoryId).trim().toLowerCase() === targetName.trim().toLowerCase()) {
-            return true;
-        }
-    }
-
-    // 4. Fallback: targetId might be a category name string
-    if (item.categoryName && targetId) {
-        if (item.categoryName.trim().toLowerCase() === String(targetId).trim().toLowerCase()) {
-            return true;
-        }
-    }
 
     return false;
 }
@@ -458,15 +445,25 @@ function renderMenu() {
 
     if (activeCategory === 'all' && !searchQuery) {
         // Group by category
+        const categorizedItemIds = new Set();
         apiData.categories.forEach(cat => {
             if (cat.id === 'all') return;
             const itemsInCat = filteredMenu.filter(m => isItemInCategory(m, cat));
             if (itemsInCat.length > 0) {
+                itemsInCat.forEach(m => categorizedItemIds.add(m.id));
                 const colSpan = (theme === 'grid') ? 'col-span-2' : 'col-span-1';
                 htmlOutput += `<div id="cat-section-${escapeHtml(cat.id)}" class="${colSpan} category-section mt-5 mb-2 border-b-2 border-primary/10 pb-1.5 scroll-mt-40" data-category-id="${escapeHtml(cat.id)}"><h3 class="font-heading font-bold text-lg text-primary flex items-center gap-2"><i class="fas ${cat.icon} text-sm opacity-70"></i><span>${escapeHtml(cat.name)}</span></h3></div>`;
                 htmlOutput += itemsInCat.map(item => renderMenuItem(item)).join('');
             }
         });
+
+        // Any uncategorized items (e.g. whose category was deleted or unassigned)
+        const uncategorizedItems = filteredMenu.filter(m => !categorizedItemIds.has(m.id));
+        if (uncategorizedItems.length > 0) {
+            const colSpan = (theme === 'grid') ? 'col-span-2' : 'col-span-1';
+            htmlOutput += `<div id="cat-section-uncategorized" class="${colSpan} category-section mt-5 mb-2 border-b-2 border-primary/10 pb-1.5 scroll-mt-40" data-category-id="uncategorized"><h3 class="font-heading font-bold text-lg text-primary flex items-center gap-2"><i class="fas fa-layer-group text-sm opacity-70"></i><span>Menu Lainnya</span></h3></div>`;
+            htmlOutput += uncategorizedItems.map(item => renderMenuItem(item)).join('');
+        }
     } else {
         // Flat list
         htmlOutput = filteredMenu.map(item => renderMenuItem(item)).join('');
