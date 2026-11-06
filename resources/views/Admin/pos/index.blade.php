@@ -414,7 +414,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0" x-show="cart.length > 0" x-cloak>
-                    <button type="button" @click="holdCart()" class="px-2 py-0.5 rounded-[6px] border border-amber-300 bg-amber-50 hover:bg-amber-100 text-[10.5px] font-bold text-amber-900 transition cursor-pointer flex items-center gap-1 shadow-2xs" :title="recalledOrderId ? 'Perbarui Open Bill (F2)' : 'Simpan ke Open Bill / Bayar Nanti (F2)'">
+                    <button type="button" @click="confirmOpenBill()" class="px-2 py-0.5 rounded-[6px] border border-amber-300 bg-amber-50 hover:bg-amber-100 text-[10.5px] font-bold text-amber-900 transition cursor-pointer flex items-center gap-1 shadow-2xs" :title="recalledOrderId ? 'Perbarui Open Bill (F2)' : 'Simpan ke Open Bill / Bayar Nanti (F2)'">
                         <i class="fas fa-bookmark text-[9.5px] text-amber-600"></i>
                         <span x-text="recalledOrderId ? 'Update Bill' : 'Open Bill'"></span>
                     </button>
@@ -640,7 +640,7 @@
             <div class="px-4 pt-1.5 pb-2">
                 @can('manage-payments')
                 <div class="flex gap-2">
-                    <button type="button" @click="holdCart()" :disabled="cart.length === 0"
+                    <button type="button" @click="confirmOpenBill()" :disabled="cart.length === 0"
                         class="py-[11px] px-3.5 rounded-[10px] bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[12px] font-bold transition flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
                         :title="recalledOrderId ? 'Perbarui Open Bill (F2)' : 'Buka Tagihan Meja / Bayar Nanti (F2)'">
                         <i class="fas fa-bookmark text-amber-700"></i>
@@ -887,6 +887,57 @@
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- OPEN BILL CONFIRMATION MODAL                                --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<div x-show="openBillConfirmModal.show" x-cloak x-transition
+    class="fixed inset-0 z-50 bg-[#1e211f]/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white border border-[#e6e5e0] rounded-[24px] p-6 max-w-sm w-full text-center shadow-2xl relative"
+         @click.outside="openBillConfirmModal.show = false">
+        
+        <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3.5 shadow-xs">
+            <i class="fas fa-bookmark text-2xl"></i>
+        </div>
+
+        <h3 class="text-[18px] font-bold text-[#111827] leading-tight mb-1"
+            x-text="recalledOrderId ? 'Perbarui Open Bill Ini?' : 'Jadikan Pesanan Open Bill?'"></h3>
+        
+        <p class="text-[12px] text-[#53565a] mb-4">
+            Pesanan akan disimpan sebagai tagihan berjalan (belum lunas) dan dapat ditambah menu atau dibayar nanti.
+        </p>
+
+        <!-- Summary Info Box -->
+        <div class="bg-[#fffbf5] border border-amber-200 rounded-[12px] p-3.5 text-left mb-4 space-y-2 text-[12px]">
+            <div class="flex items-center justify-between">
+                <span class="text-[#53565a]">Tipe / Meja:</span>
+                <span class="font-bold text-[#111827] bg-white px-2 py-0.5 rounded border border-amber-200"
+                      x-text="fulfillmentType === 'DINE_IN' ? (selectedTable || 'Tanpa Meja / Walk-in') : (fulfillmentType === 'TAKEAWAY' ? 'Takeaway (Bungkus)' : 'Delivery')"></span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-[#53565a]">Pelanggan:</span>
+                <span class="font-semibold text-[#111827]" x-text="customerName || 'Walk-in Customer'"></span>
+            </div>
+            <div class="flex items-center justify-between border-t border-amber-200/60 pt-2">
+                <span class="font-bold text-[#111827]">Total Tagihan:</span>
+                <span class="font-black text-[#df5826] text-[15px]">Rp<span x-text="formatRp(subtotal)"></span></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" @click="openBillConfirmModal.show = false"
+                class="py-2.5 px-3 rounded-[10px] border border-[#d8dce2] bg-gray-100 hover:bg-gray-200 text-[#53565a] text-[12px] font-semibold transition">
+                Batal
+            </button>
+            <button type="button" @click="executeHoldCart()" :disabled="paymentPending"
+                class="py-2.5 px-3 rounded-[10px] bg-gradient-to-b from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-[12px] font-bold shadow-sm transition flex items-center justify-center gap-1.5 disabled:opacity-50">
+                <i class="fas fa-check" x-show="!paymentPending"></i>
+                <i class="fas fa-spinner fa-spin" x-show="paymentPending" x-cloak></i>
+                <span x-text="paymentPending ? 'Menyimpan...' : (recalledOrderId ? 'Ya, Update' : 'Ya, Open Bill')"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- OPEN BILL SUCCESS MODAL                                     --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <div x-show="openBillSuccessModal.show" x-cloak x-transition
@@ -989,6 +1040,7 @@ function posApp() {
         },
         paymentModal: { show: false, method: 'CASH', amountPaid: '', fulfillment: 'DINE_IN' },
         successScreen: { show: false, total: 0, change: 0, orderId: null },
+        openBillConfirmModal: { show: false },
         openBillSuccessModal: { show: false, orderId: null, table: '', total: 0, updated: false },
         tableSetupModal: { show: false, name: '', loading: false },
 
@@ -1246,8 +1298,22 @@ function posApp() {
         },
 
         // ── Open Bill (Hold / Recall) ─────────────────────
+        confirmOpenBill() {
+            if (this.cart.length === 0) {
+                this.notify('Keranjang belanja masih kosong', 'error');
+                return;
+            }
+            this.openBillConfirmModal.show = true;
+        },
+
+        async executeHoldCart() {
+            this.openBillConfirmModal.show = false;
+            await this.holdCart();
+        },
+
         async holdCart() {
             if (this.cart.length === 0) return;
+            this.paymentPending = true;
             const payload = {
                 items: this.cartPayload(),
                 table: this.fulfillmentType === 'DINE_IN' ? (this.selectedTable || null) : null,
@@ -1292,6 +1358,7 @@ function posApp() {
                     this.clearCart();
                 }
             } catch (e) { this.notify(e.message || 'Gagal menyimpan Open Bill', 'error'); }
+            finally { this.paymentPending = false; }
         },
 
         printKitchenTicket(orderId) {
@@ -1424,6 +1491,18 @@ function posApp() {
         // ── Keyboard Shortcuts ────────────────
         handleKey(e) {
             if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+            if (this.openBillConfirmModal.show) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.executeHoldCart();
+                    return;
+                }
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    this.openBillConfirmModal.show = false;
+                    return;
+                }
+            }
             if (this.successScreen.show && (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ')) {
                 e.preventDefault();
                 this.newOrder();
@@ -1436,14 +1515,14 @@ function posApp() {
             }
             switch (e.key) {
                 case 'F1': e.preventDefault(); this.$refs.searchInput?.focus(); break;
-                case 'F2': e.preventDefault(); this.holdCart(); break;
+                case 'F2': e.preventDefault(); this.confirmOpenBill(); break;
                 case 'F3': e.preventDefault(); break;
                 case 'F4': e.preventDefault(); if (this.cart.length > 0) this.openPayment(); break;
                 case 'F5': e.preventDefault(); if (this.paymentModal.show) { this.paymentModal.method='CASH'; this.$nextTick(() => this.$refs.cashInput?.focus()); } break;
                 case 'F6': e.preventDefault(); if (this.paymentModal.show) this.paymentModal.method='QRIS'; break;
                 case 'F7': e.preventDefault(); if (this.successScreen.show) this.printReceipt('customer'); break;
                 case 'F8': e.preventDefault(); if (this.successScreen.show) this.printReceipt('kitchen'); break;
-                case 'Escape': this.modifierModal.show = false; this.paymentModal.show = false; break;
+                case 'Escape': this.modifierModal.show = false; this.paymentModal.show = false; this.openBillConfirmModal.show = false; break;
             }
         },
 
