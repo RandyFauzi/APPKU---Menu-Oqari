@@ -233,23 +233,30 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
     <div class="divider"></div>
 
     {{-- Payment Info --}}
-    <div class="flex-between mb-1 text-[11px]">
-        <span>Metode Bayar:</span>
-        <span class="font-bold uppercase">{{ $receiptData->paymentMethod ?? 'TUNAI' }}</span>
-    </div>
-
-    @if($receiptData->amountPaid > 0)
+    @if(strtoupper($receiptData->paymentStatus ?? '') === 'UNPAID' || strtoupper($receiptData->orderStatus ?? '') === 'HOLD')
+        <div class="text-center font-bold my-2 p-1.5" style="border: 1px dashed #000; font-size: 11px; background-color: #f9fafb;">
+            *** TAGIHAN SEMENTARA (OPEN BILL) ***<br>
+            <span style="font-size: 9.5px; font-weight: normal;">Belum Lunas &middot; Silakan Bayar di Kasir</span>
+        </div>
+    @else
         <div class="flex-between mb-1 text-[11px]">
-            <span>Bayar:</span>
-            <span>Rp {{ number_format($receiptData->amountPaid, 0, ',', '.') }}</span>
+            <span>Metode Bayar:</span>
+            <span class="font-bold uppercase">{{ $receiptData->paymentMethod ?? 'TUNAI' }}</span>
         </div>
-    @endif
 
-    @if($receiptData->change > 0)
-        <div class="flex-between mb-1 text-[11px] font-bold">
-            <span>Kembali:</span>
-            <span>Rp {{ number_format($receiptData->change, 0, ',', '.') }}</span>
-        </div>
+        @if($receiptData->amountPaid > 0)
+            <div class="flex-between mb-1 text-[11px]">
+                <span>Bayar:</span>
+                <span>Rp {{ number_format($receiptData->amountPaid, 0, ',', '.') }}</span>
+            </div>
+        @endif
+
+        @if($receiptData->change > 0)
+            <div class="flex-between mb-1 text-[11px] font-bold">
+                <span>Kembali:</span>
+                <span>Rp {{ number_format($receiptData->change, 0, ',', '.') }}</span>
+            </div>
+        @endif
     @endif
 
     <div class="divider"></div>

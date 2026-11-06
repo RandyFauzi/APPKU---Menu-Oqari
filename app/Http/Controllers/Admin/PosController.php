@@ -19,6 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PosController extends Controller
 {
@@ -72,9 +73,11 @@ class PosController extends Controller
 
         $heldOrderSummaries = $heldOrders->map(fn ($order): array => [
             'id' => $order->id,
-            'total' => $order->grand_total,
-            'customer_name' => $order->customer_name,
-            'table' => $order->table?->name,
+            'total' => (float) $order->grand_total,
+            'customer_name' => $order->customer_name ?: 'Walk-in',
+            'table' => $order->table?->name ?? ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja'),
+            'time' => $order->created_at?->format('H:i') ?? '',
+            'items_count' => (int) $order->items->sum('quantity'),
         ]);
 
         // Initial live queue orders for the top Antrean section
@@ -136,15 +139,69 @@ class PosController extends Controller
     public function holdOrder(HoldPosOrderRequest $request, CreateOrder $createOrder)
     {
         $validated = $request->validated();
-
         $shop = Auth::user()->shop;
 
         $calcCart = app(CalculateCart::class);
         $cart = $calcCart->execute($shop, $validated['items']);
 
-        // CreateOrder puts it as CONFIRMED; we override to HOLD
+        // Check if updating an existing Open Bill
+        if (! empty($validated['recalled_order_id'])) {
+            $order = Order::where('shop_id', $shop->id)
+                ->whereKey($validated['recalled_order_id'])
+                ->where('order_status', 'HOLD')
+                ->first();
+
+            if ($order) {
+                $order->items()->delete();
+                $hasPriceColumn = Schema::hasColumn('order_items', 'price');
+                foreach ($cart['items'] as $item) {
+                    if ($hasPriceColumn && ! isset($item['price'])) {
+                        $item['price'] = $item['unit_price'] ?? 0;
+                    }
+                    $order->items()->create($item);
+                }
+
+                $tableId = $order->table_id;
+                if (! empty($validated['table'])) {
+                    $tableModel = Table::where('shop_id', $shop->id)
+                        ->where('name', $validated['table'])
+                        ->first()
+                        ?? Table::create(['shop_id' => $shop->id, 'name' => $validated['table']]);
+                    $tableId = $tableModel->id;
+                }
+
+                $order->update([
+                    'table_id' => $tableId,
+                    'customer_name' => $validated['customer_name'] ?? $order->customer_name,
+                    'subtotal' => $cart['subtotal'],
+                    'grand_total' => $cart['subtotal'],
+                    'total_cogs' => $cart['total_cogs'],
+                    'discount_amount' => 0,
+                    'tax_amount' => 0,
+                    'service_charge_amount' => 0,
+                    'order_status' => 'HOLD',
+                    'payment_status' => 'UNPAID',
+                    'fulfillment_type' => $validated['fulfillment_type'] ?? $order->fulfillment_type ?? 'DINE_IN',
+                ]);
+
+                OrderCreated::dispatch($order);
+
+                return response()->json([
+                    'success' => true,
+                    'order_id' => $order->id,
+                    'total' => (float) $order->grand_total,
+                    'table' => $order->table?->name ?? ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja'),
+                    'customer_name' => $order->customer_name ?: 'Walk-in',
+                    'time' => $order->created_at?->format('H:i') ?? '',
+                    'items_count' => (int) $order->items()->sum('quantity'),
+                    'updated' => true,
+                ]);
+            }
+        }
+
+        // New Open Bill
         $data = $validated;
-        $data['payment_method'] = 'CASH'; // placeholder; real method set at recall
+        $data['payment_method'] = 'CASH'; // placeholder; real method set at recall & payment
         $data['fulfillment_type'] = $validated['fulfillment_type'] ?? 'DINE_IN';
 
         $order = $createOrder->execute($shop, $cart, $data);
@@ -152,10 +209,17 @@ class PosController extends Controller
 
         OrderCreated::dispatch($order);
 
+        $order->load('table');
+
         return response()->json([
             'success' => true,
             'order_id' => $order->id,
-            'total' => $order->grand_total,
+            'total' => (float) $order->grand_total,
+            'table' => $order->table?->name ?? ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja'),
+            'customer_name' => $order->customer_name ?: 'Walk-in',
+            'time' => $order->created_at?->format('H:i') ?? '',
+            'items_count' => (int) $order->items()->sum('quantity'),
+            'updated' => false,
         ]);
     }
 
@@ -169,13 +233,17 @@ class PosController extends Controller
 
         $orders = Order::where('shop_id', $shopId)
             ->where('order_status', 'HOLD')
-            ->with('items')
+            ->with(['items', 'table'])
             ->latest()
-            ->take(10)
+            ->take(20)
             ->get()
             ->map(fn ($o) => [
                 'id' => $o->id,
-                'total' => $o->grand_total,
+                'total' => (float) $o->grand_total,
+                'customer_name' => $o->customer_name ?: 'Walk-in',
+                'table' => $o->table?->name ?? ($o->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja'),
+                'time' => $o->created_at?->format('H:i') ?? '',
+                'items_count' => (int) $o->items->sum('quantity'),
                 'items' => $o->items->map(fn ($i) => [
                     'name' => $i->product_name,
                     'qty' => $i->quantity,
@@ -188,6 +256,23 @@ class PosController extends Controller
             ]);
 
         return response()->json($orders);
+    }
+
+    // ──────────────────────────────────────────────
+    //  API — Cancel / Void an Open Bill (HOLD)
+    // ──────────────────────────────────────────────
+
+    public function cancelHeldOrder(Order $order)
+    {
+        $shopId = Auth::user()->shop_id;
+
+        if ($order->shop_id !== $shopId || $order->order_status !== 'HOLD') {
+            return response()->json(['error' => 'Pesanan tidak ditemukan atau tidak dapat dibatalkan.'], 404);
+        }
+
+        $order->update(['order_status' => 'CANCELLED']);
+
+        return response()->json(['success' => true, 'message' => 'Open bill berhasil dibatalkan.']);
     }
 
     // ──────────────────────────────────────────────

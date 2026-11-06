@@ -25,6 +25,7 @@ class HoldPosOrderRequest extends FormRequest
             'table' => ['nullable', 'string', 'max:50'],
             'customer_name' => ['nullable', 'string', 'max:100'],
             'fulfillment_type' => ['nullable', 'in:DINE_IN,TAKEAWAY,DELIVERY'],
+            'recalled_order_id' => ['nullable', 'integer'],
         ];
     }
 

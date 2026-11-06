@@ -80,6 +80,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/pos/orders/hold', [PosController::class, 'holdOrder'])->middleware('schema:checkout')->name('admin.pos.orders.hold');
         Route::get('/admin/pos/orders/held', [PosController::class, 'heldOrders'])->name('admin.pos.orders.held');
         Route::post('/admin/pos/orders/{order}/recall', [PosController::class, 'recallOrder'])->name('admin.pos.orders.recall');
+        Route::delete('/admin/pos/orders/{order}/hold', [PosController::class, 'cancelHeldOrder'])->name('admin.pos.orders.hold.cancel');
         Route::get('/admin/pos/products', [PosController::class, 'products'])->name('admin.pos.products');
         // Legacy order status updates
     });

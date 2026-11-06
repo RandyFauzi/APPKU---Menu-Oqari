@@ -189,23 +189,37 @@
             </div>
         </section>
 
-        {{-- 2. HELD ORDERS RECALL BAR --}}
+        {{-- 2. OPEN BILL / HELD ORDERS RECALL BAR --}}
         <template x-if="heldOrders.length > 0">
-            <section class="bg-[#fff6f0] border border-[#f5d5c6] rounded-[14px] px-[14px] py-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-[#df5826]"></span>
-                    <span class="text-[11.5px] font-bold text-[#df5826] uppercase tracking-wider">Pesanan Ditahan (Hold)</span>
+            <section class="bg-[#fffbf5] border border-amber-200/90 rounded-[14px] px-[14px] py-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-2xs">
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span class="text-[11.5px] font-black text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fas fa-bookmark text-amber-600 text-xs"></i>
+                        <span>Tagihan Aktif / Open Bill</span>
+                    </span>
+                    <span class="bg-amber-100 text-amber-800 border border-amber-300 font-bold px-2 py-0.2 rounded-full text-[10px]" x-text="heldOrders.length + ' Meja'"></span>
                 </div>
-                <div class="flex items-center gap-2 overflow-x-auto hide-scroll">
+                <div class="flex items-center gap-2 overflow-x-auto hide-scroll py-0.5">
                     <template x-for="held in heldOrders" :key="held.id">
-                        <button type="button" @click="recallOrder(held.id)"
-                            class="shrink-0 bg-white border border-[#f5d5c6] hover:border-[#df5826] rounded-[9px] px-3 py-1.5 text-[11.5px] flex items-center gap-1.5 transition shadow-sm">
-                            <span class="font-bold text-[#1e211f]">#<span x-text="held.id"></span></span>
-                            <template x-if="held.customer_name">
-                                <span class="text-[#53565a]" x-text="'(' + held.customer_name + ')'"></span>
-                            </template>
-                            <span class="font-semibold text-[#df5826]">Rp<span x-text="formatRp(held.total)"></span></span>
-                        </button>
+                        <div class="shrink-0 bg-white border border-amber-200 hover:border-amber-400 rounded-[10px] pl-2.5 pr-1.5 py-1 text-[11.5px] flex items-center gap-2 transition shadow-xs hover:shadow-sm group">
+                            <div class="flex items-center gap-1.5 cursor-pointer" @click="recallOrder(held.id)" title="Buka tagihan untuk bayar / tambah menu">
+                                <span class="font-black text-[#df5826] bg-[#fff6f0] px-1.5 py-0.5 rounded text-[10.5px] border border-[#f5d5c6]" x-text="held.table || ('#' + held.id)"></span>
+                                <span class="font-bold text-[#1e211f] max-w-[90px] truncate" x-text="held.customer_name"></span>
+                                <span class="font-bold text-amber-900">Rp<span x-text="formatRp(held.total)"></span></span>
+                            </div>
+                            <div class="flex items-center gap-0.5 border-l border-gray-200 pl-1.5">
+                                <button type="button" @click.stop="printKitchenTicket(held.id)" class="w-6 h-6 rounded-md hover:bg-emerald-50 text-emerald-600 flex items-center justify-center transition text-[10.5px]" title="Cetak Ulang Tiket Dapur">
+                                    <i class="fas fa-utensils"></i>
+                                </button>
+                                <button type="button" @click.stop="printTempBill(held.id)" class="w-6 h-6 rounded-md hover:bg-blue-50 text-blue-600 flex items-center justify-center transition text-[10.5px]" title="Cetak Bill Sementara (Proforma)">
+                                    <i class="fas fa-receipt"></i>
+                                </button>
+                                <button type="button" @click.stop="cancelHeldBill(held.id)" class="w-6 h-6 rounded-md hover:bg-red-50 text-red-500 flex items-center justify-center transition text-[10.5px]" title="Batalkan Tagihan Meja">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
                     </template>
                 </div>
             </section>
@@ -400,8 +414,9 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0" x-show="cart.length > 0" x-cloak>
-                    <button type="button" @click="holdCart()" class="px-2 py-0.5 rounded-[6px] border border-[#d8dce2] bg-[#f8f9fa] hover:border-[#df5826] text-[10.5px] font-semibold text-[#53565a] transition cursor-pointer">
-                        Hold
+                    <button type="button" @click="holdCart()" class="px-2 py-0.5 rounded-[6px] border border-amber-300 bg-amber-50 hover:bg-amber-100 text-[10.5px] font-bold text-amber-900 transition cursor-pointer flex items-center gap-1 shadow-2xs" :title="recalledOrderId ? 'Perbarui Open Bill (F2)' : 'Simpan ke Open Bill / Bayar Nanti (F2)'">
+                        <i class="fas fa-bookmark text-[9.5px] text-amber-600"></i>
+                        <span x-text="recalledOrderId ? 'Update Bill' : 'Open Bill'"></span>
                     </button>
                     <button type="button" @click="clearCart()" class="px-2 py-0.5 rounded-[6px] border border-[#f5d5c6] bg-[#fff6f0] text-[10.5px] font-semibold text-[#df5826] hover:opacity-80 transition cursor-pointer">
                         Reset
@@ -621,17 +636,26 @@
                 </div>
             </div>
 
-            {{-- CTA Button (Buat Pesanan F4) --}}
+            {{-- CTA Button (Open Bill F2 & Bayar F4) --}}
             <div class="px-4 pt-1.5 pb-2">
                 @can('manage-payments')
-                <button type="button" @click="openPayment()" :disabled="cart.length === 0"
-                    class="w-full py-[11px] px-[16px] rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_6px_0px_rgba(223,88,38,0.25)] flex items-center justify-center gap-[8px] text-white text-[13px] font-bold hover:opacity-95 active:scale-[0.99] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
-                    <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
-                    <span class="flex items-center gap-1.5">
-                        <span>Buat Pesanan & Bayar</span>
-                        <span class="hidden sm:inline-block text-[10.5px] font-normal opacity-85">(F4)</span>
-                    </span>
-                </button>
+                <div class="flex gap-2">
+                    <button type="button" @click="holdCart()" :disabled="cart.length === 0"
+                        class="py-[11px] px-3.5 rounded-[10px] bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[12px] font-bold transition flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+                        :title="recalledOrderId ? 'Perbarui Open Bill (F2)' : 'Buka Tagihan Meja / Bayar Nanti (F2)'">
+                        <i class="fas fa-bookmark text-amber-700"></i>
+                        <span x-text="recalledOrderId ? 'Update Bill' : 'Open Bill'"></span>
+                        <span class="text-[10px] font-normal opacity-75">(F2)</span>
+                    </button>
+                    <button type="button" @click="openPayment()" :disabled="cart.length === 0"
+                        class="flex-1 py-[11px] px-[16px] rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_6px_0px_rgba(223,88,38,0.25)] flex items-center justify-center gap-[8px] text-white text-[13px] font-bold hover:opacity-95 active:scale-[0.99] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                        <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
+                        <span class="flex items-center gap-1.5">
+                            <span>Bayar</span>
+                            <span class="hidden sm:inline-block text-[10.5px] font-normal opacity-85">(F4)</span>
+                        </span>
+                    </button>
+                </div>
                 @else
                 <p class="text-[11.5px] text-[#8b8e93] text-center py-2">Pembayaran memerlukan izin dari Owner.</p>
                 @endcan
@@ -863,6 +887,42 @@
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- OPEN BILL SUCCESS MODAL                                     --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<div x-show="openBillSuccessModal.show" x-cloak x-transition
+    class="fixed inset-0 z-50 bg-[#1e211f]/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white border border-[#e6e5e0] rounded-[24px] p-6 max-w-sm w-full text-center shadow-2xl">
+        <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3.5">
+            <i class="fas fa-bookmark text-2xl"></i>
+        </div>
+        <span class="text-[11px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200"
+              x-text="openBillSuccessModal.updated ? 'Open Bill Diperbarui' : 'Open Bill Tersimpan'"></span>
+        
+        <h3 class="text-[20px] font-bold text-[#111827] mt-2 mb-1" x-text="openBillSuccessModal.table"></h3>
+        <p class="text-[12.5px] text-[#53565a] mb-4">
+            Tagihan Sementara: <strong class="text-[#df5826] text-[15px]">Rp<span x-text="formatRp(openBillSuccessModal.total)"></span></strong>
+        </p>
+
+        <div class="space-y-2 mt-2">
+            <button type="button" @click="printKitchenTicket(openBillSuccessModal.orderId); openBillSuccessModal.show = false"
+                class="w-full py-2.5 px-4 bg-[#059669] hover:bg-[#047857] text-white rounded-[10px] text-[12px] font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+                <i class="fas fa-utensils"></i> Cetak Tiket Dapur / Bar
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" @click="printTempBill(openBillSuccessModal.orderId); openBillSuccessModal.show = false"
+                    class="py-2.5 px-3 bg-[#f8f9fa] hover:bg-gray-100 border border-[#d8dce2] text-[#111827] rounded-[10px] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5">
+                    <i class="fas fa-receipt text-[#df5826]"></i> Bill Sementara
+                </button>
+                <button type="button" @click="openBillSuccessModal.show = false"
+                    class="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 text-[#53565a] rounded-[10px] text-[11.5px] font-semibold transition">
+                    Tutup (Selesai)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- TABLE SETUP CONTEXTUAL MODAL                               --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <div x-show="tableSetupModal.show" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4">
@@ -929,6 +989,7 @@ function posApp() {
         },
         paymentModal: { show: false, method: 'CASH', amountPaid: '', fulfillment: 'DINE_IN' },
         successScreen: { show: false, total: 0, change: 0, orderId: null },
+        openBillSuccessModal: { show: false, orderId: null, table: '', total: 0, updated: false },
         tableSetupModal: { show: false, name: '', loading: false },
 
         quickCash: [10000, 20000, 50000, 100000],
@@ -1171,7 +1232,7 @@ function posApp() {
             this.selectedTable = '';
         },
 
-        // ── Hold / Recall ─────────────────────
+        // ── Open Bill (Hold / Recall) ─────────────────────
         async holdCart() {
             if (this.cart.length === 0) return;
             const payload = {
@@ -1179,20 +1240,82 @@ function posApp() {
                 table: this.fulfillmentType === 'DINE_IN' ? (this.selectedTable || null) : null,
                 fulfillment_type: this.fulfillmentType || 'DINE_IN',
                 customer_name: (this.customerName || '').trim() || null,
+                recalled_order_id: this.recalledOrderId || null,
             };
             try {
                 const res = await this.post('{{ route('admin.pos.orders.hold') }}', payload);
                 if (res.success) {
-                    this.heldOrders.push({
-                        id: res.order_id,
+                    if (res.updated) {
+                        this.heldOrders = this.heldOrders.map(o => o.id === res.order_id ? {
+                            id: res.order_id,
+                            total: res.total,
+                            customer_name: res.customer_name,
+                            table: res.table,
+                            time: res.time,
+                            items_count: res.items_count,
+                        } : o);
+                        this.notify(`Open Bill #${res.order_id} (${res.table}) berhasil diperbarui!`, 'success');
+                    } else {
+                        this.heldOrders.unshift({
+                            id: res.order_id,
+                            total: res.total,
+                            customer_name: res.customer_name,
+                            table: res.table,
+                            time: res.time,
+                            items_count: res.items_count,
+                        });
+                        this.notify(`Open Bill #${res.order_id} (${res.table}) berhasil disimpan!`, 'success');
+                    }
+
+                    this.openBillSuccessModal = {
+                        show: true,
+                        orderId: res.order_id,
+                        table: res.table,
                         total: res.total,
-                        customer_name: payload.customer_name,
-                        table: payload.table,
-                    });
+                        updated: Boolean(res.updated),
+                    };
+
+                    this.recalledOrderId = null;
                     this.clearCart();
-                    this.notify('Order ditahan', 'success');
                 }
-            } catch (e) { this.notify(e.message || 'Gagal menahan order', 'error'); }
+            } catch (e) { this.notify(e.message || 'Gagal menyimpan Open Bill', 'error'); }
+        },
+
+        printKitchenTicket(orderId) {
+            if (!orderId) return;
+            window.open(`/admin/api/orders/${orderId}/print?type=kitchen`, '_blank');
+        },
+
+        printTempBill(orderId) {
+            if (!orderId) return;
+            window.open(`/admin/api/orders/${orderId}/print?type=customer`, '_blank');
+        },
+
+        async cancelHeldBill(orderId) {
+            if (!confirm(`Batalkan Open Bill #${orderId}?`)) return;
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const res = await fetch(`/admin/pos/orders/${orderId}/hold`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': token || '',
+                        'Accept': 'application/json',
+                    }
+                }).then(r => r.json());
+
+                if (res.success) {
+                    this.heldOrders = this.heldOrders.filter(o => o.id !== orderId);
+                    if (this.recalledOrderId === orderId) {
+                        this.recalledOrderId = null;
+                        this.clearCart();
+                    }
+                    this.notify('Open Bill berhasil dibatalkan', 'success');
+                } else {
+                    this.notify(res.error || 'Gagal membatalkan Open Bill', 'error');
+                }
+            } catch (e) {
+                this.notify('Gagal membatalkan Open Bill', 'error');
+            }
         },
 
         async recallOrder(orderId) {
@@ -1215,7 +1338,7 @@ function posApp() {
                     });
                     this.recalledOrderId = orderId;
                     this.heldOrders = this.heldOrders.filter(o => o.id !== orderId);
-                    this.notify('Order diambil kembali', 'success');
+                    this.notify(`Open Bill #${orderId} (${res.order.table || 'Walk-in'}) dibuka`, 'success');
                 }
             } catch (e) { this.notify('Gagal recall order', 'error'); }
         },
