@@ -2586,6 +2586,8 @@ if (res.ok) {
                 currentMatrixMonth: '{{ now(config('attendance.timezone'))->format('Y-m') }}',
                 currentMatrixMonthLabel: '{{ now(config('attendance.timezone'))->locale('id')->translatedFormat('F Y') }}',
                 matrixActiveTool: 'auto', // 'auto', '1', '2', '3', '4', 'delete'
+                matrixSaveStatus: 'idle', // 'idle' | 'saving' | 'saved' | 'error'
+                matrixPendingSaves: 0,
                 shiftPresets: {
                     '1': { code: '1', name: 'Shift 1 (Pagi)', start_time: '07:00', end_time: '15:00', duration_minutes: 480, label: 'Pagi', position: 'Barista', badgeClass: 'bg-blue-600 text-white' },
                     '2': { code: '2', name: 'Shift 2 (Middle)', start_time: '11:00', end_time: '19:00', duration_minutes: 480, label: 'Middle', position: 'Kasir', badgeClass: 'bg-emerald-600 text-white' },
@@ -2717,15 +2719,23 @@ if (res.ok) {
                         const oldShifts = [...this.shifts];
                         this.shifts = this.shifts.filter(s => s.id !== shiftId);
 
+                        this.matrixPendingSaves++;
+                        this.matrixSaveStatus = 'saving';
+
                         try {
                             const res = await fetch(`/admin/api/shifts/${shiftId}`, {
                                 method: 'DELETE',
                                 headers: { Accept: 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
                             });
                             if (!res.ok) throw new Error('delete failed');
-                            this.addToast(`Shift ${employee.name} tanggal ${day.day} dihapus`, 'success');
+                            this.matrixPendingSaves = Math.max(0, this.matrixPendingSaves - 1);
+                            if (this.matrixPendingSaves === 0) {
+                                this.matrixSaveStatus = 'saved';
+                            }
                         } catch (e) {
+                            this.matrixPendingSaves = Math.max(0, this.matrixPendingSaves - 1);
                             this.shifts = oldShifts;
+                            this.matrixSaveStatus = 'error';
                             this.addToast('Gagal menghapus shift', 'error');
                         }
                     } else {
@@ -2766,6 +2776,9 @@ if (res.ok) {
                             this.shifts.push(optimisticShift);
                         }
 
+                        this.matrixPendingSaves++;
+                        this.matrixSaveStatus = 'saving';
+
                         try {
                             const res = await fetch('/admin/api/shifts', {
                                 method: 'POST',
@@ -2774,16 +2787,23 @@ if (res.ok) {
                             });
                             const data = await res.json();
                             if (!res.ok) {
+                                this.matrixPendingSaves = Math.max(0, this.matrixPendingSaves - 1);
                                 this.shifts = oldShifts;
+                                this.matrixSaveStatus = 'error';
                                 this.addToast(data.message || 'Gagal menyimpan shift', 'error');
                                 return;
                             }
                             if (data.shift && data.shift.id) {
                                 this.shifts = this.shifts.map(s => s.id === tempId ? { ...s, id: data.shift.id } : s);
                             }
-                            this.addToast(`${employee.name}: ${preset.name} (${day.day} ${this.currentMonthShortName})`, 'success');
+                            this.matrixPendingSaves = Math.max(0, this.matrixPendingSaves - 1);
+                            if (this.matrixPendingSaves === 0) {
+                                this.matrixSaveStatus = 'saved';
+                            }
                         } catch (e) {
+                            this.matrixPendingSaves = Math.max(0, this.matrixPendingSaves - 1);
                             this.shifts = oldShifts;
+                            this.matrixSaveStatus = 'error';
                             this.addToast('Gagal menyimpan shift', 'error');
                         }
                     }

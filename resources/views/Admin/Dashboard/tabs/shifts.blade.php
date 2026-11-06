@@ -18,83 +18,38 @@
     </div>
 
     <!-- Sub-Navigation: Unified Tabs between Team Schedule and My Schedule -->
-    <div class="mb-5 flex items-center justify-between border-b border-[#e9ebf0] pb-2">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[#e9ebf0] pb-3">
         <div class="flex items-center gap-2">
             <button type="button" @click="shiftSubTab = 'team'" 
                     class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all"
                     :class="shiftSubTab === 'team' ? 'bg-[#fff6f0] text-[#c94d00] shadow-xs' : 'text-[#53565a] hover:bg-gray-100 hover:text-[#111827]'">
                 <i class="fas fa-users" aria-hidden="true"></i>
                 <span>Jadwal Semua Tim</span>
-                <span class="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold shadow-xs text-[#c94d00]" x-text="shifts.length"></span>
+                <span class="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold shadow-xs text-[#c94d00]" x-text="shifts.length + ' Shift'"></span>
             </button>
             <button type="button" @click="shiftSubTab = 'my'" 
                     class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all"
                     :class="shiftSubTab === 'my' ? 'bg-[#fff6f0] text-[#c94d00] shadow-xs' : 'text-[#53565a] hover:bg-gray-100 hover:text-[#111827]'">
                 <i class="fas fa-calendar-user" aria-hidden="true"></i>
                 <span>Jadwal Saya</span>
-                <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-[#53565a]" x-text="myShifts.length"></span>
+                <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-[#53565a]" x-text="myShifts.length + ' Shift'"></span>
             </button>
         </div>
-        <div class="hidden sm:flex items-center gap-2 text-xs text-[#7f837e]">
-            <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
-            <span>Zona Waktu: <strong class="text-[#111827]" x-text="shiftTimezone || 'Asia/Jakarta'"></strong></span>
-        </div>
-    </div>
 
-    <!-- 4 KPI Summary Cards (Sparta Style) -->
-    <div class="mb-5 grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <!-- KPI 1 -->
-        <div class="rounded-xl border border-[#e9ebf0] bg-white p-4 shadow-xs">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-medium text-[#7f837e]">Total Shift Terjadwal</p>
-                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#fff6f0] text-[#ea580c]">
-                    <i class="fas fa-calendar-check text-xs" aria-hidden="true"></i>
-                </div>
-            </div>
-            <p class="mt-2 text-xl font-bold text-[#111827]">
-                <span x-text="shifts.length"></span> <span class="text-xs font-normal text-[#7f837e]">shift</span>
-            </p>
-            <p class="mt-1 text-[11px] text-[#7f837e] truncate" x-text="shiftViewMode === 'matrix' ? 'Bulan ' + currentMatrixMonthLabel : shiftDateRangeLabel"></p>
-        </div>
-
-        <!-- KPI 2 -->
-        <div class="rounded-xl border border-[#e9ebf0] bg-white p-4 shadow-xs">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-medium text-[#7f837e]">Kru Bertugas Hari Ini</p>
-                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                    <i class="fas fa-user-clock text-xs" aria-hidden="true"></i>
-                </div>
-            </div>
-            <p class="mt-2 text-xl font-bold text-[#111827]">
-                <span x-text="todayOnDutyShifts.length"></span> <span class="text-xs font-normal text-[#7f837e]">kru aktif</span>
-            </p>
-            <p class="mt-1 text-[11px] text-emerald-600 font-medium">Siap operasional hari ini</p>
-        </div>
-
-        <!-- KPI 3 -->
-        <div class="rounded-xl border border-[#e9ebf0] bg-white p-4 shadow-xs">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-medium text-[#7f837e]">Total Rencana Jam Tim</p>
-                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                    <i class="fas fa-clock text-xs" aria-hidden="true"></i>
-                </div>
-            </div>
-            <p class="mt-2 text-xl font-bold text-[#111827]" x-text="teamTotalDurationText">0 jam</p>
-            <p class="mt-1 text-[11px] text-[#7f837e]">Akumulasi jam kerja kru</p>
-        </div>
-
-        <!-- KPI 4 -->
-        <div class="rounded-xl border border-[#e9ebf0] bg-white p-4 shadow-xs">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-medium text-[#7f837e]">Shift Saya Bulan Ini</p>
-                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
-                    <i class="fas fa-id-badge text-xs" aria-hidden="true"></i>
-                </div>
-            </div>
-            <p class="mt-2 text-xl font-bold text-[#111827]">
-                <span x-text="myShifts.length"></span> <span class="text-xs font-normal text-[#7f837e]">shift</span>
-            </p>
-            <p class="mt-1 text-[11px] text-[#7f837e]" x-text="myTotalDurationText ? myTotalDurationText + ' rencana kerja' : 'Tidak ada shift'"></p>
+        <!-- Compact Summary Badges (Replaces Bulky 4 Cards for maximum calendar screen height) -->
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="inline-flex items-center gap-1.5 rounded-lg border border-[#e9ebf0] bg-white px-2.5 py-1 text-[11px] font-medium text-[#53565a] shadow-2xs">
+                <i class="fas fa-user-clock text-emerald-600"></i>
+                <span>Hari ini: <strong class="font-bold text-[#111827]" x-text="todayOnDutyShifts.length"></strong> kru</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 rounded-lg border border-[#e9ebf0] bg-white px-2.5 py-1 text-[11px] font-medium text-[#53565a] shadow-2xs">
+                <i class="fas fa-clock text-blue-600"></i>
+                <span>Total Jam: <strong class="font-bold text-[#111827]" x-text="teamTotalDurationText"></strong></span>
+            </span>
+            <span class="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-[#e9ebf0] bg-white px-2.5 py-1 text-[11px] font-medium text-[#53565a] shadow-2xs">
+                <span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
+                <span class="text-[#7f837e]">Zona: <strong class="text-[#111827]" x-text="shiftTimezone || 'Asia/Jakarta'"></strong></span>
+            </span>
         </div>
     </div>
 
@@ -232,8 +187,19 @@
                         <span>Hapus / Off</span>
                     </button>
                 </div>
-                <div class="text-[11px] text-[#7f837e]">
-                    💡 <em>Klik kotak kalender untuk langsung mengisi atau mengganti shift. Tersimpan instan ke akun staf.</em>
+                <div class="flex items-center gap-2">
+                    <!-- Realtime Auto-save Indicator (Discreet, replaces disruptive toasts) -->
+                    <div x-show="matrixPendingSaves > 0" class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700 border border-amber-200">
+                        <i class="fas fa-circle-notch fa-spin text-[10px]"></i>
+                        <span>Menyimpan...</span>
+                    </div>
+                    <div x-show="matrixPendingSaves === 0" class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
+                        <i class="fas fa-check-circle text-emerald-500"></i>
+                        <span>Tersimpan Otomatis</span>
+                    </div>
+                    <span class="hidden xl:inline text-[11px] text-[#7f837e]">
+                        • Klik kotak kalender untuk ubah shift instan
+                    </span>
                 </div>
             </div>
 
