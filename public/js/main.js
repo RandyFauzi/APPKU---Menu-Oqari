@@ -81,6 +81,13 @@ function renderBestSellers() {
     const shelfContainer = document.getElementById('bestseller-shelf-container');
     if (!shelfContainer) return;
 
+    const discountSettings = window.SHOP_DISCOUNT_SETTINGS || {};
+    if (discountSettings.show_highlight_menu === false) {
+        shelfContainer.classList.add('hidden');
+        shelfContainer.innerHTML = '';
+        return;
+    }
+
     const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : (apiData.menu || []);
     const bestSellers = menuData.filter(item => item.isBestSeller && !item.soldOut);
 
@@ -90,12 +97,14 @@ function renderBestSellers() {
         return;
     }
 
+    const headingTitle = discountSettings.highlight_title || 'Menu Unggulan';
+
     shelfContainer.classList.remove('hidden');
     shelfContainer.innerHTML = `
         <div class="flex items-center justify-between mb-2.5">
             <div class="flex items-center gap-1.5">
                 <span class="text-sm">⭐</span>
-                <h3 class="font-heading font-extrabold text-base text-gray-800 tracking-tight">Menu Unggulan</h3>
+                <h3 class="font-heading font-extrabold text-base text-gray-800 tracking-tight">${escapeHtml(headingTitle)}</h3>
             </div>
             <span class="text-[10px] font-extrabold text-amber-700 bg-amber-100/90 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Pilihan Cafe</span>
         </div>
@@ -182,6 +191,9 @@ function isItemInCategory(item, categoryTarget) {
     }
 
     const targetId = typeof categoryTarget === 'object' ? categoryTarget.id : categoryTarget;
+    if (targetId === 'promo-diskon') {
+        return Boolean(item.has_active_discount || (item.is_discount_active && item.discount_price > 0 && item.discount_price < item.price));
+    }
     let targetName = typeof categoryTarget === 'object' ? categoryTarget.name : null;
 
     if (!targetName && typeof apiData !== 'undefined' && apiData.categories) {
@@ -226,8 +238,24 @@ let scrollTimeout = null;
 function renderCategories() {
     const container = document.getElementById('category-container');
     if (!container) return;
+
+    const discountSettings = window.SHOP_DISCOUNT_SETTINGS || {};
+    const showPromoTab = discountSettings.show_discount_section !== false;
+    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : (apiData.menu || []);
+    const hasDiscountedItems = menuData.some(item => item.has_active_discount || (item.is_discount_active && item.discount_price > 0 && item.discount_price < item.price));
+
+    let displayCategories = [...(apiData.categories || [])];
+    if (showPromoTab && hasDiscountedItems && !displayCategories.some(c => c.id === 'promo-diskon')) {
+        const allIdx = displayCategories.findIndex(c => c.id === 'all');
+        const promoCat = { id: 'promo-diskon', name: 'Promo', icon: 'fa-percentage' };
+        if (allIdx !== -1) {
+            displayCategories.splice(allIdx + 1, 0, promoCat);
+        } else {
+            displayCategories.unshift(promoCat);
+        }
+    }
     
-    container.innerHTML = apiData.categories.map(cat => {
+    container.innerHTML = displayCategories.map(cat => {
         const isActive = String(activeCategory).toLowerCase() === String(cat.id).toLowerCase();
         const bgClass = isActive 
             ? 'bg-primary text-white shadow-md shadow-primary/25 border-primary scale-[1.03]' 
@@ -454,8 +482,13 @@ function renderMenu() {
 function formatItemPriceHtml(item, textSize = 'text-sm') {
     const isPromo = item.has_active_discount || (Boolean(item.is_discount_active) && item.discount_price > 0 && item.discount_price < item.price);
     const effPrice = isPromo ? Number(item.effective_price || item.discount_price) : Number(item.price);
+    const discountSettings = window.SHOP_DISCOUNT_SETTINGS || {};
+    const showBadge = discountSettings.show_discount_badge !== false;
 
     if (isPromo) {
+        if (!showBadge) {
+            return `<span class="font-bold text-primary ${textSize}">${formatRp(effPrice)}</span>`;
+        }
         const pct = item.discount_percentage || Math.round(((item.price - effPrice) / item.price) * 100);
         return `
             <div class="flex items-baseline gap-1.5 flex-wrap">

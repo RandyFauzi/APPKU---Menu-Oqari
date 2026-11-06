@@ -1396,6 +1396,10 @@
                     discount_settings: Object.assign({
                         is_enabled: true,
                         allow_custom: true,
+                        show_highlight_menu: true,
+                        show_discount_section: true,
+                        show_discount_badge: true,
+                        highlight_title: 'Menu Rekomendasi Pilihan',
                         presets: [
                             { id: 'p1', name: '5%', type: 'percentage', value: 5 },
                             { id: 'p2', name: '10%', type: 'percentage', value: 10 },
@@ -1661,6 +1665,7 @@
                 getCategoryIcon(catName) {
                     if (!catName) return 'fa-utensils';
                     const name = catName.toLowerCase();
+                    if (name.includes('promo') || name.includes('diskon')) return 'fa-percent';
                     if (name.includes('kopi') || name.includes('coffee') || name.includes('espresso')) return 'fa-coffee';
                     if (name.includes('teh') || name.includes('tea') || name.includes('leaf') || name.includes('matcha')) return 'fa-leaf';
                     if (name.includes('makan') || name.includes('food') || name.includes('rice') || name.includes('nasi') || name.includes('mie') || name.includes('ayam') || name.includes('sate')) return 'fa-utensils';
@@ -1701,13 +1706,19 @@
                     ];
                 },
                 get previewCategories() {
-                    if (this.categories && this.categories.length > 0) {
-                        return this.categories.slice(0, 3);
+                    let list = [];
+                    if (this.settings?.discount_settings?.show_discount_section ?? true) {
+                        list.push({ id: 'cat-promo', name: 'Promo', icon: 'fa-percent' });
                     }
-                    return [
-                        { id: 'mock-cat-1', name: 'Coffee' },
-                        { id: 'mock-cat-2', name: 'Foods' }
-                    ];
+                    if (this.categories && this.categories.length > 0) {
+                        list = list.concat(this.categories.slice(0, list.length > 0 ? 2 : 3));
+                    } else {
+                        list = list.concat([
+                            { id: 'mock-cat-1', name: 'Coffee' },
+                            { id: 'mock-cat-2', name: 'Foods' }
+                        ]);
+                    }
+                    return list;
                 },
                 get filteredOrders() {
                     let filtered = this.orders;

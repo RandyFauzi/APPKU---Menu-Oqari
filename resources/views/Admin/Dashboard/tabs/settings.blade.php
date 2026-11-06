@@ -698,91 +698,102 @@
                     </div>
                 </div>
 
-                <!-- Section 6: Pengaturan Diskon Kasir & Shortcut Dinamis -->
+                <!-- Section 6: Pengaturan Highlight Menu & Promosi Pelanggan -->
                 <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
                     <div class="p-6 border-b border-line bg-ivory/50 flex items-center justify-between">
                         <div>
-                            <h3 class="font-bold text-lg text-ink">Pengaturan Diskon Kasir (POS)</h3>
-                            <p class="text-xs text-muted">Aktifkan fitur diskon, atur shortcut cepat untuk kasir, dan izinkan input manual.</p>
+                            <h3 class="font-bold text-lg text-ink">Tampilan Highlight Menu & Promosi Pelanggan</h3>
+                            <p class="text-xs text-muted">Atur kemunculan section Menu Unggulan (Highlight) dan kategori Promo Diskon pada halaman menu pelanggan (QR Menu).</p>
                         </div>
-                        <div class="w-10 h-10 rounded-xl bg-orange-100 text-[#df5826] flex items-center justify-center text-lg">
-                            <i class="fas fa-percent"></i>
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-lg shadow-2xs">
+                            <i class="fas fa-fire-alt"></i>
                         </div>
                     </div>
                     <div class="p-6 flex flex-col gap-6">
                         <!-- Toggles Grid -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Toggle 1: Fitur Diskon Aktif -->
-                            <div class="p-4 rounded-2xl border border-line bg-ivory/30 flex items-center justify-between gap-4">
-                                <div>
-                                    <h4 class="font-bold text-sm text-ink mb-1">Fitur Diskon di Kasir</h4>
-                                    <p class="text-xs text-muted">Tampilkan tombol diskon dan voucher pada menu kasir POS.</p>
+                            <!-- Toggle 1: Highlight Menu Rekomendasi (Rak Unggulan) -->
+                            <div class="p-4 rounded-2xl border border-line bg-ivory/30 flex items-start justify-between gap-4">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5 mb-1">
+                                        <span class="text-sm">⭐</span>
+                                        <h4 class="font-bold text-sm text-ink">Highlight Menu (Rekomendasi Pilihan)</h4>
+                                    </div>
+                                    <p class="text-xs text-muted leading-relaxed">Tampilkan rak menu unggulan / best seller di baris paling atas halaman customer QR menu untuk menarik perhatian pelanggan.</p>
                                 </div>
-                                <div @click="settings.discount_settings.is_enabled = !settings.discount_settings.is_enabled" class="relative inline-flex items-center cursor-pointer group p-1 shrink-0">
-                                    <div class="w-11 h-6 rounded-full transition-colors duration-300 relative shadow-inner" :class="settings.discount_settings.is_enabled ? 'bg-primary' : 'bg-gray-300'">
-                                        <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 absolute top-1 left-1" :class="settings.discount_settings.is_enabled ? 'translate-x-5' : 'translate-x-0'"></div>
+                                <div @click="settings.discount_settings.show_highlight_menu = !(settings.discount_settings.show_highlight_menu ?? true)" class="relative inline-flex items-center cursor-pointer group p-1 shrink-0">
+                                    <div class="w-11 h-6 rounded-full transition-colors duration-300 relative shadow-inner" :class="(settings.discount_settings.show_highlight_menu ?? true) ? 'bg-primary' : 'bg-gray-300'">
+                                        <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 absolute top-1 left-1" :class="(settings.discount_settings.show_highlight_menu ?? true) ? 'translate-x-5' : 'translate-x-0'"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Toggle 2: Diskon Manual Fleksibel -->
-                            <div class="p-4 rounded-2xl border border-line bg-ivory/30 flex items-center justify-between gap-4" :class="!settings.discount_settings.is_enabled ? 'opacity-50 pointer-events-none' : ''">
-                                <div>
-                                    <h4 class="font-bold text-sm text-ink mb-1">Izinkan Diskon Manual Bebas</h4>
-                                    <p class="text-xs text-muted">Kasir dapat menginput angka nominal atau persentase bebas.</p>
+                            <!-- Toggle 2: Tab Kategori Khusus Promo & Diskon -->
+                            <div class="p-4 rounded-2xl border border-line bg-ivory/30 flex items-start justify-between gap-4">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5 mb-1">
+                                        <span class="text-sm">🏷️</span>
+                                        <h4 class="font-bold text-sm text-ink">Kategori Khusus "Promo Diskon"</h4>
+                                    </div>
+                                    <p class="text-xs text-muted leading-relaxed">Otomatis sediakan tab/kategori 'Promo & Diskon' di bar kategori customer yang mengumpulkan semua menu yang sedang ada diskon aktif.</p>
                                 </div>
-                                <div @click="settings.discount_settings.allow_custom = !settings.discount_settings.allow_custom" class="relative inline-flex items-center cursor-pointer group p-1 shrink-0">
-                                    <div class="w-11 h-6 rounded-full transition-colors duration-300 relative shadow-inner" :class="settings.discount_settings.allow_custom ? 'bg-primary' : 'bg-gray-300'">
-                                        <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 absolute top-1 left-1" :class="settings.discount_settings.allow_custom ? 'translate-x-5' : 'translate-x-0'"></div>
+                                <div @click="settings.discount_settings.show_discount_section = !(settings.discount_settings.show_discount_section ?? true)" class="relative inline-flex items-center cursor-pointer group p-1 shrink-0">
+                                    <div class="w-11 h-6 rounded-full transition-colors duration-300 relative shadow-inner" :class="(settings.discount_settings.show_discount_section ?? true) ? 'bg-primary' : 'bg-gray-300'">
+                                        <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 absolute top-1 left-1" :class="(settings.discount_settings.show_discount_section ?? true) ? 'translate-x-5' : 'translate-x-0'"></div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <!-- Toggle 3: Badge Diskon & Coret Harga Normal -->
+                            <div class="p-4 rounded-2xl border border-line bg-ivory/30 flex items-start justify-between gap-4">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5 mb-1">
+                                        <span class="text-sm">💥</span>
+                                        <h4 class="font-bold text-sm text-ink">Badge Diskon & Harga Coret</h4>
+                                    </div>
+                                    <p class="text-xs text-muted leading-relaxed">Tampilkan label persentase diskon (misal: -25%) dan coret harga asli normal di kartu menu customer.</p>
+                                </div>
+                                <div @click="settings.discount_settings.show_discount_badge = !(settings.discount_settings.show_discount_badge ?? true)" class="relative inline-flex items-center cursor-pointer group p-1 shrink-0">
+                                    <div class="w-11 h-6 rounded-full transition-colors duration-300 relative shadow-inner" :class="(settings.discount_settings.show_discount_badge ?? true) ? 'bg-primary' : 'bg-gray-300'">
+                                        <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 absolute top-1 left-1" :class="(settings.discount_settings.show_discount_badge ?? true) ? 'translate-x-5' : 'translate-x-0'"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Setting 4: Judul Section Highlight -->
+                            <div class="p-4 rounded-2xl border border-line bg-ivory/30 flex flex-col justify-between gap-2.5" :class="!(settings.discount_settings.show_highlight_menu ?? true) ? 'opacity-50 pointer-events-none' : ''">
+                                <div>
+                                    <h4 class="font-bold text-sm text-ink mb-1">Judul Rak Menu Unggulan</h4>
+                                    <p class="text-xs text-muted">Nama heading yang tampil di atas rak rekomendasi customer.</p>
+                                </div>
+                                <input type="text" x-model="settings.discount_settings.highlight_title" placeholder="Menu Unggulan (Pilihan Terbaik)"
+                                    class="w-full border border-line rounded-xl px-3.5 py-2 text-xs focus:border-primary focus:outline-none bg-white font-medium">
                             </div>
                         </div>
 
-                        <!-- Shortcut Presets Manager -->
-                        <div :class="!settings.discount_settings.is_enabled ? 'opacity-50 pointer-events-none' : ''">
-                            <div class="flex items-center justify-between mb-3">
+                        <!-- Info Callouts & Quick Navigation -->
+                        <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                                    <i class="fas fa-lightbulb text-sm"></i>
+                                </div>
                                 <div>
-                                    <h4 class="font-bold text-sm text-ink">Shortcut Preset Diskon Cepat (POS)</h4>
-                                    <p class="text-xs text-muted">Tombol shortcut 1-tap yang langsung muncul di layar kasir untuk mempermudah transaksi.</p>
+                                    <h5 class="text-xs font-bold text-amber-950">Di mana mengatur harga diskon & kasir?</h5>
+                                    <p class="text-[11.5px] text-amber-900/80 leading-relaxed mt-0.5">
+                                        • <strong>Diskon Menu (Harga Coret)</strong>: Langsung di <u>Tab Menu</u> &gt; Edit Produk (Aktifkan Harga Diskon).<br>
+                                        • <strong>Shortcut Diskon Kasir (POS)</strong>: Dikelola langsung di <u>Layar Kasir</u> saat transaksi.
+                                    </p>
                                 </div>
                             </div>
-
-                            <!-- Preset list -->
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
-                                <template x-for="(preset, pIdx) in (settings.discount_settings.presets || [])" :key="preset.id || pIdx">
-                                    <div class="p-3 rounded-xl border border-line bg-white shadow-2xs flex items-center justify-between gap-2 group hover:border-primary transition">
-                                        <div class="truncate">
-                                            <span class="font-bold text-xs text-ink block truncate" x-text="preset.name"></span>
-                                            <span class="text-[10px] font-semibold text-primary" x-text="preset.type === 'percentage' ? preset.value + '%' : 'Rp ' + Number(preset.value).toLocaleString('id-ID')"></span>
-                                        </div>
-                                        <button type="button" @click="removeDiscountPreset(pIdx)" class="text-muted hover:text-red-500 p-1 rounded-full opacity-60 group-hover:opacity-100 transition cursor-pointer" title="Hapus shortcut">
-                                            <i class="fas fa-trash-alt text-[10px]"></i>
-                                        </button>
-                                    </div>
-                                </template>
-                            </div>
-
-                            <!-- Add new preset inline form -->
-                            <div class="p-4 rounded-2xl border border-dashed border-line bg-ivory/40 flex flex-col md:flex-row items-center gap-3">
-                                <div class="w-full md:w-1/3">
-                                    <input type="text" x-model="newPreset.name" class="w-full border border-line rounded-xl px-3.5 py-2 text-xs focus:border-primary focus:outline-none bg-white" placeholder="Nama Shortcut (misal: Diskon 25%, VIP)">
-                                </div>
-                                <div class="w-full md:w-1/4">
-                                    <select x-model="newPreset.type" class="w-full border border-line rounded-xl px-3.5 py-2 text-xs focus:border-primary focus:outline-none bg-white">
-                                        <option value="percentage">Persentase (%)</option>
-                                        <option value="fixed">Nominal Tetap (Rp)</option>
-                                    </select>
-                                </div>
-                                <div class="w-full md:w-1/4">
-                                    <input type="number" x-model.number="newPreset.value" min="1" class="w-full border border-line rounded-xl px-3.5 py-2 text-xs focus:border-primary focus:outline-none bg-white" placeholder="Nilai (misal: 25 atau 10000)">
-                                </div>
-                                <div class="w-full md:w-auto shrink-0">
-                                    <button type="button" @click="addDiscountPreset" class="w-full md:w-auto px-4 py-2 bg-ink hover:bg-black text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
-                                        <i class="fas fa-plus text-[10px]"></i>
-                                        <span>Tambah Shortcut</span>
-                                    </button>
-                                </div>
+                            <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+                                <button type="button" @click="navigateToPage('menu')" class="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-900 hover:bg-amber-100 text-[11px] font-bold transition flex items-center justify-center gap-1 shadow-2xs cursor-pointer">
+                                    <i class="fas fa-utensils text-[10px]"></i>
+                                    <span>Buka Menu</span>
+                                </button>
+                                <a href="/admin/pos" class="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-[#df5826] hover:bg-[#c94d00] text-white text-[11px] font-bold transition flex items-center justify-center gap-1 shadow-2xs">
+                                    <i class="fas fa-cash-register text-[10px]"></i>
+                                    <span>Buka Kasir</span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -1050,14 +1061,14 @@
                                             <template x-if="item.is_best_seller">
                                                 <span class="absolute top-1 left-1 bg-amber-500 text-white text-[7px] font-black px-1 rounded shadow-2xs">⭐ Best</span>
                                             </template>
-                                            <template x-if="item.has_active_discount">
+                                            <template x-if="item.has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
                                                 <span class="absolute top-1 right-1 bg-red-600 text-white text-[7px] font-black px-1 rounded shadow-2xs" x-text="'-' + item.discount_percentage + '%'"></span>
                                             </template>
                                         </div>
                                         <h4 class="font-bold text-[10px] text-gray-800 leading-tight truncate" x-text="item.name"></h4>
                                         <div class="flex items-center justify-between mt-1">
                                             <div class="flex flex-col leading-none">
-                                                <template x-if="item.has_active_discount">
+                                                <template x-if="item.has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
                                                     <span class="text-[7.5px] text-gray-400 line-through" x-text="formatRp(item.price)"></span>
                                                 </template>
                                                 <span class="font-black text-[10px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
@@ -1090,10 +1101,10 @@
                                             <p class="text-[8px] text-gray-400 mt-0.5 line-clamp-1" x-text="item.description || 'Menu pilihan terbaik kami.'"></p>
                                             <div class="flex items-center gap-1 mt-0.5">
                                                 <span class="font-black text-[10px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
-                                                <template x-if="item.has_active_discount">
+                                                <template x-if="item.has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
                                                     <span class="text-[7.5px] text-gray-400 line-through" x-text="formatRp(item.price)"></span>
                                                 </template>
-                                                <template x-if="item.has_active_discount">
+                                                <template x-if="item.has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
                                                     <span class="bg-red-500 text-white text-[7px] font-black px-1 rounded" x-text="'-' + item.discount_percentage + '%'"></span>
                                                 </template>
                                             </div>
@@ -1144,7 +1155,7 @@
                                             <template x-if="previewProducts[0].is_best_seller">
                                                 <span class="absolute top-1 left-1 bg-amber-500 text-white text-[7.5px] font-black px-1.5 py-0.2 rounded shadow-2xs">⭐ Best</span>
                                             </template>
-                                            <template x-if="previewProducts[0].has_active_discount">
+                                            <template x-if="previewProducts[0].has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
                                                 <span class="absolute top-1 right-1 bg-red-600 text-white text-[7.5px] font-black px-1 rounded shadow-2xs" x-text="'-' + previewProducts[0].discount_percentage + '%'"></span>
                                             </template>
                                         </div>
@@ -1154,7 +1165,7 @@
                                             <div class="flex items-center justify-between mt-1">
                                                 <div class="flex items-center gap-1">
                                                     <span class="font-black text-[11px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(previewProducts[0].effective_price || previewProducts[0].price)"></span>
-                                                    <template x-if="previewProducts[0].has_active_discount">
+                                                    <template x-if="previewProducts[0].has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
                                                         <span class="text-[8px] text-gray-400 line-through" x-text="formatRp(previewProducts[0].price)"></span>
                                                     </template>
                                                 </div>

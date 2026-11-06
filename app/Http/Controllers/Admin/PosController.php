@@ -344,4 +344,37 @@ class PosController extends Controller
 
         return response()->json($query->get());
     }
+
+    // ──────────────────────────────────────────────
+    //  API — Save POS discount settings / presets
+    // ──────────────────────────────────────────────
+
+    public function saveDiscountSettings(Request $request)
+    {
+        $shop = Auth::user()->shop;
+        if (! $shop) {
+            return response()->json(['success' => false, 'message' => 'Shop not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'is_enabled' => 'nullable|boolean',
+            'allow_custom' => 'nullable|boolean',
+            'presets' => 'nullable|array',
+            'presets.*.id' => 'nullable|string',
+            'presets.*.name' => 'required_with:presets|string|max:50',
+            'presets.*.type' => 'required_with:presets|in:percentage,fixed',
+            'presets.*.value' => 'required_with:presets|numeric|min:0',
+        ]);
+
+        $current = is_array($shop->discount_settings) ? $shop->discount_settings : [];
+        $updated = array_merge($current, $validated);
+
+        $shop->update(['discount_settings' => $updated]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengaturan diskon kasir berhasil disimpan.',
+            'discount_settings' => $shop->discount_settings,
+        ]);
+    }
 }

@@ -1195,27 +1195,67 @@
             
             {{-- TAB 1: SHORTCUT PRESETS --}}
             <div x-show="discountModal.tab === 'preset'" class="space-y-3">
-                <p class="text-[11px] font-bold text-[#53565a] uppercase tracking-wider">Pilih Preset Diskon Cepat</p>
+                <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-bold text-[#53565a] uppercase tracking-wider">Pilih Preset Diskon Cepat</p>
+                    <button type="button" @click="discountModal.isEditingPresets = !discountModal.isEditingPresets"
+                            class="text-[11px] font-bold text-[#df5826] hover:text-[#c44719] flex items-center gap-1 cursor-pointer transition">
+                        <i class="fas" :class="discountModal.isEditingPresets ? 'fa-check' : 'fa-cog'"></i>
+                        <span x-text="discountModal.isEditingPresets ? 'Selesai Edit' : 'Kelola Shortcut'"></span>
+                    </button>
+                </div>
+
                 <div class="grid grid-cols-2 gap-2.5">
-                    <template x-for="p in (discountSettings?.presets || [])" :key="p.id || p.name">
-                        <button type="button" @click="applyPresetDiscount(p)"
-                            class="p-3 rounded-xl border border-[#d8dce2] bg-[#f8f9fa] hover:bg-[#fff6f0] hover:border-[#df5826] text-left transition group shadow-2xs cursor-pointer flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="font-bold text-[13px] text-[#111827] group-hover:text-[#df5826]" x-text="p.name"></span>
-                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200/80 group-hover:bg-[#df5826]/10 text-gray-700 group-hover:text-[#df5826]"
-                                      x-text="p.type === 'percentage' ? p.value + '%' : 'Rp ' + formatRp(p.value)"></span>
-                            </div>
-                            <span class="text-[10.5px] text-[#8b8e93] font-medium"
-                                  x-text="p.type === 'percentage' 
-                                    ? 'Hemat Rp ' + formatRp((subtotal * p.value)/100)
-                                    : 'Hemat Rp ' + formatRp(Math.min(subtotal, p.value))"></span>
-                        </button>
+                    <template x-for="(p, pIdx) in (discountSettings?.presets || [])" :key="p.id || p.name">
+                        <div class="relative group">
+                            <button type="button" @click="discountModal.isEditingPresets ? null : applyPresetDiscount(p)"
+                                :disabled="discountModal.isEditingPresets"
+                                :class="discountModal.isEditingPresets ? 'border-dashed border-amber-300 bg-amber-50/40 cursor-default' : 'border-[#d8dce2] bg-[#f8f9fa] hover:bg-[#fff6f0] hover:border-[#df5826] cursor-pointer'"
+                                class="w-full p-3 rounded-xl border text-left transition shadow-2xs flex flex-col justify-between">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold text-[13px] text-[#111827] group-hover:text-[#df5826]" x-text="p.name"></span>
+                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200/80 group-hover:bg-[#df5826]/10 text-gray-700 group-hover:text-[#df5826]"
+                                          x-text="p.type === 'percentage' ? p.value + '%' : 'Rp ' + formatRp(p.value)"></span>
+                                </div>
+                                <span class="text-[10.5px] text-[#8b8e93] font-medium"
+                                      x-text="p.type === 'percentage' 
+                                        ? 'Hemat Rp ' + formatRp((subtotal * p.value)/100)
+                                        : 'Hemat Rp ' + formatRp(Math.min(subtotal, p.value))"></span>
+                            </button>
+                            <button type="button" x-show="discountModal.isEditingPresets" @click.stop="deletePosDiscountPreset(pIdx)"
+                                class="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center text-[10px] shadow-sm transition cursor-pointer"
+                                title="Hapus shortcut">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                     </template>
                 </div>
+
+                {{-- Inline form to add new shortcut when editing --}}
+                <div x-show="discountModal.isEditingPresets" class="p-3 bg-[#f8f9fa] border border-dashed border-[#df5826]/50 rounded-xl space-y-2 mt-2">
+                    <p class="text-[11px] font-bold text-[#111827] flex items-center gap-1.5">
+                        <i class="fas fa-plus text-[#df5826] text-[10px]"></i>
+                        <span>Tambah Shortcut Baru</span>
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <input type="text" x-model="discountModal.newPresetName" placeholder="Nama (misal: VIP 20%)" class="text-xs px-2.5 py-1.5 border border-[#d8dce2] rounded-lg bg-white">
+                        <select x-model="discountModal.newPresetType" class="text-xs px-2 py-1.5 border border-[#d8dce2] rounded-lg bg-white">
+                            <option value="percentage">Persentase (%)</option>
+                            <option value="fixed">Nominal (Rp)</option>
+                        </select>
+                        <input type="number" x-model.number="discountModal.newPresetValue" placeholder="Nilai (20 / 15000)" class="text-xs px-2.5 py-1.5 border border-[#d8dce2] rounded-lg bg-white">
+                    </div>
+                    <div class="flex justify-end pt-1">
+                        <button type="button" @click="saveNewPosDiscountPreset()" :disabled="discountModal.isSavingPreset || !discountModal.newPresetName || !discountModal.newPresetValue" class="px-3.5 py-1.5 rounded-lg bg-[#df5826] text-white text-[11px] font-bold flex items-center gap-1 hover:bg-[#c44719] transition cursor-pointer disabled:opacity-50">
+                            <i class="fas" :class="discountModal.isSavingPreset ? 'fa-spinner fa-spin' : 'fa-plus'"></i>
+                            <span>Simpan Shortcut</span>
+                        </button>
+                    </div>
+                </div>
+
                 <template x-if="(!discountSettings?.presets || discountSettings?.presets.length === 0)">
                     <div class="p-6 text-center text-[#8b8e93] bg-[#f8f9fa] rounded-xl border border-dashed border-[#d8dce2]">
                         <i class="fas fa-inbox text-2xl mb-2 text-gray-300"></i>
-                        <p class="text-xs">Belum ada shortcut diskon. Atur shortcut di Pengaturan Toko.</p>
+                        <p class="text-xs">Belum ada shortcut diskon. Klik \"Kelola Shortcut\" di atas untuk menambah.</p>
                     </div>
                 </template>
             </div>
@@ -1387,7 +1427,12 @@ function posApp() {
             manualReason: '',
             voucherCode: '',
             voucherLoading: false,
-            voucherError: ''
+            voucherError: '',
+            isEditingPresets: false,
+            newPresetName: '',
+            newPresetType: 'percentage',
+            newPresetValue: '',
+            isSavingPreset: false
         },
 
         incomingCount: 0,
@@ -1768,6 +1813,89 @@ function posApp() {
                 this.discountModal.voucherLoading = false;
             }
         },
+        async saveNewPosDiscountPreset() {
+            const name = (this.discountModal.newPresetName || '').trim();
+            const val = Number(this.discountModal.newPresetValue);
+            const type = this.discountModal.newPresetType || 'percentage';
+            if (!name) {
+                this.notify('Nama shortcut wajib diisi', 'error');
+                return;
+            }
+            if (isNaN(val) || val <= 0) {
+                this.notify('Nilai diskon harus lebih dari 0', 'error');
+                return;
+            }
+            if (type === 'percentage' && val > 100) {
+                this.notify('Persentase maksimal 100%', 'error');
+                return;
+            }
+
+            this.discountModal.isSavingPreset = true;
+            try {
+                const currentPresets = Array.isArray(this.discountSettings?.presets) ? [...this.discountSettings.presets] : [];
+                currentPresets.push({
+                    id: 'pos_p_' + Date.now(),
+                    name: name,
+                    type: type,
+                    value: val
+                });
+
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const res = await fetch('{{ route('admin.pos.discount-settings.save') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token || ''
+                    },
+                    body: JSON.stringify({
+                        presets: currentPresets
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    this.discountSettings.presets = data.discount_settings.presets;
+                    this.discountModal.newPresetName = '';
+                    this.discountModal.newPresetValue = '';
+                    this.notify('Shortcut diskon baru berhasil disimpan!', 'success');
+                } else {
+                    this.notify(data.message || 'Gagal menyimpan shortcut', 'error');
+                }
+            } catch (err) {
+                this.notify('Koneksi gagal saat menyimpan shortcut', 'error');
+            } finally {
+                this.discountModal.isSavingPreset = false;
+            }
+        },
+
+        async deletePosDiscountPreset(index) {
+            if (!confirm('Hapus shortcut diskon ini?')) return;
+            const currentPresets = Array.isArray(this.discountSettings?.presets) ? [...this.discountSettings.presets] : [];
+            currentPresets.splice(index, 1);
+
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                const res = await fetch('{{ route('admin.pos.discount-settings.save') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token || ''
+                    },
+                    body: JSON.stringify({
+                        presets: currentPresets
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    this.discountSettings.presets = data.discount_settings.presets;
+                    this.notify('Shortcut diskon berhasil dihapus!', 'success');
+                }
+            } catch (err) {
+                this.notify('Gagal menghapus shortcut', 'error');
+            }
+        },
+
         removeDiscount() {
             this.discount = {
                 type: null,

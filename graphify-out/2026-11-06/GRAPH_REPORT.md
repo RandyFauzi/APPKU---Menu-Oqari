@@ -1,7 +1,7 @@
 # Graph Report - coffee-saas  (2026-11-06)
 
 ## Corpus Check
-- 430 files · ~194,672 words
+- 430 files · ~194,968 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 24 file(s) not represented in the graph (top: (none) 18, .css 3, .example 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `61abb6f1`
+- Built from commit: `cf6f9dfc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -666,13 +666,13 @@ Nodes (3): ArchiveCafeUser, {closure#1}(), CafeUserPolicy
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `User` connect `User` to `Shop`, `Illuminate\Database\Eloquent\Factories\Factory`, `NewPasswordController.php`, `.log`, `Illuminate\Database\Schema\Blueprint`, `SuperAdminAuditLog`, `TestCase`, `Attendance`, `Controller`, `App\Http\Controllers\Admin\InventoryController`, `CafeUserPolicy`, `CreateOrder.php`, `SaveCafeUserRequest`, `Illuminate\Database\Eloquent\Model`, `App\Http\Controllers\Admin\CashRegisterController`, `InventoryUnitsTest`, `PasswordResetTest.php`, `CalculateHpp`, `CrewShift`, `Illuminate\Foundation\Http\FormRequest`, `CafeUserManagementTest`, `OrderFactory`, `DashboardController.php`, `DatabaseCompatibilityTest`, `App\Providers\AppServiceProvider`, `RawMaterial`, `SchemaCompatibility`, `HppCalculatorTest`, `Illuminate\Database\Seeder`, `RegisterReconciliationTest`, `Illuminate\Database\Eloquent\Builder`, `Convention and Style Best Practices`, `AuditRegressionTest`, `FaviconTest`, `MediaService`, `Attendance`, `Illuminate\Http\RedirectResponse`, `CashRegisterSession`, `ArchiveCafeUserTest`, `Category`, `Illuminate\Validation\ValidationException`, `UpgradeLegacyDatabase.php`, `Illuminate\View\View`, `ThemeRenderingTest`?**
-  _High betweenness centrality (0.294) - this node is a cross-community bridge._
+  _High betweenness centrality (0.287) - this node is a cross-community bridge._
 - **What connects `layouts.sidebar`, `Admin.Layouts.admin-auth-master`, `Admin.Layouts.admin-auth-master` to the rest of the system?**
   _24 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Shop` be split into smaller, more focused modules?**
   _Cohesion score 0.06025641025641026 - nodes in this community are weakly interconnected._
 - **Why does `Follow Project Naming Conventions` connect `Convention and Style Best Practices` to `User`?**
-  _High betweenness centrality (0.183) - this node is a cross-community bridge._
+  _High betweenness centrality (0.167) - this node is a cross-community bridge._
 - **Should `Illuminate\Database\Eloquent\Factories\Factory` be split into smaller, more focused modules?**
   _Cohesion score 0.11688311688311688 - nodes in this community are weakly interconnected._
 - **Should `package.json` be split into smaller, more focused modules?**

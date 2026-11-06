@@ -2,6 +2,7 @@
         window.SHOP_CATEGORIES = @json($categories ?? []);
         window.SHOP_DATA = @json($menuItems ?? []);
         window.SHOP_SLUG = '{{ $shop->slug }}';
+        window.SHOP_DISCOUNT_SETTINGS = @json($shop->discount_settings ?? []);
         window.SHOP_HOME_URL = '{{ route("shop.menu", $shop->slug) }}';
         window.SHOP_CART_URL = '{{ route("shop.cart", $shop->slug) }}';
         window.SHOP_TRACKING_URL = '{{ route("shop.tracking", $shop->slug) }}';

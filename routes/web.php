@@ -84,6 +84,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/admin/pos/orders/{order}/hold', [PosController::class, 'cancelHeldOrder'])->name('admin.pos.orders.hold.cancel');
         Route::get('/admin/pos/products', [PosController::class, 'products'])->name('admin.pos.products');
         Route::post('/admin/pos/vouchers/validate', [VoucherController::class, 'validateCode'])->name('admin.pos.vouchers.validate');
+        Route::post('/admin/pos/discount-settings', [PosController::class, 'saveDiscountSettings'])->name('admin.pos.discount-settings.save');
         // Legacy order status updates
     });
 
