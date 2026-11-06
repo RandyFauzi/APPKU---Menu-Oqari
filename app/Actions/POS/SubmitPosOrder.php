@@ -41,8 +41,8 @@ class SubmitPosOrder
             if (! empty($data['recalled_order_id'])) {
                 $order = Order::where('shop_id', $shop->id)
                     ->whereKey($data['recalled_order_id'])->lockForUpdate()->firstOrFail();
-                if ($order->order_status !== 'HOLD' || $order->payment_status !== 'UNPAID') {
-                    throw ValidationException::withMessages(['recalled_order_id' => 'Pesanan sudah diproses.']);
+                if ($order->payment_status !== 'UNPAID' || in_array($order->order_status, ['COMPLETED', 'CANCELLED'], true)) {
+                    throw ValidationException::withMessages(['recalled_order_id' => 'Pesanan sudah diproses atau lunas.']);
                 }
 
                 $order->items()->delete();

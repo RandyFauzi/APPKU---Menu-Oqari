@@ -1608,10 +1608,12 @@
                 },
                 get filteredOrders() {
                     let filtered = this.orders;
-                    if (this.activeOrderFilter === 'process') {
-                        filtered = filtered.filter(o => (o.status === 'In Progress' || o.order_status === 'PREPARING' || o.status === 'PREPARING') || (o.status === 'Ready' || o.order_status === 'READY' || o.status === 'READY') || (o.status === 'Masuk' || o.order_status === 'CONFIRMED' || o.status === 'CONFIRMED'));
+                    if (this.activeOrderFilter === 'open_bill') {
+                        filtered = filtered.filter(o => o.status === 'HOLD' || o.order_status === 'HOLD' || o.is_open_bill);
+                    } else if (this.activeOrderFilter === 'process') {
+                        filtered = filtered.filter(o => ['In Progress', 'PREPARING', 'Ready', 'READY', 'Masuk', 'CONFIRMED'].includes(o.status || o.order_status) && o.status !== 'HOLD' && o.order_status !== 'HOLD' && !o.is_open_bill);
                     } else if (this.activeOrderFilter === 'completed') {
-                        filtered = filtered.filter(o => (o.status === 'Completed' || o.order_status === 'COMPLETED' || o.status === 'COMPLETED'));
+                        filtered = filtered.filter(o => ['Completed', 'COMPLETED'].includes(o.status || o.order_status));
                     }
                     
                     if (this.searchQuery) {
@@ -2405,6 +2407,9 @@ if (res.ok) {
                             table: o.table ? o.table.name : 'TA',
                             type: o.fulfillment_type === 'DINE_IN' ? 'Dine In' : (o.fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Delivery'),
                             status: o.order_status || o.status,
+                            order_status: o.order_status || o.status,
+                            payment_status: o.payment_status || 'UNPAID',
+                            is_open_bill: (o.order_status === 'HOLD' || o.status === 'HOLD' || (o.payment_status === 'UNPAID' && !['COMPLETED', 'CANCELLED'].includes(o.order_status || o.status))),
                             total: parseFloat(o.grand_total || o.total_price),
                             payment_method: o.payment_method || 'Tunai',
                             total_cogs: parseFloat(o.total_cogs || 0),

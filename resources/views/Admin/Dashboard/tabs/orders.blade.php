@@ -30,13 +30,23 @@
                           x-text="orders.length">0</span>
                 </button>
 
+                <button type="button" @click="activeOrderFilter = 'open_bill'"
+                    :class="activeOrderFilter === 'open_bill' ? 'bg-[#fffbf5] border-amber-400 text-amber-900 font-bold shadow-xs' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
+                    class="border rounded-[9px] px-3.5 py-2 text-[12px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap">
+                    <i class="fas fa-bookmark text-[11px] text-amber-600"></i>
+                    <span>Open Bill</span>
+                    <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
+                          :class="activeOrderFilter === 'open_bill' ? 'bg-amber-500 text-white font-bold' : 'bg-[#e6e5e0] text-[#53565a]'"
+                          x-text="orders.filter(o => o.status === 'HOLD' || o.order_status === 'HOLD' || o.is_open_bill).length">0</span>
+                </button>
+
                 <button type="button" @click="activeOrderFilter = 'process'"
                     :class="activeOrderFilter === 'process' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
                     class="border rounded-[9px] px-3.5 py-2 text-[12px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap">
                     <span>Sedang Diproses</span>
                     <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
                           :class="activeOrderFilter === 'process' ? 'bg-[#df5826] text-white' : 'bg-[#e6e5e0] text-[#53565a]'"
-                          x-text="orders.filter(o => ['Masuk','CONFIRMED','In Progress','PREPARING','Ready','READY'].includes(o.status || o.order_status)).length">0</span>
+                          x-text="orders.filter(o => ['Masuk','CONFIRMED','In Progress','PREPARING','Ready','READY'].includes(o.status || o.order_status) && o.status !== 'HOLD' && o.order_status !== 'HOLD' && !o.is_open_bill).length">0</span>
                 </button>
 
                 <button type="button" @click="activeOrderFilter = 'completed'"
@@ -77,7 +87,8 @@
                 <!-- Left Accent Bar -->
                 <div class="w-[3.5px] absolute left-0 top-0 bottom-0 rounded-l-[16px]"
                      :class="{
-                        'bg-[#df5826]': ['Masuk', 'CONFIRMED', 'In Progress', 'PREPARING'].includes(order.status),
+                        'bg-amber-500': order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill,
+                        'bg-[#df5826]': ['Masuk', 'CONFIRMED', 'In Progress', 'PREPARING'].includes(order.status) && order.status !== 'HOLD' && !order.is_open_bill,
                         'bg-[#289e5c]': ['Ready', 'READY'].includes(order.status),
                         'bg-[#d8dce2]': ['Completed', 'COMPLETED'].includes(order.status),
                         'bg-red-500': order.status === 'Dibatalkan' || order.status === 'CANCELLED'
@@ -88,7 +99,11 @@
                     <div class="flex items-start gap-3 min-w-0">
                         <!-- Table / Type Badge -->
                         <div class="w-[38px] h-[38px] rounded-[10px] border flex items-center justify-center shrink-0 font-bold text-[13px]"
-                             :class="['Completed', 'COMPLETED'].includes(order.status) ? 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a]' : 'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]'"
+                             :class="{
+                                'bg-amber-100 border-amber-300 text-amber-900': order.status === 'HOLD' || order.is_open_bill,
+                                'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a]': ['Completed', 'COMPLETED'].includes(order.status),
+                                'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]': !['Completed', 'COMPLETED'].includes(order.status) && order.status !== 'HOLD' && !order.is_open_bill
+                             }"
                              x-text="order.table && order.table !== '-' ? String(order.table).replace(/^meja\s*/i, '').padStart(2, '0') : 'TA'">
                         </div>
 
@@ -108,7 +123,13 @@
 
                     <!-- Status Pill & Formatted Time -->
                     <div class="flex flex-col items-end gap-1.5 shrink-0">
-                        <span x-show="order.status === 'Masuk' || order.status === 'CONFIRMED'"
+                        <span x-show="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill"
+                              class="px-2.5 py-1 rounded-[6px] bg-[#fffbf5] border border-amber-300 text-amber-900 text-[10.5px] font-bold inline-flex items-center gap-1 shadow-2xs">
+                            <i class="fas fa-bookmark text-amber-600 text-[10px]"></i>
+                            <span>Open Bill</span>
+                        </span>
+
+                        <span x-show="(order.status === 'Masuk' || order.status === 'CONFIRMED') && order.status !== 'HOLD' && !order.is_open_bill"
                               class="px-2.5 py-1 rounded-[6px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] text-[10.5px] font-semibold inline-flex items-center gap-1">
                             <span class="w-1.5 h-1.5 rounded-full bg-[#df5826] animate-ping"></span>
                             <span>Pesanan Baru</span>
@@ -159,7 +180,7 @@
                                     </div>
                                     <p x-show="item.notes" class="text-[10.5px] text-[#df5826] bg-[#fff6f0] border border-[#f5d5c6] rounded px-1.5 py-0.5 mt-1 inline-block not-italic" x-text="'Catatan: ' + item.notes"></p>
                                 </div>
-                                <span class="font-semibold text-[#111827] shrink-0 whitespace-nowrap" x-text="'Rp' + formatRp((item.price || 0) * (item.qty || 1))"></span>
+                                <span class="font-semibold text-[#111827] shrink-0 whitespace-nowrap" x-text="formatRp((item.price || 0) * (item.qty || 1))"></span>
                             </div>
                         </template>
                     </div>
@@ -172,56 +193,116 @@
                             <img src="{{ asset('images/sparta/bill-check.svg') }}" alt="" class="w-4 h-4">
                             <span>Total Pembayaran</span>
                         </div>
-                        <span class="text-[16px] font-bold text-[#111827] tracking-[-0.16px]" x-text="'Rp' + formatRp(order.total)"></span>
+                        <span class="text-[16px] font-bold text-[#111827] tracking-[-0.16px]" x-text="formatRp(order.total)"></span>
                     </div>
 
                     <!-- Progress Bar -->
                     <div class="w-full h-[5px] bg-[#e6e5e0] rounded-[3px] overflow-hidden">
                         <div class="h-full rounded-[3px] transition-all duration-300"
-                             :class="['Ready', 'READY', 'Completed', 'COMPLETED'].includes(order.status) ? 'bg-[#289e5c]' : 'bg-[#df5826]'"
-                             :style="'width: ' + (['Completed', 'COMPLETED'].includes(order.status) ? '100%' : (['Ready', 'READY'].includes(order.status) ? '90%' : (['In Progress', 'PREPARING'].includes(order.status) ? '65%' : '35%')))"></div>
+                             :class="{
+                                'bg-amber-500': order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill,
+                                'bg-[#289e5c]': ['Ready', 'READY', 'Completed', 'COMPLETED'].includes(order.status),
+                                'bg-[#df5826]': !['Ready', 'READY', 'Completed', 'COMPLETED'].includes(order.status) && order.status !== 'HOLD' && !order.is_open_bill
+                             }"
+                             :style="'width: ' + ((order.status === 'HOLD' || order.is_open_bill) ? '40%' : (['Completed', 'COMPLETED'].includes(order.status) ? '100%' : (['Ready', 'READY'].includes(order.status) ? '90%' : (['In Progress', 'PREPARING'].includes(order.status) ? '65%' : '35%'))))"></div>
                     </div>
 
-                    <!-- Action Buttons (Same Functions, Sparta Visuals) -->
-                    <div class="grid grid-cols-2 gap-2.5 pt-1">
-                        <button type="button" @click="viewOrderDetails(order)"
-                                class="py-[9px] px-3 rounded-[9px] border border-[#d8dce2] bg-white hover:bg-[#f8f9fa] text-[#1e211f] text-[12px] font-semibold transition flex items-center justify-center">
-                            Lihat Detail
-                        </button>
-
-                        <template x-if="order.status === 'Masuk' || order.status === 'CONFIRMED'">
-                            <button type="button" @click="updateStatus(order.id, 'In Progress')"
-                                    class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition flex items-center justify-center gap-1.5">
-                                <span>Terima &amp; Proses</span>
-                            </button>
+                    <!-- Action Buttons -->
+                    <div class="pt-1">
+                        <!-- 1. OPEN BILL ORDERS (HOLD / UNPAID) -->
+                        <template x-if="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill">
+                            <div class="space-y-2 w-full">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <a :href="'/admin/pos?recall=' + order.id"
+                                       class="py-[9px] px-3 rounded-[9px] bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[12px] font-bold transition flex items-center justify-center gap-1.5 shadow-2xs">
+                                        <i class="fas fa-plus text-[10px] text-amber-700"></i>
+                                        <span>+ Tambah Menu</span>
+                                    </a>
+                                    <a :href="'/admin/pos?recall=' + order.id + '&pay=1'"
+                                       class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-bold shadow-sm hover:opacity-95 transition flex items-center justify-center gap-1.5">
+                                        <i class="fas fa-cash-register text-[11px]"></i>
+                                        <span>Bayar di Kasir</span>
+                                    </a>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" @click="viewOrderDetails(order)"
+                                            class="flex-1 py-[7px] px-2 rounded-[8px] border border-[#d8dce2] bg-white hover:bg-[#f8f9fa] text-[#53565a] text-[11px] font-semibold transition text-center">
+                                        Detail
+                                    </button>
+                                    <button type="button" @click="window.open('/admin/api/orders/' + order.id + '/print?type=kitchen', '_blank')"
+                                            class="py-[7px] px-2.5 rounded-[8px] border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-semibold transition flex items-center gap-1"
+                                            title="Cetak Tiket Dapur / Bar">
+                                        <i class="fas fa-utensils text-[10px]"></i>
+                                        <span>Dapur</span>
+                                    </button>
+                                    <button type="button" @click="window.open('/admin/api/orders/' + order.id + '/print?type=customer', '_blank')"
+                                            class="py-[7px] px-2.5 rounded-[8px] border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 text-[11px] font-semibold transition flex items-center gap-1"
+                                            title="Cetak Bill Sementara">
+                                        <i class="fas fa-receipt text-[10px]"></i>
+                                        <span>Bill</span>
+                                    </button>
+                                </div>
+                            </div>
                         </template>
 
-                        <template x-if="order.status === 'In Progress' || order.status === 'PREPARING'">
-                            <button type="button" @click="updateStatus(order.id, 'Ready')"
-                                    class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition flex items-center justify-center gap-1.5">
-                                <img src="{{ asset('images/sparta/check-white.svg') }}" alt="" class="w-3.5 h-3.5">
-                                <span>Siap Disajikan</span>
-                            </button>
-                        </template>
+                        <!-- 2. STANDARD ORDERS (MASUK / DIPROSES / SELESAI / BATAL) -->
+                        <template x-if="order.status !== 'HOLD' && order.order_status !== 'HOLD' && !order.is_open_bill">
+                            <div class="space-y-1.5 w-full">
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <button type="button" @click="viewOrderDetails(order)"
+                                            class="py-[9px] px-3 rounded-[9px] border border-[#d8dce2] bg-white hover:bg-[#f8f9fa] text-[#1e211f] text-[12px] font-semibold transition flex items-center justify-center">
+                                        Lihat Detail
+                                    </button>
 
-                        <template x-if="order.status === 'Ready' || order.status === 'READY'">
-                            <button type="button" @click="updateStatus(order.id, 'Completed')"
-                                    class="py-[9px] px-3 rounded-[9px] bg-[#289e5c] hover:bg-[#21854c] border border-[#289e5c] text-white text-[12px] font-semibold shadow-sm transition flex items-center justify-center gap-1.5">
-                                <img src="{{ asset('images/sparta/check-white.svg') }}" alt="" class="w-3.5 h-3.5">
-                                <span>Selesaikan</span>
-                            </button>
-                        </template>
+                                    <template x-if="order.status === 'Masuk' || order.status === 'CONFIRMED'">
+                                        <button type="button" @click="updateStatus(order.id, 'In Progress')"
+                                                class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition flex items-center justify-center gap-1.5">
+                                            <span>Terima &amp; Proses</span>
+                                        </button>
+                                    </template>
 
-                        <template x-if="order.status === 'Completed' || order.status === 'COMPLETED'">
-                            <button type="button" disabled
-                                    class="py-[9px] px-3 rounded-[9px] bg-[#f1f0ec] border border-[#e6e5e0] text-[#8b8e93] text-[12px] font-semibold cursor-not-allowed flex items-center justify-center">
-                                Selesai
-                            </button>
-                        </template>
+                                    <template x-if="order.status === 'In Progress' || order.status === 'PREPARING'">
+                                        <button type="button" @click="updateStatus(order.id, 'Ready')"
+                                                class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition flex items-center justify-center gap-1.5">
+                                            <img src="{{ asset('images/sparta/check-white.svg') }}" alt="" class="w-3.5 h-3.5">
+                                            <span>Siap Disajikan</span>
+                                        </button>
+                                    </template>
 
-                        <template x-if="order.status === 'Dibatalkan' || order.status === 'CANCELLED'">
-                            <button type="button" disabled
-                                    class="py-[9px] px-3 rounded-[9px] bg-red-50 border border-red-200 text-red-400 text-[12px] font-semibold cursor-not-allowed flex items-center justify-center">
+                                    <template x-if="order.status === 'Ready' || order.status === 'READY'">
+                                        <button type="button" @click="updateStatus(order.id, 'Completed')"
+                                                class="py-[9px] px-3 rounded-[9px] bg-[#289e5c] hover:bg-[#21854c] border border-[#289e5c] text-white text-[12px] font-semibold shadow-sm transition flex items-center justify-center gap-1.5">
+                                            <img src="{{ asset('images/sparta/check-white.svg') }}" alt="" class="w-3.5 h-3.5">
+                                            <span>Selesaikan</span>
+                                        </button>
+                                    </template>
+
+                                    <template x-if="order.status === 'Completed' || order.status === 'COMPLETED'">
+                                        <button type="button" disabled
+                                                class="py-[9px] px-3 rounded-[9px] bg-[#f1f0ec] border border-[#e6e5e0] text-[#8b8e93] text-[12px] font-semibold cursor-not-allowed flex items-center justify-center">
+                                            Selesai
+                                        </button>
+                                    </template>
+
+                                    <template x-if="order.status === 'Dibatalkan' || order.status === 'CANCELLED'">
+                                        <button type="button" disabled
+                                                class="py-[9px] px-3 rounded-[9px] bg-red-50 border border-red-200 text-red-400 text-[12px] font-semibold cursor-not-allowed flex items-center justify-center">
+                                            Dibatalkan
+                                        </button>
+                                    </template>
+                                </div>
+
+                                <!-- Shortcut to open in POS and add menu items if still active -->
+                                <template x-if="['Masuk', 'CONFIRMED', 'In Progress', 'PREPARING'].includes(order.status || order.order_status)">
+                                    <a :href="'/admin/pos?recall=' + order.id"
+                                       class="w-full py-[6px] px-2.5 rounded-[8px] bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-[11px] font-semibold transition flex items-center justify-center gap-1">
+                                        <i class="fas fa-edit text-[9.5px] text-amber-700"></i>
+                                        <span>Buka di Kasir (+ Tambah Menu / Open Bill)</span>
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
                                 Dibatalkan
                             </button>
                         </template>

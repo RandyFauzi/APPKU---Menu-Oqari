@@ -144,11 +144,12 @@ class PosController extends Controller
         $calcCart = app(CalculateCart::class);
         $cart = $calcCart->execute($shop, $validated['items']);
 
-        // Check if updating an existing Open Bill
+        // Check if updating an existing Open Bill / Unpaid Order
         if (! empty($validated['recalled_order_id'])) {
             $order = Order::where('shop_id', $shop->id)
                 ->whereKey($validated['recalled_order_id'])
-                ->where('order_status', 'HOLD')
+                ->where('payment_status', 'UNPAID')
+                ->whereNotIn('order_status', ['COMPLETED', 'CANCELLED'])
                 ->first();
 
             if ($order) {
@@ -283,9 +284,9 @@ class PosController extends Controller
     {
         $shopId = Auth::user()->shop_id;
 
-        // Tenant check
-        if ($order->shop_id !== $shopId || $order->order_status !== 'HOLD') {
-            return response()->json(['error' => 'Order tidak ditemukan atau tidak bisa di-recall.'], 404);
+        // Tenant check and ensure order is unpaid and active
+        if ($order->shop_id !== $shopId || $order->payment_status === 'PAID' || in_array($order->order_status, ['COMPLETED', 'CANCELLED'], true)) {
+            return response()->json(['error' => 'Pesanan tidak ditemukan, sudah lunas, atau sudah selesai.'], 404);
         }
 
         $order->load(['items.product', 'table']);

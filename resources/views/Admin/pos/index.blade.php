@@ -1003,6 +1003,19 @@ function posApp() {
         init() {
             this.fetchIncoming();
             setInterval(() => this.fetchIncoming(), 5000);
+
+            // Auto-recall order from URL query (?recall=12&pay=1)
+            const urlParams = new URLSearchParams(window.location.search);
+            const recallId = urlParams.get('recall');
+            const autoPay = urlParams.get('pay');
+            if (recallId) {
+                this.$nextTick(() => {
+                    this.recallOrder(parseInt(recallId));
+                    if (autoPay === '1') {
+                        setTimeout(() => this.openPayment(), 500);
+                    }
+                });
+            }
         },
 
         normalizeLiveOrder(o) {

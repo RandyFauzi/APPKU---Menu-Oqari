@@ -216,9 +216,9 @@
     "semantic_hash": "a61188d8e352cd1b10f4f3cbdb1227de"
   },
   "app/Http/Controllers/Admin/PosController.php": {
-    "mtime": 1793946704.9606123,
-    "seen": 1793946988.0818818,
-    "ast_hash": "841972278769f6bbb6dbab70e9717716",
+    "mtime": 1793948010.546558,
+    "seen": 1793948202.0223172,
+    "ast_hash": "1141eff161b1609ee0033ff088622bcf",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/ProductController.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1793944212.6830747,
-    "seen": 1793944730.394323,
-    "ast_hash": "2bfca867c5bdb98b3d98663738035337",
+    "mtime": 1793948055.4293792,
+    "seen": 1793948202.022852,
+    "ast_hash": "4d29970d4b4506e5601dc03886dde956",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
-    "mtime": 1793685012.540111,
-    "seen": 1793687776.2855155,
-    "ast_hash": "709ae044d78eb838c62038033efd7cf8",
+    "mtime": 1793948156.2340994,
+    "seen": 1793948202.022866,
+    "ast_hash": "48dcdd798476851e05d245b761fcdd72",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/qr.blade.php": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
-    "mtime": 1793946901.3011043,
-    "seen": 1793946988.082368,
-    "ast_hash": "7797b454e6ccc8485562760d25abd77d",
+    "mtime": 1793948022.945326,
+    "seen": 1793948202.0229087,
+    "ast_hash": "788f7ce2b83b6a1c2a8d7ae64525d329",
     "semantic_hash": ""
   },
   "resources/views/Admin/reports/index.blade.php": {
@@ -1668,9 +1668,9 @@
     "semantic_hash": "29ec79272e00d3ccc17f8493653cda42"
   },
   "app/Actions/POS/SubmitPosOrder.php": {
-    "mtime": 1793881411.586961,
-    "seen": 1793881542.8541641,
-    "ast_hash": "926c37a089e4d10f209bb1086622ca56",
+    "mtime": 1793947996.7824275,
+    "seen": 1793948202.0221975,
+    "ast_hash": "21047ef643cdc9141450f1fee4d78785",
     "semantic_hash": ""
   },
   "app/Http/Middleware/EnsureShopIsNotSuspended.php": {
