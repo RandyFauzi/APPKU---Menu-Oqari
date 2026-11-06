@@ -110,80 +110,82 @@
     {{-- LEFT COLUMN: Antrean + Menu (Figma 45:12193) --}}
     <div class="flex-1 w-full min-w-0 flex flex-col gap-[16px]">
 
-        {{-- 1. ANTREAN STATUS SECTION (Figma 45:12194) --}}
-        <section class="bg-white border border-[#e6e5e0] rounded-[16px] p-[14px] flex flex-col gap-[10px]">
+        {{-- 1. ANTREAN STATUS SECTION (Figma 45:12194 - Collapsible for Compact Tablet Displays) --}}
+        <section class="bg-white border border-[#e6e5e0] rounded-[14px] p-3 sm:p-3.5 flex flex-col gap-2.5 shadow-2xs">
             <div class="flex items-center justify-between">
-                <div>
-                    <div class="text-[13.5px] font-bold text-[#1e211f] tracking-[-0.135px] leading-[20.25px]">
-                        <span>Antrean </span>
-                        <span class="font-normal text-[#8b8e93]" x-text="'(' + activeOrders.length + ')'">(0)</span>
+                <button type="button" @click="isQueueExpanded = !isQueueExpanded" 
+                        class="flex items-center gap-2 group cursor-pointer text-left focus:outline-none select-none">
+                    <div class="text-[13px] font-bold text-[#1e211f] flex items-center gap-1.5">
+                        <span>Antrean Dapur</span>
+                        <span class="text-[10.5px] font-bold px-1.5 py-0.5 rounded-full"
+                              :class="activeOrders.length > 0 ? 'bg-[#fff6f0] text-[#df5826] border border-[#f5d5c6]' : 'bg-gray-100 text-gray-500'"
+                              x-text="activeOrders.length">0</span>
                     </div>
-                    <p class="text-[11px] text-[#8b8e93] leading-[16.5px]">Status pesanan</p>
-                </div>
-                <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[#df5826] hover:opacity-80 transition">
+                    <i class="fas fa-chevron-down text-[10px] text-gray-400 group-hover:text-[#df5826] transition-transform duration-200"
+                       :class="isQueueExpanded ? 'rotate-180' : ''"></i>
+                </button>
+                <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#df5826] hover:opacity-80 transition">
                     <span>Semua Pesanan</span>
                     <img src="{{ asset('images/sparta/arrow-right.svg') }}" alt="" class="w-[12px] h-[12px]">
                 </a>
             </div>
 
-            {{-- Empty State when no active orders --}}
-            <div x-show="activeOrders.length === 0" x-cloak class="bg-[#f6f5f2] border border-dashed border-[#e6e5e0] rounded-[11px] py-5 px-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-[32px] h-[32px] rounded-[8px] bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center text-[#df5826] text-xs font-bold">
-                        0
-                    </div>
-                    <div>
-                        <p class="text-[12px] font-semibold text-[#1e211f]">Belum ada antrean pesanan aktif</p>
-                        <p class="text-[11px] text-[#8b8e93]">Pesanan baru yang dibuat akan otomatis tampil di antrean dapur ini.</p>
+            <div x-show="isQueueExpanded" x-cloak class="space-y-2">
+                {{-- Empty State when no active orders (Compact single-line) --}}
+                <div x-show="activeOrders.length === 0" x-cloak class="bg-[#f8f9fa] border border-dashed border-[#e6e5e0] rounded-[9px] py-2 px-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-5 h-5 rounded-full bg-[#fff6f0] text-[#df5826] flex items-center justify-center text-[9px] font-bold shrink-0">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <p class="text-[11.5px] text-[#53565a]">Belum ada antrean pesanan aktif di dapur.</p>
                     </div>
                 </div>
-            </div>
 
-            {{-- Active Queue Cards (Up to 3 cards horizontally, matching Figma 45:12206) --}}
-            <div x-show="activeOrders.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-[12px]">
-                <template x-for="(order, oIdx) in activeOrders.slice(0, 3)" :key="order.id">
-                    <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[11px] pt-[12px] pb-[12px] pr-[12px] pl-[15px] relative overflow-hidden flex flex-col gap-[10px]">
-                        <div class="w-[3px] bg-[#df5826] rounded-l-[11px] absolute left-0 top-0 bottom-0"></div>
+                {{-- Active Queue Cards (Up to 3 cards horizontally, matching Figma 45:12206) --}}
+                <div x-show="activeOrders.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                    <template x-for="(order, oIdx) in activeOrders.slice(0, 3)" :key="order.id">
+                        <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[10px] p-2.5 pl-3.5 relative overflow-hidden flex flex-col gap-2">
+                            <div class="w-[3px] bg-[#df5826] rounded-l-[10px] absolute left-0 top-0 bottom-0"></div>
 
-                        {{-- Top row: badge + table/title + status pill --}}
-                        <div class="flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-[9px] min-w-0">
-                                <div class="w-[28px] h-[28px] rounded-[7px] bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center shrink-0">
-                                    <span class="text-[11px] font-bold text-[#df5826]" x-text="getOrderBadge(order, oIdx)"></span>
-                                </div>
-                                <div class="min-w-0">
-                                    <p class="text-[12.5px] font-bold text-[#1e211f] leading-[15px] truncate" x-text="formatOrderTitle(order)"></p>
-                                    <div class="flex items-center gap-[4px] text-[11px] text-[#8b8e93] leading-[16.5px] mt-[2px]">
-                                        <img src="{{ asset('images/sparta/bill-check.svg') }}" alt="" class="w-[14px] h-[14px] shrink-0">
-                                        <span class="truncate" x-text="getOrderItemCount(order) + ' item'"></span>
-                                        <span>•</span>
-                                        <span class="truncate" x-text="'Rp' + formatRp(order.total)"></span>
+                            {{-- Top row: badge + table/title + status pill --}}
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <div class="w-[26px] h-[26px] rounded-[6px] bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center shrink-0">
+                                        <span class="text-[10.5px] font-bold text-[#df5826]" x-text="getOrderBadge(order, oIdx)"></span>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-[12px] font-bold text-[#1e211f] leading-tight truncate" x-text="formatOrderTitle(order)"></p>
+                                        <div class="flex items-center gap-1 text-[10.5px] text-[#8b8e93] leading-tight mt-0.5">
+                                            <span class="truncate" x-text="getOrderItemCount(order) + ' item'"></span>
+                                            <span>•</span>
+                                            <span class="truncate" x-text="'Rp' + formatRp(order.total)"></span>
+                                        </div>
                                     </div>
                                 </div>
+                                <span class="bg-[#fff6f0] px-1.5 py-0.5 rounded-[4px] text-[9.5px] font-semibold text-[#df5826] shrink-0" x-text="getOrderStatusLabel(order)"></span>
                             </div>
-                            <span class="bg-[#fff6f0] px-[6px] py-[2px] rounded-[4px] text-[10px] font-semibold text-[#df5826] shrink-0" x-text="getOrderStatusLabel(order)"></span>
-                        </div>
 
-                        {{-- Items summary row --}}
-                        <div class="text-[11px] font-medium text-[#1e211f] leading-[16.5px] truncate">
-                            <span x-text="formatOrderItemsPreview(order)"></span>
-                            <template x-if="(order.items || []).length > 2">
-                                <span class="text-[#df5826] font-medium" x-text="' +' + (order.items.length - 2) + ' item'"></span>
-                            </template>
-                        </div>
+                            {{-- Items summary row --}}
+                            <div class="text-[10.5px] font-medium text-[#1e211f] leading-snug truncate">
+                                <span x-text="formatOrderItemsPreview(order)"></span>
+                                <template x-if="(order.items || []).length > 2">
+                                    <span class="text-[#df5826] font-medium" x-text="' +' + (order.items.length - 2) + ' item'"></span>
+                                </template>
+                            </div>
 
-                        {{-- Progress bar & timestamp --}}
-                        <div class="flex items-center gap-[8px]">
-                            <div class="flex-1 h-[5px] bg-[#e6e5e0] rounded-[3px] overflow-hidden">
-                                <div class="h-full bg-[#df5826] rounded-[3px] transition-all duration-300" :style="'width: ' + getOrderProgress(order) + '%'"></div>
-                            </div>
-                            <div class="flex items-center gap-[3px] text-[10.5px] font-medium text-[#53565a] shrink-0">
-                                <img src="{{ asset('images/sparta/clock.svg') }}" alt="" class="w-[11px] h-[11px]">
-                                <span x-text="order.time || '--:--'"></span>
+                            {{-- Progress bar & timestamp --}}
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 h-[4px] bg-[#e6e5e0] rounded-[2px] overflow-hidden">
+                                    <div class="h-full bg-[#df5826] rounded-[2px] transition-all duration-300" :style="'width: ' + getOrderProgress(order) + '%'"></div>
+                                </div>
+                                <div class="flex items-center gap-1 text-[10px] font-medium text-[#53565a] shrink-0">
+                                    <img src="{{ asset('images/sparta/clock.svg') }}" alt="" class="w-[10px] h-[10px]">
+                                    <span x-text="order.time || '--:--'"></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </template>
+                    </template>
+                </div>
             </div>
         </section>
 
@@ -268,19 +270,19 @@
                     <button type="button"
                         x-show="matchesFilter({{ $product->category_id ?? 'null' }}, '{{ addslashes($product->name) }}', {{ (int) ($product->sold_count ?? 0) }}, {{ $product->is_best_seller ? 'true' : 'false' }})"
                         @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }})"
-                        class="product-card bg-white border border-[#d8dce2] hover:border-[#df5826] rounded-[12px] pb-[8px] flex flex-col justify-between text-left shadow-[0px_4px_12px_0px_rgba(17,24,39,0.03)] focus:outline-none">
+                        class="product-card group bg-white border border-[#d8dce2] hover:border-[#df5826] rounded-[12px] pb-[8px] flex flex-col justify-between text-left shadow-[0px_4px_12px_0px_rgba(17,24,39,0.03)] focus:outline-none cursor-pointer">
                         {{-- Product Image --}}
-                        <div class="bg-[#ede7dc] h-[156px] w-full rounded-[11px] overflow-hidden relative">
+                        <div class="bg-[#ede7dc] h-[120px] sm:h-[128px] xl:h-[135px] w-full rounded-[11px] overflow-hidden relative">
                             @if($product->is_best_seller)
                                 <span class="absolute top-2 left-2 z-10 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
                                     <i class="fas fa-crown text-[8px]"></i> Best
                                 </span>
                             @endif
                             @if($product->image_url)
-                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
                             @else
                                 <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#f3efe6] to-[#e6dfd1] text-[#8b8e93]">
-                                    <i class="fas fa-mug-hot text-3xl text-[#df5826]/60 mb-1"></i>
+                                    <i class="fas fa-mug-hot text-2xl text-[#df5826]/60 mb-1"></i>
                                     <span class="text-[10px] font-semibold uppercase tracking-wider text-[#8b8e93]">{{ $product->category_name ?? 'Menu' }}</span>
                                 </div>
                             @endif
@@ -437,14 +439,19 @@
                            type="text" 
                            x-model="customerName" 
                            placeholder="Pelanggan (Walk-in)"
-                           class="w-full bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] pl-7 pr-2 py-1.5 text-[11.5px] font-semibold text-[#111827] placeholder-[#8b8e93] outline-none transition">
+                           class="w-full bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white focus:ring-2 focus:ring-[#df5826]/15 rounded-[8px] pl-7 pr-6 py-1.5 text-[11.5px] font-semibold text-[#111827] placeholder-[#8b8e93] outline-none transition">
+                    <button type="button" x-show="customerName" x-cloak @click="customerName = ''"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer"
+                            title="Reset nama pelanggan">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
                 </div>
 
                 <div class="relative w-[125px] shrink-0" x-show="fulfillmentType === 'DINE_IN'">
                     <i class="fas fa-chair absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i>
                     <select id="pos-table-select" 
                             x-model="selectedTable"
-                            class="w-full appearance-none bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] pl-7 pr-6 py-1.5 text-[11.5px] font-semibold text-[#111827] outline-none transition truncate cursor-pointer">
+                            class="w-full appearance-none bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white focus:ring-2 focus:ring-[#df5826]/15 rounded-[8px] pl-7 pr-6 py-1.5 text-[11.5px] font-semibold text-[#111827] outline-none transition truncate cursor-pointer">
                         <option value="">Pilih Meja</option>
                         @foreach($tables as $table)
                             <option value="{{ $table->name }}">{{ $table->name }}</option>
@@ -549,12 +556,14 @@
 
                         <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[2px] px-1 flex items-center gap-1 shadow-2xs">
                             <button type="button" @click="changeQty(idx, -1)"
-                                class="w-[24px] h-[24px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
+                                class="w-[26px] h-[26px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer"
+                                aria-label="Kurangi jumlah">
                                 <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[12px] h-[12px]">
                             </button>
-                            <span class="w-[18px] text-center text-[12px] font-bold text-[#111827] leading-tight" x-text="item.qty"></span>
+                            <span class="w-[18px] text-center text-[12px] font-bold text-[#111827] leading-tight select-none" x-text="item.qty"></span>
                             <button type="button" @click="changeQty(idx, 1)"
-                                class="w-[24px] h-[24px] rounded-full bg-[#111827] hover:bg-[#df5826] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
+                                class="w-[26px] h-[26px] rounded-full bg-[#111827] hover:bg-[#df5826] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer"
+                                aria-label="Tambah jumlah">
                                 <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[12px] h-[12px]">
                             </button>
                         </div>
@@ -775,12 +784,12 @@
                 </div>
                 <div class="flex gap-1.5 mt-2 flex-wrap">
                     <button type="button" @click="paymentModal.amountPaid = subtotal"
-                        class="text-[11px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] px-2.5 py-1 rounded-[7px] font-semibold transition">
+                        class="text-[11px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] hover:bg-[#ffece0] px-2.5 py-1 rounded-[7px] font-bold transition cursor-pointer">
                         Uang Pas
                     </button>
-                    <template x-for="quick in quickCash" :key="quick">
+                    <template x-for="quick in smartQuickCash" :key="quick">
                     <button type="button" @click="paymentModal.amountPaid = quick"
-                        class="text-[11px] bg-[#f8f9fa] hover:bg-[#fff6f0] border border-[#d8dce2] hover:border-[#df5826] text-[#53565a] px-2.5 py-1 rounded-[7px] font-semibold transition"
+                        class="text-[11px] bg-[#f8f9fa] hover:bg-[#fff6f0] border border-[#d8dce2] hover:border-[#df5826] text-[#53565a] hover:text-[#df5826] px-2.5 py-1 rounded-[7px] font-semibold transition cursor-pointer"
                         x-text="'Rp' + formatRp(quick)"></button>
                     </template>
                 </div>
@@ -892,6 +901,7 @@ function posApp() {
         showMobileCart: false,
         isCartMinimized: false,
         showPriceBreakdown: false,
+        isQueueExpanded: true,
         activeCategory: null,
         search: '',
         fulfillmentType: 'DINE_IN',
@@ -902,6 +912,7 @@ function posApp() {
         recalledOrderId: null,
         paymentPending: false,
         checkoutRequestId: null,
+        toast: { show: false, message: '', type: 'success', timeout: null },
 
         // Modals
         modifierModal: {
@@ -1037,6 +1048,24 @@ function posApp() {
             if (this.modifierModal.selectedVariant) base += Number(this.modifierModal.selectedVariant.price_adjustment || 0);
             this.modifierModal.selectedModifiers.forEach(m => base += Number(m.price_adjustment || 0));
             return base;
+        },
+        get smartQuickCash() {
+            const tot = Number(this.subtotal) || 0;
+            if (tot <= 0) return [10000, 20000, 50000, 100000];
+            const options = new Set();
+            const stepCeils = [
+                Math.ceil(tot / 10000) * 10000,
+                Math.ceil(tot / 20000) * 20000,
+                Math.ceil(tot / 50000) * 50000,
+                Math.ceil(tot / 100000) * 100000,
+            ];
+            stepCeils.forEach(val => {
+                if (val > tot) options.add(val);
+            });
+            [50000, 100000, 150000, 200000, 300000, 500000].forEach(val => {
+                if (val > tot && options.size < 5) options.add(val);
+            });
+            return Array.from(options).sort((a, b) => a - b).slice(0, 4);
         },
 
         // ── Filters ───────────────────────────
@@ -1244,6 +1273,11 @@ function posApp() {
         // ── Keyboard Shortcuts ────────────────
         handleKey(e) {
             if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+            if (this.successScreen.show && (e.key === 'Enter' || e.key === 'Escape' || e.key === ' ')) {
+                e.preventDefault();
+                this.newOrder();
+                return;
+            }
             if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
                 e.preventDefault();
                 this.$refs.searchInput?.focus();
@@ -1317,12 +1351,45 @@ function posApp() {
         },
 
         formatRp(n) { return Number(n ?? 0).toLocaleString('id-ID'); },
-        notify(msg, type) {
-            alert((type === 'error' ? '❌ ' : '✅ ') + msg);
+        notify(msg, type = 'success') {
+            if (this.toast.timeout) clearTimeout(this.toast.timeout);
+            this.toast.message = msg;
+            this.toast.type = type;
+            this.toast.show = true;
+            this.toast.timeout = setTimeout(() => {
+                this.toast.show = false;
+            }, 3500);
         },
     };
 }
 </script>
+
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- MODERN FLOATING TOAST NOTIFICATION                          --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<div x-show="toast.show" x-cloak
+     x-transition:enter="transition ease-out duration-250"
+     x-transition:enter-start="opacity-0 -translate-y-3 scale-95"
+     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+     x-transition:leave-end="opacity-0 -translate-y-3 scale-95"
+     class="fixed top-4 right-4 sm:top-5 sm:right-6 z-[9999] max-w-sm w-full pointer-events-auto">
+    <div :class="toast.type === 'error' ? 'bg-[#fff5f5] border-red-200 text-red-900 shadow-[0_10px_30px_rgba(239,68,68,0.15)]' : 'bg-[#f0fdf4] border-emerald-200 text-emerald-900 shadow-[0_10px_30px_rgba(16,185,129,0.15)]'"
+         class="border rounded-[14px] p-3 sm:p-3.5 shadow-xl flex items-start gap-3 backdrop-blur-md">
+        <div :class="toast.type === 'error' ? 'bg-red-500 text-white' : 'bg-emerald-500 text-white'"
+             class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs shadow-xs">
+            <i :class="toast.type === 'error' ? 'fas fa-exclamation' : 'fas fa-check'"></i>
+        </div>
+        <div class="flex-1 min-w-0 pt-0.5">
+            <p class="text-[12.5px] font-bold leading-tight" x-text="toast.type === 'error' ? 'Pemberitahuan' : 'Sukses'"></p>
+            <p class="text-[11.5px] text-gray-700 mt-0.5 leading-snug break-words" x-text="toast.message"></p>
+        </div>
+        <button type="button" @click="toast.show = false" class="text-gray-400 hover:text-gray-600 text-xs p-1 cursor-pointer">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
 
 <x-order-notification />
 <script>
