@@ -100,9 +100,10 @@ class CashRegisterController extends Controller
                 $history->where('difference', $operator, 0);
             }
         }
+        $shop = $user->shop;
         $sessions = $history->latest('id')->paginate(20)->withQueryString();
 
-        return view('Admin.Register.index', compact('activeSession', 'breakdown', 'sessions', 'filters'));
+        return view('Admin.Register.index', compact('activeSession', 'breakdown', 'sessions', 'filters', 'shop'));
     }
 
     public function closeShift(CloseRegisterRequest $request, CloseRegister $closeRegister): JsonResponse|RedirectResponse
