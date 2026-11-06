@@ -380,114 +380,124 @@
             <button type="button" @click="showMobileCart = false" class="text-[12px] font-semibold text-[#df5826] hover:underline px-2 py-1">Tutup</button>
         </div>
 
-        {{-- Order Header + Mode Tabs + Customer/Table Inputs (Figma 45:12497) --}}
-        <div class="p-3.5 sm:p-[16px] border-b border-[#e6e5e0] flex flex-col gap-2.5 sm:gap-[12px] shrink-0 bg-white">
-            <div class="flex items-start justify-between gap-2">
-                <div class="flex items-center gap-2">
+        {{-- Order Header + Mode Tabs + Customer/Table Inputs (Ultra-Compact for Tablet & Medium Displays) --}}
+        <div class="p-2.5 sm:p-3 border-b border-[#e6e5e0] flex flex-col gap-2 shrink-0 bg-white">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
                     <button type="button" @click="isCartMinimized = true"
-                        class="hidden lg:flex w-7 h-7 rounded-[8px] border border-[#d8dce2] bg-[#f8f9fa] hover:bg-gray-100 hover:border-gray-400 items-center justify-center text-[#53565a] hover:text-[#111827] transition shrink-0 cursor-pointer"
+                        class="hidden lg:flex w-7 h-7 rounded-[7px] border border-[#d8dce2] bg-[#f8f9fa] hover:bg-gray-100 hover:border-gray-400 items-center justify-center text-[#53565a] hover:text-[#111827] transition shrink-0 cursor-pointer"
                         title="Minimalkan panel pesanan">
                         <i class="fas fa-chevron-right text-xs"></i>
                     </button>
-                    <div>
-                        <p class="text-[11px] font-medium text-[#f04c17] uppercase tracking-[0.22px] leading-[16.5px]">CURRENT ORDER</p>
-                        <h2 class="text-[14px] font-bold text-[#111827] leading-[21px]">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <span class="text-[9.5px] font-bold text-[#f04c17] uppercase tracking-wider bg-[#fff6f0] px-1.5 py-0.5 rounded border border-[#f5d5c6]">ORDER</span>
+                        <h2 class="text-[13px] font-bold text-[#111827] truncate">
                             <span>Pesanan Baru</span>
                             <span x-show="recalledOrderId" x-cloak class="text-[#df5826]">#<span x-text="recalledOrderId"></span></span>
                         </h2>
                     </div>
                 </div>
-                <div class="flex items-center gap-2" x-show="cart.length > 0" x-cloak>
-                    <button type="button" @click="holdCart()" class="px-2.5 py-1 rounded-[7px] border border-[#d8dce2] bg-[#f8f9fa] hover:border-[#df5826] text-[11px] font-semibold text-[#53565a] transition">
+                <div class="flex items-center gap-1.5 shrink-0" x-show="cart.length > 0" x-cloak>
+                    <button type="button" @click="holdCart()" class="px-2 py-0.5 rounded-[6px] border border-[#d8dce2] bg-[#f8f9fa] hover:border-[#df5826] text-[10.5px] font-semibold text-[#53565a] transition cursor-pointer">
                         Hold
                     </button>
-                    <button type="button" @click="clearCart()" class="px-2.5 py-1 rounded-[7px] border border-[#f5d5c6] bg-[#fff6f0] text-[11px] font-semibold text-[#df5826] hover:opacity-80 transition">
+                    <button type="button" @click="clearCart()" class="px-2 py-0.5 rounded-[6px] border border-[#f5d5c6] bg-[#fff6f0] text-[10.5px] font-semibold text-[#df5826] hover:opacity-80 transition cursor-pointer">
                         Reset
                     </button>
                 </div>
             </div>
 
-            {{-- Fulfillment Type Segmented Control (Figma 45:12511) --}}
-            <div class="bg-[#f8f9fa] p-[4px] rounded-[11px] grid grid-cols-3 gap-[4px]">
+            {{-- Compact Fulfillment Segmented Control --}}
+            <div class="bg-[#f8f9fa] p-[2px] rounded-[9px] border border-[#e6e5e0] grid grid-cols-3 gap-[2px]">
                 <button type="button" @click="fulfillmentType = 'DINE_IN'; paymentModal.fulfillment = 'DINE_IN'"
-                    :class="fulfillmentType === 'DINE_IN' ? 'bg-white border border-[#d8dce2] text-[#111827] font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.03)]' : 'text-[#53565a] font-medium hover:text-[#111827]'"
-                    class="py-[7px] px-[8px] rounded-[9px] text-[12px] leading-[18px] text-center transition">
-                    Dine-in
+                    :class="fulfillmentType === 'DINE_IN' ? 'bg-white text-[#df5826] font-bold shadow-xs border border-[#e6e5e0]' : 'text-[#53565a] font-medium hover:text-[#111827]'"
+                    class="py-1 px-1.5 rounded-[7px] text-[11px] leading-tight text-center transition flex items-center justify-center gap-1 cursor-pointer">
+                    <i class="fas fa-utensils text-[9px]"></i>
+                    <span>Dine-in</span>
                 </button>
                 <button type="button" @click="fulfillmentType = 'TAKEAWAY'; paymentModal.fulfillment = 'TAKEAWAY'"
-                    :class="fulfillmentType === 'TAKEAWAY' ? 'bg-white border border-[#d8dce2] text-[#111827] font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.03)]' : 'text-[#53565a] font-medium hover:text-[#111827]'"
-                    class="py-[7px] px-[8px] rounded-[9px] text-[12px] leading-[18px] text-center transition">
-                    Takeaway
+                    :class="fulfillmentType === 'TAKEAWAY' ? 'bg-white text-[#df5826] font-bold shadow-xs border border-[#e6e5e0]' : 'text-[#53565a] font-medium hover:text-[#111827]'"
+                    class="py-1 px-1.5 rounded-[7px] text-[11px] leading-tight text-center transition flex items-center justify-center gap-1 cursor-pointer">
+                    <i class="fas fa-shopping-bag text-[9px]"></i>
+                    <span>Takeaway</span>
                 </button>
                 <button type="button" @click="fulfillmentType = 'DELIVERY'; paymentModal.fulfillment = 'DELIVERY'"
-                    :class="fulfillmentType === 'DELIVERY' ? 'bg-white border border-[#d8dce2] text-[#111827] font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.03)]' : 'text-[#53565a] font-medium hover:text-[#111827]'"
-                    class="py-[7px] px-[8px] rounded-[9px] text-[12px] leading-[18px] text-center transition">
-                    Delivery
+                    :class="fulfillmentType === 'DELIVERY' ? 'bg-white text-[#df5826] font-bold shadow-xs border border-[#e6e5e0]' : 'text-[#53565a] font-medium hover:text-[#111827]'"
+                    class="py-1 px-1.5 rounded-[7px] text-[11px] leading-tight text-center transition flex items-center justify-center gap-1 cursor-pointer">
+                    <i class="fas fa-motorcycle text-[9px]"></i>
+                    <span>Delivery</span>
                 </button>
             </div>
 
-            {{-- Customer Name & Table Number (Figma 45:12518) --}}
-            <div class="flex gap-[8px]">
-                <div class="flex-1 flex flex-col gap-[6px] min-w-0">
-                    <label for="pos-customer-name" class="text-[11px] font-medium text-[#53565a] leading-[16.5px]">Customer name</label>
-                    <input id="pos-customer-name" type="text" x-model="customerName" placeholder="Walk-in Customer"
-                        class="w-full bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] px-[11px] py-[9px] text-[12px] font-semibold text-[#111827] placeholder-[#8b8e93] outline-none transition">
+            {{-- Compact Single-Row Customer Name & Table Number --}}
+            <div class="flex items-center gap-1.5">
+                <div class="relative flex-1 min-w-0">
+                    <i class="fas fa-user absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i>
+                    <input id="pos-customer-name" 
+                           type="text" 
+                           x-model="customerName" 
+                           placeholder="Pelanggan (Walk-in)"
+                           class="w-full bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] pl-7 pr-2 py-1.5 text-[11.5px] font-semibold text-[#111827] placeholder-[#8b8e93] outline-none transition">
                 </div>
 
-                <div class="flex-1 flex flex-col gap-[6px] min-w-0" x-show="fulfillmentType === 'DINE_IN'">
-                    <div class="flex items-center justify-between">
-                        <label for="pos-table-select" class="text-[11px] font-medium text-[#53565a] leading-[16.5px]">Table number</label>
-                        <button type="button" @click="tableSetupModal.show = true" class="text-[10px] font-semibold text-[#df5826] hover:underline">+ Meja</button>
-                    </div>
-                    <div class="relative">
-                        <select id="pos-table-select" x-model="selectedTable"
-                            class="w-full appearance-none bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] pl-[11px] pr-[30px] py-[9px] text-[12px] font-semibold text-[#111827] outline-none transition">
-                            <option value="">Pilih Meja</option>
-                            @foreach($tables as $table)
-                                <option value="{{ $table->name }}">{{ $table->name }}</option>
-                            @endforeach
-                        </select>
-                        <img src="{{ asset('images/sparta/pos-arrow-down.svg') }}" alt="" class="w-[14px] h-[14px] absolute right-[10px] top-1/2 -translate-y-1/2 pointer-events-none">
-                    </div>
+                <div class="relative w-[125px] shrink-0" x-show="fulfillmentType === 'DINE_IN'">
+                    <i class="fas fa-chair absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i>
+                    <select id="pos-table-select" 
+                            x-model="selectedTable"
+                            class="w-full appearance-none bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] pl-7 pr-6 py-1.5 text-[11.5px] font-semibold text-[#111827] outline-none transition truncate cursor-pointer">
+                        <option value="">Pilih Meja</option>
+                        @foreach($tables as $table)
+                            <option value="{{ $table->name }}">{{ $table->name }}</option>
+                        @endforeach
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] text-gray-400 pointer-events-none"></i>
                 </div>
+
+                <button type="button" 
+                        x-show="fulfillmentType === 'DINE_IN'"
+                        @click="tableSetupModal.show = true" 
+                        class="text-[10px] font-bold text-[#df5826] hover:bg-[#fff6f0] px-1.5 py-1.5 rounded-[6px] border border-transparent hover:border-[#f5d5c6] transition shrink-0 cursor-pointer" 
+                        title="Tambah Meja Baru">
+                    +Meja
+                </button>
             </div>
         </div>
 
-        {{-- Cart Items List (Figma 45:12532) --}}
-        <div class="p-3.5 sm:p-[16px] flex-1 min-h-0 overflow-y-auto flex flex-col gap-[10px] overscroll-contain pb-10 sm:pb-16">
+        {{-- Cart Items List (Streamlined for Tablet & Medium Displays) --}}
+        <div class="p-2.5 sm:p-3 flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 overscroll-contain pb-3">
             <template x-if="cart.length === 0">
-                <div class="py-12 px-4 text-center flex flex-col items-center justify-center border border-dashed border-[#d8dce2] rounded-[12px] bg-[#f8f9fa]/60">
-                    <div class="w-10 h-10 rounded-full bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center mb-2.5">
-                        <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-4 h-4">
+                <div class="py-10 px-4 text-center flex flex-col items-center justify-center border border-dashed border-[#d8dce2] rounded-[10px] bg-[#f8f9fa]/60">
+                    <div class="w-9 h-9 rounded-full bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center mb-2">
+                        <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-3.5 h-3.5">
                     </div>
-                    <p class="text-[12.5px] font-semibold text-[#111827]">Belum ada item dipilih</p>
-                    <p class="text-[11px] text-[#8b8e93] mt-0.5">Klik menu di sebelah kiri untuk menambahkan ke pesanan.</p>
+                    <p class="text-[12px] font-semibold text-[#111827]">Belum ada item dipilih</p>
+                    <p class="text-[10.5px] text-[#8b8e93] mt-0.5">Pilih menu di samping untuk menambahkan ke pesanan.</p>
                 </div>
             </template>
 
             <template x-for="(item, idx) in cart" :key="idx">
-                <div class="bg-white border border-[#d8dce2] rounded-[12px] p-[12px] flex flex-col gap-[10px]">
+                <div class="bg-white border border-[#d8dce2] rounded-[10px] p-2.5 flex flex-col gap-1.5 shadow-2xs">
                     {{-- Top Item Row: Thumbnail + Name + Red Trash --}}
-                    <div class="flex items-center justify-between gap-[10px]">
-                        <div class="w-[32px] h-[32px] rounded-[8px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="w-[28px] h-[28px] rounded-[6px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center">
                             <template x-if="item.image">
                                 <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
                             </template>
                             <template x-if="!item.image">
-                                <span class="text-[11px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
+                                <span class="text-[10px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
                             </template>
                         </div>
 
                         <div class="flex-1 min-w-0">
-                            <p class="text-[13px] font-semibold text-[#111827] leading-[16.9px] truncate" x-text="item.name"></p>
-                            <p x-show="item.variant" x-cloak class="text-[11px] text-[#53565a] truncate" x-text="item.variant"></p>
+                            <p class="text-[12.5px] font-semibold text-[#111827] leading-tight truncate" x-text="item.name"></p>
+                            <p x-show="item.variant" x-cloak class="text-[10.5px] text-[#53565a] truncate" x-text="item.variant"></p>
                             <p x-show="item.modifiers && item.modifiers.length > 0" x-cloak
-                               class="text-[11px] text-[#53565a] truncate"
+                               class="text-[10.5px] text-[#53565a] truncate"
                                x-text="item.modifiers.map(m => m.name).join(' · ')"></p>
                         </div>
 
-                        <button type="button" @click="removeItem(idx)" class="w-[16px] h-[16px] shrink-0 hover:opacity-75 transition cursor-pointer" title="Hapus item">
-                            <img src="{{ asset('images/sparta/pos-trash-red.svg') }}" alt="Hapus" class="w-[16px] h-[16px]">
+                        <button type="button" @click="removeItem(idx)" class="w-[20px] h-[20px] flex items-center justify-center shrink-0 hover:opacity-75 transition cursor-pointer" title="Hapus item">
+                            <img src="{{ asset('images/sparta/pos-trash-red.svg') }}" alt="Hapus" class="w-[14px] h-[14px]">
                         </button>
                     </div>
 
@@ -495,57 +505,57 @@
                     <button type="button"
                         x-show="!item.showNotes && !item.notes"
                         @click="item.showNotes = true; $nextTick(() => document.getElementById('item-notes-' + idx)?.focus())"
-                        class="flex items-center gap-[4px] text-left w-fit hover:opacity-80 transition cursor-pointer">
-                        <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-[14px] h-[14px]">
-                        <span class="text-[11px] font-semibold text-[#df5826] leading-[14.3px]">Buat Catatan Customer</span>
+                        class="flex items-center gap-1 text-left w-fit hover:opacity-80 transition cursor-pointer py-0.5">
+                        <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-[12px] h-[12px]">
+                        <span class="text-[10.5px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
                     </button>
 
                     {{-- Expanded Customer Note Box (Figma 45:12546) --}}
-                    <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] pt-[12px] pb-[8px] px-[8px] flex flex-col gap-[8px]">
-                        <div class="relative border border-[#d8dce2] rounded-[8px] p-[8px] bg-[#f8f9fa]">
-                            <label :for="'item-notes-' + idx" class="absolute -top-[8px] left-[7px] bg-[#f8f9fa] px-[4px] text-[11px] font-medium text-[#111827] leading-[16.5px]">
+                    <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] pt-2 pb-1.5 px-2 flex flex-col gap-1.5">
+                        <div class="relative border border-[#d8dce2] rounded-[6px] p-1.5 bg-[#f8f9fa]">
+                            <label :for="'item-notes-' + idx" class="text-[10px] font-medium text-[#111827] block mb-0.5">
                                 Catatan customer (Opsional)
                             </label>
                             <textarea :id="'item-notes-' + idx" x-model="item.notes" maxlength="255" rows="2" :disabled="paymentPending"
                                 :aria-describedby="'item-notes-help-' + idx" placeholder="Contoh: tanpa gula, es sedikit"
-                                class="w-full bg-transparent border-none outline-none text-[11px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 pt-1 focus:ring-0"></textarea>
+                                class="w-full bg-transparent border-none outline-none text-[10.5px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
                             <span :id="'item-notes-help-' + idx" class="sr-only">Berlaku untuk semua jumlah pada baris ini.</span>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-[10px]">
+                        <div class="grid grid-cols-2 gap-1.5">
                             <button type="button" @click="item.notes = ''; item.showNotes = false" :disabled="paymentPending"
-                                class="border border-[#d8dce2] rounded-[9px] py-[6px] px-[8px] flex items-center justify-center gap-[4px] bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-trash-dark.svg') }}" alt="" class="w-[14px] h-[14px] shrink-0">
-                                <span class="text-[11px] font-semibold text-[#111827] leading-[16.5px] truncate">Hapus Catatan</span>
+                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-trash-dark.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
+                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Hapus</span>
                             </button>
                             <button type="button" @click="splitItem(idx)" :disabled="paymentPending || item.qty <= 1 || cart.length >= 50"
-                                class="border border-[#d8dce2] rounded-[9px] py-[6px] px-[8px] flex items-center justify-center gap-[4px] bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-split.svg') }}" alt="" class="w-[14px] h-[14px] shrink-0">
-                                <span class="text-[11px] font-semibold text-[#111827] leading-[16.5px] truncate">Pisahkan 1 Item</span>
+                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-split.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
+                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Pisahkan 1</span>
                             </button>
                         </div>
                     </div>
 
                     {{-- Price & Stepper Row --}}
-                    <div class="flex items-center justify-between pt-1">
+                    <div class="flex items-center justify-between pt-0.5">
                         <div>
-                            <span class="text-[13px] font-bold text-[#111827] leading-[18px]">
+                            <span class="text-[12.5px] font-bold text-[#111827] leading-tight">
                                 Rp<span x-text="formatRp(item.subtotal)"></span>
                             </span>
-                            <span x-show="item.qty > 1" class="block text-[10.5px] text-[#8b8e93]">
+                            <span x-show="item.qty > 1" class="block text-[10px] text-[#8b8e93]">
                                 @ Rp<span x-text="formatRp(item.price)"></span>
                             </span>
                         </div>
 
-                        <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[3px] px-1 flex items-center gap-[5px] shadow-2xs">
+                        <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[2px] px-1 flex items-center gap-1 shadow-2xs">
                             <button type="button" @click="changeQty(idx, -1)"
-                                class="w-[26px] h-[26px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[14px] h-[14px]">
+                                class="w-[24px] h-[24px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[12px] h-[12px]">
                             </button>
-                            <span class="w-[20px] text-center text-[12.5px] font-bold text-[#111827] leading-[18px]" x-text="item.qty"></span>
+                            <span class="w-[18px] text-center text-[12px] font-bold text-[#111827] leading-tight" x-text="item.qty"></span>
                             <button type="button" @click="changeQty(idx, 1)"
-                                class="w-[26px] h-[26px] rounded-full bg-[#111827] hover:bg-[#df5826] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[14px] h-[14px]">
+                                class="w-[24px] h-[24px] rounded-full bg-[#111827] hover:bg-[#df5826] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[12px] h-[12px]">
                             </button>
                         </div>
                     </div>

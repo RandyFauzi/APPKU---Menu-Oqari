@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
-    "mtime": 1793942244.1481464,
-    "seen": 1793942311.1840694,
-    "ast_hash": "18966cd1db9bfbe43dc98c39b03624ac",
+    "mtime": 1793942788.2361858,
+    "seen": 1793942859.5321462,
+    "ast_hash": "977e9f3a39e0ad370e589379ed83595b",
     "semantic_hash": ""
   },
   "resources/views/Admin/reports/index.blade.php": {
