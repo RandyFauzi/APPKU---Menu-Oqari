@@ -613,6 +613,7 @@
             permissions: {{ Illuminate\Support\Js::from(auth()->user()->effectivePermissions()) }},
             pages: {{ Illuminate\Support\Js::from($pageLinks) }},
             categories: @json($categories ?? []),
+            tables: @json($tables ?? []),
             shopProducts: {{ Illuminate\Support\Js::from($shopProducts ?? []) }}
         };
 
@@ -657,8 +658,30 @@
                 isResettingQR: false,
                 users: [],
                 categories: [],
-                tables: [],
+                tables: (window.INITIAL_DATA.tables || []).map(t => typeof t === 'string' ? { id: t, name: t } : { id: t.name || t.id, name: t.name || t.id }),
                 menuItems: [],
+                openBillModal: {
+                    show: false,
+                    isLoading: false,
+                    isSaving: false,
+                    recalledOrderId: null,
+                    customerName: '',
+                    selectedTable: '',
+                    fulfillmentType: 'DINE_IN',
+                    searchQuery: '',
+                    selectedCategory: 'all',
+                    products: [],
+                    categories: [],
+                    cart: [],
+                    modifierModal: {
+                        show: false,
+                        product: null,
+                        selectedVariant: null,
+                        selectedModifiers: [],
+                        notes: '',
+                        qty: 1,
+                    }
+                },
                 orders: [],
                 analytics: null,
                 isSaving: false,
@@ -2374,6 +2397,257 @@
                     this.selectedOrder = order;
                     this.showOrderDetailModal = true;
                 },
+
+                openCreateOpenBillModal() {
+                    this.openBillModal.recalledOrderId = null;
+                    this.openBillModal.customerName = '';
+                    this.openBillModal.selectedTable = this.tables.length > 0 ? (this.tables[0].name || this.tables[0].id) : '';
+                    this.openBillModal.fulfillmentType = 'DINE_IN';
+                    this.openBillModal.searchQuery = '';
+                    this.openBillModal.selectedCategory = 'all';
+                    this.openBillModal.cart = [];
+                    this.openBillModal.show = true;
+                    if (!this.openBillModal.products || this.openBillModal.products.length === 0) {
+                        this.fetchOpenBillProducts();
+                    }
+                },
+
+                openEditOpenBillModal(order) {
+                    this.openBillModal.recalledOrderId = order.id;
+                    this.openBillModal.customerName = order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') && order.customer !== 'Walk-in Customer' ? order.customer : '');
+                    this.openBillModal.selectedTable = order.raw_table || (order.table && order.table !== 'TA' && order.table !== '-' ? order.table : (this.tables.length > 0 ? (this.tables[0].name || this.tables[0].id) : ''));
+                    this.openBillModal.fulfillmentType = order.fulfillment_type || (order.type === 'Takeaway' ? 'TAKEAWAY' : 'DINE_IN');
+                    this.openBillModal.searchQuery = '';
+                    this.openBillModal.selectedCategory = 'all';
+                    this.openBillModal.cart = (order.items || []).map(i => ({
+                        id: i.id || i.product_id || (i.product ? i.product.id : null),
+                        order_item_id: i.order_item_id || i.id,
+                        name: i.name || 'Produk',
+                        price: parseFloat(i.price || 0),
+                        qty: parseInt(i.qty || 1),
+                        notes: i.notes || '',
+                        variant_id: i.variant_id || null,
+                        variant_name: i.variant_name || null,
+                        modifiers: (i.modifiers || []).map(m => typeof m === 'object' ? m.id : m),
+                        image: i.image || null,
+                    }));
+                    this.openBillModal.show = true;
+                    if (!this.openBillModal.products || this.openBillModal.products.length === 0) {
+                        this.fetchOpenBillProducts();
+                    }
+                },
+
+                closeOpenBillModal() {
+                    this.openBillModal.show = false;
+                    this.openBillModal.modifierModal.show = false;
+                },
+
+                async fetchOpenBillProducts() {
+                    this.openBillModal.isLoading = true;
+                    try {
+                        const res = await fetch('/admin/pos/products');
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.openBillModal.products = data;
+                            const catMap = new Map();
+                            data.forEach(p => {
+                                const cId = p.category_id;
+                                const cName = p.category_name || p.category?.name || 'Lainnya';
+                                if (cId && !catMap.has(cId)) {
+                                    catMap.set(cId, cName);
+                                }
+                            });
+                            this.openBillModal.categories = Array.from(catMap.entries()).map(([id, name]) => ({ id, name }));
+                        }
+                    } catch(err) {
+                        console.error('fetchOpenBillProducts error:', err);
+                    } finally {
+                        this.openBillModal.isLoading = false;
+                    }
+                },
+
+                filteredOpenBillProducts() {
+                    const q = (this.openBillModal.searchQuery || '').toLowerCase().trim();
+                    const cat = this.openBillModal.selectedCategory;
+                    return (this.openBillModal.products || []).filter(p => {
+                        const matchesQuery = !q || (p.name && p.name.toLowerCase().includes(q)) || (p.category_name && p.category_name.toLowerCase().includes(q));
+                        if (!matchesQuery) return false;
+                        if (cat === 'all') return true;
+                        if (cat === 'best_seller') return Boolean(p.is_best_seller) || (p.sold_count > 0);
+                        return String(p.category_id) === String(cat);
+                    });
+                },
+
+                addToOpenBillCart(product) {
+                    if ((product.variants && product.variants.length > 0) || (product.modifier_groups && product.modifier_groups.length > 0)) {
+                        this.openOpenBillModifierModal(product);
+                        return;
+                    }
+
+                    const existing = this.openBillModal.cart.find(i => i.id === product.id && !i.variant_id && (!i.modifiers || i.modifiers.length === 0));
+                    if (existing) {
+                        existing.qty = (parseInt(existing.qty) || 1) + 1;
+                    } else {
+                        this.openBillModal.cart.push({
+                            id: product.id,
+                            name: product.name,
+                            price: Number(product.effective_price || product.price || 0),
+                            qty: 1,
+                            variant_id: null,
+                            variant_name: null,
+                            modifiers: [],
+                            notes: '',
+                            image: product.image_url || null,
+                        });
+                    }
+                },
+
+                openOpenBillModifierModal(product) {
+                    this.openBillModal.modifierModal = {
+                        show: true,
+                        product: product,
+                        selectedVariant: (product.variants && product.variants.length > 0) ? product.variants[0] : null,
+                        selectedModifiers: [],
+                        notes: '',
+                        qty: 1,
+                    };
+                },
+
+                toggleOpenBillModifier(modifier) {
+                    const list = this.openBillModal.modifierModal.selectedModifiers;
+                    const idx = list.findIndex(m => m.id === modifier.id);
+                    if (idx > -1) {
+                        list.splice(idx, 1);
+                    } else {
+                        list.push(modifier);
+                    }
+                },
+
+                saveOpenBillModifier() {
+                    const mod = this.openBillModal.modifierModal;
+                    const p = mod.product;
+                    if (!p) return;
+
+                    let unitPrice = Number(p.effective_price || p.price || 0);
+                    if (mod.selectedVariant) {
+                        unitPrice += Number(mod.selectedVariant.price_adjustment || 0);
+                    }
+                    mod.selectedModifiers.forEach(m => {
+                        unitPrice += Number(m.price_adjustment || 0);
+                    });
+
+                    this.openBillModal.cart.push({
+                        id: p.id,
+                        name: p.name,
+                        price: unitPrice,
+                        qty: mod.qty || 1,
+                        variant_id: mod.selectedVariant ? mod.selectedVariant.id : null,
+                        variant_name: mod.selectedVariant ? mod.selectedVariant.name : null,
+                        modifiers: [...mod.selectedModifiers.map(m => m.id)],
+                        modifier_names: mod.selectedModifiers.map(m => m.name),
+                        notes: (mod.notes || '').trim(),
+                        image: p.image_url || null,
+                    });
+
+                    this.openBillModal.modifierModal.show = false;
+                },
+
+                openBillCartTotal() {
+                    return (this.openBillModal.cart || []).reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.qty || 1)), 0);
+                },
+
+                async submitOpenBill() {
+                    if (this.openBillModal.cart.length === 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Keranjang Kosong',
+                            text: 'Silakan pilih minimal 1 menu untuk pesanan open bill.',
+                            confirmButtonColor: '#df5826'
+                        });
+                        return;
+                    }
+
+                    if (this.openBillModal.fulfillmentType === 'DINE_IN' && !this.openBillModal.selectedTable && !this.openBillModal.customerName) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Tentukan Meja / Pelanggan',
+                            text: 'Harap tentukan nomor meja atau nama pelanggan untuk pesanan Dine-in.',
+                            confirmButtonColor: '#df5826'
+                        });
+                        return;
+                    }
+
+                    this.openBillModal.isSaving = true;
+
+                    const payload = {
+                        items: this.openBillModal.cart.map(i => ({
+                            id: i.id,
+                            qty: parseInt(i.qty || 1),
+                            variant_id: i.variant_id || null,
+                            modifiers: i.modifiers || [],
+                            notes: (i.notes || '').trim() || null,
+                        })),
+                        table: this.openBillModal.fulfillmentType === 'DINE_IN' ? (this.openBillModal.selectedTable || null) : null,
+                        fulfillment_type: this.openBillModal.fulfillmentType || 'DINE_IN',
+                        customer_name: (this.openBillModal.customerName || '').trim() || null,
+                        recalled_order_id: this.openBillModal.recalledOrderId || null,
+                    };
+
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+                        const res = await fetch('/admin/pos/orders/hold', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+
+                        if (res.ok && data.success) {
+                            this.openBillModal.show = false;
+                            await this.fetchLiveOrders(false);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: data.updated ? 'Open Bill Diperbarui!' : 'Open Bill Tersimpan!',
+                                html: `<div class="text-[13px] text-gray-600 mt-1">
+                                        <p>Pesanan <strong>#${data.order_id}</strong> (${data.table}) berhasil disimpan.</p>
+                                        <p class="mt-2 text-[18px] font-bold text-[#df5826]">Rp ${Number(data.total).toLocaleString('id-ID')}</p>
+                                       </div>`,
+                                showCancelButton: true,
+                                confirmButtonText: '<i class="fas fa-utensils mr-1.5"></i> Cetak Tiket Dapur',
+                                cancelButtonText: 'Selesai',
+                                confirmButtonColor: '#059669',
+                                cancelButtonColor: '#6b7280',
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.open(`/admin/api/orders/${data.order_id}/print?type=kitchen`, '_blank');
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal Menyimpan Open Bill',
+                                text: data.message || 'Terjadi kesalahan saat memproses open bill.',
+                                confirmButtonColor: '#df5826'
+                            });
+                        }
+                    } catch (e) {
+                        console.error('submitOpenBill error:', e);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Kesalahan Sistem',
+                            text: 'Gagal menghubungi server.',
+                            confirmButtonColor: '#df5826'
+                        });
+                    } finally {
+                        this.openBillModal.isSaving = false;
+                    }
+                },
                 updateStatus(id, newStatus) {
                     fetch(`/admin/api/orders/${id}/status`, {
                         method: 'POST',
@@ -2587,8 +2861,11 @@ if (res.ok) {
                         const dbOrders = sourceOrders.map(o => ({
                             id: o.id,
                             customer: o.customer_name || ('Meja ' + (o.table ? o.table.name : '-')),
+                            raw_customer_name: o.customer_name || '',
                             table: o.table ? o.table.name : 'TA',
+                            raw_table: o.table ? o.table.name : '',
                             type: o.fulfillment_type === 'DINE_IN' ? 'Dine In' : (o.fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Delivery'),
+                            fulfillment_type: o.fulfillment_type || 'DINE_IN',
                             status: o.order_status || o.status,
                             order_status: o.order_status || o.status,
                             payment_status: o.payment_status || 'UNPAID',
@@ -2598,12 +2875,18 @@ if (res.ok) {
                             total_cogs: parseFloat(o.total_cogs || 0),
                             time: o.created_at,
                             items: (o.items || []).map(i => ({
+                                id: i.product_id || (i.product ? i.product.id : null),
+                                order_item_id: i.id,
                                 name: i.product_name || i.product?.name || i.name || 'Produk',
-                                qty: i.quantity,
-                                price: parseFloat(i.unit_price ?? i.price ?? i.product?.price ?? 0), notes: i.notes || '',
+                                qty: parseInt(i.quantity || 1),
+                                price: parseFloat(i.unit_price ?? i.price ?? i.product?.price ?? 0),
+                                notes: i.notes || '',
+                                variant_id: i.variant_id || null,
+                                modifiers: (i.modifiers || []).map(m => typeof m === 'object' ? m.id : m),
                                 image: i.product?.image_url ? (i.product.image_url) : null,
                                 desc: i.product?.description || ''
-                            }))
+                            })),
+                            rawOrder: o
                         }));
 
                         const newIncomingOrders = dbOrders.filter(o => (o.status === 'Masuk' || o.order_status === 'CONFIRMED' || o.status === 'CONFIRMED') && !this.orders.find(old => old.id == o.id));

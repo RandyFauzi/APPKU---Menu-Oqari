@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Shop;
@@ -138,5 +139,33 @@ class OpenBillTest extends TestCase
         $printRes->assertOk();
         $printRes->assertSee('TAGIHAN SEMENTARA (OPEN BILL)');
         $printRes->assertSee('Belum Lunas');
+    }
+
+    public function test_pos_products_endpoint_returns_category_and_sold_count_for_open_bill_picker(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $cashier = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
+        $category = Category::create(['shop_id' => $shop->id, 'name' => 'Main Course', 'slug' => 'main-course', 'sort_order' => 1]);
+        $product = Product::factory()->create([
+            'shop_id' => $shop->id,
+            'category_id' => $category->id,
+            'name' => 'Beef Burger',
+            'price' => 68000,
+            'is_sold_out' => false,
+            'is_best_seller' => true,
+        ]);
+
+        $res = $this->actingAs($cashier)->getJson(route('admin.pos.products'));
+        $res->assertOk();
+        $res->assertJsonFragment([
+            'id' => $product->id,
+            'name' => 'Beef Burger',
+            'category_name' => 'Main Course',
+            'sold_count' => 0,
+        ]);
+
+        $bestSellerRes = $this->actingAs($cashier)->getJson(route('admin.pos.products', ['category_id' => 'best_seller']));
+        $bestSellerRes->assertOk();
+        $this->assertCount(1, $bestSellerRes->json());
     }
 }

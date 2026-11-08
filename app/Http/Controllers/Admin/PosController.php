@@ -327,22 +327,44 @@ class PosController extends Controller
     //  API — Get products (for search/filter)
     // ──────────────────────────────────────────────
 
-    public function products(Request $request)
+    public function products(Request $request): JsonResponse
     {
+        abort_unless(Auth::user()?->canAny(['access-pos', 'view-orders', 'manage-menu']), 403);
+
         $shopId = Auth::user()->shop_id;
+
+        $soldCounts = OrderItem::query()
+            ->select('order_items.product_id', DB::raw('SUM(order_items.quantity) as total_sold'))
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.shop_id', $shopId)
+            ->whereNotIn('orders.order_status', ['CANCELLED', 'HOLD'])
+            ->groupBy('order_items.product_id')
+            ->pluck('total_sold', 'product_id');
+
         $query = Product::where('shop_id', $shopId)
             ->where('is_sold_out', false)
-            ->with(['variants', 'modifierGroups.modifiers']);
+            ->with(['category', 'variants', 'modifierGroups.modifiers'])
+            ->orderBy('category_id')
+            ->orderBy('name');
 
-        if ($request->filled('category_id')) {
+        if ($request->filled('category_id') && ! in_array($request->category_id, ['all', 'best_seller'], true)) {
             $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->input('category_id') === 'best_seller') {
+            $query->where('is_best_seller', true);
         }
 
         if ($request->filled('q')) {
             $query->where('name', 'like', '%'.$request->q.'%');
         }
 
-        return response()->json($query->get());
+        $products = $query->get()->each(function (Product $product) use ($soldCounts): void {
+            $product->setAttribute('sold_count', (int) ($soldCounts[$product->id] ?? 0));
+            $product->setAttribute('category_name', $product->category?->name ?? 'Menu');
+        });
+
+        return response()->json($products);
     }
 
     // ──────────────────────────────────────────────
