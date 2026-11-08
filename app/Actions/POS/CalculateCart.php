@@ -82,6 +82,9 @@ class CalculateCart
             $subtotal += $lineSale;
             $totalCogs += $lineCogs;
 
+            $rawServingType = strtoupper((string) ($item['serving_type'] ?? 'DINE_IN'));
+            $servingType = in_array($rawServingType, ['DINE_IN', 'TAKEAWAY'], true) ? $rawServingType : 'DINE_IN';
+
             $resolved[] = [
                 'product_id' => $product->id,
                 'product_name' => $product->name,
@@ -93,6 +96,7 @@ class CalculateCart
                 'subtotal' => $lineSale,
                 'cogs_total' => $lineCogs,
                 'notes' => isset($item['notes']) && trim($item['notes']) !== '' ? trim($item['notes']) : null,
+                'serving_type' => $servingType,
             ];
         }
 

@@ -22,6 +22,7 @@ class HoldPosOrderRequest extends FormRequest
             'items.*.modifiers' => ['nullable', 'array', 'max:20'],
             'items.*.modifiers.*' => ['integer', 'distinct'],
             'items.*.notes' => ['nullable', 'string', 'max:255'],
+            'items.*.serving_type' => ['nullable', 'string', 'in:DINE_IN,TAKEAWAY,dine_in,takeaway'],
             'table' => ['nullable', 'string', 'max:50'],
             'customer_name' => ['nullable', 'string', 'max:100'],
             'fulfillment_type' => ['nullable', 'in:DINE_IN,TAKEAWAY,DELIVERY'],

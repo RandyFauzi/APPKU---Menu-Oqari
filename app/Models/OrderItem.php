@@ -22,6 +22,7 @@ class OrderItem extends Model
         'variant_name',
         'modifiers',
         'cogs_total',
+        'serving_type',
     ];
 
     protected static function booted(): void

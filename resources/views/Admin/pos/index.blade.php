@@ -286,12 +286,12 @@
                             'modifier_groups' => $product->modifierGroups,
                         ];
                     @endphp
-                    <button type="button"
+                    <div
                         x-show="matchesFilter({{ $product->category_id ?? 'null' }}, '{{ addslashes($product->name) }}', {{ (int) ($product->sold_count ?? 0) }}, {{ $product->is_best_seller ? 'true' : 'false' }})"
-                        @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }})"
-                        class="product-card group bg-white border border-[#d8dce2] hover:border-[#df5826] rounded-[12px] pb-[8px] flex flex-col justify-between text-left shadow-[0px_4px_12px_0px_rgba(17,24,39,0.03)] focus:outline-none cursor-pointer">
+                        class="product-card group bg-white border border-[#d8dce2] hover:border-[#df5826] rounded-[12px] p-[10px] flex flex-col justify-between text-left shadow-[0px_4px_12px_0px_rgba(17,24,39,0.03)] transition">
                         {{-- Product Image --}}
-                        <div class="bg-[#ede7dc] h-[120px] sm:h-[128px] xl:h-[135px] w-full rounded-[11px] overflow-hidden relative">
+                        <div class="bg-[#ede7dc] h-[120px] sm:h-[128px] xl:h-[135px] w-full rounded-[10px] overflow-hidden relative cursor-pointer"
+                             @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')">
                             @if($product->has_active_discount)
                                 <span class="absolute top-2 right-2 z-10 bg-red-600 text-white text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
                                     <i class="fas fa-tag text-[8px]"></i> -{{ $product->discount_percentage }}%
@@ -312,16 +312,13 @@
                             @endif
                         </div>
 
-                        {{-- Product Name + Dark Plus Button --}}
-                        <div class="px-[10px] pt-[8px] pb-[4px] flex items-center justify-between gap-2 w-full">
-                            <span class="text-[13px] font-semibold text-[#1e211f] leading-[15.6px] truncate">{{ $product->name }}</span>
-                            <span class="w-[22px] h-[22px] rounded-full bg-[#111827] flex items-center justify-center shrink-0">
-                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[14px] h-[14px]">
-                            </span>
+                        {{-- Product Name --}}
+                        <div class="pt-[8px] pb-[2px] w-full">
+                            <span class="text-[13px] font-semibold text-[#1e211f] leading-[15.6px] truncate block">{{ $product->name }}</span>
                         </div>
 
                         {{-- Category • Sold Count & Price --}}
-                        <div class="px-[10px] flex items-center justify-between gap-2 w-full">
+                        <div class="flex items-center justify-between gap-2 w-full pb-[8px]">
                             <div class="flex items-center gap-[5px] text-[11px] font-normal text-[#53565a] leading-[16.5px] truncate">
                                 <span class="truncate">{{ $product->category_name ?? ($product->category?->name ?? 'Menu') }}</span>
                                 <span>•</span>
@@ -342,7 +339,23 @@
                                 </span>
                             @endif
                         </div>
-                    </button>
+
+                        {{-- Stacked Action Buttons: [ 🍽️ Dine In ] & [ 🛍️ Takeaway ] --}}
+                        <div class="flex flex-col gap-1.5 w-full pt-1 border-t border-[#f0eee9]">
+                            <button type="button"
+                                @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')"
+                                class="w-full py-1.5 px-3 rounded-[8px] bg-gradient-to-b from-[#f06428] to-[#df5826] hover:opacity-95 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                <i class="fas fa-utensils text-[9.5px]"></i>
+                                <span>Dine In</span>
+                            </button>
+                            <button type="button"
+                                @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'TAKEAWAY')"
+                                class="w-full py-1.5 px-3 rounded-[8px] bg-white hover:bg-[#fff6f0] border border-[#df5826] text-[#df5826] text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                <i class="fas fa-shopping-bag text-[9.5px]"></i>
+                                <span>Takeaway</span>
+                            </button>
+                        </div>
+                    </div>
                     @endforeach
                 </div>
             @endif
@@ -445,69 +458,59 @@
                 </div>
             </div>
 
-            {{-- Compact Fulfillment Segmented Control --}}
-            <div class="bg-[#f8f9fa] p-[2px] rounded-[9px] border border-[#e6e5e0] grid grid-cols-3 gap-[2px]">
-                <button type="button" @click="fulfillmentType = 'DINE_IN'; paymentModal.fulfillment = 'DINE_IN'"
-                    :class="fulfillmentType === 'DINE_IN' ? 'bg-white text-[#df5826] font-bold shadow-xs border border-[#e6e5e0]' : 'text-[#53565a] font-medium hover:text-[#111827]'"
-                    class="py-1 px-1.5 rounded-[7px] text-[11px] leading-tight text-center transition flex items-center justify-center gap-1 cursor-pointer">
-                    <i class="fas fa-utensils text-[9px]"></i>
-                    <span>Dine-in</span>
-                </button>
-                <button type="button" @click="fulfillmentType = 'TAKEAWAY'; paymentModal.fulfillment = 'TAKEAWAY'"
-                    :class="fulfillmentType === 'TAKEAWAY' ? 'bg-white text-[#df5826] font-bold shadow-xs border border-[#e6e5e0]' : 'text-[#53565a] font-medium hover:text-[#111827]'"
-                    class="py-1 px-1.5 rounded-[7px] text-[11px] leading-tight text-center transition flex items-center justify-center gap-1 cursor-pointer">
-                    <i class="fas fa-shopping-bag text-[9px]"></i>
-                    <span>Takeaway</span>
-                </button>
-                <button type="button" @click="fulfillmentType = 'DELIVERY'; paymentModal.fulfillment = 'DELIVERY'"
-                    :class="fulfillmentType === 'DELIVERY' ? 'bg-white text-[#df5826] font-bold shadow-xs border border-[#e6e5e0]' : 'text-[#53565a] font-medium hover:text-[#111827]'"
-                    class="py-1 px-1.5 rounded-[7px] text-[11px] leading-tight text-center transition flex items-center justify-center gap-1 cursor-pointer">
-                    <i class="fas fa-motorcycle text-[9px]"></i>
-                    <span>Delivery</span>
-                </button>
+            {{-- Customer Name & Table Number (Side by Side matching layout) --}}
+            <div class="grid grid-cols-2 gap-2 pt-0.5">
+                <div>
+                    <label class="block text-[10.5px] font-semibold text-[#53565a] mb-1">Customer name</label>
+                    <div class="relative">
+                        <input id="pos-customer-name" 
+                               type="text" 
+                               x-model="customerName" 
+                               placeholder="Walk-in Customer"
+                               class="w-full bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#111827] placeholder-[#8b8e93] outline-none transition">
+                        <button type="button" x-show="customerName" x-cloak @click="customerName = ''"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-[10.5px] font-semibold text-[#53565a]">Table number</label>
+                        <button type="button" @click="tableSetupModal.show = true" class="text-[10px] font-bold text-[#df5826] hover:underline cursor-pointer" title="Tambah Meja Baru">+ Meja</button>
+                    </div>
+                    <div class="relative">
+                        <select id="pos-table-select" 
+                                x-model="selectedTable"
+                                class="w-full appearance-none bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] pl-2.5 pr-6 py-1.5 text-[11.5px] font-semibold text-[#111827] outline-none transition truncate cursor-pointer">
+                            <option value="">Pilih Meja</option>
+                            @foreach($tables as $table)
+                                <option value="{{ $table->name }}">{{ $table->name }}</option>
+                            @endforeach
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[8.5px] text-gray-400 pointer-events-none"></i>
+                    </div>
+                </div>
             </div>
 
-            {{-- Compact Single-Row Customer Name & Table Number --}}
-            <div class="flex items-center gap-1.5">
-                <div class="relative flex-1 min-w-0">
-                    <i class="fas fa-user absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i>
-                    <input id="pos-customer-name" 
-                           type="text" 
-                           x-model="customerName" 
-                           placeholder="Pelanggan (Walk-in)"
-                           class="w-full bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white focus:ring-2 focus:ring-[#df5826]/15 rounded-[8px] pl-7 pr-6 py-1.5 text-[11.5px] font-semibold text-[#111827] placeholder-[#8b8e93] outline-none transition">
-                    <button type="button" x-show="customerName" x-cloak @click="customerName = ''"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer"
-                            title="Reset nama pelanggan">
-                        <i class="fas fa-times-circle"></i>
-                    </button>
-                </div>
-
-                <div class="relative w-[125px] shrink-0" x-show="fulfillmentType === 'DINE_IN'">
-                    <i class="fas fa-chair absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i>
-                    <select id="pos-table-select" 
-                            x-model="selectedTable"
-                            class="w-full appearance-none bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white focus:ring-2 focus:ring-[#df5826]/15 rounded-[8px] pl-7 pr-6 py-1.5 text-[11.5px] font-semibold text-[#111827] outline-none transition truncate cursor-pointer">
-                        <option value="">Pilih Meja</option>
-                        @foreach($tables as $table)
-                            <option value="{{ $table->name }}">{{ $table->name }}</option>
-                        @endforeach
-                    </select>
-                    <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] text-gray-400 pointer-events-none"></i>
-                </div>
-
-                <button type="button" 
-                        x-show="fulfillmentType === 'DINE_IN'"
-                        @click="tableSetupModal.show = true" 
-                        class="text-[10px] font-bold text-[#df5826] hover:bg-[#fff6f0] px-1.5 py-1.5 rounded-[6px] border border-transparent hover:border-[#f5d5c6] transition shrink-0 cursor-pointer" 
-                        title="Tambah Meja Baru">
-                    +Meja
+            {{-- Segmented Control: [ Direct Order ] & [ Delivery ] (Circled in Cyan) --}}
+            <div class="bg-[#f3f4f6] p-[3px] rounded-[10px] grid grid-cols-2 gap-[3px]">
+                <button type="button" @click="fulfillmentType = 'DINE_IN'; paymentModal.fulfillment = 'DINE_IN'"
+                    :class="fulfillmentType !== 'DELIVERY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] font-medium hover:text-[#111827]'"
+                    class="py-1.5 px-3 rounded-[8px] text-[11.5px] text-center transition cursor-pointer">
+                    Direct Order
+                </button>
+                <button type="button" @click="fulfillmentType = 'DELIVERY'; paymentModal.fulfillment = 'DELIVERY'"
+                    :class="fulfillmentType === 'DELIVERY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] font-medium hover:text-[#111827]'"
+                    class="py-1.5 px-3 rounded-[8px] text-[11.5px] text-center transition cursor-pointer">
+                    Delivery
                 </button>
             </div>
         </div>
 
-        {{-- Cart Items List (Streamlined for Tablet & Medium Displays) --}}
-        <div class="p-2.5 sm:p-3 flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 overscroll-contain pb-3">
+        {{-- Cart Items List (Separated with clean dividers & labels) --}}
+        <div class="p-2.5 sm:p-3 flex-1 min-h-0 overflow-y-auto flex flex-col gap-2.5 overscroll-contain pb-3">
             <template x-if="cart.length === 0">
                 <div class="py-10 px-4 text-center flex flex-col items-center justify-center border border-dashed border-[#d8dce2] rounded-[10px] bg-[#f8f9fa]/60">
                     <div class="w-9 h-9 rounded-full bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center mb-2">
@@ -518,11 +521,23 @@
                 </div>
             </template>
 
-            <template x-for="(item, idx) in cart" :key="idx">
-                <div class="bg-white border border-[#d8dce2] rounded-[10px] p-2.5 flex flex-col gap-1.5 shadow-2xs">
+            {{-- 1. DINE IN SECTION --}}
+            <template x-if="cart.some(i => (i.serving_type || 'DINE_IN') !== 'TAKEAWAY')">
+                <div class="flex items-center justify-between px-1 pt-1 pb-0.5 border-b border-[#e6e5e0]">
+                    <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#1e211f]">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <i class="fas fa-utensils text-[9.5px] text-emerald-600"></i>
+                        <span>Makan di Tempat (Dine In)</span>
+                    </div>
+                    <span class="text-[10px] font-semibold text-[#8b8e93]" x-text="cart.filter(i => (i.serving_type || 'DINE_IN') !== 'TAKEAWAY').reduce((s,i)=>s+i.qty,0) + ' item'"></span>
+                </div>
+            </template>
+
+            <template x-for="(item, idx) in cart" :key="'cart-dinein-' + idx">
+                <div x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'" class="bg-white border border-[#d8dce2] rounded-[10px] p-2.5 flex flex-col gap-1.5 shadow-2xs transition">
                     {{-- Top Item Row: Thumbnail + Name + Red Trash --}}
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="w-[28px] h-[28px] rounded-[6px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="w-[30px] h-[30px] rounded-[6px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center">
                             <template x-if="item.image">
                                 <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
                             </template>
@@ -533,9 +548,21 @@
 
                         <div class="flex-1 min-w-0">
                             <p class="text-[12.5px] font-semibold text-[#111827] leading-tight truncate" x-text="item.name"></p>
-                            <p x-show="item.variant" x-cloak class="text-[10.5px] text-[#53565a] truncate" x-text="item.variant"></p>
+                            
+                            {{-- Serving Type Badge (Clickable to switch) --}}
+                            <div class="mt-0.5 flex items-center gap-1">
+                                <button type="button" @click="toggleServingType(idx)"
+                                    class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-[4px] bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[9.5px] font-bold transition cursor-pointer"
+                                    title="Klik untuk pindah ke Takeaway">
+                                    <i class="fas fa-utensils text-[8px]"></i>
+                                    <span>Dine In</span>
+                                    <i class="fas fa-sync-alt text-[7px] opacity-60 ml-0.5"></i>
+                                </button>
+                                <span x-show="item.variant" x-cloak class="text-[10px] text-[#53565a] truncate" x-text="'· ' + item.variant"></span>
+                            </div>
+
                             <p x-show="item.modifiers && item.modifiers.length > 0" x-cloak
-                               class="text-[10.5px] text-[#53565a] truncate"
+                               class="text-[10px] text-[#53565a] truncate mt-0.5"
                                x-text="item.modifiers.map(m => m.name).join(' · ')"></p>
                         </div>
 
@@ -544,7 +571,7 @@
                         </button>
                     </div>
 
-                    {{-- Collapsed Customer Note Trigger (Figma 45:12598) --}}
+                    {{-- Collapsed Customer Note Trigger --}}
                     <button type="button"
                         x-show="!item.showNotes && !item.notes"
                         @click="item.showNotes = true; $nextTick(() => document.getElementById('item-notes-' + idx)?.focus())"
@@ -553,28 +580,27 @@
                         <span class="text-[10.5px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
                     </button>
 
-                    {{-- Expanded Customer Note Box (Figma 45:12546) --}}
+                    {{-- Expanded Customer Note Box --}}
                     <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] pt-2 pb-1.5 px-2 flex flex-col gap-1.5">
                         <div class="relative border border-[#d8dce2] rounded-[6px] p-1.5 bg-[#f8f9fa]">
                             <label :for="'item-notes-' + idx" class="text-[10px] font-medium text-[#111827] block mb-0.5">
                                 Catatan customer (Opsional)
                             </label>
                             <textarea :id="'item-notes-' + idx" x-model="item.notes" maxlength="255" rows="2" :disabled="paymentPending"
-                                :aria-describedby="'item-notes-help-' + idx" placeholder="Contoh: tanpa gula, es sedikit"
+                                placeholder="Contoh: tanpa gula, es sedikit"
                                 class="w-full bg-transparent border-none outline-none text-[10.5px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
-                            <span :id="'item-notes-help-' + idx" class="sr-only">Berlaku untuk semua jumlah pada baris ini.</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-1.5">
                             <button type="button" @click="item.notes = ''; item.showNotes = false" :disabled="paymentPending"
                                 class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
                                 <img src="{{ asset('images/sparta/pos-trash-dark.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
-                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Hapus</span>
+                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Hapus Catatan</span>
                             </button>
                             <button type="button" @click="splitItem(idx)" :disabled="paymentPending || item.qty <= 1 || cart.length >= 50"
                                 class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
                                 <img src="{{ asset('images/sparta/pos-split.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
-                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Pisahkan 1</span>
+                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Pisahkan 1 Item</span>
                             </button>
                         </div>
                     </div>
@@ -592,23 +618,133 @@
                             </div>
                             <span x-show="item.qty > 1" class="block text-[10px] text-[#8b8e93]">
                                 @ Rp<span x-text="formatRp(item.price)"></span>
-                                <template x-if="item.has_discount && item.regular_price">
-                                    <span class="line-through text-[#adb5bd] ml-1" x-text="'Rp' + formatRp(item.regular_price)"></span>
-                                </template>
                             </span>
                         </div>
 
                         <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[2px] px-1 flex items-center gap-1 shadow-2xs">
                             <button type="button" @click="changeQty(idx, -1)"
-                                class="w-[26px] h-[26px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer"
-                                aria-label="Kurangi jumlah">
-                                <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[12px] h-[12px]">
+                                class="w-[24px] h-[24px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[11px] h-[11px]">
                             </button>
                             <span class="w-[18px] text-center text-[12px] font-bold text-[#111827] leading-tight select-none" x-text="item.qty"></span>
                             <button type="button" @click="changeQty(idx, 1)"
-                                class="w-[26px] h-[26px] rounded-full bg-[#111827] hover:bg-[#df5826] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer"
-                                aria-label="Tambah jumlah">
-                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[12px] h-[12px]">
+                                class="w-[24px] h-[24px] rounded-full bg-[#111827] hover:bg-[#df5826] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[11px] h-[11px]">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            {{-- 2. TAKEAWAY SECTION --}}
+            <template x-if="cart.some(i => (i.serving_type || 'DINE_IN') === 'TAKEAWAY')">
+                <div class="flex items-center justify-between px-1 pt-2 pb-0.5 border-b border-[#e6e5e0] mt-1">
+                    <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#df5826]">
+                        <span class="w-2 h-2 rounded-full bg-[#df5826]"></span>
+                        <i class="fas fa-shopping-bag text-[9.5px]"></i>
+                        <span>Bungkus (Takeaway)</span>
+                    </div>
+                    <span class="text-[10px] font-semibold text-[#8b8e93]" x-text="cart.filter(i => (i.serving_type || 'DINE_IN') === 'TAKEAWAY').reduce((s,i)=>s+i.qty,0) + ' item'"></span>
+                </div>
+            </template>
+
+            <template x-for="(item, idx) in cart" :key="'cart-takeaway-' + idx">
+                <div x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'" class="bg-[#fffdfb] border border-[#f5d5c6] rounded-[10px] p-2.5 flex flex-col gap-1.5 shadow-2xs transition">
+                    {{-- Top Item Row: Thumbnail + Name + Red Trash --}}
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="w-[30px] h-[30px] rounded-[6px] bg-[#fff0e6] overflow-hidden shrink-0 flex items-center justify-center">
+                            <template x-if="item.image">
+                                <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!item.image">
+                                <span class="text-[10px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
+                            </template>
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[12.5px] font-semibold text-[#111827] leading-tight truncate" x-text="item.name"></p>
+                            
+                            {{-- Serving Type Badge (Clickable to switch) --}}
+                            <div class="mt-0.5 flex items-center gap-1">
+                                <button type="button" @click="toggleServingType(idx)"
+                                    class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-[4px] bg-[#fff0e6] hover:bg-[#ffe2d1] text-[#df5826] border border-[#ffd2b8] text-[9.5px] font-bold transition cursor-pointer"
+                                    title="Klik untuk pindah ke Dine In">
+                                    <i class="fas fa-shopping-bag text-[8px]"></i>
+                                    <span>Takeaway</span>
+                                    <i class="fas fa-sync-alt text-[7px] opacity-60 ml-0.5"></i>
+                                </button>
+                                <span x-show="item.variant" x-cloak class="text-[10px] text-[#53565a] truncate" x-text="'· ' + item.variant"></span>
+                            </div>
+
+                            <p x-show="item.modifiers && item.modifiers.length > 0" x-cloak
+                               class="text-[10px] text-[#53565a] truncate mt-0.5"
+                               x-text="item.modifiers.map(m => m.name).join(' · ')"></p>
+                        </div>
+
+                        <button type="button" @click="removeItem(idx)" class="w-[20px] h-[20px] flex items-center justify-center shrink-0 hover:opacity-75 transition cursor-pointer" title="Hapus item">
+                            <img src="{{ asset('images/sparta/pos-trash-red.svg') }}" alt="Hapus" class="w-[14px] h-[14px]">
+                        </button>
+                    </div>
+
+                    {{-- Collapsed Customer Note Trigger --}}
+                    <button type="button"
+                        x-show="!item.showNotes && !item.notes"
+                        @click="item.showNotes = true; $nextTick(() => document.getElementById('item-notes-takeaway-' + idx)?.focus())"
+                        class="flex items-center gap-1 text-left w-fit hover:opacity-80 transition cursor-pointer py-0.5">
+                        <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-[12px] h-[12px]">
+                        <span class="text-[10.5px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
+                    </button>
+
+                    {{-- Expanded Customer Note Box --}}
+                    <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] pt-2 pb-1.5 px-2 flex flex-col gap-1.5">
+                        <div class="relative border border-[#d8dce2] rounded-[6px] p-1.5 bg-[#f8f9fa]">
+                            <label :for="'item-notes-takeaway-' + idx" class="text-[10px] font-medium text-[#111827] block mb-0.5">
+                                Catatan customer (Opsional)
+                            </label>
+                            <textarea :id="'item-notes-takeaway-' + idx" x-model="item.notes" maxlength="255" rows="2" :disabled="paymentPending"
+                                placeholder="Contoh: tanpa gula, es sedikit"
+                                class="w-full bg-transparent border-none outline-none text-[10.5px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button type="button" @click="item.notes = ''; item.showNotes = false" :disabled="paymentPending"
+                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-trash-dark.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
+                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Hapus Catatan</span>
+                            </button>
+                            <button type="button" @click="splitItem(idx)" :disabled="paymentPending || item.qty <= 1 || cart.length >= 50"
+                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-split.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
+                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Pisahkan 1 Item</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Price & Stepper Row --}}
+                    <div class="flex items-center justify-between pt-0.5">
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[12.5px] font-bold text-[#df5826] leading-tight">
+                                    Rp<span x-text="formatRp(item.subtotal)"></span>
+                                </span>
+                                <template x-if="item.has_discount">
+                                    <span class="bg-[#fff0e6] text-[#df5826] text-[9px] font-black px-1.5 py-0.2 rounded border border-[#ffd2b8]">PROMO</span>
+                                </template>
+                            </div>
+                            <span x-show="item.qty > 1" class="block text-[10px] text-[#8b8e93]">
+                                @ Rp<span x-text="formatRp(item.price)"></span>
+                            </span>
+                        </div>
+
+                        <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[2px] px-1 flex items-center gap-1 shadow-2xs">
+                            <button type="button" @click="changeQty(idx, -1)"
+                                class="w-[24px] h-[24px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[11px] h-[11px]">
+                            </button>
+                            <span class="w-[18px] text-center text-[12px] font-bold text-[#111827] leading-tight select-none" x-text="item.qty"></span>
+                            <button type="button" @click="changeQty(idx, 1)"
+                                class="w-[24px] h-[24px] rounded-full bg-[#df5826] hover:bg-[#cb4c1d] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
+                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[11px] h-[11px]">
                             </button>
                         </div>
                     </div>
@@ -800,7 +936,22 @@
             </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-5 space-y-5 hide-scroll">
+        <div class="flex-1 overflow-y-auto p-5 space-y-4 hide-scroll">
+            {{-- Serving Type Selection in Modifier Modal --}}
+            <div class="grid grid-cols-2 gap-1.5 p-1 bg-[#f3f4f6] rounded-[10px]">
+                <button type="button" @click="modifierModal.servingType = 'DINE_IN'"
+                    :class="(modifierModal.servingType || 'DINE_IN') === 'DINE_IN' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-gray-500 font-medium'"
+                    class="py-1.5 rounded-[8px] text-[11.5px] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fas fa-utensils text-[10px]"></i>
+                    <span>Dine In</span>
+                </button>
+                <button type="button" @click="modifierModal.servingType = 'TAKEAWAY'"
+                    :class="modifierModal.servingType === 'TAKEAWAY' ? 'bg-white text-[#df5826] font-bold shadow-xs' : 'text-gray-500 font-medium'"
+                    class="py-1.5 rounded-[8px] text-[11.5px] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fas fa-shopping-bag text-[10px]"></i>
+                    <span>Takeaway</span>
+                </button>
+            </div>
             {{-- Variants --}}
             <template x-if="modifierModal.product?.variants?.length > 0">
             <div>
@@ -1636,19 +1787,19 @@ function posApp() {
         },
 
         // ── Modifier Modal ───────────────────
-        handleProductClick(product) {
+        handleProductClick(product, servingType = 'DINE_IN') {
             const hasVariants = product.variants && product.variants.length > 0;
             const hasModifiers = product.modifier_groups && product.modifier_groups.length > 0;
 
             if (hasVariants || hasModifiers) {
-                this.openModifier(product);
+                this.openModifier(product, servingType);
             } else {
-                this.addToCartDirectly(product);
+                this.addToCartDirectly(product, servingType);
             }
         },
-        addToCartDirectly(p) {
+        addToCartDirectly(p, servingType = 'DINE_IN') {
             const unitPrice = Number(p.effective_price !== undefined ? p.effective_price : p.price);
-            const existing = this.cart.find(c => c.id === p.id && !c.variant_id && (!c.modifiers || c.modifiers.length === 0) && !c.notes);
+            const existing = this.cart.find(c => c.id === p.id && !c.variant_id && (!c.modifiers || c.modifiers.length === 0) && !c.notes && (c.serving_type || 'DINE_IN') === servingType);
             if (existing) {
                 existing.qty++;
                 existing.subtotal = existing.price * existing.qty;
@@ -1663,13 +1814,14 @@ function posApp() {
                     has_discount: Boolean(p.has_active_discount),
                     discount_percentage: p.discount_percentage || null,
                     subtotal: unitPrice,
+                    serving_type: servingType,
                 });
             }
         },
-        openModifier(product) {
+        openModifier(product, servingType = 'DINE_IN') {
             this.modifierModal = {
                 show: true, product, selectedVariant: null, selectedVariantId: null,
-                selectedModifiers: [], qty: 1, notes: ''
+                selectedModifiers: [], qty: 1, notes: '', servingType: servingType,
             };
             if (product.variants?.length === 1) this.selectVariant(product.variants[0]);
         },
@@ -1679,6 +1831,10 @@ function posApp() {
             const idx = this.modifierModal.selectedModifiers.findIndex(m => m.id === mod.id);
             idx === -1 ? this.modifierModal.selectedModifiers.push(mod) : this.modifierModal.selectedModifiers.splice(idx, 1);
         },
+        toggleServingType(idx) {
+            if (!this.cart[idx]) return;
+            this.cart[idx].serving_type = (this.cart[idx].serving_type === 'TAKEAWAY') ? 'DINE_IN' : 'TAKEAWAY';
+        },
 
         addToCart() {
             const p = this.modifierModal.product;
@@ -1687,6 +1843,7 @@ function posApp() {
             const mods = [...this.modifierModal.selectedModifiers];
             const notes = this.modifierModal.notes.trim();
             const price = this.modalTotal;
+            const servingType = this.modifierModal.servingType || 'DINE_IN';
 
             this.cart.push({
                 id: p.id, name: p.name,
@@ -1699,6 +1856,7 @@ function posApp() {
                 has_discount: Boolean(p.has_active_discount),
                 discount_percentage: p.discount_percentage || null,
                 subtotal: price * qty,
+                serving_type: servingType,
             });
 
             this.modifierModal.show = false;
@@ -2056,6 +2214,7 @@ function posApp() {
                             modifiers: i.modifiers, notes: i.notes || '',
                             showNotes: Boolean(i.notes),
                             qty: i.qty, price: i.price, subtotal: i.subtotal,
+                            serving_type: i.serving_type || 'DINE_IN',
                         });
                     });
                     this.recalledOrderId = orderId;
@@ -2180,6 +2339,7 @@ function posApp() {
                 variant_id: i.variant_id,
                 modifiers: (i.modifiers ?? []).map(m => m.id),
                 notes: (i.notes || '').trim() || null,
+                serving_type: i.serving_type || 'DINE_IN',
             }));
         },
         async post(url, data) {

@@ -190,35 +190,108 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 
     <div class="double-divider"></div>
 
-    {{-- Kitchen Prep Items Table --}}
-    <table class="items-table">
-        @forelse($receiptData->items as $item)
-            <tr>
-                <td class="item-qty">[{{ $item['quantity'] }}x]</td>
-                <td class="item-details">
-                    <div class="item-name">{{ $item['name'] }}</div>
-                    @if(!empty($item['variant']))
-                        <div class="item-addon">Varian: {{ $item['variant'] }}</div>
+    {{-- Kitchen Prep Items Table with Dine In / Takeaway Separation --}}
+    @php
+        $hasDineIn = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') !== 'TAKEAWAY');
+        $hasTakeaway = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY');
+        $isMixed = $hasDineIn && $hasTakeaway;
+    @endphp
+
+    @if($isMixed)
+        @if($hasDineIn)
+            <div style="font-weight: 900; font-size: 11px; padding: 3px 0; border-bottom: 2px solid #000; margin-top: 4px;">
+                === 🍽️ DINE IN (MAKAN DI TEMPAT) ===
+            </div>
+            <table class="items-table mb-1">
+                @foreach(collect($receiptData->items)->filter(fn($i) => strtoupper($i['serving_type'] ?? '') !== 'TAKEAWAY') as $item)
+                    <tr>
+                        <td class="item-qty">[{{ $item['quantity'] }}x]</td>
+                        <td class="item-details">
+                            <div class="item-name">{{ $item['name'] }}</div>
+                            @if(!empty($item['variant']))
+                                <div class="item-addon">Varian: {{ $item['variant'] }}</div>
+                            @endif
+                            @if(!empty($item['modifiers']) && is_array($item['modifiers']))
+                                <div class="item-addon">Opsi: {{ collect($item['modifiers'])->pluck('name')->join(', ') }}</div>
+                            @endif
+                            @if(!empty($item['notes']))
+                                <div class="{{ $highlightNotes ? 'item-notes' : 'item-addon' }}">
+                                    * Catatan: {{ $item['notes'] }}
+                                </div>
+                            @endif
+                        </td>
+                        @if($showPrices)
+                            <td class="item-price">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
+                        @endif
+                    </tr>
+                @endforeach
+            </table>
+        @endif
+
+        @if($hasTakeaway)
+            <div style="font-weight: 900; font-size: 11px; padding: 3px 0; border-top: 2px dashed #000; border-bottom: 2px solid #000; margin-top: 6px;">
+                === 🛍️ TAKEAWAY (BUNGKUS) ===
+            </div>
+            <table class="items-table mb-1">
+                @foreach(collect($receiptData->items)->filter(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY') as $item)
+                    <tr>
+                        <td class="item-qty">[{{ $item['quantity'] }}x]</td>
+                        <td class="item-details">
+                            <div class="item-name">{{ $item['name'] }}</div>
+                            @if(!empty($item['variant']))
+                                <div class="item-addon">Varian: {{ $item['variant'] }}</div>
+                            @endif
+                            @if(!empty($item['modifiers']) && is_array($item['modifiers']))
+                                <div class="item-addon">Opsi: {{ collect($item['modifiers'])->pluck('name')->join(', ') }}</div>
+                            @endif
+                            @if(!empty($item['notes']))
+                                <div class="{{ $highlightNotes ? 'item-notes' : 'item-addon' }}">
+                                    * Catatan: {{ $item['notes'] }}
+                                </div>
+                            @endif
+                        </td>
+                        @if($showPrices)
+                            <td class="item-price">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
+                        @endif
+                    </tr>
+                @endforeach
+            </table>
+        @endif
+    @else
+        @if($hasTakeaway)
+            <div style="font-weight: 900; font-size: 11px; padding: 2px 0; border-bottom: 2px solid #000; margin-bottom: 4px;">
+                === 🛍️ SEMUA TAKEAWAY (BUNGKUS) ===
+            </div>
+        @endif
+        <table class="items-table">
+            @forelse($receiptData->items as $item)
+                <tr>
+                    <td class="item-qty">[{{ $item['quantity'] }}x]</td>
+                    <td class="item-details">
+                        <div class="item-name">{{ $item['name'] }}</div>
+                        @if(!empty($item['variant']))
+                            <div class="item-addon">Varian: {{ $item['variant'] }}</div>
+                        @endif
+                        @if(!empty($item['modifiers']) && is_array($item['modifiers']))
+                            <div class="item-addon">Opsi: {{ collect($item['modifiers'])->pluck('name')->join(', ') }}</div>
+                        @endif
+                        @if(!empty($item['notes']))
+                            <div class="{{ $highlightNotes ? 'item-notes' : 'item-addon' }}">
+                                * Catatan: {{ $item['notes'] }}
+                            </div>
+                        @endif
+                    </td>
+                    @if($showPrices)
+                        <td class="item-price">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
                     @endif
-                    @if(!empty($item['modifiers']) && is_array($item['modifiers']))
-                        <div class="item-addon">Opsi: {{ collect($item['modifiers'])->pluck('name')->join(', ') }}</div>
-                    @endif
-                    @if(!empty($item['notes']))
-                        <div class="{{ $highlightNotes ? 'item-notes' : 'item-addon' }}">
-                            * Catatan: {{ $item['notes'] }}
-                        </div>
-                    @endif
-                </td>
-                @if($showPrices)
-                    <td class="item-price">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
-                @endif
-            </tr>
-        @empty
-            <tr>
-                <td colspan="3" class="text-center" style="padding: 10px 0;">(Tidak ada item untuk stasiun ini)</td>
-            </tr>
-        @endforelse
-    </table>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="3" class="text-center" style="padding: 10px 0;">(Tidak ada item untuk stasiun ini)</td>
+                </tr>
+            @endforelse
+        </table>
+    @endif
 
     @if($showPrices)
         <div class="divider"></div>

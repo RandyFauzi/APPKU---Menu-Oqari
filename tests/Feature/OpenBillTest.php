@@ -168,4 +168,46 @@ class OpenBillTest extends TestCase
         $bestSellerRes->assertOk();
         $this->assertCount(1, $bestSellerRes->json());
     }
+
+    public function test_open_bill_supports_mixed_dine_in_and_takeaway_items(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $cashier = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
+        $p1 = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Es Kopi Susu', 'price' => 28000]);
+        $p2 = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Chicken Katsu', 'price' => 48000]);
+
+        $payload = [
+            'table' => 'Meja 04',
+            'customer_name' => 'Nadia',
+            'items' => [
+                ['id' => $p1->id, 'qty' => 2, 'serving_type' => 'DINE_IN', 'notes' => 'tanpa gula, es sedikit'],
+                ['id' => $p2->id, 'qty' => 1, 'serving_type' => 'TAKEAWAY', 'notes' => 'sambal dipisah'],
+            ],
+        ];
+
+        $res = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), $payload)->assertOk();
+        $orderId = $res->json('order_id');
+
+        $order = Order::with('items')->findOrFail($orderId);
+        $this->assertCount(2, $order->items);
+
+        $dineInItem = $order->items->firstWhere('product_id', $p1->id);
+        $takeawayItem = $order->items->firstWhere('product_id', $p2->id);
+
+        $this->assertSame('DINE_IN', $dineInItem->serving_type);
+        $this->assertSame('TAKEAWAY', $takeawayItem->serving_type);
+
+        // Test Recall Order returns serving_type
+        $recallRes = $this->actingAs($cashier)->postJson("/admin/pos/orders/{$orderId}/recall", [])->assertOk();
+        $recalledItems = $recallRes->json('order.items');
+        $this->assertSame('DINE_IN', $recalledItems[0]['serving_type']);
+        $this->assertSame('TAKEAWAY', $recalledItems[1]['serving_type']);
+
+        // Test Print Thermal Separates Dine In and Takeaway
+        $printRes = $this->actingAs($cashier)->get("/admin/api/orders/{$orderId}/print?type=customer")->assertOk();
+        $printRes->assertSee('DINE IN / MAKAN DI TEMPAT');
+        $printRes->assertSee('TAKEAWAY / BUNGKUS');
+        $printRes->assertSee('Es Kopi Susu');
+        $printRes->assertSee('Chicken Katsu');
+    }
 }

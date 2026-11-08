@@ -2426,6 +2426,8 @@
                         price: parseFloat(i.price || 0),
                         qty: parseInt(i.qty || 1),
                         notes: i.notes || '',
+                        showNotes: Boolean(i.notes),
+                        serving_type: i.serving_type || (order.fulfillment_type === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN'),
                         variant_id: i.variant_id || null,
                         variant_name: i.variant_name || null,
                         modifiers: (i.modifiers || []).map(m => typeof m === 'object' ? m.id : m),
@@ -2478,13 +2480,13 @@
                     });
                 },
 
-                addToOpenBillCart(product) {
+                addToOpenBillCart(product, servingType = 'DINE_IN') {
                     if ((product.variants && product.variants.length > 0) || (product.modifier_groups && product.modifier_groups.length > 0)) {
-                        this.openOpenBillModifierModal(product);
+                        this.openOpenBillModifierModal(product, servingType);
                         return;
                     }
 
-                    const existing = this.openBillModal.cart.find(i => i.id === product.id && !i.variant_id && (!i.modifiers || i.modifiers.length === 0));
+                    const existing = this.openBillModal.cart.find(i => i.id === product.id && !i.variant_id && (!i.modifiers || i.modifiers.length === 0) && (i.serving_type || 'DINE_IN') === servingType);
                     if (existing) {
                         existing.qty = (parseInt(existing.qty) || 1) + 1;
                     } else {
@@ -2497,12 +2499,14 @@
                             variant_name: null,
                             modifiers: [],
                             notes: '',
+                            showNotes: false,
+                            serving_type: servingType,
                             image: product.image_url || null,
                         });
                     }
                 },
 
-                openOpenBillModifierModal(product) {
+                openOpenBillModifierModal(product, servingType = 'DINE_IN') {
                     this.openBillModal.modifierModal = {
                         show: true,
                         product: product,
@@ -2510,6 +2514,7 @@
                         selectedModifiers: [],
                         notes: '',
                         qty: 1,
+                        servingType: servingType,
                     };
                 },
 
@@ -2521,6 +2526,24 @@
                     } else {
                         list.push(modifier);
                     }
+                },
+
+                toggleOpenBillItemServingType(idx) {
+                    if (!this.openBillModal.cart[idx]) return;
+                    const cur = this.openBillModal.cart[idx].serving_type || 'DINE_IN';
+                    this.openBillModal.cart[idx].serving_type = (cur === 'TAKEAWAY') ? 'DINE_IN' : 'TAKEAWAY';
+                },
+
+                splitOpenBillItem(idx) {
+                    const item = this.openBillModal.cart[idx];
+                    if (!item || item.qty <= 1 || this.openBillModal.cart.length >= 50) return;
+                    item.qty--;
+                    this.openBillModal.cart.splice(idx + 1, 0, {
+                        ...item,
+                        modifiers: [...(item.modifiers || [])],
+                        qty: 1,
+                        showNotes: true
+                    });
                 },
 
                 saveOpenBillModifier() {
@@ -2546,6 +2569,8 @@
                         modifiers: [...mod.selectedModifiers.map(m => m.id)],
                         modifier_names: mod.selectedModifiers.map(m => m.name),
                         notes: (mod.notes || '').trim(),
+                        showNotes: Boolean(mod.notes),
+                        serving_type: mod.servingType || 'DINE_IN',
                         image: p.image_url || null,
                     });
 
@@ -2586,6 +2611,7 @@
                             variant_id: i.variant_id || null,
                             modifiers: i.modifiers || [],
                             notes: (i.notes || '').trim() || null,
+                            serving_type: i.serving_type || 'DINE_IN',
                         })),
                         table: this.openBillModal.fulfillmentType === 'DINE_IN' ? (this.openBillModal.selectedTable || null) : null,
                         fulfillment_type: this.openBillModal.fulfillmentType || 'DINE_IN',

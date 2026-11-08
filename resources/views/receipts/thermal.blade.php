@@ -172,27 +172,92 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 
     <div class="divider"></div>
 
-    {{-- Items Table --}}
-    <table class="items mb-1 mt-1">
-        @foreach($receiptData->items as $item)
-            <tr>
-                <td class="qty">{{ $item['quantity'] }}x</td>
-                <td class="name">
-                    <span class="font-bold">{{ $item['name'] }}</span>
-                    @if(!empty($item['variant']))
-                        <br><small>({{ $item['variant'] }})</small>
-                    @endif
-                    @if(!empty($item['modifiers']) && is_array($item['modifiers']))
-                        <br><small>+ {{ collect($item['modifiers'])->pluck('name')->join(', ') }}</small>
-                    @endif
-                    @if(!empty($item['notes']))
-                        <br><small style="font-style: italic;">* {{ $item['notes'] }}</small>
-                    @endif
-                </td>
-                <td class="price">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
-            </tr>
-        @endforeach
-    </table>
+    {{-- Items Table with Dine In / Takeaway Separation --}}
+    @php
+        $hasDineIn = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') !== 'TAKEAWAY');
+        $hasTakeaway = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY');
+        $isMixed = $hasDineIn && $hasTakeaway;
+    @endphp
+
+    @if($isMixed)
+        @if($hasDineIn)
+            <div style="font-weight: bold; font-size: 10.5px; padding: 3px 0; border-bottom: 1px dashed #000; margin-top: 4px; display: flex; justify-content: space-between;">
+                <span>[ 🍽️ DINE IN / MAKAN DI TEMPAT ]</span>
+            </div>
+            <table class="items mb-1 mt-1">
+                @foreach(collect($receiptData->items)->filter(fn($i) => strtoupper($i['serving_type'] ?? '') !== 'TAKEAWAY') as $item)
+                    <tr>
+                        <td class="qty">{{ $item['quantity'] }}x</td>
+                        <td class="name">
+                            <span class="font-bold">{{ $item['name'] }}</span>
+                            @if(!empty($item['variant']))
+                                <br><small>({{ $item['variant'] }})</small>
+                            @endif
+                            @if(!empty($item['modifiers']) && is_array($item['modifiers']))
+                                <br><small>+ {{ collect($item['modifiers'])->pluck('name')->join(', ') }}</small>
+                            @endif
+                            @if(!empty($item['notes']))
+                                <br><small style="font-style: italic;">* {{ $item['notes'] }}</small>
+                            @endif
+                        </td>
+                        <td class="price">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            </table>
+        @endif
+
+        @if($hasTakeaway)
+            <div style="font-weight: bold; font-size: 10.5px; padding: 3px 0; border-top: 1px dashed #000; border-bottom: 1px dashed #000; margin-top: 6px; display: flex; justify-content: space-between;">
+                <span>[ 🛍️ TAKEAWAY / BUNGKUS ]</span>
+            </div>
+            <table class="items mb-1 mt-1">
+                @foreach(collect($receiptData->items)->filter(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY') as $item)
+                    <tr>
+                        <td class="qty">{{ $item['quantity'] }}x</td>
+                        <td class="name">
+                            <span class="font-bold">{{ $item['name'] }}</span>
+                            @if(!empty($item['variant']))
+                                <br><small>({{ $item['variant'] }})</small>
+                            @endif
+                            @if(!empty($item['modifiers']) && is_array($item['modifiers']))
+                                <br><small>+ {{ collect($item['modifiers'])->pluck('name')->join(', ') }}</small>
+                            @endif
+                            @if(!empty($item['notes']))
+                                <br><small style="font-style: italic;">* {{ $item['notes'] }}</small>
+                            @endif
+                        </td>
+                        <td class="price">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            </table>
+        @endif
+    @else
+        @if($hasTakeaway)
+            <div style="font-weight: bold; font-size: 10.5px; padding: 2px 0; border-bottom: 1px dashed #000; margin-bottom: 4px;">
+                <span>[ 🛍️ TAKEAWAY / BUNGKUS ]</span>
+            </div>
+        @endif
+        <table class="items mb-1 mt-1">
+            @foreach($receiptData->items as $item)
+                <tr>
+                    <td class="qty">{{ $item['quantity'] }}x</td>
+                    <td class="name">
+                        <span class="font-bold">{{ $item['name'] }}</span>
+                        @if(!empty($item['variant']))
+                            <br><small>({{ $item['variant'] }})</small>
+                        @endif
+                        @if(!empty($item['modifiers']) && is_array($item['modifiers']))
+                            <br><small>+ {{ collect($item['modifiers'])->pluck('name')->join(', ') }}</small>
+                        @endif
+                        @if(!empty($item['notes']))
+                            <br><small style="font-style: italic;">* {{ $item['notes'] }}</small>
+                        @endif
+                    </td>
+                    <td class="price">{{ number_format($item['subtotal'], 0, ',', '.') }}</td>
+                </tr>
+            @endforeach
+        </table>
+    @endif
 
     <div class="divider"></div>
 

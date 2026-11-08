@@ -157,9 +157,13 @@ class PosController extends Controller
             if ($order) {
                 $order->items()->delete();
                 $hasPriceColumn = Schema::hasColumn('order_items', 'price');
+                $hasServingTypeColumn = Schema::hasColumn('order_items', 'serving_type');
                 foreach ($cart['items'] as $item) {
                     if ($hasPriceColumn && ! isset($item['price'])) {
                         $item['price'] = $item['unit_price'] ?? 0;
+                    }
+                    if (! $hasServingTypeColumn) {
+                        unset($item['serving_type']);
                     }
                     $order->items()->create($item);
                 }
@@ -257,6 +261,7 @@ class PosController extends Controller
                     'variant' => $i->variant_name,
                     'modifiers' => $i->modifiers ?? [],
                     'notes' => $i->notes,
+                    'serving_type' => $i->serving_type ?? (str_contains($i->notes ?? '', '[TAKEAWAY]') ? 'TAKEAWAY' : ($order->fulfillment_type ?? 'DINE_IN')),
                 ]),
             ]);
 
@@ -318,6 +323,7 @@ class PosController extends Controller
                     'variant' => $i->variant_name,
                     'modifiers' => $i->modifiers ?? [],
                     'notes' => $i->notes,
+                    'serving_type' => $i->serving_type ?? (str_contains($i->notes ?? '', '[TAKEAWAY]') ? 'TAKEAWAY' : ($order->fulfillment_type ?? 'DINE_IN')),
                 ]),
             ],
         ]);

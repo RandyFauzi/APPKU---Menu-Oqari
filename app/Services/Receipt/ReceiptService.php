@@ -32,7 +32,10 @@ class ReceiptService
             'phone' => $order->customer_phone,
         ];
 
-        $itemsData = $order->items->map(function ($item) {
+        $itemsData = $order->items->map(function ($item) use ($order) {
+            $rawServingType = $item->serving_type ?? (str_contains((string) $item->notes, '[TAKEAWAY]') ? 'TAKEAWAY' : ($order->fulfillment_type ?? 'DINE_IN'));
+            $servingType = strtoupper((string) $rawServingType) === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN';
+
             return [
                 'id' => $item->id,
                 'name' => $item->product_name ?? ($item->product ? $item->product->name : 'Item'),
@@ -44,6 +47,7 @@ class ReceiptService
                 'subtotal' => (float) $item->subtotal,
                 'modifiers' => is_array($item->modifiers) ? $item->modifiers : (is_string($item->modifiers) ? json_decode($item->modifiers, true) : []),
                 'notes' => $item->notes,
+                'serving_type' => $servingType,
             ];
         })->toArray();
 

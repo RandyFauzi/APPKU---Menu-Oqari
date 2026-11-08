@@ -458,21 +458,29 @@
                                         </p>
                                     </div>
 
-                                    <!-- Price & Add Button Row -->
-                                    <div class="flex items-center justify-between gap-1.5 mt-2.5 pt-2 border-t border-gray-100">
-                                        <div>
-                                            <span class="font-bold text-[13.5px] text-[#111827]" x-text="formatRp(p.effective_price || p.price)"></span>
+                                    <!-- Price & Stacked Serving Buttons -->
+                                    <div class="mt-2 pt-2 border-t border-[#f0eee9] flex flex-col gap-1.5">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-bold text-[13px] text-[#111827]" x-text="'Rp ' + formatRp(p.effective_price || p.price)"></span>
                                             <template x-if="p.has_active_discount">
-                                                <span class="block text-[10px] text-gray-400 line-through" x-text="formatRp(p.price)"></span>
+                                                <span class="text-[10px] text-gray-400 line-through" x-text="'Rp ' + formatRp(p.price)"></span>
                                             </template>
                                         </div>
 
-                                        <button type="button" 
-                                                @click="addToOpenBillCart(p)"
-                                                class="w-7 h-7 rounded-full bg-[#111827] group-hover:bg-[#df5826] text-white flex items-center justify-center text-xs transition shadow-xs cursor-pointer active:scale-95 shrink-0"
-                                                title="Tambah ke pesanan">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
+                                        <div class="flex flex-col gap-1 w-full">
+                                            <button type="button" 
+                                                    @click="addToOpenBillCart(p, 'DINE_IN')"
+                                                    class="w-full py-1.5 px-2.5 rounded-[8px] bg-gradient-to-b from-[#f06428] to-[#df5826] hover:opacity-95 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                                <i class="fas fa-utensils text-[9px]"></i>
+                                                <span>Dine In</span>
+                                            </button>
+                                            <button type="button" 
+                                                    @click="addToOpenBillCart(p, 'TAKEAWAY')"
+                                                    class="w-full py-1.5 px-2.5 rounded-[8px] bg-white hover:bg-[#fff6f0] border border-[#df5826] text-[#df5826] text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                                <i class="fas fa-shopping-bag text-[9px]"></i>
+                                                <span>Takeaway</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
@@ -480,166 +488,289 @@
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN: CURRENT ORDER (Cart Summary & Actions) -->
+                <!-- RIGHT COLUMN: CURRENT ORDER (Matching Layout & Segments) -->
                 <div class="w-full md:w-[360px] lg:w-[400px] shrink-0 border-t md:border-t-0 md:border-l border-[#e6e5e0] bg-[#fafaf9] flex flex-col justify-between p-4 lg:p-5 overflow-y-auto">
                     
-                    <div class="space-y-3.5">
+                    <div class="space-y-3">
                         <!-- Panel Title -->
                         <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-black text-[#df5826] tracking-wider uppercase">CURRENT ORDER</span>
-                            <span class="text-[11.5px] font-semibold text-gray-500" x-text="openBillModal.cart.reduce((s, i) => s + parseInt(i.qty || 1), 0) + ' Item'"></span>
-                        </div>
-
-                        <!-- Customer & Table Header Card -->
-                        <div class="bg-white border border-[#e6e5e0] rounded-[16px] p-3.5 shadow-2xs space-y-2.5">
-                            
-                            <div class="flex items-start justify-between gap-2">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <!-- Table Badge / Icon -->
-                                    <div class="w-9 h-9 rounded-[10px] bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center font-bold text-xs shrink-0">
-                                        <i class="fas fa-chair" x-show="!openBillModal.selectedTable"></i>
-                                        <span x-show="openBillModal.selectedTable" x-text="String(openBillModal.selectedTable).replace(/^mejas*/i, '').padStart(2, '0')"></span>
-                                    </div>
-
-                                    <div class="min-w-0">
-                                        <h4 class="font-bold text-[14px] text-[#111827] truncate leading-tight" 
-                                            x-text="openBillModal.customerName ? openBillModal.customerName : (openBillModal.selectedTable ? 'Meja ' + openBillModal.selectedTable : 'Walk-in Customer')">
-                                        </h4>
-                                        <p class="text-[11px] text-amber-800 font-semibold flex items-center gap-1 mt-0.5">
-                                            <i class="fas fa-bookmark text-[9.5px]"></i>
-                                            <span x-text="openBillModal.recalledOrderId ? 'Open Bill • ' + (openBillModal.fulfillmentType === 'DINE_IN' ? 'Dine In' : 'Takeaway') + ' • #' + openBillModal.recalledOrderId : 'Open Bill Baru'"></span>
-                                        </p>
-                                    </div>
-                                </div>
+                            <div>
+                                <h3 class="text-[10px] font-bold tracking-wider text-[#8b8e93] uppercase">CURRENT ORDER</h3>
+                                <p class="text-[14px] font-bold text-[#111827] leading-tight" x-text="openBillModal.recalledOrderId ? 'Pesanan #' + openBillModal.recalledOrderId : 'Pesanan Baru'"></p>
                             </div>
-
-                            <!-- Fulfillment Switch (Dine-in / Takeaway) -->
-                            <div class="grid grid-cols-2 gap-1.5 p-1 bg-[#f3f4f6] rounded-[10px]">
-                                <button type="button" 
-                                        @click="openBillModal.fulfillmentType = 'DINE_IN'"
-                                        :class="openBillModal.fulfillmentType === 'DINE_IN' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-gray-500 hover:text-gray-800 font-medium'"
-                                        class="py-1.5 text-[11.5px] rounded-[8px] transition text-center cursor-pointer">
-                                    Dine-in
-                                </button>
-                                <button type="button" 
-                                        @click="openBillModal.fulfillmentType = 'TAKEAWAY'"
-                                        :class="openBillModal.fulfillmentType === 'TAKEAWAY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-gray-500 hover:text-gray-800 font-medium'"
-                                        class="py-1.5 text-[11.5px] rounded-[8px] transition text-center cursor-pointer">
-                                    Takeaway
-                                </button>
-                            </div>
-
-                            <!-- Customer & Table Input Fields (Collapsible / Customizable) -->
-                            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-gray-100">
-                                <div>
-                                    <label class="block text-[10.5px] font-semibold text-gray-500 mb-1">Pilih / Nomor Meja</label>
-                                    <div class="relative">
-                                        <input type="text" 
-                                               x-model="openBillModal.selectedTable" 
-                                               list="openbill-table-options"
-                                               placeholder="Contoh: 02" 
-                                               class="w-full bg-[#f8f9fa] border border-[#e6e5e0] focus:border-[#df5826] focus:bg-white rounded-[8px] px-2.5 py-1.5 text-[11.5px] outline-none">
-                                        <datalist id="openbill-table-options">
-                                            <template x-for="t in tables" :key="t.id">
-                                                <option :value="t.name || t.id"></option>
-                                            </template>
-                                        </datalist>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10.5px] font-semibold text-gray-500 mb-1">Nama Pelanggan</label>
-                                    <input type="text" 
-                                           x-model="openBillModal.customerName" 
-                                           placeholder="Walk-in / Nama" 
-                                           class="w-full bg-[#f8f9fa] border border-[#e6e5e0] focus:border-[#df5826] focus:bg-white rounded-[8px] px-2.5 py-1.5 text-[11.5px] outline-none">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Cart Items List -->
-                        <div class="bg-white border border-[#e6e5e0] rounded-[16px] p-3 shadow-2xs">
-                            <div class="text-[10.5px] font-bold uppercase tracking-wider text-gray-400 pb-2 mb-2 border-b border-gray-100 flex items-center justify-between">
-                                <span>Menu Terpilih</span>
-                                <button type="button" 
-                                        x-show="openBillModal.cart.length > 0" 
-                                        @click="openBillModal.cart = []" 
-                                        class="text-red-500 hover:text-red-700 text-[10px] font-semibold">
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" @click="openBillModal.cart = []" class="px-2 py-1 rounded-[7px] border border-[#f5d5c6] bg-[#fff6f0] text-[11px] font-semibold text-[#df5826] hover:opacity-80 transition cursor-pointer">
                                     Reset
                                 </button>
                             </div>
+                        </div>
 
-                            <!-- Empty Cart -->
-                            <div x-show="openBillModal.cart.length === 0" class="py-8 text-center text-gray-400">
-                                <i class="fas fa-shopping-basket text-2xl mb-1.5 opacity-30"></i>
-                                <p class="text-[11.5px]">Keranjang masih kosong</p>
-                                <p class="text-[10px] text-gray-400 mt-0.5">Pilih menu di sebelah kiri untuk menambahkan</p>
+                        <!-- Customer Name & Table Number (Side by Side matching layout) -->
+                        <div class="grid grid-cols-2 gap-2 pt-0.5">
+                            <div>
+                                <label class="block text-[10.5px] font-semibold text-[#53565a] mb-1">Customer name</label>
+                                <input type="text" 
+                                       x-model="openBillModal.customerName" 
+                                       placeholder="Walk-in Customer"
+                                       class="w-full bg-white border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#111827] placeholder-[#8b8e93] outline-none transition">
                             </div>
 
-                            <!-- Items -->
-                            <div x-show="openBillModal.cart.length > 0" class="max-h-[30vh] overflow-y-auto space-y-2.5 pr-1 divide-y divide-gray-100">
-                                <template x-for="(item, idx) in openBillModal.cart" :key="idx">
-                                    <div class="pt-2 first:pt-0">
-                                        <div class="flex items-start justify-between gap-2">
-                                            <div class="min-w-0 flex-1">
-                                                <div class="flex items-center gap-1.5">
-                                                    <h5 class="font-bold text-[12.5px] text-[#111827] truncate leading-tight" x-text="item.name"></h5>
-                                                    <span x-show="item.variant_name" class="text-[9.5px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded" x-text="item.variant_name"></span>
-                                                </div>
-                                                <p class="text-[11.5px] font-semibold text-[#df5826] mt-0.5" x-text="formatRp(item.price)"></p>
-                                            </div>
+                            <div>
+                                <label class="block text-[10.5px] font-semibold text-[#53565a] mb-1">Table number</label>
+                                <div class="relative">
+                                    <input type="text" 
+                                           x-model="openBillModal.selectedTable" 
+                                           list="openbill-table-options"
+                                           placeholder="Pilih Meja" 
+                                           class="w-full bg-white border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#111827] outline-none transition">
+                                    <datalist id="openbill-table-options">
+                                        <template x-for="t in tables" :key="t.id">
+                                            <option :value="t.name || t.id"></option>
+                                        </template>
+                                    </datalist>
+                                </div>
+                            </div>
+                        </div>
 
-                                            <!-- Quantity Controls -->
-                                            <div class="flex items-center gap-1.5 bg-[#f8f9fa] border border-[#e6e5e0] rounded-[8px] p-0.5 shrink-0">
-                                                <button type="button" 
-                                                        @click="if (item.qty > 1) { item.qty--; } else { openBillModal.cart.splice(idx, 1); }"
-                                                        class="w-5 h-5 rounded-[6px] hover:bg-white text-gray-600 hover:text-red-500 flex items-center justify-center text-[10px] transition cursor-pointer">
-                                                    <i :class="item.qty > 1 ? 'fas fa-minus' : 'fas fa-trash-alt'"></i>
+                        <!-- Segmented Control: [ Direct Order ] & [ Delivery ] (Circled in Cyan) -->
+                        <div class="bg-[#f3f4f6] p-[3px] rounded-[10px] grid grid-cols-2 gap-[3px]">
+                            <button type="button" @click="openBillModal.fulfillmentType = 'DINE_IN'"
+                                :class="openBillModal.fulfillmentType !== 'DELIVERY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] font-medium hover:text-[#111827]'"
+                                class="py-1.5 px-3 rounded-[8px] text-[11.5px] text-center transition cursor-pointer">
+                                Direct Order
+                            </button>
+                            <button type="button" @click="openBillModal.fulfillmentType = 'DELIVERY'"
+                                :class="openBillModal.fulfillmentType === 'DELIVERY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] font-medium hover:text-[#111827]'"
+                                class="py-1.5 px-3 rounded-[8px] text-[11.5px] text-center transition cursor-pointer">
+                                Delivery
+                            </button>
+                        </div>
+
+                        <!-- Cart Items List (Separated with clean dividers & labels) -->
+                        <div class="flex flex-col gap-2.5 max-h-[36vh] overflow-y-auto pr-1">
+                            <template x-if="openBillModal.cart.length === 0">
+                                <div class="py-8 text-center text-gray-400 bg-white border border-dashed border-[#d8dce2] rounded-[12px] p-4">
+                                    <i class="fas fa-shopping-basket text-2xl mb-1.5 opacity-30"></i>
+                                    <p class="text-[11.5px] font-semibold text-gray-600">Keranjang masih kosong</p>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Pilih menu di samping untuk menambahkan ke pesanan.</p>
+                                </div>
+                            </template>
+
+                            {{-- 1. DINE IN SECTION --}}
+                            <template x-if="openBillModal.cart.some(i => (i.serving_type || 'DINE_IN') !== 'TAKEAWAY')">
+                                <div class="flex items-center justify-between px-1 pt-1 pb-0.5 border-b border-[#e6e5e0]">
+                                    <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#1e211f]">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                        <i class="fas fa-utensils text-[9.5px] text-emerald-600"></i>
+                                        <span>Makan di Tempat (Dine In)</span>
+                                    </div>
+                                    <span class="text-[10px] font-semibold text-[#8b8e93]" x-text="openBillModal.cart.filter(i => (i.serving_type || 'DINE_IN') !== 'TAKEAWAY').reduce((s,i)=>s+parseInt(i.qty||1),0) + ' item'"></span>
+                                </div>
+                            </template>
+
+                            <template x-for="(item, idx) in openBillModal.cart" :key="'ob-dinein-' + idx">
+                                <div x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'" class="bg-white border border-[#d8dce2] rounded-[10px] p-2.5 flex flex-col gap-1.5 shadow-2xs transition">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="w-[30px] h-[30px] rounded-[6px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center">
+                                            <template x-if="item.image">
+                                                <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
+                                            </template>
+                                            <template x-if="!item.image">
+                                                <span class="text-[10px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
+                                            </template>
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-[12.5px] font-semibold text-[#111827] leading-tight truncate" x-text="item.name"></p>
+                                            
+                                            <div class="mt-0.5 flex items-center gap-1">
+                                                <button type="button" @click="toggleOpenBillItemServingType(idx)"
+                                                    class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-[4px] bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[9.5px] font-bold transition cursor-pointer"
+                                                    title="Klik untuk pindah ke Takeaway">
+                                                    <i class="fas fa-utensils text-[8px]"></i>
+                                                    <span>Dine In</span>
+                                                    <i class="fas fa-sync-alt text-[7px] opacity-60 ml-0.5"></i>
                                                 </button>
-                                                <span class="w-5 text-center font-bold text-[11.5px] text-[#111827]" x-text="item.qty"></span>
-                                                <button type="button" 
-                                                        @click="item.qty++"
-                                                        class="w-5 h-5 rounded-[6px] hover:bg-white text-gray-600 hover:text-[#df5826] flex items-center justify-center text-[10px] transition cursor-pointer">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
+                                                <span x-show="item.variant_name" class="text-[10px] text-[#53565a] truncate" x-text="'· ' + item.variant_name"></span>
                                             </div>
                                         </div>
 
-                                        <!-- Notes field -->
-                                        <div class="mt-1.5">
-                                            <input type="text" 
-                                                   x-model="item.notes" 
-                                                   placeholder="+ Tambah catatan..." 
-                                                   class="w-full text-[10.5px] bg-[#fffaf6] border border-[#fae8dc] focus:border-[#df5826] text-[#df5826] placeholder-[#df5826]/50 rounded-[6px] px-2 py-0.5 outline-none">
+                                        <button type="button" @click="openBillModal.cart.splice(idx, 1)" class="w-[20px] h-[20px] flex items-center justify-center shrink-0 hover:opacity-75 transition cursor-pointer" title="Hapus item">
+                                            <img src="{{ asset('images/sparta/pos-trash-red.svg') }}" alt="Hapus" class="w-[14px] h-[14px]">
+                                        </button>
+                                    </div>
+
+                                    {{-- Collapsed Note Trigger --}}
+                                    <button type="button"
+                                        x-show="!item.showNotes && !item.notes"
+                                        @click="item.showNotes = true"
+                                        class="flex items-center gap-1 text-left w-fit hover:opacity-80 transition cursor-pointer py-0.5">
+                                        <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-[12px] h-[12px]">
+                                        <span class="text-[10.5px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
+                                    </button>
+
+                                    {{-- Expanded Note Box --}}
+                                    <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] pt-2 pb-1.5 px-2 flex flex-col gap-1.5">
+                                        <div class="relative border border-[#d8dce2] rounded-[6px] p-1.5 bg-[#f8f9fa]">
+                                            <label class="text-[10px] font-medium text-[#111827] block mb-0.5">Catatan customer (Opsional)</label>
+                                            <textarea x-model="item.notes" rows="2" placeholder="Contoh: tanpa gula, es sedikit"
+                                                class="w-full bg-transparent border-none outline-none text-[10.5px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-1.5">
+                                            <button type="button" @click="item.notes = ''; item.showNotes = false"
+                                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition cursor-pointer">
+                                                <img src="{{ asset('images/sparta/pos-trash-dark.svg') }}" alt="" class="w-[12px] h-[12px]">
+                                                <span class="text-[10.5px] font-semibold text-[#111827]">Hapus Catatan</span>
+                                            </button>
+                                            <button type="button" @click="splitOpenBillItem(idx)" :disabled="item.qty <= 1"
+                                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-40 cursor-pointer">
+                                                <img src="{{ asset('images/sparta/pos-split.svg') }}" alt="" class="w-[12px] h-[12px]">
+                                                <span class="text-[10.5px] font-semibold text-[#111827]">Pisahkan 1 Item</span>
+                                            </button>
                                         </div>
                                     </div>
-                                </template>
-                            </div>
+
+                                    <div class="flex items-center justify-between pt-0.5">
+                                        <span class="text-[12.5px] font-bold text-[#111827]" x-text="'Rp ' + formatRp(item.price * item.qty)"></span>
+                                        <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[2px] px-1 flex items-center gap-1 shadow-2xs">
+                                            <button type="button" @click="if (item.qty > 1) { item.qty--; } else { openBillModal.cart.splice(idx, 1); }"
+                                                class="w-[24px] h-[24px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
+                                                <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[11px] h-[11px]">
+                                            </button>
+                                            <span class="w-[18px] text-center text-[12px] font-bold text-[#111827]" x-text="item.qty"></span>
+                                            <button type="button" @click="item.qty++"
+                                                class="w-[24px] h-[24px] rounded-full bg-[#111827] hover:bg-[#df5826] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
+                                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[11px] h-[11px]">
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            {{-- 2. TAKEAWAY SECTION --}}
+                            <template x-if="openBillModal.cart.some(i => (i.serving_type || 'DINE_IN') === 'TAKEAWAY')">
+                                <div class="flex items-center justify-between px-1 pt-2 pb-0.5 border-b border-[#e6e5e0] mt-1">
+                                    <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#df5826]">
+                                        <span class="w-2 h-2 rounded-full bg-[#df5826]"></span>
+                                        <i class="fas fa-shopping-bag text-[9.5px]"></i>
+                                        <span>Bungkus (Takeaway)</span>
+                                    </div>
+                                    <span class="text-[10px] font-semibold text-[#8b8e93]" x-text="openBillModal.cart.filter(i => (i.serving_type || 'DINE_IN') === 'TAKEAWAY').reduce((s,i)=>s+parseInt(i.qty||1),0) + ' item'"></span>
+                                </div>
+                            </template>
+
+                            <template x-for="(item, idx) in openBillModal.cart" :key="'ob-takeaway-' + idx">
+                                <div x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'" class="bg-[#fffdfb] border border-[#f5d5c6] rounded-[10px] p-2.5 flex flex-col gap-1.5 shadow-2xs transition">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="w-[30px] h-[30px] rounded-[6px] bg-[#fff0e6] overflow-hidden shrink-0 flex items-center justify-center">
+                                            <template x-if="item.image">
+                                                <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
+                                            </template>
+                                            <template x-if="!item.image">
+                                                <span class="text-[10px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
+                                            </template>
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-[12.5px] font-semibold text-[#111827] leading-tight truncate" x-text="item.name"></p>
+                                            
+                                            <div class="mt-0.5 flex items-center gap-1">
+                                                <button type="button" @click="toggleOpenBillItemServingType(idx)"
+                                                    class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-[4px] bg-[#fff0e6] hover:bg-[#ffe2d1] text-[#df5826] border border-[#ffd2b8] text-[9.5px] font-bold transition cursor-pointer"
+                                                    title="Klik untuk pindah ke Dine In">
+                                                    <i class="fas fa-shopping-bag text-[8px]"></i>
+                                                    <span>Takeaway</span>
+                                                    <i class="fas fa-sync-alt text-[7px] opacity-60 ml-0.5"></i>
+                                                </button>
+                                                <span x-show="item.variant_name" class="text-[10px] text-[#53565a] truncate" x-text="'· ' + item.variant_name"></span>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" @click="openBillModal.cart.splice(idx, 1)" class="w-[20px] h-[20px] flex items-center justify-center shrink-0 hover:opacity-75 transition cursor-pointer" title="Hapus item">
+                                            <img src="{{ asset('images/sparta/pos-trash-red.svg') }}" alt="Hapus" class="w-[14px] h-[14px]">
+                                        </button>
+                                    </div>
+
+                                    {{-- Collapsed Note Trigger --}}
+                                    <button type="button"
+                                        x-show="!item.showNotes && !item.notes"
+                                        @click="item.showNotes = true"
+                                        class="flex items-center gap-1 text-left w-fit hover:opacity-80 transition cursor-pointer py-0.5">
+                                        <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-[12px] h-[12px]">
+                                        <span class="text-[10.5px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
+                                    </button>
+
+                                    {{-- Expanded Note Box --}}
+                                    <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] pt-2 pb-1.5 px-2 flex flex-col gap-1.5">
+                                        <div class="relative border border-[#d8dce2] rounded-[6px] p-1.5 bg-[#f8f9fa]">
+                                            <label class="text-[10px] font-medium text-[#111827] block mb-0.5">Catatan customer (Opsional)</label>
+                                            <textarea x-model="item.notes" rows="2" placeholder="Contoh: tanpa gula, es sedikit"
+                                                class="w-full bg-transparent border-none outline-none text-[10.5px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-1.5">
+                                            <button type="button" @click="item.notes = ''; item.showNotes = false"
+                                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition cursor-pointer">
+                                                <img src="{{ asset('images/sparta/pos-trash-dark.svg') }}" alt="" class="w-[12px] h-[12px]">
+                                                <span class="text-[10.5px] font-semibold text-[#111827]">Hapus Catatan</span>
+                                            </button>
+                                            <button type="button" @click="splitOpenBillItem(idx)" :disabled="item.qty <= 1"
+                                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-40 cursor-pointer">
+                                                <img src="{{ asset('images/sparta/pos-split.svg') }}" alt="" class="w-[12px] h-[12px]">
+                                                <span class="text-[10.5px] font-semibold text-[#111827]">Pisahkan 1 Item</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-0.5">
+                                        <span class="text-[12.5px] font-bold text-[#df5826]" x-text="'Rp ' + formatRp(item.price * item.qty)"></span>
+                                        <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[2px] px-1 flex items-center gap-1 shadow-2xs">
+                                            <button type="button" @click="if (item.qty > 1) { item.qty--; } else { openBillModal.cart.splice(idx, 1); }"
+                                                class="w-[24px] h-[24px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
+                                                <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[11px] h-[11px]">
+                                            </button>
+                                            <span class="w-[18px] text-center text-[12px] font-bold text-[#111827]" x-text="item.qty"></span>
+                                            <button type="button" @click="item.qty++"
+                                                class="w-[24px] h-[24px] rounded-full bg-[#df5826] hover:bg-[#cb4c1d] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
+                                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[11px] h-[11px]">
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
                     </div>
 
-                    <!-- Price Breakdown & Submit Button -->
-                    <div class="mt-4 pt-3.5 border-t border-[#e6e5e0] space-y-3">
-                        <div class="flex items-center justify-between text-[12px] text-gray-500">
-                            <span class="font-medium">Rincian Harga</span>
-                            <span class="text-xs text-gray-400">Total Sementara</span>
+                    <!-- Price Breakdown & Submit Button (Matching Layout) -->
+                    <div class="mt-3 pt-3 border-t border-[#e6e5e0] space-y-2">
+                        <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
+                            <span>Subtotal</span>
+                            <span class="font-semibold text-[#111827]" x-text="'Rp ' + formatRp(openBillCartTotal())"></span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
+                            <span>Tax (10%)</span>
+                            <span class="font-semibold text-[#111827]" x-text="'Rp ' + formatRp(Math.round(openBillCartTotal() * 0.1))"></span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
+                            <span>Additional fee</span>
+                            <span class="font-medium text-[#8b8e93]">-</span>
                         </div>
 
-                        <div class="flex items-baseline justify-between">
-                            <span class="text-[14px] font-bold text-[#111827]">Total</span>
-                            <span class="text-[20px] font-black text-[#df5826] tracking-tight" x-text="formatRp(openBillCartTotal())"></span>
+                        <div class="border-t border-[#e6e5e0] pt-2 flex items-baseline justify-between">
+                            <span class="text-[13px] font-bold text-[#111827]">Total</span>
+                            <span class="text-[18px] font-black text-[#df5826] tracking-tight" x-text="'Rp ' + formatRp(openBillCartTotal() + Math.round(openBillCartTotal() * 0.1))"></span>
                         </div>
 
                         <button type="button" 
                                 @click="submitOpenBill()" 
                                 :disabled="openBillModal.isSaving || openBillModal.cart.length === 0"
-                                class="w-full py-3.5 px-4 rounded-[14px] bg-gradient-to-b from-[#f06428] to-[#df5826] hover:from-[#e0571e] hover:to-[#cb4c1d] text-white text-[13.5px] font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99]">
+                                class="w-full py-3 px-4 rounded-[12px] bg-gradient-to-b from-[#f06428] to-[#df5826] hover:from-[#e0571e] hover:to-[#cb4c1d] text-white text-[13px] font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99] mt-2">
                             <i class="fas fa-shopping-cart text-xs" x-show="!openBillModal.isSaving"></i>
                             <i class="fas fa-spinner fa-spin text-xs" x-show="openBillModal.isSaving" x-cloak></i>
                             <span x-text="openBillModal.isSaving ? 'Menyimpan...' : (openBillModal.recalledOrderId ? 'Perbarui Open Bill' : 'Buat Pesanan')"></span>
                         </button>
                     </div>
                 </div>
+
             </div>
 
             <!-- MODIFIER & VARIANT MODAL OVERLAY (Sub-modal) -->

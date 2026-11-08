@@ -62,7 +62,8 @@ class CreateOrder
             // 4. Bulk-insert order items
             $now = now();
             $hasPriceColumn = Schema::hasColumn('order_items', 'price');
-            $rows = array_map(function ($item) use ($order, $now, $hasPriceColumn) {
+            $hasServingTypeColumn = Schema::hasColumn('order_items', 'serving_type');
+            $rows = array_map(function ($item) use ($order, $now, $hasPriceColumn, $hasServingTypeColumn) {
                 $row = array_merge($item, [
                     'order_id' => $order->id,
                     'modifiers' => $item['modifiers'] ? json_encode($item['modifiers']) : null,
@@ -72,6 +73,10 @@ class CreateOrder
 
                 if ($hasPriceColumn && ! isset($row['price'])) {
                     $row['price'] = $row['unit_price'] ?? 0;
+                }
+
+                if (! $hasServingTypeColumn) {
+                    unset($row['serving_type']);
                 }
 
                 return $row;
