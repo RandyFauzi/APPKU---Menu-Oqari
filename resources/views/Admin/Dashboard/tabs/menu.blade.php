@@ -773,8 +773,12 @@
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                     <!-- Toggle Switch -->
                                     <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
-                                        <input type="checkbox" x-model="draft.is_discount_active" class="sr-only peer">
-                                        <div class="relative w-8 h-4.5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:bg-[#df5826]"></div>
+                                        <input type="checkbox" x-model="draft.is_discount_active" class="sr-only">
+                                        <div class="relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out p-0.5 shadow-inner shrink-0"
+                                             :class="draft.is_discount_active ? 'bg-[#df5826]' : 'bg-gray-300 hover:bg-gray-400'">
+                                            <div class="w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-200 ease-in-out"
+                                                 :class="draft.is_discount_active ? 'translate-x-5' : 'translate-x-0'"></div>
+                                        </div>
                                         <span class="text-[12px] font-bold text-[#111827] flex items-center gap-1.5">
                                             <i class="fas fa-tag text-[#df5826] text-[11px]"></i>
                                             <span>Aktifkan Harga Diskon / Promo (Harga Coret)</span>
