@@ -10,6 +10,7 @@ use App\Events\OrderCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\HoldPosOrderRequest;
 use App\Http\Requests\SubmitPosOrderRequest;
+use App\Models\ActivityLog;
 use App\Models\CashRegister;
 use App\Models\CashRegisterSession;
 use App\Models\Order;
@@ -195,6 +196,20 @@ class PosController extends Controller
 
                 OrderCreated::dispatch($order);
 
+                if (class_exists(ActivityLog::class)) {
+                    $tableLabel = $order->table?->name ? 'Meja '.$order->table->name : ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja');
+                    ActivityLog::create([
+                        'shop_id' => $shop->id,
+                        'user_id' => Auth::id(),
+                        'action' => 'pos.order_held_updated',
+                        'entity_type' => Order::class,
+                        'entity_id' => $order->id,
+                        'description' => 'Memperbarui pesanan Open Bill #'.$order->id.' ('.$tableLabel.' · '.($order->customer_name ?: 'Walk-in').') - Total: Rp '.number_format((float) $order->grand_total, 0, ',', '.'),
+                        'ip_address' => request()->ip(),
+                        'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+                    ]);
+                }
+
                 return response()->json([
                     'success' => true,
                     'order_id' => $order->id,
@@ -219,6 +234,20 @@ class PosController extends Controller
         OrderCreated::dispatch($order);
 
         $order->load('table');
+
+        if (class_exists(ActivityLog::class)) {
+            $tableLabel = $order->table?->name ? 'Meja '.$order->table->name : ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja');
+            ActivityLog::create([
+                'shop_id' => $shop->id,
+                'user_id' => Auth::id(),
+                'action' => 'pos.order_held',
+                'entity_type' => Order::class,
+                'entity_id' => $order->id,
+                'description' => 'Membuat pesanan Open Bill baru #'.$order->id.' ('.$tableLabel.' · '.($order->customer_name ?: 'Walk-in').') - Total: Rp '.number_format((float) $order->grand_total, 0, ',', '.'),
+                'ip_address' => request()->ip(),
+                'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+            ]);
+        }
 
         return response()->json([
             'success' => true,

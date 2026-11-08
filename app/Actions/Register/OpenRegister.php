@@ -2,6 +2,7 @@
 
 namespace App\Actions\Register;
 
+use App\Models\ActivityLog;
 use App\Models\CashRegister;
 use App\Models\CashRegisterSession;
 use App\Models\User;
@@ -45,7 +46,7 @@ class OpenRegister
                 ['name' => 'Main Register']
             );
 
-            return CashRegisterSession::create([
+            $session = CashRegisterSession::create([
                 'cash_register_id' => $register->id,
                 'user_id' => $cashier->id,
                 'opening_cash' => $openingCash,
@@ -58,6 +59,21 @@ class OpenRegister
                 'status' => 'OPEN',
                 'opened_at' => now(),
             ]);
+
+            if (class_exists(ActivityLog::class)) {
+                ActivityLog::create([
+                    'shop_id' => $shopId,
+                    'user_id' => $cashier->id,
+                    'action' => 'register.opened',
+                    'entity_type' => CashRegisterSession::class,
+                    'entity_id' => $session->id,
+                    'description' => 'Membuka sesi kasir baru dengan modal awal Rp '.number_format((float) $openingCash, 0, ',', '.'),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+                ]);
+            }
+
+            return $session;
         });
     }
 }

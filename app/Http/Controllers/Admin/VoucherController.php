@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Voucher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -111,6 +112,20 @@ class VoucherController extends Controller
 
         $voucher = Voucher::create($validated);
 
+        if (class_exists(ActivityLog::class)) {
+            ActivityLog::create([
+                'shop_id' => $shopId,
+                'user_id' => Auth::id(),
+                'action' => 'voucher.created',
+                'entity_type' => Voucher::class,
+                'entity_id' => $voucher->id,
+                'description' => 'Membuat voucher promo baru: '.$voucher->code.' ('.$voucher->name.') - Diskon: '.($voucher->discount_type === 'percentage' ? $voucher->discount_value.'%' : 'Rp '.number_format((float) $voucher->discount_value, 0, ',', '.')),
+                'new_values' => $voucher->only(['code', 'name', 'discount_type', 'discount_value', 'min_spend', 'max_discount', 'usage_limit', 'expires_at', 'is_active']),
+                'ip_address' => request()->ip(),
+                'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Voucher berhasil dibuat.',
@@ -147,7 +162,23 @@ class VoucherController extends Controller
         $validated['min_spend'] = $validated['min_spend'] ?? 0;
         $validated['is_active'] = $request->boolean('is_active', true);
 
+        $oldValues = $voucher->only(['code', 'name', 'discount_type', 'discount_value', 'min_spend', 'max_discount', 'usage_limit', 'expires_at', 'is_active']);
         $voucher->update($validated);
+
+        if (class_exists(ActivityLog::class)) {
+            ActivityLog::create([
+                'shop_id' => $shopId,
+                'user_id' => Auth::id(),
+                'action' => 'voucher.updated',
+                'entity_type' => Voucher::class,
+                'entity_id' => $voucher->id,
+                'description' => 'Memperbarui voucher promo: '.$voucher->code.' ('.$voucher->name.')',
+                'old_values' => $oldValues,
+                'new_values' => $voucher->only(['code', 'name', 'discount_type', 'discount_value', 'min_spend', 'max_discount', 'usage_limit', 'expires_at', 'is_active']),
+                'ip_address' => request()->ip(),
+                'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -166,6 +197,20 @@ class VoucherController extends Controller
 
         $voucher->update(['is_active' => ! $voucher->is_active]);
 
+        if (class_exists(ActivityLog::class)) {
+            ActivityLog::create([
+                'shop_id' => $shopId,
+                'user_id' => Auth::id(),
+                'action' => 'voucher.status_toggled',
+                'entity_type' => Voucher::class,
+                'entity_id' => $voucher->id,
+                'description' => ($voucher->is_active ? 'Mengaktifkan' : 'Menonaktifkan').' voucher promo: '.$voucher->code,
+                'new_values' => ['is_active' => $voucher->is_active],
+                'ip_address' => request()->ip(),
+                'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Status voucher berhasil diubah.',
@@ -181,7 +226,24 @@ class VoucherController extends Controller
         $shopId = Auth::user()->shop_id;
         abort_unless($voucher->shop_id === $shopId, 403);
 
+        $code = $voucher->code;
+        $name = $voucher->name;
+        $oldValues = $voucher->only(['code', 'name', 'discount_type', 'discount_value', 'min_spend', 'max_discount', 'usage_limit', 'expires_at', 'is_active']);
         $voucher->delete();
+
+        if (class_exists(ActivityLog::class)) {
+            ActivityLog::create([
+                'shop_id' => $shopId,
+                'user_id' => Auth::id(),
+                'action' => 'voucher.deleted',
+                'entity_type' => Voucher::class,
+                'entity_id' => $voucher->id,
+                'description' => 'Menghapus voucher promo: '.$code.' ('.$name.')',
+                'old_values' => $oldValues,
+                'ip_address' => request()->ip(),
+                'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+            ]);
+        }
 
         return response()->json([
             'success' => true,

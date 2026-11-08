@@ -2,6 +2,7 @@
 
 namespace App\Actions\Orders;
 
+use App\Models\ActivityLog;
 use App\Models\Modifier;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -145,6 +146,20 @@ class CreateOrderAction
 
             // Deduct inventory stock based on recipes
             app(InventoryService::class)->deductStockForOrder($order);
+
+            if (class_exists(ActivityLog::class)) {
+                $tableLabel = $tableModel ? 'Meja '.$tableModel->name : ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja');
+                ActivityLog::create([
+                    'shop_id' => $shop->id,
+                    'user_id' => auth()->id(),
+                    'action' => 'order.qr_placed',
+                    'entity_type' => Order::class,
+                    'entity_id' => $order->id,
+                    'description' => 'Pesanan baru masuk via QR Menu #'.$order->id.' ('.$tableLabel.' · '.($order->customer_name ?: 'Pelanggan').') - Total: Rp '.number_format((float) $order->grand_total, 0, ',', '.'),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+                ]);
+            }
 
             return $order;
         });

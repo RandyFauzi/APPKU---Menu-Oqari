@@ -5,6 +5,7 @@ namespace App\Actions\POS;
 use App\Actions\Order\CreateOrder;
 use App\Actions\Payment\ProcessPayment;
 use App\Events\OrderCreated;
+use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Models\Shop;
 use App\Models\Table;
@@ -98,6 +99,25 @@ class SubmitPosOrder
 
             $this->inventory->deductStockForOrder($order);
             OrderCreated::dispatch($order);
+
+            if (class_exists(ActivityLog::class)) {
+                $fulfillment = match ($order->fulfillment_type) {
+                    'TAKEAWAY' => 'Takeaway',
+                    'DELIVERY' => 'Delivery',
+                    default => ($order->table?->name ? 'Meja '.$order->table->name : 'Dine In'),
+                };
+                $itemsCount = (int) $order->items()->sum('quantity');
+                ActivityLog::create([
+                    'shop_id' => $shop->id,
+                    'user_id' => $cashier->id,
+                    'action' => 'pos.order_completed',
+                    'entity_type' => Order::class,
+                    'entity_id' => $order->id,
+                    'description' => 'Transaksi kasir selesai untuk pesanan #'.$order->id.' ('.$fulfillment.' · '.$itemsCount.' item) - Metode: '.$data['payment_method'].' - Total: Rp '.number_format((float) $order->grand_total, 0, ',', '.'),
+                    'ip_address' => request()->ip(),
+                    'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+                ]);
+            }
 
             return $order;
         });

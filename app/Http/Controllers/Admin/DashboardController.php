@@ -28,15 +28,20 @@ use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
-    private function logActivity($action, $description)
+    private function logActivity(string $action, string $description, ?string $entityType = null, ?int $entityId = null, ?array $oldValues = null, ?array $newValues = null): void
     {
-        if (class_exists(ActivityLog::class)) {
+        if (class_exists(ActivityLog::class) && Auth::check() && Auth::user()?->shop_id) {
             ActivityLog::create([
                 'shop_id' => Auth::user()->shop_id,
                 'user_id' => Auth::id(),
                 'action' => $action,
                 'description' => $description,
+                'entity_type' => $entityType,
+                'entity_id' => $entityId,
+                'old_values' => $oldValues,
+                'new_values' => $newValues,
                 'ip_address' => request()->ip(),
+                'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
             ]);
         }
     }
@@ -224,6 +229,8 @@ class DashboardController extends Controller
         $menu->is_sold_out = ! $menu->is_sold_out;
         $menu->save();
 
+        $this->logActivity('menu_status_toggled', 'Mengubah status ketersediaan menu "'.$menu->name.'" menjadi '.($menu->is_sold_out ? 'Habis (Sold Out)' : 'Tersedia'), Product::class, $menu->id);
+
         return response()->json(['success' => true, 'is_sold_out' => $menu->is_sold_out]);
     }
 
@@ -232,6 +239,9 @@ class DashboardController extends Controller
         $menu = Product::where('shop_id', Auth::user()->shop_id)->findOrFail($menuId);
         $menu->is_discount_active = ! $menu->is_discount_active;
         $menu->save();
+
+        $effectiveFormatted = 'Rp '.number_format((float) $menu->effective_price, 0, ',', '.');
+        $this->logActivity('menu_discount_toggled', 'Mengubah status harga promo diskon menu "'.$menu->name.'" menjadi '.($menu->is_discount_active ? 'Aktif ('.$effectiveFormatted.')' : 'Nonaktif'), Product::class, $menu->id);
 
         return response()->json([
             'success' => true,
@@ -357,6 +367,16 @@ class DashboardController extends Controller
 
         $menu->load(['category', 'recipes.rawMaterial']);
 
+        $isNew = empty($request->id);
+        $menuPriceFormatted = 'Rp '.number_format((float) $menu->price, 0, ',', '.');
+        $promoInfo = $menu->is_discount_active && $menu->discount_price !== null
+            ? ' (Promo: Rp '.number_format((float) $menu->discount_price, 0, ',', '.').')'
+            : '';
+        $desc = $isNew
+            ? 'Menambahkan menu baru: '.$menu->name.' ['.$menuPriceFormatted.$promoInfo.']'
+            : 'Memperbarui menu: '.$menu->name.' ['.$menuPriceFormatted.$promoInfo.']';
+        $this->logActivity($isNew ? 'menu_created' : 'menu_updated', $desc, Product::class, $menu->id);
+
         $duplicateExists = Product::where('shop_id', $shopId)
             ->where('name', $request->name)
             ->where('id', '!=', $menu->id)
@@ -402,6 +422,7 @@ class DashboardController extends Controller
             if ($request->filled('icon')) {
                 $existing->icon = $icon;
                 $existing->save();
+                $this->logActivity('category_updated', 'Memperbarui icon kategori: '.$existing->name.' (Icon: '.$existing->icon.')', Category::class, $existing->id);
             }
 
             return response()->json([
@@ -429,6 +450,8 @@ class DashboardController extends Controller
             'sort_order' => Category::where('shop_id', $shopId)->count() + 1,
             'is_active' => true,
         ]);
+
+        $this->logActivity('category_created', 'Membuat kategori menu baru: '.$category->name.' (Icon: '.$category->icon.')', Category::class, $category->id);
 
         return response()->json(['success' => true, 'category' => $category]);
     }
@@ -482,7 +505,7 @@ class DashboardController extends Controller
             'category_name' => $category->name,
         ]);
 
-        $this->logActivity('category_updated', 'Mengubah kategori "'.$oldName.'" menjadi "'.$category->name.'"');
+        $this->logActivity('category_updated', 'Mengubah kategori "'.$oldName.'" menjadi "'.$category->name.'" (Icon: '.$category->icon.')', Category::class, $category->id);
 
         return response()->json([
             'success' => true,
@@ -893,6 +916,8 @@ class DashboardController extends Controller
 
         $shop->save();
 
+        $this->logActivity('settings_updated', 'Memperbarui pengaturan profil toko: '.$shop->name, Shop::class, $shop->id);
+
         return response()->json(['success' => true, 'shop' => $shop->fresh()]);
     }
 
@@ -912,6 +937,8 @@ class DashboardController extends Controller
         $val = $request->input('operating_hours');
         $shop->operating_hours = is_array($val) ? $val : json_decode($val, true);
         $shop->save();
+
+        $this->logActivity('operating_hours_updated', 'Memperbarui jadwal jam operasional kafe', Shop::class, $shop->id);
 
         return response()->json([
             'success' => true,
@@ -934,6 +961,8 @@ class DashboardController extends Controller
         $table->public_token = strtolower(Str::random(8));
         $table->save();
 
+        $this->logActivity('table_created', 'Menambahkan meja baru: '.$table->name, Table::class, $table->id);
+
         return response()->json(['success' => true, 'table' => $table]);
     }
 
@@ -949,6 +978,8 @@ class DashboardController extends Controller
         if ($table) {
             $table->public_token = strtolower(Str::random(8));
             $table->save();
+
+            $this->logActivity('table_qr_updated', 'Memperbarui QR code meja: '.$table->name, Table::class, $table->id);
 
             return response()->json(['success' => true, 'table' => $table]);
         }
