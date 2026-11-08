@@ -147,6 +147,30 @@
                         <label class="block text-[11px] font-semibold text-[#53565a] mb-1.5 uppercase tracking-wider">Nama Kategori</label>
                         <input type="text" x-model="newCategoryName" @keydown.enter="saveCategory" placeholder="Contoh: Coffee, Pastry, Signature..." class="w-full bg-[#f8f9fa] border border-[#e9ebf0] rounded-[10px] px-3.5 py-2.5 text-[13px] font-medium text-[#111827] focus:bg-white focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
                     </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-[11px] font-semibold text-[#53565a] uppercase tracking-wider">Pilih Icon Kategori (9 Pilihan)</label>
+                            <span class="text-[10px] text-[#7f837e] font-medium">Tampil di Menu QR</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <template x-for="item in categoryIcons" :key="item.icon">
+                                <button type="button" 
+                                        @click="newCategoryIcon = item.icon"
+                                        :class="newCategoryIcon === item.icon ? 'border-[#df5826] bg-[#fff6f0] text-[#df5826] ring-2 ring-[#df5826]/20 font-bold shadow-2xs' : 'border-[#e9ebf0] bg-[#f8f9fa] text-[#53565a] hover:border-gray-300 hover:bg-gray-50'"
+                                        class="flex flex-col items-center justify-center p-2.5 rounded-[12px] border transition cursor-pointer relative group">
+                                    <div class="w-8 h-8 rounded-[8px] flex items-center justify-center mb-1 text-base transition group-hover:scale-110"
+                                         :class="newCategoryIcon === item.icon ? 'text-[#df5826]' : 'text-gray-500'">
+                                        <i :class="'fas ' + item.icon"></i>
+                                    </div>
+                                    <span class="text-[11px] truncate w-full text-center" x-text="item.label"></span>
+                                    <template x-if="newCategoryIcon === item.icon">
+                                        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#df5826]"></span>
+                                    </template>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-6 flex justify-end gap-2">
@@ -222,8 +246,8 @@
                             <template x-if="editingCategoryId !== cat.id">
                                 <div class="flex items-center justify-between gap-3">
                                     <div class="flex items-center gap-3 min-w-0">
-                                        <div class="w-8 h-8 rounded-[10px] bg-[#f8f9fa] border border-[#e9ebf0] flex items-center justify-center text-[#df5826] shrink-0">
-                                            <i class="fas fa-tag text-xs"></i>
+                                        <div class="w-8 h-8 rounded-[10px] bg-[#fff6f0] border border-[#ffdec9] flex items-center justify-center text-[#df5826] shrink-0">
+                                            <i :class="'fas ' + (cat.icon || 'fa-utensils') + ' text-xs'"></i>
                                         </div>
                                         <div class="truncate">
                                             <p class="text-[13px] font-bold text-[#111827] truncate" x-text="cat.name"></p>
@@ -237,7 +261,7 @@
                                         <button type="button" 
                                                 @click="startEditCategory(cat)" 
                                                 class="w-8 h-8 rounded-[9px] bg-white border border-[#e9ebf0] hover:border-[#df5826] hover:bg-[#fff6f0] text-gray-500 hover:text-[#df5826] flex items-center justify-center transition cursor-pointer shadow-2xs" 
-                                                title="Rename kategori">
+                                                title="Edit nama & icon kategori">
                                             <i class="fas fa-pen text-xs"></i>
                                         </button>
                                         <button type="button" 
@@ -252,16 +276,16 @@
 
                             <!-- Edit/Rename Mode -->
                             <template x-if="editingCategoryId === cat.id">
-                                <div class="space-y-2 p-1">
+                                <div class="space-y-2.5 p-2 bg-[#fbfcfd] rounded-[12px] border border-[#df5826]/30">
                                     <div class="flex items-center justify-between text-[11px] font-semibold text-[#53565a]">
-                                        <span class="flex items-center gap-1"><i class="fas fa-pen-to-square text-[#df5826]"></i> Rename Kategori</span>
+                                        <span class="flex items-center gap-1"><i class="fas fa-pen-to-square text-[#df5826]"></i> Edit Kategori & Icon</span>
                                         <span class="text-[10px] text-[#7f837e] font-mono">↵ Enter untuk simpan</span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <input type="text" 
                                                x-model="editingCategoryName" 
                                                @keydown.enter.prevent="updateCategory(cat.id)"
-                                               class="flex-grow bg-[#fafbfc] border border-[#df5826] focus:bg-white rounded-[9px] px-3 py-1.5 text-[12px] text-[#111827] outline-none">
+                                               class="flex-grow bg-white border border-[#df5826] focus:ring-1 focus:ring-[#df5826] rounded-[9px] px-3 py-1.5 text-[12px] text-[#111827] outline-none font-medium">
                                         <button type="button" 
                                                 @click="cancelEditCategory()" 
                                                 class="px-2.5 py-1.5 bg-white border border-[#e9ebf0] text-gray-600 rounded-[9px] text-[11px] font-medium hover:bg-gray-50 transition cursor-pointer">
@@ -274,6 +298,28 @@
                                             <i :class="isSavingCategoryAction ? 'fas fa-spinner fa-spin' : 'fas fa-check text-xs'"></i>
                                             <span>Simpan</span>
                                         </button>
+                                    </div>
+
+                                    <!-- 9 Curated Category Icons Selector -->
+                                    <div class="pt-1 border-t border-[#f1f3f5]">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <label class="text-[10px] font-semibold text-[#53565a] uppercase">Pilih Icon (9 Pilihan):</label>
+                                            <span class="text-[10px] text-[#df5826] font-semibold flex items-center gap-1">
+                                                <i :class="'fas ' + editingCategoryIcon"></i>
+                                                <span x-text="(categoryIcons.find(i => i.icon === editingCategoryIcon) || {}).label || 'Dipilih'"></span>
+                                            </span>
+                                        </div>
+                                        <div class="grid grid-cols-9 gap-1">
+                                            <template x-for="item in categoryIcons" :key="item.icon">
+                                                <button type="button"
+                                                        @click="editingCategoryIcon = item.icon"
+                                                        :title="item.label"
+                                                        :class="editingCategoryIcon === item.icon ? 'border-[#df5826] bg-[#fff6f0] text-[#df5826] ring-1 ring-[#df5826] shadow-2xs font-bold' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'"
+                                                        class="h-7 rounded-[7px] border flex items-center justify-center transition cursor-pointer text-xs">
+                                                    <i :class="'fas ' + item.icon"></i>
+                                                </button>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                             </template>
@@ -649,8 +695,21 @@
                 showManageCategoryModal: false,
                 editingCategoryId: null,
                 editingCategoryName: '',
+                editingCategoryIcon: 'fa-mug-hot',
                 isSavingCategoryAction: false,
                 newCategoryName: '',
+                newCategoryIcon: 'fa-mug-hot',
+                categoryIcons: [
+                    { icon: 'fa-mug-hot', label: 'Kopi' },
+                    { icon: 'fa-glass-water', label: 'Minuman' },
+                    { icon: 'fa-leaf', label: 'Teh' },
+                    { icon: 'fa-utensils', label: 'Makanan' },
+                    { icon: 'fa-bowl-rice', label: 'Nasi' },
+                    { icon: 'fa-hamburger', label: 'Burger' },
+                    { icon: 'fa-bread-slice', label: 'Roti' },
+                    { icon: 'fa-ice-cream', label: 'Dessert' },
+                    { icon: 'fa-layer-group', label: 'Lainnya' }
+                ],
                 showAddMenuModal: false,
                 showAddTableModal: false,
                 showResetQRModal: false,
@@ -2225,13 +2284,22 @@
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        body: JSON.stringify({ name: this.newCategoryName })
+                        body: JSON.stringify({ 
+                            name: this.newCategoryName,
+                            icon: this.newCategoryIcon || 'fa-mug-hot'
+                        })
                     }).then(res => res.json()).then(data => {
                         if (data.success) {
                             if (!this.categories.some(c => c.id === data.category.id)) {
                                 this.categories.push(data.category);
+                            } else {
+                                const idx = this.categories.findIndex(c => c.id === data.category.id);
+                                if (idx !== -1) {
+                                    this.categories[idx] = Object.assign({}, this.categories[idx], data.category);
+                                }
                             }
                             this.newCategoryName = '';
+                            this.newCategoryIcon = 'fa-mug-hot';
                             this.showAddCategoryModal = false;
                             this.addToast(data.already_exists ? 'Kategori sudah tersedia!' : 'Kategori berhasil ditambahkan!', 'success');
                         } else {
@@ -2291,10 +2359,12 @@
                 startEditCategory(cat) {
                     this.editingCategoryId = cat.id;
                     this.editingCategoryName = cat.name;
+                    this.editingCategoryIcon = cat.icon || 'fa-mug-hot';
                 },
                 cancelEditCategory() {
                     this.editingCategoryId = null;
                     this.editingCategoryName = '';
+                    this.editingCategoryIcon = 'fa-mug-hot';
                 },
                 async updateCategory(catId) {
                     const trimmed = (this.editingCategoryName || '').trim();
@@ -2311,7 +2381,10 @@
                                 'Accept': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
-                            body: JSON.stringify({ name: trimmed })
+                            body: JSON.stringify({ 
+                                name: trimmed,
+                                icon: this.editingCategoryIcon || 'fa-mug-hot'
+                            })
                         });
                         const data = await res.json();
                         this.isSavingCategoryAction = false;

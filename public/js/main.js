@@ -257,7 +257,7 @@ function renderCategories() {
                 aria-pressed="${isActive}" 
                 class="category-pill flex flex-col items-center gap-1.5 cursor-pointer group flex-shrink-0 w-20 transition-all select-none outline-none">
             <div class="w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-200 ${bgClass} border">
-                <i class="fas ${cat.icon} text-2xl ${iconColor} group-hover:scale-110 transition-transform"></i>
+                <i class="fas ${cat.icon || 'fa-utensils'} text-2xl ${iconColor} group-hover:scale-110 transition-transform"></i>
             </div>
             <span class="text-[11px] text-center w-full truncate transition-colors ${textClass}">${escapeHtml(cat.name)}</span>
         </button>

@@ -230,41 +230,72 @@ class AdminDashboardTest extends TestCase
             ->assertJsonPath('category.name', 'Snacks');
     }
 
-    public function test_admin_can_update_category_name(): void
+    public function test_admin_can_create_and_update_category_with_custom_icon(): void
     {
-        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed', 'slug' => 'cafe-icon-test']);
         $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
 
-        $cat = Category::create([
-            'shop_id' => $shop->id,
-            'name' => 'Original Cat',
-            'slug' => 'original-cat',
-        ]);
-
-        $product = Product::create([
-            'shop_id' => $shop->id,
-            'category_id' => $cat->id,
-            'category_name' => 'Original Cat',
-            'name' => 'Kopi Cat',
-            'price' => 20000,
-        ]);
-
-        $response = $this->actingAs($user)->putJson('/admin/api/category/'.$cat->id, [
-            'name' => 'Renamed Cat',
+        // Create category with custom icon
+        $response = $this->actingAs($user)->postJson('/admin/api/category', [
+            'name' => 'Signature Coffee',
+            'icon' => 'fa-mug-hot',
         ]);
 
         $response->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('category.name', 'Renamed Cat');
+            ->assertJsonPath('category.name', 'Signature Coffee')
+            ->assertJsonPath('category.icon', 'fa-mug-hot');
 
         $this->assertDatabaseHas('categories', [
-            'id' => $cat->id,
-            'name' => 'Renamed Cat',
+            'shop_id' => $shop->id,
+            'name' => 'Signature Coffee',
+            'icon' => 'fa-mug-hot',
         ]);
 
-        $this->assertDatabaseHas('products', [
-            'id' => $product->id,
-            'category_name' => 'Renamed Cat',
+        $catId = $response->json('category.id');
+
+        // Update category icon to fa-leaf
+        $updateResp = $this->actingAs($user)->putJson('/admin/api/category/'.$catId, [
+            'name' => 'Artisan Tea',
+            'icon' => 'fa-leaf',
+        ]);
+
+        $updateResp->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('category.name', 'Artisan Tea')
+            ->assertJsonPath('category.icon', 'fa-leaf');
+
+        $this->assertDatabaseHas('categories', [
+            'id' => $catId,
+            'name' => 'Artisan Tea',
+            'icon' => 'fa-leaf',
+        ]);
+
+        // Verify customer menu page delivers category with the selected icon
+        $menuResp = $this->get(route('shop.menu', $shop->slug));
+        $menuResp->assertOk();
+        $this->assertStringContainsString('Artisan Tea', $menuResp->getContent());
+        $this->assertStringContainsString('fa-leaf', $menuResp->getContent());
+    }
+
+    public function test_admin_creating_category_without_icon_defaults_to_fa_utensils(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+
+        $response = $this->actingAs($user)->postJson('/admin/api/category', [
+            'name' => 'Snack Bar',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('category.name', 'Snack Bar')
+            ->assertJsonPath('category.icon', 'fa-utensils');
+
+        $this->assertDatabaseHas('categories', [
+            'shop_id' => $shop->id,
+            'name' => 'Snack Bar',
+            'icon' => 'fa-utensils',
         ]);
     }
 

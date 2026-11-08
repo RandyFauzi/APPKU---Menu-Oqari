@@ -72,6 +72,7 @@
                         @click="setMenuFilter(cat.id)" 
                         :class="(activeMenuFilter == cat.id || String(activeMenuFilter).toLowerCase() == String(cat.name).toLowerCase()) ? 'bg-[#df5826] text-white font-semibold shadow-xs' : 'bg-white border border-[#e9ebf0] text-[#53565a] hover:bg-gray-50'" 
                         class="rounded-full px-3 py-1 text-[11px] transition flex items-center gap-1.5 cursor-pointer">
+                    <i :class="'fas ' + (cat.icon || 'fa-utensils') + ' text-[10px] opacity-75'"></i>
                     <span x-text="cat.name"></span>
                     <span class="opacity-80" x-text="'(' + menuItems.filter(i => i.categoryId == cat.id || String(i.categoryName).toLowerCase() == String(cat.name).toLowerCase()).length + ')'"></span>
                 </button>
@@ -651,6 +652,7 @@
                                                     <span class="flex items-center gap-2.5 truncate">
                                                         <span class="w-2 h-2 rounded-full shrink-0 transition-transform group-hover:scale-125" 
                                                               :class="(draft.categoryId == cat.id || String(draft.categoryId).toLowerCase() === String(cat.name).toLowerCase()) ? 'bg-[#df5826]' : 'bg-gray-300'"></span>
+                                                        <i :class="'fas ' + (cat.icon || 'fa-utensils') + ' text-xs opacity-70'"></i>
                                                         <span class="truncate" x-text="cat.name"></span>
                                                     </span>
                                                     <span x-show="(draft.categoryId == cat.id || String(draft.categoryId).toLowerCase() === String(cat.name).toLowerCase())" 

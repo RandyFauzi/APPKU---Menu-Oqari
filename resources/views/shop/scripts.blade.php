@@ -67,7 +67,7 @@
                 window.apiData.categories.push({
                     id: cat.id,
                     name: cat.name,
-                    icon: getIcon(cat.name)
+                    icon: cat.icon || getIcon(cat.name)
                 });
                 existingCatIds.add(String(cat.id));
                 existingCatNames.add(cat.name.toLowerCase().trim());

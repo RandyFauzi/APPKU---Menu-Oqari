@@ -383,9 +383,15 @@ class DashboardController extends Controller
                 'string',
                 'max:255',
             ],
+            'icon' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
         ]);
 
         $trimmedName = trim($request->name);
+        $icon = $request->filled('icon') ? trim($request->icon) : 'fa-utensils';
 
         // Check if category already exists for this shop (case-insensitive)
         $existing = Category::where('shop_id', $shopId)
@@ -393,6 +399,11 @@ class DashboardController extends Controller
             ->first();
 
         if ($existing) {
+            if ($request->filled('icon')) {
+                $existing->icon = $icon;
+                $existing->save();
+            }
+
             return response()->json([
                 'success' => true,
                 'category' => $existing,
@@ -414,6 +425,7 @@ class DashboardController extends Controller
             'shop_id' => $shopId,
             'name' => $trimmedName,
             'slug' => $slug,
+            'icon' => $icon,
             'sort_order' => Category::where('shop_id', $shopId)->count() + 1,
             'is_active' => true,
         ]);
@@ -431,6 +443,7 @@ class DashboardController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'icon' => 'nullable|string|max:50',
         ]);
 
         $trimmed = trim($request->name);
@@ -451,6 +464,9 @@ class DashboardController extends Controller
 
         $oldName = $category->name;
         $category->name = $trimmed;
+        if ($request->has('icon') && ! empty($request->icon)) {
+            $category->icon = trim($request->icon);
+        }
         $baseSlug = Str::slug($trimmed) ?: 'kategori';
         $slug = $baseSlug;
         $counter = 1;
