@@ -12,4 +12,5 @@ return [
     'settings' => ['route' => 'admin.settings.index', 'uri' => 'settings', 'view' => 'Admin.Dashboard.tabs.settings', 'label' => 'Toko Saya', 'ability' => 'manage-settings', 'schema' => 'settings'],
     'hours' => ['route' => 'admin.operating-hours.index', 'uri' => 'operating-hours', 'view' => 'Admin.Dashboard.tabs.hours', 'label' => 'Jam Operasional', 'ability' => 'manage-settings', 'schema' => 'settings'],
     'receipt' => ['route' => 'admin.receipt-settings.index', 'uri' => 'receipt-settings', 'view' => 'Admin.Dashboard.tabs.receipt', 'label' => 'Pengaturan Struk', 'ability' => 'manage-settings', 'schema' => 'settings'],
+    'vouchers' => ['route' => 'admin.vouchers.index', 'uri' => 'vouchers', 'view' => 'Admin.Dashboard.tabs.vouchers', 'label' => 'Voucher Promo', 'ability' => 'manage-settings', 'schema' => 'settings'],
 ];

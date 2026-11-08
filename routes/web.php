@@ -144,7 +144,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/admin/api/table', [DashboardController::class, 'updateTableQR']);
 
         // Voucher & Promotion Management
-        Route::get('/admin/api/vouchers', [VoucherController::class, 'index'])->name('admin.vouchers.index');
+        Route::get('/admin/api/vouchers', [VoucherController::class, 'index'])->name('admin.vouchers.api.index');
         Route::post('/admin/api/vouchers', [VoucherController::class, 'store'])->name('admin.vouchers.store');
         Route::put('/admin/api/vouchers/{voucher}', [VoucherController::class, 'update'])->whereNumber('voucher')->name('admin.vouchers.update');
         Route::patch('/admin/api/vouchers/{voucher}/toggle', [VoucherController::class, 'toggle'])->whereNumber('voucher')->name('admin.vouchers.toggle');

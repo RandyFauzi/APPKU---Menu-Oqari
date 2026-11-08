@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1794145271.277437,
-    "seen": 1794145518.7630963,
-    "ast_hash": "c9984aadf72e8e09aa0ea9f37fb97f57",
+    "mtime": 1794146647.9653442,
+    "seen": 1794146843.609337,
+    "ast_hash": "a69095653ffc8bd564c59f75e6100800",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
@@ -1128,9 +1128,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/menu.blade.php": {
-    "mtime": 1794145304.8370795,
-    "seen": 1794145518.7631073,
-    "ast_hash": "9fd978f237b2963c2c3ebec3a9158a5e",
+    "mtime": 1794146762.8830564,
+    "seen": 1794146843.6093502,
+    "ast_hash": "157fe8684d9b97ea7681e76069e1e510",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/settings.blade.php": {
-    "mtime": 1793955773.4361076,
-    "seen": 1793956076.4679246,
-    "ast_hash": "0d35b679c4ffededa5a9d9e11de9662e",
+    "mtime": 1794147400.2221227,
+    "seen": 1794147552.2971406,
+    "ast_hash": "c3beb355d43fc10e152fb88789c2b280",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/shifts.blade.php": {
@@ -1536,9 +1536,9 @@
     "semantic_hash": "3c6ce2e6d16444282b24a9aa63885563"
   },
   "routes/web.php": {
-    "mtime": 1794140170.5172765,
-    "seen": 1794140253.6982372,
-    "ast_hash": "12c3052afa743515e9f06ac13d26e77c",
+    "mtime": 1794147430.5110207,
+    "seen": 1794147552.2973466,
+    "ast_hash": "4fd9e753cac74373e0ed87cc63b94a6b",
     "semantic_hash": ""
   },
   "tailwind.config.js": {
@@ -2412,9 +2412,9 @@
     "semantic_hash": ""
   },
   "resources/views/components/cafe-sidebar.blade.php": {
-    "mtime": 1793774413.6898074,
-    "seen": 1793774793.705559,
-    "ast_hash": "f2fa28711ecdb4265c5465b21ce06723",
+    "mtime": 1794147430.511081,
+    "seen": 1794147552.2972488,
+    "ast_hash": "36f8abb1fac594d8e77447e878b406a0",
     "semantic_hash": ""
   },
   "app/Console/Commands/CheckDatabaseSchema.php": {
@@ -2958,9 +2958,9 @@
     "semantic_hash": ""
   },
   "config/admin_pages.php": {
-    "mtime": 1793774654.8632438,
-    "seen": 1793774793.7051783,
-    "ast_hash": "3777825fafc4fb99edb5a84f0e8954ce",
+    "mtime": 1794147167.285477,
+    "seen": 1794147552.29683,
+    "ast_hash": "db934343ce95ecc230ad7ae0a1faddf3",
     "semantic_hash": ""
   },
   "tests/Feature/AdminPageRoutingTest.php": {
@@ -3117,6 +3117,12 @@
     "mtime": 1794144865.0176861,
     "seen": 1794145518.7630377,
     "ast_hash": "72e14cdbdaca40d65aefa4faacbb765f",
+    "semantic_hash": ""
+  },
+  "resources/views/Admin/Dashboard/tabs/vouchers.blade.php": {
+    "mtime": 1794147155.1571724,
+    "seen": 1794147552.297146,
+    "ast_hash": "7a1cb93cf82aad78f223f1eab999c854",
     "semantic_hash": ""
   },
   "package-lock.json": {

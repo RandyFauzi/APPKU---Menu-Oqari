@@ -30,6 +30,7 @@ $groups = [
         ['manage-settings', 'Jam Operasional', 'fa-clock', 'admin.operating-hours.index', 'images/sparta/clock.svg'],
         ['manage-settings', 'Pengaturan Struk', 'fa-print', 'admin.receipt-settings.index', 'images/sparta/nav-struk.svg'],
         ['manage-hpp', 'Kalkulator HPP', 'fa-calculator', 'admin.hpp.index', 'images/sparta/nav-hpp.svg'],
+        ['manage-settings', 'Voucher Promo', 'fa-ticket-alt', 'admin.vouchers.index', 'images/sparta/tag-price-bold-duotone.svg'],
     ],
 ];
 if ($member?->role === 'superadmin') {
