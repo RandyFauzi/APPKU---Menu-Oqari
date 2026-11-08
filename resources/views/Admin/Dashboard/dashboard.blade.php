@@ -1138,12 +1138,55 @@
                         name: '', 
                         price: '', 
                         discount_price: null,
+                        discount_type: 'nominal',
+                        discount_percent: null,
                         is_discount_active: false,
                         categoryId: this.categories.length > 0 ? this.categories[0].id : '', 
                         desc: '',
                         imagePreview: null, 
                         imageFile: null 
                     });
+                },
+                setDiscountType(draft, type) {
+                    draft.discount_type = type;
+                    const basePrice = Number(draft.price) || 0;
+                    if (type === 'percent') {
+                        if (basePrice > 0 && draft.discount_price !== null && draft.discount_price !== '' && Number(draft.discount_price) < basePrice) {
+                            draft.discount_percent = Math.round(((basePrice - Number(draft.discount_price)) / basePrice) * 100);
+                        } else if (draft.discount_percent) {
+                            this.handleDiscountPercentInput(draft);
+                        }
+                    } else {
+                        if (basePrice > 0 && draft.discount_percent > 0 && draft.discount_percent < 100) {
+                            draft.discount_price = Math.round(basePrice * (1 - (draft.discount_percent / 100)));
+                        }
+                    }
+                },
+                handleDiscountPercentInput(draft) {
+                    const basePrice = Number(draft.price) || 0;
+                    const percent = Number(draft.discount_percent);
+                    if (basePrice > 0 && percent > 0 && percent < 100) {
+                        draft.discount_price = Math.round(basePrice * (1 - (percent / 100)));
+                    } else if (!percent || percent <= 0) {
+                        draft.discount_price = null;
+                    }
+                },
+                handleDiscountPriceInput(draft) {
+                    const basePrice = Number(draft.price) || 0;
+                    const discPrice = Number(draft.discount_price);
+                    if (basePrice > 0 && discPrice > 0 && discPrice < basePrice) {
+                        draft.discount_percent = Math.round(((basePrice - discPrice) / basePrice) * 100);
+                    } else {
+                        draft.discount_percent = null;
+                    }
+                },
+                handleBasePriceChange(draft) {
+                    const basePrice = Number(draft.price) || 0;
+                    if (draft.discount_type === 'percent' && draft.discount_percent > 0 && draft.discount_percent < 100) {
+                        draft.discount_price = Math.round(basePrice * (1 - (draft.discount_percent / 100)));
+                    } else if (draft.discount_price > 0 && basePrice > 0 && Number(draft.discount_price) < basePrice) {
+                        draft.discount_percent = Math.round(((basePrice - Number(draft.discount_price)) / basePrice) * 100);
+                    }
                 },
                 removeDraftRow(index) {
                     this.draftMenus.splice(index, 1);
@@ -2170,11 +2213,20 @@
                         if (found) matchedCatId = found.id;
                     }
 
+                    let discPercent = null;
+                    const basePrice = Number(item.price) || 0;
+                    const discPrice = item.discount_price !== undefined && item.discount_price !== null ? item.discount_price : null;
+                    if (basePrice > 0 && discPrice !== null && Number(discPrice) < basePrice) {
+                        discPercent = Math.round(((basePrice - Number(discPrice)) / basePrice) * 100);
+                    }
+
                     this.draftMenus = [{
                         id: item.id,
                         name: item.name,
                         price: item.price,
-                        discount_price: item.discount_price !== undefined && item.discount_price !== null ? item.discount_price : null,
+                        discount_price: discPrice,
+                        discount_type: 'nominal',
+                        discount_percent: discPercent,
                         is_discount_active: Boolean(item.is_discount_active),
                         categoryId: matchedCatId || (this.categories.length > 0 ? this.categories[0].id : ''),
                         desc: item.desc || item.description || '',

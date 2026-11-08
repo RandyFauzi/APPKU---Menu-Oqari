@@ -755,7 +755,7 @@
                                     <label class="block text-[11px] font-semibold text-[#53565a] mb-1.5">Price</label>
                                     <div class="relative">
                                         <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[13px] text-[#7f837e] font-medium pointer-events-none">Rp</span>
-                                        <input type="number" x-model="draft.price" placeholder="0" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] pl-10 pr-3.5 py-2.5 text-[13px] text-[#111827] placeholder:text-[#9ca3af] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
+                                        <input type="number" x-model="draft.price" @input="handleBasePriceChange(draft)" placeholder="0" class="w-full bg-white border border-[#e9ebf0] rounded-[10px] pl-10 pr-3.5 py-2.5 text-[13px] text-[#111827] placeholder:text-[#9ca3af] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] outline-none">
                                     </div>
                                 </div>
                             </div>
@@ -785,24 +785,73 @@
                                         </span>
                                     </label>
 
-                                    <!-- Promo Price Input + Live Badge -->
-                                    <div x-show="draft.is_discount_active" x-transition class="flex items-center gap-2 w-full sm:w-auto">
-                                        <div class="relative flex-1 sm:w-44">
+                                    <!-- Promo Price Input + Mode Selector + Live Badge -->
+                                    <div x-show="draft.is_discount_active" x-transition class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                                        <!-- Mode Selector [ Rp Nominal ] [ % Persen ] -->
+                                        <div class="inline-flex p-0.5 rounded-[9px] bg-white border border-[#ffdec9] shadow-2xs shrink-0">
+                                            <button type="button" 
+                                                    @click="setDiscountType(draft, 'nominal')"
+                                                    :class="(draft.discount_type || 'nominal') === 'nominal' ? 'bg-[#df5826] text-white font-bold shadow-xs' : 'text-[#53565a] hover:text-[#df5826]'"
+                                                    class="px-2.5 py-1 text-[11px] rounded-[7px] transition flex items-center gap-1 cursor-pointer">
+                                                <span>Rp Nominal</span>
+                                            </button>
+                                            <button type="button" 
+                                                    @click="setDiscountType(draft, 'percent')"
+                                                    :class="draft.discount_type === 'percent' ? 'bg-[#df5826] text-white font-bold shadow-xs' : 'text-[#53565a] hover:text-[#df5826]'"
+                                                    class="px-2.5 py-1 text-[11px] rounded-[7px] transition flex items-center gap-1 cursor-pointer">
+                                                <span>% Persen</span>
+                                            </button>
+                                        </div>
+
+                                        <!-- Nominal Mode Input (Rp) -->
+                                        <div x-show="(draft.discount_type || 'nominal') === 'nominal'" class="relative flex-1 sm:w-36">
                                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-[#7f837e] font-medium pointer-events-none">Rp</span>
-                                            <input type="number" x-model="draft.discount_price" placeholder="Harga Promo" 
+                                            <input type="number" 
+                                                   x-model="draft.discount_price" 
+                                                   @input="handleDiscountPriceInput(draft)"
+                                                   placeholder="Harga Promo" 
                                                    class="w-full bg-white border border-[#ffdec9] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] rounded-[8px] pl-9 pr-3 py-1.5 text-[12.5px] font-bold text-[#df5826] outline-none">
                                         </div>
 
-                                        <!-- Savings / % Badge -->
-                                        <template x-if="draft.price > 0 && draft.discount_price > 0 && Number(draft.discount_price) < Number(draft.price)">
+                                        <!-- Percentage Mode Input (%) -->
+                                        <div x-show="draft.discount_type === 'percent'" class="relative flex-1 sm:w-28">
+                                            <input type="number" 
+                                                   min="1" 
+                                                   max="99" 
+                                                   x-model="draft.discount_percent" 
+                                                   @input="handleDiscountPercentInput(draft)"
+                                                   placeholder="Contoh: 20" 
+                                                   class="w-full bg-white border border-[#ffdec9] focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] rounded-[8px] pl-3 pr-7 py-1.5 text-[12.5px] font-bold text-[#df5826] outline-none">
+                                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] font-bold text-[#df5826] pointer-events-none">%</span>
+                                        </div>
+
+                                        <!-- Live Badge: Percent Mode Result -->
+                                        <template x-if="draft.discount_type === 'percent' && draft.discount_price > 0 && draft.price > 0">
+                                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#fff0e6] text-[#df5826] border border-[#ffd2b8] text-[11px] font-bold shrink-0">
+                                                <span x-text="'Harga Jadi: ' + formatRp(draft.discount_price)"></span>
+                                                <span class="text-[10px] font-medium text-[#c94d00]" x-text="'(Hemat ' + formatRp(draft.price - draft.discount_price) + ')'"></span>
+                                            </div>
+                                        </template>
+
+                                        <!-- Live Badge: Nominal Mode Result -->
+                                        <template x-if="(draft.discount_type || 'nominal') === 'nominal' && draft.price > 0 && draft.discount_price > 0 && Number(draft.discount_price) < Number(draft.price)">
                                             <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] bg-[#fff0e6] text-[#df5826] border border-[#ffd2b8] text-[11px] font-bold shrink-0">
                                                 <span x-text="'-' + Math.round(((draft.price - draft.discount_price) / draft.price) * 100) + '%'"></span>
                                                 <span class="text-[10px] font-medium text-[#c94d00]" x-text="'Hemat ' + formatRp(draft.price - draft.discount_price)"></span>
                                             </div>
                                         </template>
+
+                                        <!-- Warning: Discount >= Normal Price -->
                                         <template x-if="draft.price > 0 && draft.discount_price > 0 && Number(draft.discount_price) >= Number(draft.price)">
                                             <span class="text-[10.5px] font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded border border-amber-200 shrink-0">
-                                                Harus lebih kecil dari Rp <span x-text="formatRp(draft.price)"></span>
+                                                Harus lebih kecil dari <span x-text="formatRp(draft.price)"></span>
+                                            </span>
+                                        </template>
+
+                                        <!-- Hint: If Normal Price is empty -->
+                                        <template x-if="!draft.price || Number(draft.price) <= 0">
+                                            <span class="text-[10.5px] text-gray-400 italic bg-white px-2 py-1 rounded border border-gray-200 shrink-0">
+                                                Isi harga normal menu terlebih dahulu
                                             </span>
                                         </template>
                                     </div>
