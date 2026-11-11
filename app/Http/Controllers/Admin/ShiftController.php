@@ -6,10 +6,12 @@ use App\Actions\Crew\CreateShift;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SaveShiftRequest;
 use App\Models\CrewShift;
+use App\Models\ShiftTemplate;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ShiftController extends Controller
@@ -65,35 +67,52 @@ class ShiftController extends Controller
             $end = $start->addDays(6);
         }
 
-        $shifts = CrewShift::where('shop_id', $request->user()->shop_id)->with('user:id,name,role')
+        $shopId = (int) $request->user()->shop_id;
+        $this->ensureDefaultTemplates($shopId);
+        $templates = $this->fetchFormattedTemplates($shopId);
+
+        $shifts = CrewShift::where('shop_id', $shopId)->with('user:id,name,role')
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
-            ->orderBy('date')->orderBy('start_time')->orderBy('id')->get()->map(function (CrewShift $shift): array {
+            ->orderBy('date')->orderBy('start_time')->orderBy('id')->get()->map(function (CrewShift $shift) use ($templates): array {
                 $startTime = substr($shift->start_time, 0, 5);
                 $endTime = substr($shift->end_time, 0, 5);
 
-                $code = '1';
-                if ($startTime === '07:00' && $endTime === '15:00') {
-                    $code = '1';
-                } elseif ($startTime === '11:00' && $endTime === '19:00') {
-                    $code = '2';
-                } elseif ($startTime === '15:00' && $endTime === '23:00') {
-                    $code = '3';
-                } elseif ($startTime === '08:00' && $endTime === '17:00') {
-                    $code = '4';
-                } elseif (str_contains(strtolower($shift->notes ?? ''), 'shift 1')) {
-                    $code = '1';
-                } elseif (str_contains(strtolower($shift->notes ?? ''), 'shift 2')) {
-                    $code = '2';
-                } elseif (str_contains(strtolower($shift->notes ?? ''), 'shift 3')) {
-                    $code = '3';
-                } elseif (str_contains(strtolower($shift->notes ?? ''), 'shift 4')) {
-                    $code = '4';
-                } elseif ($startTime < '10:00' && $endTime <= '16:00') {
-                    $code = '1';
-                } elseif ($startTime >= '10:00' && $startTime < '14:00') {
-                    $code = '2';
-                } elseif ($startTime >= '14:00') {
-                    $code = '3';
+                $code = null;
+                foreach ($templates as $t) {
+                    if ($t['start_time'] === $startTime && $t['end_time'] === $endTime) {
+                        $code = $t['code'];
+                        break;
+                    }
+                }
+
+                if (! $code) {
+                    $notes = strtolower($shift->notes ?? '');
+                    foreach ($templates as $t) {
+                        if (str_contains($notes, 'shift '.$t['code']) || str_contains($notes, strtolower($t['name']))) {
+                            $code = $t['code'];
+                            break;
+                        }
+                    }
+                }
+
+                if (! $code) {
+                    if ($startTime === '07:00' && $endTime === '15:00') {
+                        $code = '1';
+                    } elseif ($startTime === '11:00' && $endTime === '19:00') {
+                        $code = '2';
+                    } elseif ($startTime === '15:00' && $endTime === '23:00') {
+                        $code = '3';
+                    } elseif ($startTime === '08:00' && $endTime === '17:00') {
+                        $code = '4';
+                    } elseif ($startTime < '10:00' && $endTime <= '16:00') {
+                        $code = '1';
+                    } elseif ($startTime >= '10:00' && $startTime < '14:00') {
+                        $code = '2';
+                    } elseif ($startTime >= '14:00') {
+                        $code = '3';
+                    } else {
+                        $code = '1';
+                    }
                 }
 
                 return [
@@ -129,6 +148,7 @@ class ShiftController extends Controller
         return response()->json([
             'data' => $shifts,
             'employees' => $employees,
+            'templates' => $templates,
             'timezone' => $timezone,
             'start_date' => $start->toDateString(),
             'end_date' => $end->toDateString(),
@@ -139,6 +159,118 @@ class ShiftController extends Controller
             'current_time' => CarbonImmutable::now($timezone)->format('H:i'),
             'current_user_id' => $request->user()->id,
         ]);
+    }
+
+    public function getTemplates(Request $request): JsonResponse
+    {
+        $this->authorize('manage-crew');
+        abort_unless($request->user()->shop_id, 403);
+        $shopId = (int) $request->user()->shop_id;
+
+        $this->ensureDefaultTemplates($shopId);
+        $templates = $this->fetchFormattedTemplates($shopId);
+
+        return response()->json(['success' => true, 'data' => $templates]);
+    }
+
+    public function saveTemplates(Request $request): JsonResponse
+    {
+        $this->authorize('manage-crew');
+        abort_unless($request->user()->shop_id, 403);
+        $shopId = (int) $request->user()->shop_id;
+
+        $validated = $request->validate([
+            'templates' => ['required', 'array', 'min:1'],
+            'templates.*.id' => ['nullable', 'integer'],
+            'templates.*.name' => ['required', 'string', 'max:50'],
+            'templates.*.start_time' => ['required', 'regex:/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/'],
+            'templates.*.end_time' => ['required', 'regex:/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/'],
+            'templates.*.color' => ['nullable', 'string', 'max:30'],
+        ]);
+
+        $palette = ['blue', 'emerald', 'purple', 'amber', 'rose', 'cyan', 'indigo'];
+
+        DB::transaction(function () use ($shopId, $validated, $palette) {
+            $existingIds = ShiftTemplate::where('shop_id', $shopId)->pluck('id')->all();
+            $keptIds = [];
+
+            foreach ($validated['templates'] as $index => $item) {
+                $startTime = substr($item['start_time'], 0, 5).':00';
+                $endTime = substr($item['end_time'], 0, 5).':00';
+                $color = ! empty($item['color']) ? $item['color'] : $palette[$index % count($palette)];
+
+                if (! empty($item['id']) && in_array((int) $item['id'], $existingIds, true)) {
+                    $template = ShiftTemplate::find($item['id']);
+                    $template->update([
+                        'name' => trim($item['name']),
+                        'start_time' => $startTime,
+                        'end_time' => $endTime,
+                        'color' => $color,
+                        'is_active' => true,
+                    ]);
+                    $keptIds[] = (int) $item['id'];
+                } else {
+                    $template = ShiftTemplate::create([
+                        'shop_id' => $shopId,
+                        'name' => trim($item['name']),
+                        'start_time' => $startTime,
+                        'end_time' => $endTime,
+                        'color' => $color,
+                        'is_active' => true,
+                    ]);
+                    $keptIds[] = $template->id;
+                }
+            }
+
+            $toDelete = array_diff($existingIds, $keptIds);
+            if (! empty($toDelete)) {
+                ShiftTemplate::where('shop_id', $shopId)->whereIn('id', $toDelete)->delete();
+            }
+        });
+
+        $templates = $this->fetchFormattedTemplates($shopId);
+
+        return response()->json(['success' => true, 'data' => $templates]);
+    }
+
+    private function ensureDefaultTemplates(int $shopId): void
+    {
+        if (ShiftTemplate::where('shop_id', $shopId)->count() === 0) {
+            $defaults = [
+                ['name' => 'Shift 1', 'start_time' => '07:00:00', 'end_time' => '15:00:00', 'color' => 'blue'],
+                ['name' => 'Shift 2', 'start_time' => '11:00:00', 'end_time' => '19:00:00', 'color' => 'emerald'],
+                ['name' => 'Shift 3', 'start_time' => '15:00:00', 'end_time' => '23:00:00', 'color' => 'purple'],
+                ['name' => 'Shift 4', 'start_time' => '08:00:00', 'end_time' => '17:00:00', 'color' => 'amber'],
+            ];
+            foreach ($defaults as $d) {
+                ShiftTemplate::create(array_merge($d, ['shop_id' => $shopId, 'is_active' => true]));
+            }
+        }
+    }
+
+    private function fetchFormattedTemplates(int $shopId): array
+    {
+        $palette = ['blue', 'emerald', 'purple', 'amber', 'rose', 'cyan', 'indigo'];
+
+        return ShiftTemplate::where('shop_id', $shopId)
+            ->where('is_active', true)
+            ->orderBy('id')
+            ->get()
+            ->values()
+            ->map(function (ShiftTemplate $template, int $index) use ($palette): array {
+                $start = substr($template->start_time, 0, 5);
+                $end = substr($template->end_time, 0, 5);
+
+                return [
+                    'id' => $template->id,
+                    'code' => (string) ($index + 1),
+                    'name' => $template->name,
+                    'start_time' => $start,
+                    'end_time' => $end,
+                    'color' => $template->color ?: $palette[$index % count($palette)],
+                ];
+            })
+            ->all();
     }
 
     public function store(SaveShiftRequest $request, CreateShift $createShift): JsonResponse

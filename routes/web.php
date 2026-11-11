@@ -158,6 +158,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/api/shifts', [ShiftController::class, 'schedule'])->name('admin.shifts.data');
         Route::post('/admin/api/shifts', [ShiftController::class, 'store']);
         Route::delete('/admin/api/shifts/{shift}', [ShiftController::class, 'destroy'])->name('admin.shifts.destroy');
+        Route::get('/admin/api/shift-templates', [ShiftController::class, 'getTemplates'])->name('admin.shifts.templates');
+        Route::post('/admin/api/shift-templates', [ShiftController::class, 'saveTemplates'])->name('admin.shifts.templates.save');
     });
 
     // My Schedule (Crew/Barista — personal view only)

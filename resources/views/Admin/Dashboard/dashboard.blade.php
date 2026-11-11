@@ -3139,11 +3139,203 @@ if (res.ok) {
                 matrixActiveTool: 'auto', // 'auto', '1', '2', '3', '4', 'delete'
                 matrixSaveStatus: 'idle', // 'idle' | 'saving' | 'saved' | 'error'
                 matrixPendingSaves: 0,
+                shiftTemplates: [
+                    { code: '1', name: 'Shift 1', start_time: '07:00', end_time: '15:00', color: 'blue' },
+                    { code: '2', name: 'Shift 2', start_time: '11:00', end_time: '19:00', color: 'emerald' },
+                    { code: '3', name: 'Shift 3', start_time: '15:00', end_time: '23:00', color: 'purple' },
+                    { code: '4', name: 'Shift 4', start_time: '08:00', end_time: '17:00', color: 'amber' }
+                ],
+                draftShiftTemplates: [],
+                shiftTemplateSaving: false,
+                shiftTemplateError: '',
                 shiftPresets: {
-                    '1': { code: '1', name: 'Shift 1 (Pagi)', start_time: '07:00', end_time: '15:00', duration_minutes: 480, label: 'Pagi', position: 'Barista', badgeClass: 'bg-blue-600 text-white' },
-                    '2': { code: '2', name: 'Shift 2 (Middle)', start_time: '11:00', end_time: '19:00', duration_minutes: 480, label: 'Middle', position: 'Kasir', badgeClass: 'bg-emerald-600 text-white' },
-                    '3': { code: '3', name: 'Shift 3 (Malam)', start_time: '15:00', end_time: '23:00', duration_minutes: 480, label: 'Malam', position: 'Barista', badgeClass: 'bg-purple-600 text-white' },
-                    '4': { code: '4', name: 'Shift 4 (Full Day)', start_time: '08:00', end_time: '17:00', duration_minutes: 540, label: 'Full', position: 'Leader', badgeClass: 'bg-amber-600 text-white' }
+                    '1': { code: '1', name: 'Shift 1', start_time: '07:00', end_time: '15:00', duration_minutes: 480, label: 'Shift 1', color: 'blue', badgeClass: 'bg-blue-600 text-white' },
+                    '2': { code: '2', name: 'Shift 2', start_time: '11:00', end_time: '19:00', duration_minutes: 480, label: 'Shift 2', color: 'emerald', badgeClass: 'bg-emerald-600 text-white' },
+                    '3': { code: '3', name: 'Shift 3', start_time: '15:00', end_time: '23:00', duration_minutes: 480, label: 'Shift 3', color: 'purple', badgeClass: 'bg-purple-600 text-white' },
+                    '4': { code: '4', name: 'Shift 4', start_time: '08:00', end_time: '17:00', duration_minutes: 540, label: 'Shift 4', color: 'amber', badgeClass: 'bg-amber-600 text-white' }
+                },
+                getShiftToolClasses(code, color) {
+                    const isSelected = this.matrixActiveTool === code;
+                    const colorMaps = {
+                        blue: isSelected ? 'bg-blue-600 text-white shadow-xs ring-2 ring-blue-300' : 'bg-blue-50 text-blue-700 hover:bg-blue-100',
+                        emerald: isSelected ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-300' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
+                        purple: isSelected ? 'bg-purple-600 text-white shadow-xs ring-2 ring-purple-300' : 'bg-purple-50 text-purple-700 hover:bg-purple-100',
+                        amber: isSelected ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-300' : 'bg-amber-50 text-amber-700 hover:bg-amber-100',
+                        rose: isSelected ? 'bg-rose-600 text-white shadow-xs ring-2 ring-rose-300' : 'bg-rose-50 text-rose-700 hover:bg-rose-100',
+                        cyan: isSelected ? 'bg-cyan-600 text-white shadow-xs ring-2 ring-cyan-300' : 'bg-cyan-50 text-cyan-700 hover:bg-cyan-100',
+                        indigo: isSelected ? 'bg-indigo-600 text-white shadow-xs ring-2 ring-indigo-300' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100',
+                    };
+                    return colorMaps[color] || (isSelected ? 'bg-blue-600 text-white shadow-xs ring-2 ring-blue-300' : 'bg-blue-50 text-blue-700 hover:bg-blue-100');
+                },
+                getShiftBadgeColorClasses(color) {
+                    const badgeMaps = {
+                        blue: 'bg-blue-600 text-white',
+                        emerald: 'bg-emerald-600 text-white',
+                        purple: 'bg-purple-600 text-white',
+                        amber: 'bg-amber-600 text-white',
+                        rose: 'bg-rose-600 text-white',
+                        cyan: 'bg-cyan-600 text-white',
+                        indigo: 'bg-indigo-600 text-white',
+                    };
+                    return badgeMaps[color] || 'bg-blue-600 text-white';
+                },
+                getShiftTextColorClass(color) {
+                    const textMaps = {
+                        blue: 'text-blue-600',
+                        emerald: 'text-emerald-600',
+                        purple: 'text-purple-600',
+                        amber: 'text-amber-600',
+                        rose: 'text-rose-600',
+                        cyan: 'text-cyan-600',
+                        indigo: 'text-indigo-600',
+                    };
+                    return textMaps[color] || 'text-blue-600';
+                },
+                getShiftBadgeClassByCode(code) {
+                    const preset = this.shiftPresets[code];
+                    const color = preset ? preset.color : 'blue';
+                    return this.getShiftBadgeColorClasses(color);
+                },
+                getMatrixCellClass(code) {
+                    const preset = this.shiftPresets[code];
+                    const color = preset ? preset.color : 'blue';
+                    const cellMaps = {
+                        blue: 'bg-blue-600 text-white hover:bg-blue-700',
+                        emerald: 'bg-emerald-600 text-white hover:bg-emerald-700',
+                        purple: 'bg-purple-600 text-white hover:bg-purple-700',
+                        amber: 'bg-amber-600 text-white hover:bg-amber-700',
+                        rose: 'bg-rose-600 text-white hover:bg-rose-700',
+                        cyan: 'bg-cyan-600 text-white hover:bg-cyan-700',
+                        indigo: 'bg-indigo-600 text-white hover:bg-indigo-700',
+                    };
+                    return cellMaps[color] || 'bg-blue-600 text-white hover:bg-blue-700';
+                },
+                updateShiftPresetsFromTemplates() {
+                    const presets = {};
+                    (this.shiftTemplates || []).forEach((tmpl, idx) => {
+                        const code = String(idx + 1);
+                        const [sh, sm] = (tmpl.start_time || '08:00').split(':').map(Number);
+                        const [eh, em] = (tmpl.end_time || '16:00').split(':').map(Number);
+                        let startMin = (isNaN(sh) ? 8 : sh) * 60 + (isNaN(sm) ? 0 : sm);
+                        let endMin = (isNaN(eh) ? 16 : eh) * 60 + (isNaN(em) ? 0 : em);
+                        if (endMin <= startMin) endMin += 24 * 60;
+                        const duration_minutes = endMin - startMin;
+
+                        presets[code] = {
+                            id: tmpl.id,
+                            code: code,
+                            name: tmpl.name,
+                            start_time: tmpl.start_time,
+                            end_time: tmpl.end_time,
+                            duration_minutes: duration_minutes,
+                            label: tmpl.name,
+                            color: tmpl.color || 'blue',
+                            badgeClass: this.getShiftBadgeColorClasses(tmpl.color || 'blue')
+                        };
+                    });
+                    this.shiftPresets = presets;
+                },
+                openShiftTemplateModal() {
+                    this.shiftTemplateError = '';
+                    if (this.shiftTemplates && this.shiftTemplates.length > 0) {
+                        this.draftShiftTemplates = JSON.parse(JSON.stringify(this.shiftTemplates));
+                    } else {
+                        this.draftShiftTemplates = [
+                            { name: 'Shift 1', start_time: '07:00', end_time: '15:00', color: 'blue' },
+                            { name: 'Shift 2', start_time: '11:00', end_time: '19:00', color: 'emerald' },
+                            { name: 'Shift 3', start_time: '15:00', end_time: '23:00', color: 'purple' },
+                            { name: 'Shift 4', start_time: '08:00', end_time: '17:00', color: 'amber' }
+                        ];
+                    }
+                    this.$refs.shiftTemplateDialog.showModal();
+                },
+                closeShiftTemplateModal() {
+                    if (this.shiftTemplateSaving) return;
+                    this.$refs.shiftTemplateDialog.close();
+                },
+                addShiftTemplate() {
+                    const palette = ['blue', 'emerald', 'purple', 'amber', 'rose', 'cyan', 'indigo'];
+                    const nextIndex = this.draftShiftTemplates.length + 1;
+                    const color = palette[(nextIndex - 1) % palette.length];
+                    this.draftShiftTemplates.push({
+                        id: null,
+                        name: 'Shift ' + nextIndex,
+                        start_time: '09:00',
+                        end_time: '17:00',
+                        color: color
+                    });
+                },
+                removeShiftTemplate(index) {
+                    if (this.draftShiftTemplates.length <= 1) {
+                        this.shiftTemplateError = 'Minimal harus memiliki 1 template shift.';
+                        return;
+                    }
+                    this.shiftTemplateError = '';
+                    this.draftShiftTemplates.splice(index, 1);
+                },
+                async saveShiftTemplates() {
+                    if (this.shiftTemplateSaving) return;
+                    this.shiftTemplateError = '';
+
+                    if (!this.draftShiftTemplates || this.draftShiftTemplates.length === 0) {
+                        this.shiftTemplateError = 'Minimal harus ada 1 template shift.';
+                        return;
+                    }
+
+                    const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
+                    for (let i = 0; i < this.draftShiftTemplates.length; i++) {
+                        const item = this.draftShiftTemplates[i];
+                        if (!item.name || !item.name.trim()) {
+                            this.shiftTemplateError = `Nama template baris ke-${i + 1} tidak boleh kosong.`;
+                            return;
+                        }
+                        const start = (item.start_time || '').substring(0, 5);
+                        const end = (item.end_time || '').substring(0, 5);
+                        if (!timeRegex.test(start)) {
+                            this.shiftTemplateError = `Jam mulai baris ke-${i + 1} tidak valid (format JJ:MM).`;
+                            return;
+                        }
+                        if (!timeRegex.test(end)) {
+                            this.shiftTemplateError = `Jam selesai baris ke-${i + 1} tidak valid (format JJ:MM).`;
+                            return;
+                        }
+                        if (start === end) {
+                            this.shiftTemplateError = `Jam mulai dan selesai baris ke-${i + 1} tidak boleh sama.`;
+                            return;
+                        }
+                    }
+
+                    this.shiftTemplateSaving = true;
+                    try {
+                        const res = await fetch('/admin/api/shift-templates', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ templates: this.draftShiftTemplates })
+                        });
+                        const resJson = await res.json();
+                        if (!res.ok) {
+                            this.shiftTemplateError = resJson.message || 'Gagal menyimpan template shift.';
+                            return;
+                        }
+                        this.shiftTemplates = resJson.data || [];
+                        this.updateShiftPresetsFromTemplates();
+                        if (this.matrixActiveTool !== 'auto' && this.matrixActiveTool !== 'delete') {
+                            if (!this.shiftTemplates.some(t => t.code === this.matrixActiveTool)) {
+                                this.matrixActiveTool = 'auto';
+                            }
+                        }
+                        this.addToast('Template shift berhasil diperbarui', 'success');
+                        this.closeShiftTemplateModal();
+                        await this.fetchShifts();
+                    } catch (e) {
+                        this.shiftTemplateError = 'Terjadi kesalahan saat menyimpan template shift.';
+                    } finally {
+                        this.shiftTemplateSaving = false;
+                    }
                 },
                 shiftSearchStaff: '',
                 shiftsLoading: false,
@@ -3241,18 +3433,21 @@ if (res.ok) {
                     const key = `${employee.id}_${day.dateStr}`;
                     const existing = this.shiftMatrixMap[key];
 
-                    let targetCode = '1';
+                    const availableCodes = (this.shiftTemplates && this.shiftTemplates.length > 0)
+                        ? this.shiftTemplates.map(t => t.code)
+                        : Object.keys(this.shiftPresets);
+
+                    let targetCode = availableCodes[0] || '1';
                     if (this.matrixActiveTool === 'auto') {
                         if (!existing) {
-                            targetCode = '1';
-                        } else if (existing.code === '1') {
-                            targetCode = '2';
-                        } else if (existing.code === '2') {
-                            targetCode = '3';
-                        } else if (existing.code === '3') {
-                            targetCode = '4';
+                            targetCode = availableCodes[0] || '1';
                         } else {
-                            targetCode = 'delete';
+                            const curIdx = availableCodes.indexOf(existing.code);
+                            if (curIdx !== -1 && curIdx < availableCodes.length - 1) {
+                                targetCode = availableCodes[curIdx + 1];
+                            } else {
+                                targetCode = 'delete';
+                            }
                         }
                     } else if (this.matrixActiveTool === 'delete') {
                         targetCode = 'delete';
@@ -3290,7 +3485,17 @@ if (res.ok) {
                             this.addToast('Gagal menghapus shift', 'error');
                         }
                     } else {
-                        const preset = this.shiftPresets[targetCode] || this.shiftPresets['1'];
+                        const preset = this.shiftPresets[targetCode] || (this.shiftTemplates && this.shiftTemplates[0] ? {
+                            start_time: this.shiftTemplates[0].start_time,
+                            end_time: this.shiftTemplates[0].end_time,
+                            name: this.shiftTemplates[0].name,
+                            duration_minutes: 480
+                        } : {
+                            start_time: '07:00',
+                            end_time: '15:00',
+                            name: 'Shift 1',
+                            duration_minutes: 480
+                        });
                         const payload = {
                             id: existing ? existing.id : null,
                             user_id: employee.id,
@@ -3504,6 +3709,10 @@ if (res.ok) {
                         this.shiftTimezone = data.timezone;
                         this.shiftDateRangeLabel = data.date_range_label || '';
                         if (data.month_label) this.currentMatrixMonthLabel = data.month_label;
+                        if (data.templates && data.templates.length) {
+                            this.shiftTemplates = data.templates;
+                            this.updateShiftPresetsFromTemplates();
+                        }
                     } catch (e) {
                         this.shiftsError = 'Jadwal gagal dimuat. Silakan coba lagi.';
                     } finally {

@@ -216,9 +216,9 @@
     "semantic_hash": "a61188d8e352cd1b10f4f3cbdb1227de"
   },
   "app/Http/Controllers/Admin/PosController.php": {
-    "mtime": 1794148127.8152225,
-    "seen": 1794148579.224412,
-    "ast_hash": "46992d70b07b709d1c1b05d52fb0c947",
+    "mtime": 1794373789.7481513,
+    "seen": 1794374050.7397351,
+    "ast_hash": "e3e04e10bf3e3b3a74362693be391c51",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/ProductController.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1794358603.9793992,
-    "seen": 1794358852.5382166,
-    "ast_hash": "2a3e1cfc448dfa1f9370a3f958d39355",
+    "mtime": 1794375040.073834,
+    "seen": 1794375440.0303547,
+    "ast_hash": "47b0a625dd32f51b810b3952e073f7e4",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
@@ -1128,15 +1128,15 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/menu.blade.php": {
-    "mtime": 1794146762.8830564,
-    "seen": 1794146843.6093502,
-    "ast_hash": "157fe8684d9b97ea7681e76069e1e510",
+    "mtime": 1794375804.7790637,
+    "seen": 1794375892.1273522,
+    "ast_hash": "193643846eb7d46c1e355eb2e5be55c9",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
-    "mtime": 1794373214.5404358,
-    "seen": 1794373298.314551,
-    "ast_hash": "2fe952e1f2b3b5c1d2089592c00e15d8",
+    "mtime": 1794375375.1355622,
+    "seen": 1794375440.0303721,
+    "ast_hash": "6b344f29a5f68dbe1a2ab916c383f89f",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/qr.blade.php": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
-    "mtime": 1794373068.762724,
-    "seen": 1794373298.3146038,
-    "ast_hash": "a3d3b82b2879483ccf6833d26d566d58",
+    "mtime": 1794373927.62652,
+    "seen": 1794374050.740523,
+    "ast_hash": "f7fb802e9c196252c5135b2261706c87",
     "semantic_hash": ""
   },
   "resources/views/Admin/reports/index.blade.php": {

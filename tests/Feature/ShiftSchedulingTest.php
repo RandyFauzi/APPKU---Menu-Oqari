@@ -141,4 +141,56 @@ class ShiftSchedulingTest extends TestCase
         $this->assertNull($attendance->fresh()->crew_shift_id);
         $this->assertSame('2026-11-04 00:00:00', $attendance->fresh()->scheduled_start_at->format('Y-m-d H:i:s'));
     }
+
+    public function test_shift_templates_can_be_retrieved_and_saved(): void
+    {
+        $owner = $this->member();
+        $this->actingAs($owner);
+
+        // GET templates creates defaults if empty
+        $response = $this->getJson('/admin/api/shift-templates');
+        $response->assertOk();
+        $data = $response->json('data');
+        $this->assertCount(4, $data);
+        $this->assertSame('Shift 1', $data[0]['name']);
+        $this->assertSame('07:00', $data[0]['start_time']);
+
+        // Save updated and new templates
+        $saveResponse = $this->postJson('/admin/api/shift-templates', [
+            'templates' => [
+                [
+                    'id' => $data[0]['id'],
+                    'name' => 'Shift Pagi',
+                    'start_time' => '06:30',
+                    'end_time' => '14:30',
+                    'color' => 'blue',
+                ],
+                [
+                    'name' => 'Shift Lembur',
+                    'start_time' => '19:00',
+                    'end_time' => '03:00',
+                    'color' => 'indigo',
+                ],
+            ],
+        ]);
+
+        $saveResponse->assertOk();
+        $updatedData = $saveResponse->json('data');
+        $this->assertCount(2, $updatedData);
+        $this->assertSame('Shift Pagi', $updatedData[0]['name']);
+        $this->assertSame('06:30', $updatedData[0]['start_time']);
+        $this->assertSame('Shift Lembur', $updatedData[1]['name']);
+        $this->assertSame('19:00', $updatedData[1]['start_time']);
+
+        // Verify invalid time format is rejected
+        $this->postJson('/admin/api/shift-templates', [
+            'templates' => [
+                [
+                    'name' => 'Invalid Time',
+                    'start_time' => '25:99',
+                    'end_time' => '12:00',
+                ],
+            ],
+        ])->assertUnprocessable()->assertJsonValidationErrors('templates.0.start_time');
+    }
 }

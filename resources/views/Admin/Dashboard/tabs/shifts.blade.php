@@ -11,8 +11,8 @@
                 <i class="fas fa-user-clock text-[#f9731f]" aria-hidden="true"></i>Buka Absensi
             </a>
             @endcan
-            <button type="button" @click="openShift()" :disabled="shiftsLoading || !!shiftsError" class="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f9731f] to-[#ea580c] px-4 text-xs font-semibold text-white shadow-sm hover:from-[#ea580c] hover:to-[#c2410c] disabled:opacity-50 transition-all">
-                <i class="fas fa-plus" aria-hidden="true"></i>Tambah Shift Manual
+            <button type="button" @click="openShiftTemplateModal()" :disabled="shiftsLoading || !!shiftsError" class="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f9731f] to-[#ea580c] px-4 text-xs font-semibold text-white shadow-sm hover:from-[#ea580c] hover:to-[#c2410c] disabled:opacity-50 transition-all">
+                <i class="fas fa-clock" aria-hidden="true"></i>Kelola Template Shift
             </button>
         </div>
     </div>
@@ -142,42 +142,22 @@
                     <button type="button" @click="matrixActiveTool = 'auto'" 
                             class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all" 
                             :class="matrixActiveTool === 'auto' ? 'bg-[#111827] text-white shadow-xs' : 'bg-gray-100 text-[#53565a] hover:bg-gray-200'"
-                            title="Klik kotak untuk mengganti berurutan: 1 -> 2 -> 3 -> 4 -> Libur">
+                            :title="'Klik kotak untuk mengganti berurutan: ' + ((shiftTemplates || []).map(t => t.code).join(' -> ') || '1') + ' -> Libur'">
                         <i class="fas fa-arrows-rotate text-[10px]"></i>
-                        <span>Auto Cycle (1→2→3→4→Off)</span>
+                        <span x-text="'Auto Cycle (' + ((shiftTemplates || []).map(t => t.code).join('→') || '1') + '→Off)'"></span>
                     </button>
 
-                    <!-- Shift 1 Button -->
-                    <button type="button" @click="matrixActiveTool = '1'" 
-                            class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all" 
-                            :class="matrixActiveTool === '1' ? 'bg-blue-600 text-white shadow-xs ring-2 ring-blue-300' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'">
-                        <span class="flex h-4 w-4 items-center justify-center rounded bg-blue-700 text-[10px] text-white font-bold">1</span>
-                        <span>Shift 1 (07:00–15:00)</span>
-                    </button>
-
-                    <!-- Shift 2 Button -->
-                    <button type="button" @click="matrixActiveTool = '2'" 
-                            class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all" 
-                            :class="matrixActiveTool === '2' ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-300' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'">
-                        <span class="flex h-4 w-4 items-center justify-center rounded bg-emerald-700 text-[10px] text-white font-bold">2</span>
-                        <span>Shift 2 (11:00–19:00)</span>
-                    </button>
-
-                    <!-- Shift 3 Button -->
-                    <button type="button" @click="matrixActiveTool = '3'" 
-                            class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all" 
-                            :class="matrixActiveTool === '3' ? 'bg-purple-600 text-white shadow-xs ring-2 ring-purple-300' : 'bg-purple-50 text-purple-700 hover:bg-purple-100'">
-                        <span class="flex h-4 w-4 items-center justify-center rounded bg-purple-700 text-[10px] text-white font-bold">3</span>
-                        <span>Shift 3 (15:00–23:00)</span>
-                    </button>
-
-                    <!-- Shift 4 Button -->
-                    <button type="button" @click="matrixActiveTool = '4'" 
-                            class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all" 
-                            :class="matrixActiveTool === '4' ? 'bg-amber-600 text-white shadow-xs ring-2 ring-amber-300' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'">
-                        <span class="flex h-4 w-4 items-center justify-center rounded bg-amber-700 text-[10px] text-white font-bold">4</span>
-                        <span>Shift 4 (08:00–17:00)</span>
-                    </button>
+                    <!-- Dynamic Shift Buttons -->
+                    <template x-for="(tmpl, idx) in (shiftTemplates || [])" :key="tmpl.id || idx">
+                        <button type="button" @click="matrixActiveTool = tmpl.code" 
+                                class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all" 
+                                :class="getShiftToolClasses(tmpl.code, tmpl.color)">
+                            <span class="flex h-4 w-4 items-center justify-center rounded text-[10px] text-white font-bold"
+                                  :class="getShiftBadgeColorClasses(tmpl.color)"
+                                  x-text="tmpl.code"></span>
+                            <span x-text="tmpl.name + ' (' + tmpl.start_time + '–' + tmpl.end_time + ')'"></span>
+                        </button>
+                    </template>
 
                     <!-- Delete Tool -->
                     <button type="button" @click="matrixActiveTool = 'delete'" 
@@ -279,13 +259,7 @@
                                                     <button type="button" 
                                                             @click="onMatrixCellClick(employee, day)" 
                                                             class="group relative h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold shadow-2xs transition-transform active:scale-90"
-                                                            :class="{
-                                                                'bg-blue-600 text-white hover:bg-blue-700': shiftMatrixMap[employee.id + '_' + day.dateStr].code === '1',
-                                                                'bg-emerald-600 text-white hover:bg-emerald-700': shiftMatrixMap[employee.id + '_' + day.dateStr].code === '2',
-                                                                'bg-purple-600 text-white hover:bg-purple-700': shiftMatrixMap[employee.id + '_' + day.dateStr].code === '3',
-                                                                'bg-amber-600 text-white hover:bg-amber-700': shiftMatrixMap[employee.id + '_' + day.dateStr].code === '4',
-                                                                'bg-teal-600 text-white hover:bg-teal-700': !['1','2','3','4'].includes(shiftMatrixMap[employee.id + '_' + day.dateStr].code)
-                                                            }"
+                                                            :class="getMatrixCellClass(shiftMatrixMap[employee.id + '_' + day.dateStr].code)"
                                                             :title="employee.name + ' (' + day.day + ' ' + currentMonthShortName + '): ' + (shiftPresets[shiftMatrixMap[employee.id + '_' + day.dateStr].code]?.name || 'Shift') + ' · ' + shiftMatrixMap[employee.id + '_' + day.dateStr].start_time + '–' + shiftMatrixMap[employee.id + '_' + day.dateStr].end_time">
                                                         <span x-text="shiftMatrixMap[employee.id + '_' + day.dateStr].code || '•'"></span>
                                                     </button>
@@ -487,13 +461,8 @@
                                 <td class="whitespace-nowrap px-5 py-4">
                                     <div class="flex items-center gap-2">
                                         <span class="flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold text-white shadow-2xs"
-                                              :class="{
-                                                  'bg-blue-600': shift.code === '1',
-                                                  'bg-emerald-600': shift.code === '2',
-                                                  'bg-purple-600': shift.code === '3',
-                                                  'bg-amber-600': shift.code === '4',
-                                                  'bg-teal-600': !['1','2','3','4'].includes(shift.code)
-                                              }" x-text="shift.code || '1'"></span>
+                                              :class="getShiftBadgeClassByCode(shift.code)"
+                                              x-text="shift.code || '1'"></span>
                                         <span class="rounded-md bg-[#fff6f0] px-2.5 py-1 text-xs font-semibold text-[#c94d00]" x-text="shift.start_time + ' – ' + shift.end_time"></span>
                                         <span x-show="isShiftLive(shift)" class="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
                                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Live
@@ -619,13 +588,8 @@
                                 <p class="text-[11px] text-[#7f837e]" x-text="shiftDurationCalc(shift.start_time, shift.end_time)"></p>
                             </div>
                             <span class="flex h-6 w-6 items-center justify-center rounded-md text-[11px] font-bold text-white shadow-2xs"
-                                  :class="{
-                                      'bg-blue-600': shift.code === '1',
-                                      'bg-emerald-600': shift.code === '2',
-                                      'bg-purple-600': shift.code === '3',
-                                      'bg-amber-600': shift.code === '4',
-                                      'bg-teal-600': !['1','2','3','4'].includes(shift.code)
-                                  }" x-text="shift.code || '1'"></span>
+                                  :class="getShiftBadgeClassByCode(shift.code)"
+                                  x-text="shift.code || '1'"></span>
                         </div>
                     </div>
                 </template>
@@ -672,22 +636,12 @@
                         <span class="text-[11px] text-[#7f837e]">1-klik isi jam</span>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                        <button type="button" @click="applyShiftPreset('07:00', '15:00', 'Barista')" class="rounded-lg border border-[#e9ebf0] bg-[#f8f9fa] px-2 py-1.5 text-center hover:bg-orange-50 hover:border-orange-200 transition-all">
-                            <p class="text-[10px] font-bold text-blue-600">☀️ Shift 1</p>
-                            <p class="text-[10px] text-[#53565a]">07:00–15:00</p>
-                        </button>
-                        <button type="button" @click="applyShiftPreset('11:00', '19:00', 'Kasir')" class="rounded-lg border border-[#e9ebf0] bg-[#f8f9fa] px-2 py-1.5 text-center hover:bg-orange-50 hover:border-orange-200 transition-all">
-                            <p class="text-[10px] font-bold text-emerald-600">☕ Shift 2</p>
-                            <p class="text-[10px] text-[#53565a]">11:00–19:00</p>
-                        </button>
-                        <button type="button" @click="applyShiftPreset('15:00', '23:00', 'Barista')" class="rounded-lg border border-[#e9ebf0] bg-[#f8f9fa] px-2 py-1.5 text-center hover:bg-orange-50 hover:border-orange-200 transition-all">
-                            <p class="text-[10px] font-bold text-purple-600">🌙 Shift 3</p>
-                            <p class="text-[10px] text-[#53565a]">15:00–23:00</p>
-                        </button>
-                        <button type="button" @click="applyShiftPreset('08:00', '17:00', 'Leader')" class="rounded-lg border border-[#e9ebf0] bg-[#f8f9fa] px-2 py-1.5 text-center hover:bg-orange-50 hover:border-orange-200 transition-all">
-                            <p class="text-[10px] font-bold text-amber-600">⚡ Shift 4</p>
-                            <p class="text-[10px] text-[#53565a]">08:00–17:00</p>
-                        </button>
+                        <template x-for="(tmpl, idx) in (shiftTemplates || [])" :key="tmpl.id || idx">
+                            <button type="button" @click="applyShiftPreset(tmpl.start_time, tmpl.end_time)" class="rounded-lg border border-[#e9ebf0] bg-[#f8f9fa] px-2 py-1.5 text-center hover:bg-orange-50 hover:border-orange-200 transition-all">
+                                <p class="text-[10px] font-bold" :class="getShiftTextColorClass(tmpl.color)" x-text="tmpl.name"></p>
+                                <p class="text-[10px] text-[#53565a]" x-text="tmpl.start_time + '–' + tmpl.end_time"></p>
+                            </button>
+                        </template>
                     </div>
                 </div>
 
@@ -733,5 +687,96 @@
                 </button>
             </div>
         </form>
+    </dialog>
+
+    <!-- DIALOG MODAL: KELOLA TEMPLATE SHIFT -->
+    <dialog x-ref="shiftTemplateDialog" @click="if ($event.target === $el && !shiftTemplateSaving) closeShiftTemplateModal()" @cancel="if (shiftTemplateSaving) $event.preventDefault()" aria-labelledby="shift-template-dialog-title" class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-2xl border border-[#e9ebf0] bg-white p-0 text-[#111827] shadow-2xl backdrop:bg-black/50">
+        <div class="flex items-center justify-between border-b border-[#e9ebf0] px-5 py-4">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-[#ea580c] border border-orange-100">
+                    <i class="fas fa-clock text-lg"></i>
+                </div>
+                <div>
+                    <h2 id="shift-template-dialog-title" class="text-base font-bold text-[#111827]">Kelola Template Shift</h2>
+                    <p class="text-xs text-[#7f837e]">Atur daftar jam kerja shift reguler operasional kafe Anda.</p>
+                </div>
+            </div>
+            <button type="button" @click="closeShiftTemplateModal()" :disabled="shiftTemplateSaving" aria-label="Tutup popup template shift" class="h-9 w-9 rounded-lg text-[#7f837e] hover:bg-gray-100 flex items-center justify-center transition-colors">
+                <i class="fas fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <div class="p-5 space-y-4">
+            <p x-show="shiftTemplateError" x-text="shiftTemplateError" role="alert" class="rounded-xl bg-red-50 p-3 text-xs leading-relaxed text-red-700 border border-red-200"></p>
+
+            <div class="rounded-xl bg-[#fffaf5] border border-orange-100 p-3 text-xs text-[#9a3412] flex items-start gap-2.5">
+                <i class="fas fa-circle-info text-orange-500 mt-0.5"></i>
+                <div class="flex-1 text-[11px] leading-relaxed">
+                    Template shift digunakan sebagai opsi cepat pada jadwal kerja bulanan dan toolbar mode klik kalender.
+                </div>
+            </div>
+
+            <!-- List of Shift Templates -->
+            <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+                <template x-for="(tmpl, idx) in draftShiftTemplates" :key="idx">
+                    <div class="rounded-xl border border-[#e9ebf0] bg-white p-3.5 shadow-2xs hover:border-orange-200 transition-all">
+                        <div class="flex items-center gap-2 mb-2.5">
+                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
+                                  :class="getShiftBadgeColorClasses(tmpl.color)"
+                                  x-text="idx + 1"></span>
+                            <div class="flex-1">
+                                <input type="text" x-model="tmpl.name" maxlength="50" required placeholder="Nama Shift (contoh: Shift 1)" class="h-8 w-full rounded-lg border-[#e9ebf0] text-xs font-semibold text-[#111827] focus:border-orange-500 focus:ring-orange-500">
+                            </div>
+                            <button type="button" 
+                                    @click="removeShiftTemplate(idx)" 
+                                    :disabled="draftShiftTemplates.length <= 1 || shiftTemplateSaving"
+                                    class="h-8 w-8 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-colors" 
+                                    title="Hapus template shift">
+                                <i class="far fa-trash-can text-sm"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-2.5">
+                            <div class="flex items-center gap-1.5 text-xs">
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[11px] text-[#7f837e]">Mulai</span>
+                                    <input type="time" x-model="tmpl.start_time" required class="h-8 rounded-lg border-[#e9ebf0] text-xs focus:border-orange-500 focus:ring-orange-500 px-2">
+                                </div>
+                                <span class="text-gray-400 text-xs">—</span>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[11px] text-[#7f837e]">Selesai</span>
+                                    <input type="time" x-model="tmpl.end_time" required class="h-8 rounded-lg border-[#e9ebf0] text-xs focus:border-orange-500 focus:ring-orange-500 px-2">
+                                </div>
+                            </div>
+                            <div class="inline-flex items-center gap-1 rounded-md bg-gray-50 border border-gray-200 px-2 py-1 text-[11px] font-medium text-[#53565a]">
+                                <i class="far fa-clock text-[10px] text-gray-400"></i>
+                                <span x-text="shiftDurationCalc(tmpl.start_time, tmpl.end_time)"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Button Add Template -->
+            <button type="button" @click="addShiftTemplate()" :disabled="shiftTemplateSaving" class="w-full py-2.5 px-3 rounded-xl border border-dashed border-orange-300 bg-orange-50/40 hover:bg-orange-50 text-orange-600 font-semibold text-xs flex items-center justify-center gap-2 transition-all">
+                <i class="fas fa-plus text-xs"></i>
+                <span>Tambah Shift Baru</span>
+            </button>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-[#e9ebf0] px-5 py-4 bg-gray-50/50 rounded-b-2xl">
+            <span class="text-[11px] text-[#7f837e]">
+                <strong x-text="draftShiftTemplates.length"></strong> template aktif
+            </span>
+            <div class="flex items-center gap-2.5">
+                <button type="button" @click="closeShiftTemplateModal()" :disabled="shiftTemplateSaving" class="h-9 rounded-xl border border-[#e9ebf0] bg-white px-4 text-xs font-semibold text-[#53565a] hover:bg-gray-100 transition-colors">
+                    Batal
+                </button>
+                <button type="button" @click="saveShiftTemplates()" :disabled="shiftTemplateSaving" class="h-9 rounded-xl bg-gradient-to-r from-[#ea580c] to-[#f9731f] px-4 text-xs font-bold text-white shadow-sm hover:from-[#c2410c] hover:to-[#ea580c] disabled:opacity-50 transition-all flex items-center gap-2">
+                    <i x-show="shiftTemplateSaving" class="fas fa-spinner fa-spin text-xs"></i>
+                    <span x-text="shiftTemplateSaving ? 'Menyimpan...' : 'Simpan Template Shift'"></span>
+                </button>
+            </div>
+        </div>
     </dialog>
 </div>
