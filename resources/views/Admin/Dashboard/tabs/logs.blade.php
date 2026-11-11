@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'logs'" x-cloak class="flex-grow p-4 md:p-6 lg:p-7 overflow-y-auto hide-scroll bg-[#f8f9fa] font-['DM_Sans',sans-serif]">
+<div x-show="currentTab === 'logs'" x-cloak class="flex-grow p-4 md:p-6 lg:p-7 overflow-y-auto hide-scroll bg-white font-['DM_Sans',sans-serif]">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
             <h1 class="text-[25px] font-semibold text-[#111827] leading-tight tracking-tight">Log Aktivitas</h1>

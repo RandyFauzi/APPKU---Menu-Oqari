@@ -44,7 +44,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="font-sans text-textdark h-screen flex overflow-hidden bg-brewlybg" x-data="dashboardApp()" @new-order-received.window="handleNewOrderFromSocket($event.detail)" @refresh-live-orders.window="fetchLiveOrders(false)">
+<body class="font-sans text-textdark h-screen flex overflow-hidden bg-white" x-data="dashboardApp()" @new-order-received.window="handleNewOrderFromSocket($event.detail)" @refresh-live-orders.window="fetchLiveOrders(false)">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
     
     <!-- Audio untuk notifikasi pesanan masuk -->
@@ -53,7 +53,7 @@
     <x-cafe-sidebar :dashboard="true" />
 
     <!-- Main Content -->
-    <main class="flex-grow min-w-0 flex flex-col h-full bg-white rounded-l-[24px] shadow-[-10px_0_30px_rgba(0,0,0,0.02)] border-l border-brewlyborder overflow-hidden">
+    <main class="flex-grow min-w-0 flex flex-col h-full bg-white overflow-hidden">
         
         <!-- Top Header for Main Area -->
         <!-- Top Header for Main Area -->

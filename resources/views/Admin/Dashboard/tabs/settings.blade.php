@@ -1,7 +1,7 @@
-<div x-show="currentTab === 'settings'" x-cloak class="flex-grow bg-ivory overflow-auto hide-scroll relative">
+<div x-show="currentTab === 'settings'" x-cloak class="flex-grow bg-white overflow-auto hide-scroll relative">
     
     <!-- Sticky Action Bar -->
-    <div class="sticky top-0 z-40 bg-ivory/95 backdrop-blur-md px-8 lg:px-10 py-4 border-b border-line/50 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-8 lg:px-10 py-4 border-b border-line/50 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <p class="text-muted font-medium text-sm"><i class="fas fa-info-circle mr-1"></i> Kelola identitas, tampilan, dan operasional toko Anda.</p>
         </div>
@@ -18,8 +18,8 @@
             <form id="settingsForm" @submit.prevent="saveSettings" class="flex flex-col gap-8">
                 
                 <!-- Section 1: Identitas & Branding -->
-                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
-                    <div class="p-6 border-b border-line bg-ivory/50">
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                    <div class="p-6 border-b border-line bg-gray-50/50">
                         <h3 class="font-bold text-lg text-ink">Identitas & Branding</h3>
                         <p class="text-xs text-muted">Pengaturan profil utama toko Anda.</p>
                     </div>
@@ -101,8 +101,8 @@
                 </div>
 
                 <!-- Section 2: Tampilan & UI -->
-                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line">
-                    <div class="p-6 border-b border-line bg-ivory/50 rounded-t-[24px]">
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line">
+                    <div class="p-6 border-b border-line bg-gray-50/50 rounded-t-2xl">
                         <h3 class="font-bold text-lg text-ink">Tampilan (UI/UX)</h3>
                         <p class="text-xs text-muted">Ubah layout, tipografi, dan warna menu agar selaras dengan citra cafe Anda.</p>
                     </div>
@@ -412,8 +412,8 @@
                 </div>
 
                 <!-- Section 3: Latar Belakang Menu Pelanggan -->
-                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
-                    <div class="p-6 border-b border-line bg-ivory/50">
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                    <div class="p-6 border-b border-line bg-gray-50/50">
                         <h3 class="font-bold text-lg text-ink">Latar Belakang Menu Pelanggan</h3>
                         <p class="text-xs text-muted">Atur tekstur pola atau foto suasana cafe sebagai latar belakang halaman menu.</p>
                     </div>
@@ -519,8 +519,8 @@
                 </div>
 
                 <!-- Section 4: Sistem Setting Best Seller / Highlight -->
-                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
-                    <div class="p-6 border-b border-line bg-ivory/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                    <div class="p-6 border-b border-line bg-gray-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                             <div class="flex items-center gap-2">
                                 <h3 class="font-bold text-lg text-ink">Menu Unggulan & Best Seller</h3>
@@ -576,8 +576,8 @@
                 </div>
 
                 <!-- Section 5: Operasional & Kontak -->
-                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
-                    <div class="p-6 border-b border-line bg-ivory/50">
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                    <div class="p-6 border-b border-line bg-gray-50/50">
                         <h3 class="font-bold text-lg text-ink">Operasional & Tautan Media Sosial</h3>
                         <p class="text-xs text-muted">Atur jam buka operasional dan pilih sosmed yang ingin ditampilkan di menu pelanggan.</p>
                     </div>
@@ -699,8 +699,8 @@
                 </div>
 
                 <!-- Section 6: Pengaturan Highlight Menu & Promosi Pelanggan -->
-                <div class="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
-                    <div class="p-6 border-b border-line bg-ivory/50 flex items-center justify-between">
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-line overflow-hidden">
+                    <div class="p-6 border-b border-line bg-gray-50/50 flex items-center justify-between">
                         <div>
                             <h3 class="font-bold text-lg text-ink">Tampilan Highlight Menu & Promosi Pelanggan</h3>
                             <p class="text-xs text-muted">Atur kemunculan section Menu Unggulan (Highlight) dan kategori Promo Diskon pada halaman menu pelanggan (QR Menu).</p>

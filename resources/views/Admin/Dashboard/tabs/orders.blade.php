@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'orders'" x-cloak class="flex-grow bg-[#f6f5f2] p-4 md:p-[24px] overflow-y-auto hide-scroll font-['DM_Sans',sans-serif] text-[#1e211f]">
+<div x-show="currentTab === 'orders'" x-cloak class="flex-grow bg-white p-4 md:p-[24px] overflow-y-auto hide-scroll font-['DM_Sans',sans-serif] text-[#1e211f]">
 
     <!-- Page Title & Action Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">

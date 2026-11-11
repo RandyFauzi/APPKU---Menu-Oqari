@@ -46,7 +46,7 @@ if ($member?->role === 'superadmin') {
     <aside id="app-sidebar" data-cafe-sidebar class="app-sidebar transition-[width] duration-200 bg-[#f8f9fa] border-r border-[#e9ebf0]" :class="{ 'is-collapsed': isMinimized && !mobileNavOpen, 'is-mobile-open': mobileNavOpen }" aria-label="Navigasi aplikasi">
         
         <!-- Sidebar Brand Header (Dynamic user/shop logo system maintained!) -->
-        <div class="shrink-0 flex items-center px-4 border-b border-gray-200/70 transition-all" :class="isMinimized && !mobileNavOpen ? 'flex-col justify-center py-3 gap-2' : 'h-20 gap-3'">
+        <div class="shrink-0 flex items-center px-4 border-b border-[#e9ebf0] transition-all" :class="isMinimized && !mobileNavOpen ? 'flex-col justify-center py-3 gap-2' : 'h-20 gap-3'">
             <a href="{{ route($member->homeRoute()) }}" class="shrink-0 flex items-center justify-center" aria-label="Beranda aplikasi">
                 <img id="sidebar-logo" src="{{ $cafe?->logo_url ?: asset('logo-oqari.webp') }}" alt="Logo {{ $cafe?->name ?? 'OQARI' }}" class="w-10 h-10 rounded-lg object-contain">
             </a>
@@ -69,7 +69,7 @@ if ($member?->role === 'superadmin') {
                 <!-- Top Primary Dashboard Link (Sparta Style) -->
                 <div class="mb-2">
                     <a href="{{ route('admin.dashboard') }}" class="sidebar-link group relative transition-all {{ request()->routeIs('admin.dashboard') ? 'is-active' : '' }}" title="Dashboard" aria-label="Dashboard" @if(request()->routeIs('admin.dashboard')) aria-current="page" @endif>
-                        @if(request()->routeIs('admin.dashboard'))<span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>@endif
+                        @if(request()->routeIs('admin.dashboard'))<span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#ea580c] rounded-r"></span>@endif
                         <img src="{{ asset('images/sparta/nav-dashboard.svg') }}" class="nav-icon-dashboard w-[18px] h-[18px] shrink-0 transition-all" alt="">
                         <span x-show="!isMinimized || mobileNavOpen" class="truncate font-medium">Dashboard</span>
                     </a>
@@ -89,7 +89,7 @@ if ($member?->role === 'superadmin') {
                             $ariaLabel = $label === 'Kasir' ? 'POS (Kasir)' : $label;
                         @endphp
                         <a href="{{ $destination }}" class="sidebar-link group relative transition-all {{ $active ? 'is-active' : '' }}" title="{{ $label }}" aria-label="{{ $ariaLabel }}" @if($active) aria-current="page" @endif>
-                            @if($active)<span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#e85e0b] rounded-r"></span>@endif
+                            @if($active)<span class="absolute left-0 top-2 bottom-2 w-[3px] bg-[#ea580c] rounded-r"></span>@endif
                             @if($svgIcon)
                                 <img src="{{ asset($svgIcon) }}" class="nav-icon-mono w-[18px] h-[18px] shrink-0 opacity-80 group-hover:opacity-100 transition-all" alt="">
                             @else
@@ -103,7 +103,7 @@ if ($member?->role === 'superadmin') {
         </nav>
 
         <!-- Bottom User Profile Card (Sparta Figma Style) -->
-        <div class="shrink-0 border-t border-gray-200/80 p-3 bg-white/40 space-y-1">
+        <div class="shrink-0 border-t border-[#e9ebf0] p-3 bg-transparent space-y-1">
             <a href="{{ route('profile.edit') }}" aria-label="Profil Saya" class="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-gray-100/70 transition-colors group">
                 <div class="w-8 h-8 rounded-full bg-[#dce8ec] text-[#111827] flex items-center justify-center font-bold text-xs shrink-0">
                     {{ strtoupper(substr($member->name ?? 'A', 0, 2)) }}

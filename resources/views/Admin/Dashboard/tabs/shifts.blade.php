@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'shifts'" x-cloak class="flex-grow overflow-y-auto hide-scroll bg-[#f8f9fa] p-4 md:p-6 lg:p-7 font-['DM_Sans',sans-serif]">
+<div x-show="currentTab === 'shifts'" x-cloak class="flex-grow overflow-y-auto hide-scroll bg-white p-4 md:p-6 lg:p-7 font-['DM_Sans',sans-serif]">
     <!-- Top Header Bar -->
     <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

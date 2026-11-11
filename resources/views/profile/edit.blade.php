@@ -11,10 +11,10 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <x-theme-head :shop="$user->shop" />
 </head>
-<body class="min-h-screen bg-[#f8f9fa] font-['DM_Sans',sans-serif] text-[#111827] antialiased">
+<body class="min-h-screen bg-white font-['DM_Sans',sans-serif] text-[#111827] antialiased">
 <div class="cafe-page-shell">
     <x-cafe-sidebar />
-    <div class="cafe-page-content bg-[#f8f9fa]">
+    <div class="cafe-page-content bg-white">
         <header class="flex h-16 items-center gap-3 border-b border-[#e9ebf0] bg-white px-4 md:px-7">
             <button type="button" x-data @click="$dispatch('toggle-mobile-nav')" class="flex h-11 w-11 items-center justify-center rounded-lg text-[#7f837e] hover:bg-gray-50 md:hidden" aria-label="Buka navigasi"><i class="fas fa-bars" aria-hidden="true"></i></button>
             <span class="text-[13px] font-semibold">Profil Saya</span>

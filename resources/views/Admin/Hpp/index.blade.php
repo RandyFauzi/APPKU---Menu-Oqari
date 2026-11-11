@@ -66,14 +66,14 @@
     </style>
     <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="sparta-hpp min-h-screen bg-[#f6f5f2] text-[#111827] antialiased" x-data="hppCalculator()">
+<body class="sparta-hpp min-h-screen bg-white text-[#111827] antialiased" x-data="hppCalculator()">
 <div class="cafe-page-shell">
     <x-cafe-sidebar />
     
-    <div class="cafe-page-content flex flex-col min-h-screen bg-[#f6f5f2]">
+    <div class="cafe-page-content flex flex-col min-h-screen bg-white">
         
         {{-- TOP HEADER BAR (Sparta Caffe Style) --}}
-        <header class="h-[52px] bg-[#f6f5f2] border-b border-[#e6e5e0] px-4 lg:px-[26px] flex items-center justify-between shrink-0 sticky top-0 z-20">
+        <header class="h-[52px] bg-white border-b border-[#e9ebf0] px-4 lg:px-[26px] flex items-center justify-between shrink-0 sticky top-0 z-20">
             <div class="flex items-center gap-3">
                 <button type="button" @click="$dispatch('toggle-mobile-nav')" aria-label="Buka menu navigasi" aria-controls="app-sidebar"
                     class="w-9 h-9 rounded-lg bg-[#eae8e3] flex items-center justify-center text-[#111827] hover:bg-[#dfddd7] transition-colors md:hidden">

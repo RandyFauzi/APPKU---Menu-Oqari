@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-4 md:p-6 lg:p-8 overflow-y-auto hide-scroll bg-[#f8f9fa]">
+<div x-show="currentTab === 'menu'" x-cloak class="flex-grow p-4 md:p-6 lg:p-8 overflow-y-auto hide-scroll bg-white">
     <!-- Page Header (Figma node 78:3093) -->
     <div class="flex flex-col gap-1 mb-5">
         <h1 class="font-bold text-[20px] text-[#111827] tracking-tight">Kelola Menu</h1>

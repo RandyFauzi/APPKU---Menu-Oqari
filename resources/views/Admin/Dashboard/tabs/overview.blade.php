@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'dashboard'" x-cloak class="flex-grow p-4 md:p-6 lg:p-7 overflow-y-auto hide-scroll bg-[#f8f9fa] font-['DM_Sans',sans-serif]" style="font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';">
+<div x-show="currentTab === 'dashboard'" x-cloak class="flex-grow p-4 md:p-6 lg:p-7 overflow-y-auto hide-scroll bg-white font-['DM_Sans',sans-serif]" style="font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';">
 
     <!-- Top Action / Title Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">

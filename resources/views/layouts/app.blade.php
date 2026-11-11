@@ -16,7 +16,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <x-theme-head :shop="$shop ?? null" />
 </head>
-    <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <body class="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <div class="oq-frieze fixed inset-x-0 top-0 z-[200] pointer-events-none" aria-hidden="true"></div>
         <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: true }">
             <!-- Sidebar -->
@@ -34,7 +34,7 @@
                 @endisset
 
                 <!-- Page Content -->
-                <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6">
+                <main class="flex-1 overflow-x-hidden overflow-y-auto bg-white dark:bg-gray-900 p-6">
                     {{ $slot }}
                 </main>
             </div>

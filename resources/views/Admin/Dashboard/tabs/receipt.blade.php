@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'receipt'" x-cloak class="flex-grow bg-ivory overflow-auto hide-scroll relative"
+<div x-show="currentTab === 'receipt'" x-cloak class="flex-grow bg-white overflow-auto hide-scroll relative"
      x-data="{ 
         receiptTab: 'customer', 
         printerModal: { show: false, isEdit: false, index: -1, id: null, name: '', location: 'cashier', connection_type: 'browser', ip_address: '', port: 9100, paper_width: '58mm', category_ids: [], is_active: true, auto_print: false },

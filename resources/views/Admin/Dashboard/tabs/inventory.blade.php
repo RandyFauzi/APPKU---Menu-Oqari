@@ -1,5 +1,5 @@
 <!-- Tab Inventori & Bahan Baku (Figma node 78:4096 / 78:1381) -->
-<div x-show="currentTab === 'inventory'" x-cloak class="flex-grow p-4 md:p-6 lg:p-8 overflow-y-auto hide-scroll bg-[#f8f9fa]">
+<div x-show="currentTab === 'inventory'" x-cloak class="flex-grow p-4 md:p-6 lg:p-8 overflow-y-auto hide-scroll bg-white">
     
     <!-- Page Header (Figma node 78:1382) -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
