@@ -102,13 +102,14 @@ class AttendanceController extends Controller
         $summary = [
             'count' => (clone $query)->count(),
             'late' => (clone $query)->where('late_minutes', '>', 0)->count(),
+            'on_time' => (clone $query)->whereNotNull('scheduled_start_at')->where('late_minutes', 0)->count(),
+            'today' => Attendance::where('shop_id', $user->shop_id)->whereDate('work_date', $today->toDateString())->count(),
             'active' => (clone $query)->whereNull('checked_out_at')->count(),
             'minutes' => (int) (clone $query)->sum('worked_minutes'),
         ];
         $attendances = $query->with('user:id,name')->orderByDesc('work_date')->orderByDesc('id')
             ->paginate(20)->withQueryString();
-        $active = Attendance::where('shop_id', $user->shop_id)->where('user_id', $user->id)
-            ->whereNull('checked_out_at')->first();
+        $active = null;
         $todayRecord = Attendance::where('shop_id', $user->shop_id)->where('user_id', $user->id)
             ->whereDate('work_date', $today->toDateString())->first();
         $employees = $isReport ? User::where('shop_id', $user->shop_id)->orderBy('name')->get(['id', 'name']) : collect();

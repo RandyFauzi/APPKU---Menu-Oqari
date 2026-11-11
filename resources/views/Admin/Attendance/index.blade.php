@@ -94,7 +94,7 @@
             </div>
         @endif
 
-        {{-- CATAT KEHADIRAN CARD (Personal Check-In / Check-Out with Selfie & GPS) --}}
+        {{-- CATAT KEHADIRAN CARD (Personal Check-In Only with Live Selfie & GPS) --}}
         @unless($isReport)
             <section aria-labelledby="record-title" class="bg-white border border-[#e6e5e0] rounded-[16px] p-5 md:p-6 pl-6 relative overflow-hidden shadow-[0px_3px_12px_rgba(38,39,35,0.04)]"
                      x-data="attendanceCapture({
@@ -107,28 +107,24 @@
                      })"
                      x-init="init()">
                 {{-- Left Accent Bar --}}
-                <div class="w-[3.5px] absolute left-0 top-0 bottom-0 {{ $active ? 'bg-[#df5826]' : ($todayRecord ? 'bg-[#289e5c]' : 'bg-[#df5826]') }}"></div>
+                <div class="w-[3.5px] absolute left-0 top-0 bottom-0 {{ $todayRecord ? 'bg-[#289e5c]' : 'bg-[#df5826]' }}"></div>
 
                 <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-[#e6e5e0]">
                     <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-[10px] {{ $active ? 'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]' : ($todayRecord ? 'bg-[#eaf7ef] border-[#bfe5cd] text-[#289e5c]' : 'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]') }} border flex items-center justify-center shrink-0">
-                            <i class="fas {{ $active ? 'fa-user-clock' : ($todayRecord ? 'fa-user-check' : 'fa-camera') }} text-base"></i>
+                        <div class="w-10 h-10 rounded-[10px] {{ $todayRecord ? 'bg-[#eaf7ef] border-[#bfe5cd] text-[#289e5c]' : 'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]' }} border flex items-center justify-center shrink-0">
+                            <i class="fas {{ $todayRecord ? 'fa-user-check' : 'fa-camera' }} text-base"></i>
                         </div>
                         <div>
                             <h2 id="record-title" class="text-[15px] font-bold text-[#1e211f] leading-tight">
-                                Catat Kehadiran
+                                {{ $todayRecord ? 'Kehadiran Hari Ini Sudah Tercatat' : 'Catat Kehadiran (Absen Masuk)' }}
                             </h2>
-                            @if($active)
-                                <p class="mt-1 text-[12.5px] text-[#53565a]">
-                                    Anda masuk pada <strong class="font-semibold text-[#111827]">{{ $active->checked_in_at->setTimezone($active->timezone)->format('d/m/Y H:i') }}</strong> ({{ $active->timezone }}).
-                                </p>
-                            @elseif($todayRecord)
+                            @if($todayRecord)
                                 <p class="mt-1 text-[12.5px] text-[#289e5c] font-medium">
-                                    Absensi hari ini sudah selesai. Kehadiran berikutnya dapat dicatat pada hari kerja berikutnya.
+                                    Anda telah absen masuk pada hari ini pukul <strong class="font-semibold text-[#111827]">{{ $todayRecord->checked_in_at->setTimezone($todayRecord->timezone)->format('H:i') }} {{ $todayRecord->timezone }}</strong>. Absensi cukup 1x masuk, tidak perlu absen pulang.
                                 </p>
                             @else
                                 <p class="mt-1 text-[12.5px] text-[#53565a]">
-                                    Ambil foto selfie dan pastikan GPS aktif untuk memverifikasi kehadiran di kafe.
+                                    Ambil foto selfie langsung via kamera web/aplikasi dan pastikan GPS aktif untuk memverifikasi kehadiran.
                                 </p>
                             @endif
                         </div>
@@ -136,35 +132,106 @@
 
                     {{-- Status Badge --}}
                     <div class="shrink-0">
-                        @if($active)
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] text-[11px] font-semibold">
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#df5826] animate-pulse"></span>
-                                <span>Sesi Aktif</span>
-                            </span>
-                        @elseif($todayRecord)
+                        @if($todayRecord)
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-[#eaf7ef] border border-[#bfe5cd] text-[#289e5c] text-[11px] font-semibold">
                                 <i class="fas fa-check text-[10px]"></i>
-                                <span>Selesai Hari Ini</span>
+                                <span>Hadir Hari Ini</span>
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-[#f8f9fa] border border-[#d8dce2] text-[#53565a] text-[11px] font-semibold">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] text-[11px] font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#df5826] animate-pulse"></span>
                                 <span>Belum Absen Masuk</span>
                             </span>
                         @endif
                     </div>
                 </div>
 
-                @if($active && $active->work_date->format('Y-m-d') !== $today->toDateString())
-                    <div class="mt-4 bg-[#fff6f0] border border-[#f5d5c6] rounded-[10px] px-3.5 py-2.5 flex items-center gap-2.5 text-[#df5826] text-[12px] font-medium">
-                        <i class="fas fa-exclamation-circle shrink-0"></i>
-                        <span>Sesi dari hari sebelumnya masih terbuka. Absen pulang akan menutup sesi tersebut.</span>
-                    </div>
-                @endif
+                @if($todayRecord)
+                    {{-- Detail Kehadiran Hari Ini (Sudah Absen Masuk) --}}
+                    <div class="mt-5 p-4 sm:p-5 bg-[#f8f9fa] border border-[#e6e5e0] rounded-[14px]">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+                            {{-- Foto Selfie yang Sudah Diambil --}}
+                            <div class="md:col-span-4 flex flex-col items-center sm:items-start">
+                                <span class="text-[11px] font-semibold text-[#7f837e] uppercase tracking-wider mb-2">Foto Bukti Kehadiran</span>
+                                @if($todayRecord->check_in_photo_path)
+                                    <div class="relative w-40 h-40 rounded-xl overflow-hidden border border-[#d8dce2] shadow-xs group bg-gray-100">
+                                        <img src="{{ Storage::url($todayRecord->check_in_photo_path) }}" alt="Foto Selfie Masuk" class="w-full h-full object-cover">
+                                        <button type="button" @click="openPhotoPreview('{{ Storage::url($todayRecord->check_in_photo_path) }}', '{{ auth()->user()->name }} (Masuk)', '{{ $todayRecord->checked_in_at->setTimezone($todayRecord->timezone)->format('d/m/Y H:i') }}', '{{ $todayRecord->check_in_latitude }}', '{{ $todayRecord->check_in_longitude }}', {{ $todayRecord->check_in_distance_meters ?? 'null' }}, {{ $todayRecord->check_in_in_radius !== null ? ($todayRecord->check_in_in_radius ? 'true' : 'false') : 'null' }})" 
+                                                class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 cursor-pointer">
+                                            <i class="fas fa-search-plus"></i> Lihat Foto
+                                        </button>
+                                    </div>
+                                @else
+                                    <div class="w-40 h-40 rounded-xl border border-dashed border-[#d8dce2] bg-white flex flex-col items-center justify-center text-gray-400 gap-1.5">
+                                        <i class="fas fa-camera text-2xl"></i>
+                                        <span class="text-[11px]">Tanpa Foto</span>
+                                    </div>
+                                @endif
+                            </div>
 
-                @if($active || !$todayRecord)
+                            {{-- Informasi Detail Absensi --}}
+                            <div class="md:col-span-8 space-y-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="bg-white p-3 rounded-xl border border-[#e6e5e0]">
+                                        <span class="text-[11px] text-[#7f837e] block">Waktu Masuk</span>
+                                        <p class="text-[15px] font-bold text-[#111827] mt-0.5">
+                                            {{ $todayRecord->checked_in_at->setTimezone($todayRecord->timezone)->format('H:i') }} <span class="text-xs font-semibold text-[#7f837e]">{{ $todayRecord->timezone }}</span>
+                                        </p>
+                                    </div>
+
+                                    <div class="bg-white p-3 rounded-xl border border-[#e6e5e0]">
+                                        <span class="text-[11px] text-[#7f837e] block">Status Kehadiran</span>
+                                        <p class="text-[14px] font-bold mt-0.5 {{ $todayRecord->late_minutes > 0 ? 'text-red-600' : 'text-[#289e5c]' }}">
+                                            @if($todayRecord->late_minutes > 0)
+                                                <i class="fas fa-clock text-xs mr-1"></i> Terlambat {{ $todayRecord->late_minutes }} menit
+                                            @elseif($todayRecord->scheduled_start_at)
+                                                <i class="fas fa-check-circle text-xs mr-1"></i> Tepat Waktu
+                                            @else
+                                                <i class="fas fa-check-circle text-xs mr-1"></i> Hadir (Tanpa Jadwal)
+                                            @endif
+                                        </p>
+                                    </div>
+
+                                    <div class="bg-white p-3 rounded-xl border border-[#e6e5e0]">
+                                        <span class="text-[11px] text-[#7f837e] block">Verifikasi Lokasi GPS</span>
+                                        <p class="text-[13px] font-semibold text-[#111827] mt-0.5 flex items-center gap-1.5">
+                                            @if($todayRecord->check_in_in_radius)
+                                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                <span class="text-emerald-700 font-bold">Valid di Area Kafe</span>
+                                            @elseif($todayRecord->check_in_latitude)
+                                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                                <span class="text-amber-700">Di Luar Radius Kafe</span>
+                                            @else
+                                                <span class="text-[#7f837e]">Tanpa GPS</span>
+                                            @endif
+                                        </p>
+                                        @if($todayRecord->check_in_latitude)
+                                            <a href="https://www.google.com/maps?q={{ $todayRecord->check_in_latitude }},{{ $todayRecord->check_in_longitude }}" target="_blank" class="text-[11px] text-[#df5826] hover:underline font-semibold mt-1 inline-flex items-center gap-1">
+                                                <i class="fas fa-map-location-dot"></i> Buka Titik Koordinat
+                                            </a>
+                                        @endif
+                                    </div>
+
+                                    <div class="bg-white p-3 rounded-xl border border-[#e6e5e0]">
+                                        <span class="text-[11px] text-[#7f837e] block">Catatan Masuk</span>
+                                        <p class="text-[12px] font-medium text-[#111827] mt-0.5 italic">
+                                            {{ $todayRecord->check_in_note ? '"' . $todayRecord->check_in_note . '"' : '-' }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 bg-[#eaf7ef] border border-[#bfe5cd] rounded-xl flex items-center gap-2 text-[#289e5c] text-[12px] font-semibold">
+                                    <i class="fas fa-circle-check text-base"></i>
+                                    <span>Absensi hari ini telah terekam dan selesai. Sistem menggunakan absensi masuk 1x, tidak perlu absen pulang.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    {{-- Form Absen Masuk (Hanya Muncul Jika Belum Absen Masuk Hari Ini) --}}
                     <form method="POST" action="{{ route('admin.attendance.store') }}" enctype="multipart/form-data" class="mt-5 space-y-4" @submit="handleSubmit($event)">
                         @csrf
-                        <input type="hidden" name="type" value="{{ $active ? 'check_out' : 'check_in' }}">
+                        <input type="hidden" name="type" value="check_in">
                         <input type="hidden" name="latitude" :value="latitude || ''">
                         <input type="hidden" name="longitude" :value="longitude || ''">
                         <input type="hidden" name="accuracy" :value="accuracy || ''">
@@ -177,9 +244,9 @@
                             <div class="lg:col-span-5 flex flex-col">
                                 <label class="block text-[12px] font-bold text-[#111827] mb-1.5">
                                     <i class="fas fa-camera text-[#df5826] mr-1"></i>
-                                    Foto Selfie Kehadiran
+                                    Foto Selfie Kehadiran (Wajib Foto Langsung)
                                     <template x-if="requirePhoto"><span class="text-red-500 font-bold">*</span></template>
-                                    <template x-if="!requirePhoto"><span class="text-[11px] text-[#7f837e] font-normal">(opsional)</span></template>
+                                    <template x-if="!requirePhoto"><span class="text-[11px] text-[#7f837e] font-normal">(wajib via kamera)</span></template>
                                 </label>
 
                                 <div class="relative w-full rounded-2xl overflow-hidden bg-gray-900 border border-[#e6e5e0] min-h-[240px] flex items-center justify-center flex-1">
@@ -203,9 +270,9 @@
                                         <!-- Shutter Button Overlay -->
                                         <div class="absolute bottom-3 inset-x-0 flex items-center justify-center gap-3">
                                             <button type="button" @click="takeSnapshot()" 
-                                                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[#111827] text-xs font-bold shadow-lg hover:bg-gray-100 active:scale-95 transition">
+                                                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-[#111827] text-xs font-bold shadow-lg hover:bg-gray-100 active:scale-95 transition cursor-pointer">
                                                 <i class="fas fa-circle-dot text-[#df5826] text-sm"></i>
-                                                <span>Ambil Foto</span>
+                                                <span>Ambil Foto Selfie</span>
                                             </button>
                                         </div>
                                     </div>
@@ -215,12 +282,12 @@
                                         <img :src="photoBase64" alt="Hasil Foto Selfie" class="w-full h-[240px] sm:h-[260px] object-cover">
                                         <div class="absolute top-2 right-2">
                                             <span class="inline-flex items-center gap-1 rounded-md bg-emerald-600/90 backdrop-blur-xs px-2 py-0.5 text-[11px] font-bold text-white shadow">
-                                                <i class="fas fa-check"></i>Foto Siap
+                                                <i class="fas fa-check"></i>Foto Siap (Terkonfirmasi)
                                             </span>
                                         </div>
                                         <div class="absolute bottom-3 inset-x-0 flex items-center justify-center">
                                             <button type="button" @click="retake()" 
-                                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/70 backdrop-blur-xs text-white text-xs font-semibold hover:bg-black/90 transition shadow">
+                                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/70 backdrop-blur-xs text-white text-xs font-semibold hover:bg-black/90 transition shadow cursor-pointer">
                                                 <i class="fas fa-rotate-right text-xs"></i>
                                                 <span>Foto Ulang</span>
                                             </button>
@@ -230,37 +297,31 @@
                                     <!-- STATE 3: Loading Camera -->
                                     <div x-show="cameraStatus === 'loading'" class="p-6 text-center text-white/80">
                                         <i class="fas fa-circle-notch fa-spin text-2xl text-[#df5826] mb-2"></i>
-                                        <p class="text-xs">Menyiapkan kamera...</p>
+                                        <p class="text-xs">Menyiapkan kamera perangkat...</p>
                                     </div>
 
-                                    <!-- STATE 4: Camera Error / Permission Denied / Fallback -->
+                                    <!-- STATE 4: Camera Inactive / Permission Denied -->
                                     <div x-show="cameraStatus === 'error'" class="p-5 text-center text-white space-y-3">
                                         <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center">
-                                            <i class="fas fa-video-slash text-base"></i>
+                                            <i class="fas fa-camera text-base"></i>
                                         </div>
                                         <div>
-                                            <p class="text-xs font-bold text-white leading-snug" x-text="cameraErrorMsg"></p>
-                                            <p class="text-[11px] text-gray-300 mt-1">Gunakan tombol di bawah untuk membuka kamera perangkat atau unggah file selfie.</p>
+                                            <p class="text-xs font-bold text-white leading-snug" x-text="cameraErrorMsg || 'Kamera belum aktif'"></p>
+                                            <p class="text-[11px] text-amber-200/90 mt-1">Wajib berfoto selfie langsung melalui kamera web/aplikasi (tidak dapat memilih foto dari galeri/file).</p>
+                                            <p class="text-[10.5px] text-gray-300 mt-1">Pastikan browser diberi izin mengakses kamera, lalu klik tombol di bawah.</p>
                                         </div>
-                                        <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
-                                            <button type="button" @click="$refs.fileInput.click()" 
-                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-[#111827] text-xs font-bold hover:bg-gray-100 transition">
-                                                <i class="fas fa-camera text-[#df5826]"></i>
-                                                <span>Pilih / Foto via HP</span>
-                                            </button>
+                                        <div class="flex items-center justify-center gap-2 pt-1">
                                             <button type="button" @click="startCamera()" 
-                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/20 text-white text-xs font-medium hover:bg-white/30 transition">
-                                                <i class="fas fa-redo"></i>Coba Lagi
+                                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-b from-[#f06428] to-[#df5826] text-white text-xs font-bold hover:opacity-95 shadow transition cursor-pointer">
+                                                <i class="fas fa-video"></i>
+                                                <span>Aktifkan Kamera Sekarang</span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Hidden File Input Fallback -->
-                                <input type="file" x-ref="fileInput" accept="image/*" capture="user" class="hidden" @change="handleFileUpload($event)">
-
                                 <p class="text-[11px] text-[#7f837e] mt-1.5">
-                                    💡 Pastikan wajah terlihat jelas dan pencahayaan memadai.
+                                    💡 Pengambilan foto selfie harus dilakukan langsung via kamera web/aplikasi secara real-time.
                                 </p>
                             </div>
 
@@ -277,7 +338,7 @@
                                             <template x-if="!requireGps"><span class="text-[11px] text-[#7f837e] font-normal">(opsional)</span></template>
                                         </label>
                                         <button type="button" @click="detectLocation()" :disabled="gpsStatus === 'loading'" 
-                                            class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#df5826] hover:underline disabled:opacity-50">
+                                            class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#df5826] hover:underline disabled:opacity-50 cursor-pointer">
                                             <i class="fas fa-rotate-right" :class="gpsStatus === 'loading' ? 'fa-spin' : ''"></i>
                                             <span>Deteksi Ulang</span>
                                         </button>
@@ -359,10 +420,10 @@
                                 <!-- Catatan Kehadiran (Opsional) -->
                                 <div>
                                     <label for="attendance-note" class="block text-[12px] font-semibold text-[#111827] mb-1.5">
-                                        Catatan {{ $active ? 'pulang' : 'masuk' }} <span class="font-normal text-[#8b8e93]">(opsional)</span>
+                                        Catatan masuk <span class="font-normal text-[#8b8e93]">(opsional)</span>
                                     </label>
                                     <textarea id="attendance-note" name="note" maxlength="500" rows="2"
-                                        placeholder="Contoh: {{ $active ? 'Menyelesaikan penutupan shift sore' : 'Hadir tepat waktu' }}..."
+                                        placeholder="Contoh: Hadir tepat waktu untuk shift pagi..."
                                         class="w-full rounded-[10px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] focus:ring-0 px-3.5 py-2.5 text-[12.5px] text-[#111827] placeholder-[#8b8e93] outline-none transition"
                                         aria-describedby="note-help">{{ old('note') }}</textarea>
                                 </div>
@@ -384,9 +445,9 @@
                                     </div>
 
                                     <button type="submit" :disabled="!canSubmit"
-                                        class="inline-flex items-center justify-center gap-2 py-2.5 px-6 rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-[13px] font-bold hover:opacity-95 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                                        <i class="fas {{ $active ? 'fa-sign-out-alt' : 'fa-sign-in-alt' }} text-xs"></i>
-                                        <span x-text="submitting ? 'Mencatat…' : '{{ $active ? 'Absen Pulang Sekarang' : 'Absen Masuk Sekarang' }}'">{{ $active ? 'Absen Pulang' : 'Absen Masuk' }}</span>
+                                        class="inline-flex items-center justify-center gap-2 py-2.5 px-6 rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-[13px] font-bold hover:opacity-95 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                        <i class="fas fa-sign-in-alt text-xs"></i>
+                                        <span x-text="submitting ? 'Mencatat…' : 'Absen Masuk Sekarang'">Absen Masuk</span>
                                     </button>
                                 </div>
                             </div>
@@ -401,7 +462,7 @@
             {{-- Card 1: Tercatat --}}
             <div class="bg-white border border-[#e6e5e0] rounded-[14px] p-4 shadow-[0px_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between min-h-[96px]">
                 <div class="flex items-center justify-between">
-                    <p class="text-[12px] font-medium text-[#53565a]">Tercatat</p>
+                    <p class="text-[12px] font-medium text-[#53565a]">Tercatat Bulan Ini</p>
                     <div class="w-7 h-7 rounded-[8px] bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center text-[#df5826]">
                         <i class="fas fa-calendar-check text-xs"></i>
                     </div>
@@ -420,26 +481,26 @@
                 <p class="text-[24px] font-bold text-[#111827] leading-tight mt-2">{{ $summary['late'] }}</p>
             </div>
 
-            {{-- Card 3: Belum Pulang --}}
+            {{-- Card 3: Tepat Waktu --}}
             <div class="bg-white border border-[#e6e5e0] rounded-[14px] p-4 shadow-[0px_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between min-h-[96px]">
                 <div class="flex items-center justify-between">
-                    <p class="text-[12px] font-medium text-[#53565a]">Belum Pulang</p>
-                    <div class="w-7 h-7 rounded-[8px] bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center text-[#df5826]">
-                        <i class="fas fa-user-clock text-xs"></i>
+                    <p class="text-[12px] font-medium text-[#53565a]">Tepat Waktu</p>
+                    <div class="w-7 h-7 rounded-[8px] bg-[#eaf7ef] border border-[#bfe5cd] flex items-center justify-center text-[#289e5c]">
+                        <i class="fas fa-check-circle text-xs"></i>
                     </div>
                 </div>
-                <p class="text-[24px] font-bold text-[#111827] leading-tight mt-2">{{ $summary['active'] }}</p>
+                <p class="text-[24px] font-bold text-[#111827] leading-tight mt-2">{{ $summary['on_time'] }}</p>
             </div>
 
-            {{-- Card 4: Durasi Selesai --}}
+            {{-- Card 4: Hadir Hari Ini --}}
             <div class="bg-white border border-[#e6e5e0] rounded-[14px] p-4 shadow-[0px_2px_8px_rgba(0,0,0,0.02)] flex flex-col justify-between min-h-[96px]">
                 <div class="flex items-center justify-between">
-                    <p class="text-[12px] font-medium text-[#53565a]">Durasi Selesai</p>
-                    <div class="w-7 h-7 rounded-[8px] bg-[#eaf7ef] border border-[#bfe5cd] flex items-center justify-center text-[#289e5c]">
-                        <i class="fas fa-hourglass-half text-xs"></i>
+                    <p class="text-[12px] font-medium text-[#53565a]">Hadir Hari Ini</p>
+                    <div class="w-7 h-7 rounded-[8px] bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center text-[#df5826]">
+                        <i class="fas fa-users text-xs"></i>
                     </div>
                 </div>
-                <p class="text-[24px] font-bold text-[#111827] leading-tight mt-2">{{ intdiv($summary['minutes'], 60).'j '.($summary['minutes'] % 60).'m' }}</p>
+                <p class="text-[24px] font-bold text-[#111827] leading-tight mt-2">{{ $summary['today'] }}</p>
             </div>
         </section>
 
@@ -480,7 +541,7 @@
                             <select id="status" name="status"
                                 class="bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[9px] px-3 py-2 text-[12px] font-semibold text-[#111827] outline-none transition">
                                 <option value="">Semua status</option>
-                                @foreach(['late' => 'Terlambat', 'on_time' => 'Tepat waktu', 'unscheduled' => 'Tanpa jadwal', 'active' => 'Belum pulang', 'completed' => 'Selesai'] as $key => $label)
+                                @foreach(['on_time' => 'Tepat waktu', 'late' => 'Terlambat', 'unscheduled' => 'Tanpa jadwal'] as $key => $label)
                                     <option value="{{ $key }}" @selected(($filters['status'] ?? '') === $key)>{{ $label }}</option>
                                 @endforeach
                             </select>
@@ -488,7 +549,7 @@
                     @endif
 
                     <button type="submit"
-                        class="py-2 px-4 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-[12px] font-semibold hover:opacity-95 transition min-h-[36px]">
+                        class="py-2 px-4 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-[12px] font-semibold hover:opacity-95 transition min-h-[36px] cursor-pointer">
                         Tampilkan
                     </button>
                 </form>
@@ -501,10 +562,9 @@
                         <tr>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Hari Kerja</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Karyawan</th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Masuk / Pulang</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Waktu Masuk</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Verifikasi (Foto &amp; GPS)</th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Kehadiran</th>
-                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Durasi</th>
+                            <th scope="col" class="px-4 py-3 whitespace-nowrap">Status Kehadiran</th>
                             <th scope="col" class="px-4 py-3 whitespace-nowrap">Catatan</th>
                         </tr>
                     </thead>
@@ -531,25 +591,21 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-3.5 whitespace-nowrap">
-                                    <div class="space-y-0.5">
-                                        <p class="text-[#111827] font-medium">
-                                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#289e5c] mr-1.5"></span>{{ $attendance->checked_in_at->setTimezone($attendance->timezone)->format('d/m H:i') }}
-                                        </p>
-                                        <p class="{{ $attendance->checked_out_at ? 'text-[#53565a]' : 'text-[#df5826] font-semibold' }}">
-                                            <span class="inline-block w-1.5 h-1.5 rounded-full {{ $attendance->checked_out_at ? 'bg-[#8b8e93]' : 'bg-[#df5826]' }} mr-1.5"></span>{{ $attendance->checked_out_at?->setTimezone($attendance->timezone)->format('d/m H:i') ?? 'Belum pulang' }}
-                                        </p>
-                                        <span class="text-[10.5px] text-[#8b8e93] block pl-3">{{ $attendance->timezone }}</span>
+                                    <div class="flex items-center gap-1.5 font-semibold text-[#111827]">
+                                        <span class="inline-block w-2 h-2 rounded-full bg-[#289e5c] shrink-0"></span>
+                                        <span>{{ $attendance->checked_in_at->setTimezone($attendance->timezone)->format('H:i') }}</span>
+                                        <span class="text-[11px] font-normal text-[#8b8e93]">{{ $attendance->timezone }}</span>
                                     </div>
                                 </td>
 
                                 {{-- Verification Column: Photos & GPS --}}
                                 <td class="px-4 py-3.5">
-                                    <div class="space-y-2 min-w-[170px]">
+                                    <div class="space-y-1.5 min-w-[170px]">
                                         <!-- Masuk Verification -->
                                         <div class="flex items-center gap-2">
                                             @if($attendance->check_in_photo_path)
                                                 <button type="button" @click="openPhotoPreview('{{ $attendance->check_in_photo_url }}', '{{ $empName }} (Masuk)', '{{ $attendance->checked_in_at->setTimezone($attendance->timezone)->format('d/m/Y H:i') }}', '{{ $attendance->check_in_latitude }}', '{{ $attendance->check_in_longitude }}', {{ $attendance->check_in_distance_meters ?? 'null' }}, {{ $attendance->check_in_in_radius !== null ? ($attendance->check_in_in_radius ? 'true' : 'false') : 'null' }})"
-                                                    class="relative w-8 h-8 rounded-lg overflow-hidden border border-emerald-300 shadow-2xs hover:scale-105 transition shrink-0 group"
+                                                    class="relative w-8 h-8 rounded-lg overflow-hidden border border-emerald-300 shadow-2xs hover:scale-105 transition shrink-0 group cursor-pointer"
                                                     title="Lihat foto selfie masuk">
                                                     <img src="{{ $attendance->check_in_photo_url }}" alt="Foto Masuk" class="w-full h-full object-cover">
                                                     <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent flex items-center justify-center text-white text-[9px]">
@@ -564,7 +620,7 @@
 
                                             <div class="text-[11px] leading-tight">
                                                 <div class="flex items-center gap-1 font-semibold text-[#111827]">
-                                                    <span class="text-[10px] text-emerald-600 font-bold">IN:</span>
+                                                    <span class="text-[10px] text-emerald-600 font-bold">GPS:</span>
                                                     @if($attendance->check_in_latitude && $attendance->check_in_longitude)
                                                         <a href="https://www.google.com/maps?q={{ $attendance->check_in_latitude }},{{ $attendance->check_in_longitude }}" target="_blank"
                                                            class="inline-flex items-center gap-0.5 hover:underline"
@@ -574,11 +630,13 @@
                                                             @if($attendance->check_in_distance_meters !== null)
                                                                 <span>{{ $attendance->check_in_distance_meters }}m</span>
                                                             @else
-                                                                <span>GPS</span>
+                                                                <span>Peta</span>
                                                             @endif
                                                         </a>
                                                         @if($attendance->check_in_in_radius === false)
                                                             <span class="rounded bg-amber-100 px-1 text-[9px] font-bold text-amber-700" title="Di luar radius kafe">Luar</span>
+                                                        @else
+                                                            <span class="rounded bg-emerald-100 px-1 text-[9px] font-bold text-emerald-700" title="Di dalam radius kafe">Valid</span>
                                                         @endif
                                                     @else
                                                         <span class="text-gray-400 font-normal">Tanpa GPS</span>
@@ -586,50 +644,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- Pulang Verification -->
-                                        @if($attendance->checked_out_at)
-                                            <div class="flex items-center gap-2 pt-1 border-t border-gray-100">
-                                                @if($attendance->check_out_photo_path)
-                                                    <button type="button" @click="openPhotoPreview('{{ $attendance->check_out_photo_url }}', '{{ $empName }} (Pulang)', '{{ $attendance->checked_out_at->setTimezone($attendance->timezone)->format('d/m/Y H:i') }}', '{{ $attendance->check_out_latitude }}', '{{ $attendance->check_out_longitude }}', {{ $attendance->check_out_distance_meters ?? 'null' }}, {{ $attendance->check_out_in_radius !== null ? ($attendance->check_out_in_radius ? 'true' : 'false') : 'null' }})"
-                                                        class="relative w-8 h-8 rounded-lg overflow-hidden border border-orange-300 shadow-2xs hover:scale-105 transition shrink-0 group"
-                                                        title="Lihat foto selfie pulang">
-                                                        <img src="{{ $attendance->check_out_photo_url }}" alt="Foto Pulang" class="w-full h-full object-cover">
-                                                        <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent flex items-center justify-center text-white text-[9px]">
-                                                            <i class="fas fa-search"></i>
-                                                        </div>
-                                                    </button>
-                                                @else
-                                                    <span class="w-8 h-8 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs shrink-0" title="Tanpa foto pulang">
-                                                        <i class="fas fa-camera-slash text-[10px]"></i>
-                                                    </span>
-                                                @endif
-
-                                                <div class="text-[11px] leading-tight">
-                                                    <div class="flex items-center gap-1 font-semibold text-[#111827]">
-                                                        <span class="text-[10px] text-[#df5826] font-bold">OUT:</span>
-                                                        @if($attendance->check_out_latitude && $attendance->check_out_longitude)
-                                                            <a href="https://www.google.com/maps?q={{ $attendance->check_out_latitude }},{{ $attendance->check_out_longitude }}" target="_blank"
-                                                               class="inline-flex items-center gap-0.5 hover:underline"
-                                                               :class="{{ $attendance->check_out_in_radius !== false ? "'text-emerald-700'" : "'text-amber-700'" }}"
-                                                               title="Buka titik GPS di Google Maps">
-                                                                <i class="fas fa-location-dot text-[9px]"></i>
-                                                                @if($attendance->check_out_distance_meters !== null)
-                                                                    <span>{{ $attendance->check_out_distance_meters }}m</span>
-                                                                @else
-                                                                    <span>GPS</span>
-                                                                @endif
-                                                            </a>
-                                                            @if($attendance->check_out_in_radius === false)
-                                                                <span class="rounded bg-amber-100 px-1 text-[9px] font-bold text-amber-700" title="Di luar radius kafe">Luar</span>
-                                                            @endif
-                                                        @else
-                                                            <span class="text-gray-400 font-normal">Tanpa GPS</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
                                     </div>
                                 </td>
 
@@ -642,29 +656,15 @@
                                         @else
                                             <span class="px-2 py-0.5 rounded-[5px] bg-[#eaf7ef] border border-[#bfe5cd] text-[#289e5c] text-[11px] font-semibold">Tepat waktu</span>
                                         @endif
-
-                                        @if($attendance->early_leave_minutes > 0)
-                                            <span class="px-2 py-0.5 rounded-[5px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] text-[11px] font-medium">Pulang awal {{ $attendance->early_leave_minutes }} menit</span>
-                                        @endif
                                     </div>
-                                </td>
-                                <td class="px-4 py-3.5 whitespace-nowrap">
-                                    @if($attendance->worked_minutes !== null)
-                                        <span class="font-semibold text-[#111827]">{{ intdiv($attendance->worked_minutes, 60).'j '.($attendance->worked_minutes % 60).'m' }}</span>
-                                    @else
-                                        <span class="px-2 py-0.5 rounded-[5px] bg-[#fff6f0] text-[#df5826] text-[11px] font-semibold">Berlangsung</span>
-                                    @endif
                                 </td>
                                 <td class="px-4 py-3.5 min-w-[180px] max-w-sm break-words text-[#53565a]">
                                     <p>{{ $attendance->check_in_note ?? '—' }}</p>
-                                    @if($attendance->check_out_note)
-                                        <p class="mt-1 text-[11.5px] text-[#8b8e93]">Pulang: {{ $attendance->check_out_note }}</p>
-                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-12 px-4 text-center">
+                                <td colspan="6" class="py-12 px-4 text-center">
                                     <div class="w-11 h-11 rounded-[12px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center mx-auto mb-2.5">
                                         <i class="fas fa-calendar-times text-sm"></i>
                                     </div>
@@ -685,7 +685,7 @@
         </section>
 
         <p class="text-[11px] text-[#8b8e93] pb-4">
-            Durasi adalah selisih waktu masuk dan pulang, belum dikurangi istirahat. Catatan tanpa jadwal tidak dihitung sebagai keterlambatan. Rekap ini bukan perhitungan gaji atau lembur.
+            Catatan tanpa jadwal tidak dihitung sebagai keterlambatan. Rekap kehadiran ini mencatat kehadiran harian staf dan bukan perhitungan langsung gaji atau lembur.
         </p>
     </main>
 
@@ -801,7 +801,7 @@
                     <label class="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 cursor-pointer">
                         <div>
                             <span class="text-xs font-bold text-[#111827] block">Wajibkan Foto Selfie</span>
-                            <span class="text-[11px] text-[#7f837e]">Kru wajib mengambil foto selfie saat absen masuk dan pulang.</span>
+                            <span class="text-[11px] text-[#7f837e]">Kru wajib mengambil foto selfie langsung via kamera saat absen masuk.</span>
                         </div>
                         <input type="checkbox" name="attendance_require_photo" value="1" x-model="modalReqPhoto"
                             class="w-4 h-4 text-[#df5826] rounded border-gray-300 focus:ring-[#df5826]">
@@ -1039,18 +1039,6 @@ function attendanceCapture(config) {
             }
         },
 
-        handleFileUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (evt) => {
-                this.photoBase64 = evt.target.result;
-                this.cameraStatus = 'captured';
-                this.stopStream();
-            };
-            reader.readAsDataURL(file);
-        },
-
         get canSubmit() {
             if (this.submitting) return false;
             if (this.requirePhoto && !this.photoBase64) return false;
@@ -1061,7 +1049,7 @@ function attendanceCapture(config) {
 
         get submitBlockReason() {
             if (this.requirePhoto && !this.photoBase64) {
-                return 'Ambil foto selfie kehadiran terlebih dahulu.';
+                return 'Ambil foto selfie langsung via kamera web/aplikasi.';
             }
             if (this.requireGps && (this.latitude === null || this.longitude === null)) {
                 return 'Aktifkan GPS & izinkan akses lokasi browser.';

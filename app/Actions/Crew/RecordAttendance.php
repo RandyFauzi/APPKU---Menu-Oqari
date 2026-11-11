@@ -69,13 +69,23 @@ class RecordAttendance
                 ]);
                 $attendance = $active;
             } else {
-                if ($active) {
-                    throw ValidationException::withMessages(['type' => 'Anda masih tercatat masuk. Absen pulang terlebih dahulu.']);
-                }
                 $timezone = config('attendance.timezone');
                 $localNow = $now->setTimezone($timezone);
                 $shift = $this->resolveShift($employee, $localNow);
                 $workDate = $shift?->date->format('Y-m-d') ?? $localNow->toDateString();
+
+                // Auto-close unclosed session from a previous day so it never traps the employee on a new day
+                if ($active && $active->work_date->format('Y-m-d') !== $workDate) {
+                    $active->update([
+                        'checked_out_at' => $active->scheduled_end_at ?? $active->checked_in_at,
+                        'worked_minutes' => $active->scheduled_end_at ? (int) floor($active->checked_in_at->diffInMinutes($active->scheduled_end_at)) : 0,
+                    ]);
+                    $active = null;
+                }
+
+                if ($active) {
+                    throw ValidationException::withMessages(['type' => 'Anda masih tercatat masuk. Absen pulang terlebih dahulu.']);
+                }
                 if ((clone $query)->whereDate('work_date', $workDate)->exists()) {
                     throw ValidationException::withMessages(['type' => 'Absensi untuk hari kerja ini sudah tercatat.']);
                 }

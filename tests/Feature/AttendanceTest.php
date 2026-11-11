@@ -96,14 +96,14 @@ class AttendanceTest extends TestCase
             ->assertJsonPath('attendance.worked_minutes', 345)->assertJsonPath('attendance.early_leave_minutes', 0);
     }
 
-    public function test_open_session_from_previous_day_blocks_new_check_in_but_allows_checkout(): void
+    public function test_open_session_from_previous_day_auto_closes_on_new_day_check_in(): void
     {
         $employee = $this->employee();
         $this->travelTo(Carbon::parse('2026-10-19 23:00:00', 'Asia/Jakarta'));
         $this->actingAs($employee)->postJson(route('admin.attendance.store'), ['type' => 'check_in'])->assertOk();
         $this->travel(2)->hours();
-        $this->postJson(route('admin.attendance.store'), ['type' => 'check_in'])->assertUnprocessable();
-        $this->postJson(route('admin.attendance.store'), ['type' => 'check_out'])->assertOk()->assertJsonPath('attendance.worked_minutes', 120);
+        $this->postJson(route('admin.attendance.store'), ['type' => 'check_in'])->assertOk();
+        $this->assertDatabaseCount('attendances', 2);
     }
 
     public function test_missing_schedule_is_not_marked_late(): void
