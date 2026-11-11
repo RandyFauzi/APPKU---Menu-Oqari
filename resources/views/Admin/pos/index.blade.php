@@ -752,79 +752,63 @@
             </template>
         </div>
 
-        {{-- Quick Discount / Voucher Strip (Visible when cart has items & feature enabled) --}}
-        <template x-if="discountSettings?.is_enabled && cart.length > 0">
-            <div>
-                {{-- State A: Discount is applied --}}
-                <div x-show="discountAmount > 0" class="px-3.5 py-2 bg-emerald-50 border-t border-b border-emerald-200/90 flex items-center justify-between text-[11px] transition-all">
-                    <div class="flex items-center gap-1.5 min-w-0 pr-2">
-                        <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 text-[10px] font-bold">
-                            <i class="fas fa-tag"></i>
-                        </span>
-                        <div class="truncate">
-                            <span class="font-bold text-emerald-900 truncate block" x-text="discount.code ? ('Voucher: ' + discount.code) : (discount.reason || 'Diskon Aktif')"></span>
-                            <span class="text-[9.5px] text-emerald-700 font-medium" x-text="discount.code ? (discount.reason || 'Promo Kupon') : 'Potongan Terpasang'"></span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <span class="font-black text-emerald-700 text-[12px]">-Rp<span x-text="formatRp(discountAmount)"></span></span>
-                        <button type="button" @click="removeDiscount()" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1 rounded-full transition cursor-pointer" title="Hapus Diskon">
-                            <i class="fas fa-times text-[10px]"></i>
-                        </button>
-                    </div>
+        {{-- Applied Discount Banner (Figma Screen 3: mint green card directly above summary) --}}
+        <div x-show="discountAmount > 0" x-cloak class="mx-3 sm:mx-4 mt-2 p-2.5 px-3 bg-[#e8f8f0] border border-[#a7f3d0] rounded-[10px] flex items-center justify-between transition-all">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 rounded-[7px] bg-[#d1fae5] text-[#059669] flex items-center justify-center font-bold text-xs shrink-0">
+                    <i class="fas fa-percent text-[10px]" x-show="discount.type === 'percentage'"></i>
+                    <i class="fas fa-ticket-alt text-[10px]" x-show="discount.type !== 'percentage'"></i>
                 </div>
-
-                {{-- State B: No discount applied yet, show quick triggers --}}
-                <div x-show="discountAmount === 0" class="px-3 py-1.5 bg-[#fbfbfa] border-t border-[#e6e5e0] flex items-center justify-between gap-1.5 text-[11px]">
-                    <button type="button" @click="openDiscountModal()" class="inline-flex items-center gap-1 text-[#df5826] hover:text-[#c44719] font-bold text-[11px] shrink-0 transition cursor-pointer">
-                        <i class="fas fa-tags text-[10.5px]"></i>
-                        <span>Diskon / Voucher</span>
-                        <span class="text-[9.5px] font-normal text-gray-400">(F3)</span>
-                    </button>
-                    <div class="flex items-center gap-1 overflow-x-auto hide-scroll py-0.5">
-                        <template x-for="p in (discountSettings?.presets || []).slice(0, 3)" :key="p.id || p.name">
-                            <button type="button" @click="applyPresetDiscount(p)"
-                                class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white hover:bg-orange-50 text-gray-700 hover:text-[#df5826] border border-gray-200 hover:border-orange-300 transition shadow-2xs shrink-0 cursor-pointer"
-                                x-text="p.name">
-                            </button>
-                        </template>
-                        <button type="button" @click="openDiscountModal()" class="text-[10px] font-semibold text-gray-400 hover:text-gray-600 px-1 shrink-0 cursor-pointer" title="Pilihan diskon lainnya">
-                            &raquo;
-                        </button>
-                    </div>
+                <div class="truncate">
+                    <span class="font-bold text-[#065f46] text-[12px] truncate block leading-tight" x-text="discount.code ? ('Voucher ' + discount.code) : (discount.reason || '5% Discount')"></span>
+                    <span class="text-[10px] text-[#047857] font-medium leading-tight">Potongan Harga</span>
                 </div>
             </div>
-        </template>
+            <div class="flex items-center gap-2 shrink-0">
+                <span class="font-black text-[#059669] text-[13px]">-Rp<span x-text="formatRp(discountAmount)"></span></span>
+                <button type="button" @click="removeDiscount()" class="w-5 h-5 rounded-full bg-white/70 hover:bg-white text-gray-400 hover:text-red-500 flex items-center justify-center text-[10px] transition cursor-pointer shadow-2xs" title="Hapus Diskon">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
 
-        {{-- Order Summary & CTA Footer with Pull-Tab Accordion --}}
+        {{-- Order Summary & CTA Footer (Figma Screen 1 & Screen 3) --}}
         <div class="border-t border-[#e6e5e0] bg-[#fcfcfd] flex flex-col shrink-0 sticky bottom-0 z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(14px,env(safe-area-inset-bottom))]">
             
-            {{-- Pull Tab Handle & Total Summary Header --}}
-            <div @click="showPriceBreakdown = !showPriceBreakdown" 
-                 class="px-4 pt-2.5 pb-2 cursor-pointer hover:bg-gray-100/70 select-none transition-colors group">
-                
-                {{-- Centered Drag / Pull Pill Handle --}}
-                <div class="w-10 h-1 bg-[#d8dce2] group-hover:bg-[#df5826]/70 rounded-full mx-auto mb-2 transition-colors"></div>
-                
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[12.5px] font-bold text-[#111827]">Total</span>
-                        <button type="button" 
-                                class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#df5826] bg-[#fff6f0] hover:bg-[#ffede3] px-2 py-0.5 rounded-full border border-[#f5d5c6] transition">
-                            <span x-text="showPriceBreakdown ? 'Tutup Rincian' : 'Rincian Harga'"></span>
-                            <i class="fas fa-chevron-up text-[9px] transition-transform duration-200" :class="showPriceBreakdown ? 'rotate-180' : ''"></i>
-                        </button>
-                    </div>
-                    <div class="text-right">
-                        <template x-if="discountAmount > 0">
-                            <div class="text-[10px] text-gray-400 line-through leading-tight">
-                                Rp<span x-text="formatRp(subtotal)"></span>
-                            </div>
-                        </template>
-                        <span class="text-[16px] font-black text-[#111827] tracking-tight">
+            <div class="px-4 pt-3 pb-2 flex flex-col gap-1.5">
+                {{-- Header row: Total Pembayaran on left, Tambah Voucher/Diskon > on right --}}
+                <div class="flex items-center justify-between text-[11.5px]">
+                    <button type="button" @click="showPriceBreakdown = !showPriceBreakdown" 
+                            class="font-semibold text-[#53565a] hover:text-[#111827] flex items-center gap-1 select-none transition-colors cursor-pointer group">
+                        <span>Total Pembayaran</span>
+                        <i class="fas fa-chevron-right text-[8.5px] text-gray-400 group-hover:text-[#df5826] transition-transform duration-200" :class="showPriceBreakdown ? 'rotate-90' : ''"></i>
+                    </button>
+                    
+                    <button type="button" @click="openDiscountModal()" 
+                            class="inline-flex items-center gap-1 text-[#df5826] hover:text-[#c44719] font-bold text-[11.5px] transition cursor-pointer">
+                        <i class="fas fa-ticket-alt text-[10px]"></i>
+                        <span>Tambah Voucher/Diskon</span>
+                        <i class="fas fa-chevron-right text-[8.5px]"></i>
+                    </button>
+                </div>
+
+                {{-- Price Display: Large Bold Final Total + Strikethrough Subtotal if Discounted --}}
+                <div class="flex items-baseline justify-between pt-0.5">
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-[18px] font-black text-[#111827] tracking-tight">
                             Rp<span x-text="formatRp(grandTotal)"></span>
                         </span>
+                        <template x-if="discountAmount > 0">
+                            <span class="text-[12px] font-semibold text-[#8b8e93] line-through">
+                                Rp<span x-text="formatRp(subtotal)"></span>
+                            </span>
+                        </template>
                     </div>
+
+                    <button type="button" @click="showPriceBreakdown = !showPriceBreakdown"
+                            class="text-[11px] font-semibold text-[#df5826] hover:underline cursor-pointer">
+                        <span x-text="showPriceBreakdown ? 'Tutup Rincian' : 'Rincian Harga'"></span>
+                    </button>
                 </div>
             </div>
 
@@ -842,29 +826,13 @@
                     <span class="text-[#53565a]">Subtotal Menu (<span x-text="cart.reduce((s,i)=>s+i.qty,0)"></span> item)</span>
                     <span class="font-semibold text-[#111827]">Rp<span x-text="formatRp(subtotal)"></span></span>
                 </div>
-                <template x-if="discountSettings?.is_enabled">
+                <template x-if="discountAmount > 0">
                     <div class="flex items-center justify-between py-1 border-t border-dashed border-[#e6e5e0]">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-emerald-700 font-semibold flex items-center gap-1">
-                                <i class="fas fa-tags text-[10px]"></i>
-                                <span x-text="discount.code ? ('Voucher: ' + discount.code) : (discount.reason || 'Diskon')"></span>
-                            </span>
-                            <template x-if="discountAmount > 0">
-                                <button type="button" @click.stop="removeDiscount()" class="text-red-500 hover:text-red-700 p-0.5 rounded" title="Hapus Diskon">
-                                    <i class="fas fa-times text-[9px]"></i>
-                                </button>
-                            </template>
-                        </div>
-                        <div>
-                            <template x-if="discountAmount > 0">
-                                <span class="font-bold text-emerald-600">-Rp<span x-text="formatRp(discountAmount)"></span></span>
-                            </template>
-                            <template x-if="discountAmount === 0">
-                                <button type="button" @click.stop="openDiscountModal()" class="text-[10.5px] font-bold text-[#df5826] hover:underline flex items-center gap-1">
-                                    + Diskon / Voucher (F3)
-                                </button>
-                            </template>
-                        </div>
+                        <span class="text-emerald-700 font-semibold flex items-center gap-1">
+                            <i class="fas fa-tags text-[10px]"></i>
+                            <span x-text="discount.code ? ('Voucher: ' + discount.code) : (discount.reason || 'Diskon')"></span>
+                        </span>
+                        <span class="font-bold text-emerald-600">-Rp<span x-text="formatRp(discountAmount)"></span></span>
                     </div>
                 </template>
                 <div class="flex items-center justify-between">
@@ -877,26 +845,20 @@
                 </div>
             </div>
 
-            {{-- CTA Button (Open Bill F2 & Bayar F4) --}}
+            {{-- CTA Button (Open Bill & Bayar) --}}
             <div class="px-4 pt-1.5 pb-2">
                 @can('manage-payments')
-                <div class="flex gap-2">
+                <div class="grid grid-cols-2 gap-2">
                     <button type="button" @click="confirmOpenBill()" :disabled="cart.length === 0"
-                        class="py-[11px] px-3.5 rounded-[10px] bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[12px] font-bold transition flex items-center justify-center gap-1.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+                        class="py-[11px] px-3.5 rounded-[10px] bg-white hover:bg-[#fff6f0] border border-[#df5826] text-[#df5826] text-[12px] font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
                         :title="recalledOrderId ? 'Perbarui Open Bill (F2)' : 'Buka Tagihan Meja / Bayar Nanti (F2)'">
-                        <i class="fas fa-bookmark text-amber-700"></i>
+                        <i class="fas fa-receipt text-[11px]"></i>
                         <span x-text="recalledOrderId ? 'Update Bill' : 'Open Bill'"></span>
                         <span class="text-[10px] font-normal opacity-75">(F2)</span>
                     </button>
                     <button type="button" @click="openPayment()" :disabled="cart.length === 0"
-                        class="flex-1 py-[11px] px-[16px] rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_6px_0px_rgba(223,88,38,0.25)] flex items-center justify-center gap-[8px] text-white text-[13px] font-bold hover:opacity-95 active:scale-[0.99] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
-                        <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
-                        <span class="flex items-center gap-1.5">
-                            <span>Bayar</span>
-                            <span class="hidden sm:inline-block text-[10.5px] font-normal opacity-85">(F4)</span>
-                        </span>
-                    </button>
-                        <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
+                        class="py-[11px] px-[16px] rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_6px_0px_rgba(223,88,38,0.25)] flex items-center justify-center gap-[8px] text-white text-[13px] font-bold hover:opacity-95 active:scale-[0.99] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                        <i class="fas fa-credit-card text-[12px]"></i>
                         <span class="flex items-center gap-1.5">
                             <span>Bayar</span>
                             <span class="hidden sm:inline-block text-[10.5px] font-normal opacity-85">(F4)</span>
@@ -1299,7 +1261,7 @@
 </div>
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
-{{-- DISCOUNT & VOUCHER MODAL                                    --}}
+{{-- DISCOUNT & VOUCHER MODAL (Figma Screen 2)                   --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
 <div x-show="discountModal.show" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center p-4">
     <div x-show="discountModal.show" x-transition.opacity class="absolute inset-0 bg-[#1e211f]/60 backdrop-blur-sm" @click="discountModal.show = false"></div>
@@ -1308,46 +1270,39 @@
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0 scale-95"
         x-transition:enter-end="opacity-100 scale-100"
-        class="bg-white border border-[#e6e5e0] rounded-[22px] w-full max-w-md shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+        class="bg-white border border-[#e6e5e0] rounded-[20px] w-full max-w-lg shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
 
         {{-- Header --}}
-        <div class="p-4 px-5 border-b border-[#e6e5e0] flex items-center justify-between bg-[#fcfcfd]">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-full bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center">
-                    <i class="fas fa-tags text-sm"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-[15px] text-[#111827]">Diskon & Voucher Promo</h3>
-                    <p class="text-[11px] text-[#53565a]">Subtotal: <strong class="text-[#111827]">Rp<span x-text="formatRp(subtotal)"></span></strong></p>
-                </div>
+        <div class="p-4 px-5 border-b border-[#e6e5e0] flex items-center justify-between bg-white">
+            <div>
+                <h3 class="font-bold text-[16px] text-[#111827] leading-tight">Diskon &amp; Voucher Promo</h3>
+                <p class="text-[11.5px] text-[#7f837e] mt-0.5">Subtotal: <strong class="text-[#111827]">Rp<span x-text="formatRp(subtotal)"></span></strong></p>
             </div>
-            <button type="button" @click="discountModal.show = false" class="w-8 h-8 flex items-center justify-center text-[#8b8e93] hover:text-[#111827] rounded-full transition">
+            <button type="button" @click="discountModal.show = false" class="w-8 h-8 flex items-center justify-center text-[#8b8e93] hover:text-[#111827] rounded-full transition cursor-pointer">
                 <i class="fas fa-times text-sm"></i>
             </button>
         </div>
 
-        {{-- Tabs --}}
-        <div class="p-2.5 px-5 bg-[#f8f9fa] border-b border-[#e6e5e0]">
-            <div class="grid grid-cols-3 gap-1 bg-white p-1 rounded-xl border border-[#d8dce2] shadow-2xs">
+        {{-- Segmented Tabs --}}
+        <div class="p-3 px-5 bg-white border-b border-[#e6e5e0]">
+            <div class="bg-[#f3f4f6] p-[3px] rounded-[11px] grid grid-cols-3 gap-[3px]">
                 <button type="button" @click="discountModal.tab = 'preset'"
-                    :class="discountModal.tab === 'preset' ? 'bg-[#df5826] text-white shadow-xs font-bold' : 'text-[#53565a] hover:text-[#111827] font-semibold'"
-                    class="py-1.5 px-2 rounded-lg text-[11.5px] transition text-center flex items-center justify-center gap-1 cursor-pointer">
-                    <i class="fas fa-bolt text-[10px]"></i>
-                    <span>Shortcut</span>
+                    :class="discountModal.tab === 'preset' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] hover:text-[#111827] font-semibold'"
+                    class="py-2 px-2 rounded-[9px] text-[11.5px] transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fas fa-percent text-[10px] text-emerald-700"></i>
+                    <span>Quick Discount</span>
                 </button>
-                <template x-if="discountSettings?.allow_custom !== false">
-                    <button type="button" @click="discountModal.tab = 'manual'"
-                        :class="discountModal.tab === 'manual' ? 'bg-[#df5826] text-white shadow-xs font-bold' : 'text-[#53565a] hover:text-[#111827] font-semibold'"
-                        class="py-1.5 px-2 rounded-lg text-[11.5px] transition text-center flex items-center justify-center gap-1 cursor-pointer">
-                        <i class="fas fa-edit text-[10px]"></i>
-                        <span>Manual</span>
-                    </button>
-                </template>
+                <button type="button" @click="discountModal.tab = 'manual'"
+                    :class="discountModal.tab === 'manual' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] hover:text-[#111827] font-semibold'"
+                    class="py-2 px-2 rounded-[9px] text-[11.5px] transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
+                    <i class="fas fa-pencil-alt text-[10px]"></i>
+                    <span>Manual</span>
+                </button>
                 <button type="button" @click="discountModal.tab = 'voucher'"
-                    :class="discountModal.tab === 'voucher' ? 'bg-[#df5826] text-white shadow-xs font-bold' : 'text-[#53565a] hover:text-[#111827] font-semibold'"
-                    class="py-1.5 px-2 rounded-lg text-[11.5px] transition text-center flex items-center justify-center gap-1 cursor-pointer">
+                    :class="discountModal.tab === 'voucher' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] hover:text-[#111827] font-semibold'"
+                    class="py-2 px-2 rounded-[9px] text-[11.5px] transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
                     <i class="fas fa-ticket-alt text-[10px]"></i>
-                    <span>Kode Voucher</span>
+                    <span>Voucher Code</span>
                 </button>
             </div>
         </div>
@@ -1355,71 +1310,94 @@
         {{-- Tab Content --}}
         <div class="p-5 overflow-y-auto flex-1 min-h-0 space-y-4">
             
-            {{-- TAB 1: SHORTCUT PRESETS --}}
+            {{-- TAB 1: QUICK DISCOUNT (Figma 3x2 Grid) --}}
             <div x-show="discountModal.tab === 'preset'" class="space-y-3">
-                <div class="flex items-center justify-between">
-                    <p class="text-[11px] font-bold text-[#53565a] uppercase tracking-wider">Pilih Preset Diskon Cepat</p>
-                    <button type="button" @click="discountModal.isEditingPresets = !discountModal.isEditingPresets"
-                            class="text-[11px] font-bold text-[#df5826] hover:text-[#c44719] flex items-center gap-1 cursor-pointer transition">
-                        <i class="fas" :class="discountModal.isEditingPresets ? 'fa-check' : 'fa-cog'"></i>
-                        <span x-text="discountModal.isEditingPresets ? 'Selesai Edit' : 'Kelola Shortcut'"></span>
+                <div class="grid grid-cols-3 gap-2.5">
+                    {{-- 1. 5% Discount --}}
+                    <button type="button" @click="applyQuickDiscount('percentage', 5, '5% Discount')"
+                        class="p-3 rounded-[12px] border border-[#e6e5e0] hover:border-[#059669] bg-white hover:bg-[#e8f8f0]/40 text-left transition shadow-2xs flex flex-col justify-between gap-2.5 group cursor-pointer">
+                        <div class="w-8 h-7 rounded-[7px] bg-[#e6f4ea] text-[#137333] flex items-center justify-center font-bold text-xs">
+                            <i class="fas fa-percent text-[10px]"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-[12.5px] text-[#111827] group-hover:text-[#065f46] block leading-tight">5% Discount</span>
+                            <span class="text-[10px] text-[#8b8e93] font-medium mt-0.5 block" x-text="'Hemat Rp' + formatRp(Math.round((subtotal * 5)/100))">Hemat Rp8.030</span>
+                        </div>
+                    </button>
+
+                    {{-- 2. 10% Discount --}}
+                    <button type="button" @click="applyQuickDiscount('percentage', 10, '10% Discount')"
+                        class="p-3 rounded-[12px] border border-[#e6e5e0] hover:border-[#059669] bg-white hover:bg-[#e8f8f0]/40 text-left transition shadow-2xs flex flex-col justify-between gap-2.5 group cursor-pointer">
+                        <div class="w-8 h-7 rounded-[7px] bg-[#e6f4ea] text-[#137333] flex items-center justify-center font-bold text-xs">
+                            <i class="fas fa-percent text-[10px]"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-[12.5px] text-[#111827] group-hover:text-[#065f46] block leading-tight">10% Discount</span>
+                            <span class="text-[10px] text-[#8b8e93] font-medium mt-0.5 block" x-text="'Hemat Rp' + formatRp(Math.round((subtotal * 10)/100))">Hemat Rp16.060</span>
+                        </div>
+                    </button>
+
+                    {{-- 3. 15% Discount --}}
+                    <button type="button" @click="applyQuickDiscount('percentage', 15, '15% Discount')"
+                        class="p-3 rounded-[12px] border border-[#e6e5e0] hover:border-[#059669] bg-white hover:bg-[#e8f8f0]/40 text-left transition shadow-2xs flex flex-col justify-between gap-2.5 group cursor-pointer">
+                        <div class="w-8 h-7 rounded-[7px] bg-[#e6f4ea] text-[#137333] flex items-center justify-center font-bold text-xs">
+                            <i class="fas fa-percent text-[10px]"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-[12.5px] text-[#111827] group-hover:text-[#065f46] block leading-tight">15% Discount</span>
+                            <span class="text-[10px] text-[#8b8e93] font-medium mt-0.5 block" x-text="'Hemat Rp' + formatRp(Math.round((subtotal * 15)/100))">Hemat Rp24.090</span>
+                        </div>
+                    </button>
+
+                    {{-- 4. Rp5.000 --}}
+                    <button type="button" @click="applyQuickDiscount('fixed', 5000, 'Rp5.000')"
+                        class="p-3 rounded-[12px] border border-[#e6e5e0] hover:border-[#059669] bg-white hover:bg-[#e8f8f0]/40 text-left transition shadow-2xs flex flex-col justify-between gap-2.5 group cursor-pointer">
+                        <div class="w-8 h-7 rounded-[7px] bg-[#e6f4ea] text-[#137333] flex items-center justify-center font-bold text-xs">
+                            <i class="fas fa-money-bill-wave text-[10px]"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-[12.5px] text-[#111827] group-hover:text-[#065f46] block leading-tight">Rp5.000</span>
+                            <span class="text-[10px] text-[#8b8e93] font-medium mt-0.5 block">Potongan Rp5.000</span>
+                        </div>
+                    </button>
+
+                    {{-- 5. Rp25.000 --}}
+                    <button type="button" @click="applyQuickDiscount('fixed', 25000, 'Rp25.000')"
+                        class="p-3 rounded-[12px] border border-[#e6e5e0] hover:border-[#059669] bg-white hover:bg-[#e8f8f0]/40 text-left transition shadow-2xs flex flex-col justify-between gap-2.5 group cursor-pointer">
+                        <div class="w-8 h-7 rounded-[7px] bg-[#e6f4ea] text-[#137333] flex items-center justify-center font-bold text-xs">
+                            <i class="fas fa-money-bill-wave text-[10px]"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-[12.5px] text-[#111827] group-hover:text-[#065f46] block leading-tight">Rp25.000</span>
+                            <span class="text-[10px] text-[#8b8e93] font-medium mt-0.5 block">Potongan Rp25.000</span>
+                        </div>
+                    </button>
+
+                    {{-- 6. Rp30.000 --}}
+                    <button type="button" @click="applyQuickDiscount('fixed', 30000, 'Rp30.000')"
+                        class="p-3 rounded-[12px] border border-[#e6e5e0] hover:border-[#059669] bg-white hover:bg-[#e8f8f0]/40 text-left transition shadow-2xs flex flex-col justify-between gap-2.5 group cursor-pointer">
+                        <div class="w-8 h-7 rounded-[7px] bg-[#e6f4ea] text-[#137333] flex items-center justify-center font-bold text-xs">
+                            <i class="fas fa-money-bill-wave text-[10px]"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-[12.5px] text-[#111827] group-hover:text-[#065f46] block leading-tight">Rp30.000</span>
+                            <span class="text-[10px] text-[#8b8e93] font-medium mt-0.5 block">Potongan Rp30.000</span>
+                        </div>
                     </button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2.5">
-                    <template x-for="(p, pIdx) in (discountSettings?.presets || [])" :key="p.id || p.name">
-                        <div class="relative group">
-                            <button type="button" @click="discountModal.isEditingPresets ? null : applyPresetDiscount(p)"
-                                :disabled="discountModal.isEditingPresets"
-                                :class="discountModal.isEditingPresets ? 'border-dashed border-amber-300 bg-amber-50/40 cursor-default' : 'border-[#d8dce2] bg-[#f8f9fa] hover:bg-[#fff6f0] hover:border-[#df5826] cursor-pointer'"
-                                class="w-full p-3 rounded-xl border text-left transition shadow-2xs flex flex-col justify-between">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="font-bold text-[13px] text-[#111827] group-hover:text-[#df5826]" x-text="p.name"></span>
-                                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200/80 group-hover:bg-[#df5826]/10 text-gray-700 group-hover:text-[#df5826]"
-                                          x-text="p.type === 'percentage' ? p.value + '%' : 'Rp ' + formatRp(p.value)"></span>
-                                </div>
-                                <span class="text-[10.5px] text-[#8b8e93] font-medium"
-                                      x-text="p.type === 'percentage' 
-                                        ? 'Hemat Rp ' + formatRp((subtotal * p.value)/100)
-                                        : 'Hemat Rp ' + formatRp(Math.min(subtotal, p.value))"></span>
-                            </button>
-                            <button type="button" x-show="discountModal.isEditingPresets" @click.stop="deletePosDiscountPreset(pIdx)"
-                                class="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center text-[10px] shadow-sm transition cursor-pointer"
-                                title="Hapus shortcut">
-                                <i class="fas fa-times"></i>
-                            </button>
+                {{-- Applied discount indicator inside modal --}}
+                <div x-show="discountAmount > 0" class="pt-2">
+                    <div class="p-2.5 px-3 bg-[#e8f8f0] border border-[#a7f3d0] rounded-[10px] flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-[#065f46]" x-text="'Diskon Aktif: ' + (discount.code || discount.reason || 'Diskon')"></span>
+                            <span class="text-xs font-black text-[#059669]" x-text="'-Rp' + formatRp(discountAmount)"></span>
                         </div>
-                    </template>
-                </div>
-
-                {{-- Inline form to add new shortcut when editing --}}
-                <div x-show="discountModal.isEditingPresets" class="p-3 bg-[#f8f9fa] border border-dashed border-[#df5826]/50 rounded-xl space-y-2 mt-2">
-                    <p class="text-[11px] font-bold text-[#111827] flex items-center gap-1.5">
-                        <i class="fas fa-plus text-[#df5826] text-[10px]"></i>
-                        <span>Tambah Shortcut Baru</span>
-                    </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <input type="text" x-model="discountModal.newPresetName" placeholder="Nama (misal: VIP 20%)" class="text-xs px-2.5 py-1.5 border border-[#d8dce2] rounded-lg bg-white">
-                        <select x-model="discountModal.newPresetType" class="text-xs px-2 py-1.5 border border-[#d8dce2] rounded-lg bg-white">
-                            <option value="percentage">Persentase (%)</option>
-                            <option value="fixed">Nominal (Rp)</option>
-                        </select>
-                        <input type="number" x-model.number="discountModal.newPresetValue" placeholder="Nilai (20 / 15000)" class="text-xs px-2.5 py-1.5 border border-[#d8dce2] rounded-lg bg-white">
-                    </div>
-                    <div class="flex justify-end pt-1">
-                        <button type="button" @click="saveNewPosDiscountPreset()" :disabled="discountModal.isSavingPreset || !discountModal.newPresetName || !discountModal.newPresetValue" class="px-3.5 py-1.5 rounded-lg bg-[#df5826] text-white text-[11px] font-bold flex items-center gap-1 hover:bg-[#c44719] transition cursor-pointer disabled:opacity-50">
-                            <i class="fas" :class="discountModal.isSavingPreset ? 'fa-spinner fa-spin' : 'fa-plus'"></i>
-                            <span>Simpan Shortcut</span>
+                        <button type="button" @click="removeDiscount()" class="text-xs text-red-600 hover:text-red-700 font-bold hover:underline cursor-pointer">
+                            Hapus
                         </button>
                     </div>
                 </div>
-
-                <template x-if="(!discountSettings?.presets || discountSettings?.presets.length === 0)">
-                    <div class="p-6 text-center text-[#8b8e93] bg-[#f8f9fa] rounded-xl border border-dashed border-[#d8dce2]">
-                        <i class="fas fa-inbox text-2xl mb-2 text-gray-300"></i>
-                        <p class="text-xs">Belum ada shortcut diskon. Klik \"Kelola Shortcut\" di atas untuk menambah.</p>
-                    </div>
-                </template>
             </div>
 
             {{-- TAB 2: MANUAL INPUT --}}
@@ -1913,6 +1891,18 @@ function posApp() {
             };
             this.discountModal.show = false;
             this.notify(`Diskon ${preset.name} berhasil diterapkan!`, 'success');
+        },
+        applyQuickDiscount(type, value, name) {
+            this.discount = {
+                type: type,
+                value: Number(value),
+                amount: 0,
+                reason: name,
+                code: null,
+                maxDiscount: null
+            };
+            this.discountModal.show = false;
+            this.notify(`Diskon ${name} berhasil diterapkan!`, 'success');
         },
         applyManualDiscount() {
             const val = Number(this.discountModal.manualValue);
