@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
-    "mtime": 1794378139.4945529,
-    "seen": 1794378577.3113782,
-    "ast_hash": "b94cbb1f6eaceae3a2d85ad124eb6ef7",
+    "mtime": 1794379175.6345363,
+    "seen": 1794379272.7222023,
+    "ast_hash": "4a9587685d79f719d004ff5ecb0faf6a",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/qr.blade.php": {

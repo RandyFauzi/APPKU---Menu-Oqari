@@ -130,18 +130,74 @@
                         class="w-full bg-transparent border-none outline-none text-[12px] text-[#1e211f] placeholder-[#8b8e93] p-0 focus:ring-0">
                 </div>
 
-                <!-- Tipe Pesanan Dropdown (Placed on the far right per Figma) -->
-                <div class="relative shrink-0">
-                    <div class="relative flex items-center">
-                        <i class="fas fa-sliders-h text-xs text-[#71717a] absolute left-3 pointer-events-none"></i>
-                        <select x-model="orderFulfillmentFilter"
-                                class="appearance-none bg-white border border-[#e4e4e7] hover:border-[#a1a1aa] focus:border-[#df5826] rounded-[9px] pl-8 pr-8 py-1.5 text-[12px] font-medium text-[#18181b] cursor-pointer outline-none transition">
-                            <option value="all">Tipe Pesanan</option>
-                            <option value="DINE_IN">Dine In</option>
-                            <option value="TAKEAWAY">Takeaway</option>
-                            <option value="DELIVERY">Delivery</option>
-                        </select>
-                        <i class="fas fa-chevron-down text-[10px] text-[#71717a] absolute right-3 pointer-events-none"></i>
+                <!-- Tipe Pesanan Custom Dropdown (Matching Figma & Sparta Design System) -->
+                <div class="relative shrink-0"
+                     x-data="{
+                         openDropdown: false,
+                         options: [
+                             { value: 'all', label: 'Tipe Pesanan', icon: 'fa-sliders-h' },
+                             { value: 'DINE_IN', label: 'Dine In', icon: 'fa-utensils' },
+                             { value: 'TAKEAWAY', label: 'Takeaway', icon: 'fa-shopping-bag' },
+                             { value: 'DELIVERY', label: 'Delivery', icon: 'fa-motorcycle' }
+                         ],
+                         get currentLabel() {
+                             const found = this.options.find(o => o.value === orderFulfillmentFilter);
+                             return found ? found.label : 'Tipe Pesanan';
+                         },
+                         get currentIcon() {
+                             const found = this.options.find(o => o.value === orderFulfillmentFilter);
+                             return found ? found.icon : 'fa-sliders-h';
+                         },
+                         selectOption(val) {
+                             orderFulfillmentFilter = val;
+                             this.openDropdown = false;
+                         }
+                     }"
+                     @click.away="openDropdown = false"
+                     @keydown.escape.window="openDropdown = false">
+                    
+                    <!-- Trigger Button -->
+                    <button type="button" 
+                            @click="openDropdown = !openDropdown"
+                            class="h-[34px] pl-3 pr-2.5 bg-white border rounded-[9px] text-[12px] font-medium flex items-center gap-2 cursor-pointer transition-all outline-none"
+                            :class="openDropdown 
+                                ? 'border-[#df5826] ring-2 ring-[#df5826]/15 shadow-xs text-[#18181b]' 
+                                : (orderFulfillmentFilter !== 'all' 
+                                    ? 'border-[#df5826]/50 bg-[#fffbf9] text-[#df5826] font-semibold hover:border-[#df5826]' 
+                                    : 'border-[#e4e4e7] hover:border-[#a1a1aa] hover:bg-[#fafbfc] text-[#18181b]')">
+                        <i :class="'fas ' + currentIcon + ' text-xs ' + (orderFulfillmentFilter !== 'all' || openDropdown ? 'text-[#df5826]' : 'text-[#71717a]')"></i>
+                        <span class="truncate" x-text="currentLabel"></span>
+                        <i class="fas fa-chevron-down text-[9px] transition-transform duration-200 ml-0.5"
+                           :class="openDropdown ? 'rotate-180 text-[#df5826]' : 'text-[#71717a]'"></i>
+                    </button>
+
+                    <!-- Dropdown Menu Popover -->
+                    <div x-show="openDropdown"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                         x-cloak
+                         class="absolute right-0 top-full mt-1.5 z-50 bg-white border border-[#e5e7eb] rounded-[14px] shadow-[0_16px_36px_rgba(15,23,42,0.14)] p-1.5 min-w-[170px]">
+                        <template x-for="opt in options" :key="opt.value">
+                            <button type="button" 
+                                    @click="selectOption(opt.value)"
+                                    class="w-full text-left px-2.5 py-2 rounded-[8px] text-[12px] font-medium flex items-center justify-between transition cursor-pointer"
+                                    :class="orderFulfillmentFilter === opt.value 
+                                        ? 'bg-[#fff6f0] text-[#df5826] font-semibold' 
+                                        : 'text-[#374151] hover:bg-gray-50 hover:text-[#111827]'">
+                                <span class="flex items-center gap-2.5">
+                                    <span class="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
+                                          :class="orderFulfillmentFilter === opt.value ? 'bg-[#df5826]/10 text-[#df5826]' : 'text-[#71717a]'">
+                                        <i :class="'fas ' + opt.icon + ' text-[11px]'"></i>
+                                    </span>
+                                    <span x-text="opt.label"></span>
+                                </span>
+                                <i x-show="orderFulfillmentFilter === opt.value" class="fas fa-check text-[11px] text-[#df5826] ml-2"></i>
+                            </button>
+                        </template>
                     </div>
                 </div>
             </div>
