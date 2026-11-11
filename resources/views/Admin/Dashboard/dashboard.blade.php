@@ -1911,6 +1911,30 @@
                     if (['Dibatalkan', 'CANCELLED'].includes(s)) return 'cancelled';
                     return 'new';
                 },
+                getDineInItems(order) {
+                    if (!order || !Array.isArray(order.items)) return [];
+                    const defaultFulfillment = (order.fulfillment_type || (order.type === 'Takeaway' ? 'TAKEAWAY' : (order.type === 'Delivery' ? 'DELIVERY' : 'DINE_IN'))).toUpperCase();
+                    return order.items.filter(i => {
+                        const itemType = (i.serving_type || defaultFulfillment).toUpperCase();
+                        return itemType === 'DINE_IN' || (itemType !== 'TAKEAWAY' && itemType !== 'DELIVERY');
+                    });
+                },
+                getTakeawayItems(order) {
+                    if (!order || !Array.isArray(order.items)) return [];
+                    const defaultFulfillment = (order.fulfillment_type || (order.type === 'Takeaway' ? 'TAKEAWAY' : (order.type === 'Delivery' ? 'DELIVERY' : 'DINE_IN'))).toUpperCase();
+                    return order.items.filter(i => {
+                        const itemType = (i.serving_type || defaultFulfillment).toUpperCase();
+                        return itemType === 'TAKEAWAY';
+                    });
+                },
+                getDeliveryItems(order) {
+                    if (!order || !Array.isArray(order.items)) return [];
+                    const defaultFulfillment = (order.fulfillment_type || (order.type === 'Takeaway' ? 'TAKEAWAY' : (order.type === 'Delivery' ? 'DELIVERY' : 'DINE_IN'))).toUpperCase();
+                    return order.items.filter(i => {
+                        const itemType = (i.serving_type || defaultFulfillment).toUpperCase();
+                        return itemType === 'DELIVERY';
+                    });
+                },
                 get ordersByPrimaryTab() {
                     if (this.activeOrderFilter === 'open_bill') {
                         return this.orders.filter(o => this.isOpenBillOrder(o));
