@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
-    "mtime": 1794358720.7037413,
-    "seen": 1794358852.538236,
-    "ast_hash": "f2c9f8b5a4ad2dd3490722265914931b",
+    "mtime": 1794373214.5404358,
+    "seen": 1794373298.314551,
+    "ast_hash": "2fe952e1f2b3b5c1d2089592c00e15d8",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/qr.blade.php": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
-    "mtime": 1794358011.70979,
-    "seen": 1794358155.3336375,
-    "ast_hash": "381fbde388a983c91144f011897245b4",
+    "mtime": 1794373068.762724,
+    "seen": 1794373298.3146038,
+    "ast_hash": "a3d3b82b2879483ccf6833d26d566d58",
     "semantic_hash": ""
   },
   "resources/views/Admin/reports/index.blade.php": {

@@ -439,21 +439,15 @@
                         title="Minimalkan panel pesanan">
                         <i class="fas fa-chevron-right text-xs"></i>
                     </button>
-                    <div class="flex items-center gap-1.5 min-w-0">
-                        <span class="text-[9.5px] font-bold text-[#f04c17] uppercase tracking-wider bg-[#fff6f0] px-1.5 py-0.5 rounded border border-[#f5d5c6]">ORDER</span>
-                        <h2 class="text-[13px] font-bold text-[#111827] truncate">
-                            <span>Pesanan Baru</span>
-                            <span x-show="recalledOrderId" x-cloak class="text-[#df5826]">#<span x-text="recalledOrderId"></span></span>
-                        </h2>
-                    </div>
+                    <h2 class="text-[14px] font-bold text-[#111827] truncate">
+                        <span x-text="recalledOrderId ? 'Pesanan #' + recalledOrderId : 'Current Order'"></span>
+                    </h2>
                 </div>
-                <div class="flex items-center gap-1.5 shrink-0" x-show="cart.length > 0" x-cloak>
-                    <button type="button" @click="confirmOpenBill()" class="px-2 py-0.5 rounded-[6px] border border-amber-300 bg-amber-50 hover:bg-amber-100 text-[10.5px] font-bold text-amber-900 transition cursor-pointer flex items-center gap-1 shadow-2xs" :title="recalledOrderId ? 'Perbarui Open Bill (F2)' : 'Simpan ke Open Bill / Bayar Nanti (F2)'">
-                        <i class="fas fa-bookmark text-[9.5px] text-amber-600"></i>
-                        <span x-text="recalledOrderId ? 'Update Bill' : 'Open Bill'"></span>
-                    </button>
-                    <button type="button" @click="clearCart()" class="px-2 py-0.5 rounded-[6px] border border-[#f5d5c6] bg-[#fff6f0] text-[10.5px] font-semibold text-[#df5826] hover:opacity-80 transition cursor-pointer">
-                        Reset
+                <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" @click="clearCart()" x-show="cart.length > 0" x-cloak
+                        class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#df5826] hover:text-[#b84218] transition cursor-pointer">
+                        <span>Reset</span>
+                        <i class="fas fa-rotate-right text-[11px]"></i>
                     </button>
                 </div>
             </div>
@@ -509,7 +503,7 @@
             </div>
         </div>
 
-        {{-- Cart Items List (Separated with clean dividers & labels) --}}
+        {{-- Cart Items List (Single unified list matching Figma) --}}
         <div class="p-2.5 sm:p-3 flex-1 min-h-0 overflow-y-auto flex flex-col gap-2.5 overscroll-contain pb-3">
             <template x-if="cart.length === 0">
                 <div class="py-10 px-4 text-center flex flex-col items-center justify-center border border-dashed border-[#d8dce2] rounded-[10px] bg-[#f8f9fa]/60">
@@ -521,44 +515,33 @@
                 </div>
             </template>
 
-            {{-- 1. DINE IN SECTION --}}
-            <template x-if="cart.some(i => (i.serving_type || 'DINE_IN') !== 'TAKEAWAY')">
-                <div class="flex items-center justify-between px-1 pt-1 pb-0.5 border-b border-[#e6e5e0]">
-                    <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#1e211f]">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <i class="fas fa-utensils text-[9.5px] text-emerald-600"></i>
-                        <span>Makan di Tempat (Dine In)</span>
-                    </div>
-                    <span class="text-[10px] font-semibold text-[#8b8e93]" x-text="cart.filter(i => (i.serving_type || 'DINE_IN') !== 'TAKEAWAY').reduce((s,i)=>s+i.qty,0) + ' item'"></span>
-                </div>
-            </template>
-
-            <template x-for="(item, idx) in cart" :key="'cart-dinein-' + idx">
-                <div x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'" class="bg-white border border-[#d8dce2] rounded-[10px] p-2.5 flex flex-col gap-1.5 shadow-2xs transition">
-                    {{-- Top Item Row: Thumbnail + Name + Red Trash --}}
+            <template x-for="(item, idx) in cart" :key="'cart-item-' + idx">
+                <div class="bg-white border border-[#e6e5e0] rounded-[12px] p-2.5 flex flex-col gap-2 shadow-[0px_1px_3px_rgba(0,0,0,0.03)] hover:border-[#df5826]/40 transition">
+                    {{-- Top Item Row: Thumbnail + Name + Neutral Serving Badge + Red Trash --}}
                     <div class="flex items-start justify-between gap-2">
-                        <div class="w-[30px] h-[30px] rounded-[6px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center">
+                        <div class="w-[36px] h-[36px] rounded-[8px] bg-[#f3f4f6] border border-[#e5e7eb] overflow-hidden shrink-0 flex items-center justify-center">
                             <template x-if="item.image">
                                 <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
                             </template>
                             <template x-if="!item.image">
-                                <span class="text-[10px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
+                                <span class="text-[11px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
                             </template>
                         </div>
 
                         <div class="flex-1 min-w-0">
-                            <p class="text-[12.5px] font-semibold text-[#111827] leading-tight truncate" x-text="item.name"></p>
+                            <p class="text-[13px] font-bold text-[#111827] leading-tight truncate" x-text="item.name"></p>
                             
-                            {{-- Serving Type Badge (Clickable to switch) --}}
-                            <div class="mt-0.5 flex items-center gap-1">
+                            {{-- Serving Type Badge (Neutral gray background with icon per Figma) --}}
+                            <div class="mt-1 flex items-center gap-1.5">
                                 <button type="button" @click="toggleServingType(idx)"
-                                    class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-[4px] bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[9.5px] font-bold transition cursor-pointer"
-                                    title="Klik untuk pindah ke Takeaway">
-                                    <i class="fas fa-utensils text-[8px]"></i>
-                                    <span>Dine In</span>
-                                    <i class="fas fa-sync-alt text-[7px] opacity-60 ml-0.5"></i>
+                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#374151] border border-[#e5e7eb] text-[10.5px] font-medium transition cursor-pointer"
+                                    :title="'Klik untuk ubah ke ' + ((item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Dine In' : 'Takeaway')">
+                                    <i class="fas fa-utensils text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'"></i>
+                                    <i class="fas fa-shopping-bag text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'"></i>
+                                    <span x-text="(item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Takeaway' : 'Dine In'"></span>
+                                    <i class="fas fa-right-left text-[8px] text-[#8b8e93] opacity-70 ml-0.5"></i>
                                 </button>
-                                <span x-show="item.variant" x-cloak class="text-[10px] text-[#53565a] truncate" x-text="'· ' + item.variant"></span>
+                                <span x-show="item.variant" x-cloak class="text-[10.5px] text-[#53565a] truncate" x-text="'· ' + item.variant"></span>
                             </div>
 
                             <p x-show="item.modifiers && item.modifiers.length > 0" x-cloak
@@ -566,8 +549,8 @@
                                x-text="item.modifiers.map(m => m.name).join(' · ')"></p>
                         </div>
 
-                        <button type="button" @click="removeItem(idx)" class="w-[20px] h-[20px] flex items-center justify-center shrink-0 hover:opacity-75 transition cursor-pointer" title="Hapus item">
-                            <img src="{{ asset('images/sparta/pos-trash-red.svg') }}" alt="Hapus" class="w-[14px] h-[14px]">
+                        <button type="button" @click="removeItem(idx)" class="w-6 h-6 flex items-center justify-center shrink-0 text-[#ef4444] hover:text-[#dc2626] hover:bg-red-50 rounded-full transition cursor-pointer" title="Hapus item">
+                            <i class="far fa-trash-can text-[13px]"></i>
                         </button>
                     </div>
 
@@ -575,32 +558,32 @@
                     <button type="button"
                         x-show="!item.showNotes && !item.notes"
                         @click="item.showNotes = true; $nextTick(() => document.getElementById('item-notes-' + idx)?.focus())"
-                        class="flex items-center gap-1 text-left w-fit hover:opacity-80 transition cursor-pointer py-0.5">
-                        <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-[12px] h-[12px]">
-                        <span class="text-[10.5px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
+                        class="flex items-center gap-1.5 text-left w-fit hover:opacity-80 transition cursor-pointer py-0.5">
+                        <i class="fas fa-pen-to-square text-[10.5px] text-[#df5826]"></i>
+                        <span class="text-[11px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
                     </button>
 
-                    {{-- Expanded Customer Note Box --}}
-                    <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] pt-2 pb-1.5 px-2 flex flex-col gap-1.5">
-                        <div class="relative border border-[#d8dce2] rounded-[6px] p-1.5 bg-[#f8f9fa]">
-                            <label :for="'item-notes-' + idx" class="text-[10px] font-medium text-[#111827] block mb-0.5">
+                    {{-- Expanded Customer Note Box (Matching Figma Es Kopi Susu card) --}}
+                    <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] p-2 flex flex-col gap-1.5 border border-[#e6e5e0]">
+                        <div class="relative border border-[#d8dce2] rounded-[6px] p-2 bg-white focus-within:border-[#df5826] transition">
+                            <label :for="'item-notes-' + idx" class="text-[10px] font-medium text-[#7f837e] block mb-0.5">
                                 Catatan customer (Opsional)
                             </label>
                             <textarea :id="'item-notes-' + idx" x-model="item.notes" maxlength="255" rows="2" :disabled="paymentPending"
                                 placeholder="Contoh: tanpa gula, es sedikit"
-                                class="w-full bg-transparent border-none outline-none text-[10.5px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
+                                class="w-full bg-transparent border-none outline-none text-[11px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
                         </div>
 
                         <div class="grid grid-cols-2 gap-1.5">
                             <button type="button" @click="item.notes = ''; item.showNotes = false" :disabled="paymentPending"
-                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-trash-dark.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
-                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Hapus Catatan</span>
+                                class="border border-[#d8dce2] rounded-[7px] py-1.5 px-2 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-50 text-[#111827] text-[11px] font-semibold transition disabled:opacity-50 cursor-pointer">
+                                <i class="far fa-trash-can text-[11px] text-[#53565a]"></i>
+                                <span class="truncate">Hapus Catatan</span>
                             </button>
                             <button type="button" @click="splitItem(idx)" :disabled="paymentPending || item.qty <= 1 || cart.length >= 50"
-                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-split.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
-                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Pisahkan 1 Item</span>
+                                class="border border-[#d8dce2] rounded-[7px] py-1.5 px-2 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-50 text-[#111827] text-[11px] font-semibold transition disabled:opacity-50 cursor-pointer">
+                                <i class="fas fa-up-right-from-square text-[10.5px] text-[#53565a]"></i>
+                                <span class="truncate">Pisahkan 1 Item</span>
                             </button>
                         </div>
                     </div>
@@ -609,7 +592,7 @@
                     <div class="flex items-center justify-between pt-0.5">
                         <div>
                             <div class="flex items-center gap-1.5">
-                                <span class="text-[12.5px] font-bold text-[#111827] leading-tight">
+                                <span class="text-[13.5px] font-bold text-[#111827] leading-tight">
                                     Rp<span x-text="formatRp(item.subtotal)"></span>
                                 </span>
                                 <template x-if="item.has_discount">
@@ -621,159 +604,45 @@
                             </span>
                         </div>
 
-                        <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[2px] px-1 flex items-center gap-1 shadow-2xs">
+                        <div class="flex items-center gap-1">
                             <button type="button" @click="changeQty(idx, -1)"
-                                class="w-[24px] h-[24px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[11px] h-[11px]">
+                                class="w-6 h-6 rounded-full border border-[#d8dce2] bg-white text-[#111827] hover:bg-gray-100 active:scale-95 flex items-center justify-center transition cursor-pointer">
+                                <i class="fas fa-minus text-[9px]"></i>
                             </button>
-                            <span class="w-[18px] text-center text-[12px] font-bold text-[#111827] leading-tight select-none" x-text="item.qty"></span>
+                            <span class="w-6 text-center text-[12.5px] font-bold text-[#111827] leading-tight select-none" x-text="item.qty"></span>
                             <button type="button" @click="changeQty(idx, 1)"
-                                class="w-[24px] h-[24px] rounded-full bg-[#111827] hover:bg-[#df5826] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[11px] h-[11px]">
+                                class="w-6 h-6 rounded-full bg-[#111827] text-white hover:bg-[#df5826] active:scale-95 flex items-center justify-center transition shadow-2xs cursor-pointer">
+                                <i class="fas fa-plus text-[9px]"></i>
                             </button>
                         </div>
                     </div>
                 </div>
             </template>
-
-            {{-- 2. TAKEAWAY SECTION --}}
-            <template x-if="cart.some(i => (i.serving_type || 'DINE_IN') === 'TAKEAWAY')">
-                <div class="flex items-center justify-between px-1 pt-2 pb-0.5 border-b border-[#e6e5e0] mt-1">
-                    <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#df5826]">
-                        <span class="w-2 h-2 rounded-full bg-[#df5826]"></span>
-                        <i class="fas fa-shopping-bag text-[9.5px]"></i>
-                        <span>Bungkus (Takeaway)</span>
-                    </div>
-                    <span class="text-[10px] font-semibold text-[#8b8e93]" x-text="cart.filter(i => (i.serving_type || 'DINE_IN') === 'TAKEAWAY').reduce((s,i)=>s+i.qty,0) + ' item'"></span>
-                </div>
-            </template>
-
-            <template x-for="(item, idx) in cart" :key="'cart-takeaway-' + idx">
-                <div x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'" class="bg-[#fffdfb] border border-[#f5d5c6] rounded-[10px] p-2.5 flex flex-col gap-1.5 shadow-2xs transition">
-                    {{-- Top Item Row: Thumbnail + Name + Red Trash --}}
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="w-[30px] h-[30px] rounded-[6px] bg-[#fff0e6] overflow-hidden shrink-0 flex items-center justify-center">
-                            <template x-if="item.image">
-                                <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
-                            </template>
-                            <template x-if="!item.image">
-                                <span class="text-[10px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
-                            </template>
-                        </div>
-
-                        <div class="flex-1 min-w-0">
-                            <p class="text-[12.5px] font-semibold text-[#111827] leading-tight truncate" x-text="item.name"></p>
-                            
-                            {{-- Serving Type Badge (Clickable to switch) --}}
-                            <div class="mt-0.5 flex items-center gap-1">
-                                <button type="button" @click="toggleServingType(idx)"
-                                    class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-[4px] bg-[#fff0e6] hover:bg-[#ffe2d1] text-[#df5826] border border-[#ffd2b8] text-[9.5px] font-bold transition cursor-pointer"
-                                    title="Klik untuk pindah ke Dine In">
-                                    <i class="fas fa-shopping-bag text-[8px]"></i>
-                                    <span>Takeaway</span>
-                                    <i class="fas fa-sync-alt text-[7px] opacity-60 ml-0.5"></i>
-                                </button>
-                                <span x-show="item.variant" x-cloak class="text-[10px] text-[#53565a] truncate" x-text="'· ' + item.variant"></span>
-                            </div>
-
-                            <p x-show="item.modifiers && item.modifiers.length > 0" x-cloak
-                               class="text-[10px] text-[#53565a] truncate mt-0.5"
-                               x-text="item.modifiers.map(m => m.name).join(' · ')"></p>
-                        </div>
-
-                        <button type="button" @click="removeItem(idx)" class="w-[20px] h-[20px] flex items-center justify-center shrink-0 hover:opacity-75 transition cursor-pointer" title="Hapus item">
-                            <img src="{{ asset('images/sparta/pos-trash-red.svg') }}" alt="Hapus" class="w-[14px] h-[14px]">
-                        </button>
-                    </div>
-
-                    {{-- Collapsed Customer Note Trigger --}}
-                    <button type="button"
-                        x-show="!item.showNotes && !item.notes"
-                        @click="item.showNotes = true; $nextTick(() => document.getElementById('item-notes-takeaway-' + idx)?.focus())"
-                        class="flex items-center gap-1 text-left w-fit hover:opacity-80 transition cursor-pointer py-0.5">
-                        <img src="{{ asset('images/sparta/pos-doc-add.svg') }}" alt="" class="w-[12px] h-[12px]">
-                        <span class="text-[10.5px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
-                    </button>
-
-                    {{-- Expanded Customer Note Box --}}
-                    <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] pt-2 pb-1.5 px-2 flex flex-col gap-1.5">
-                        <div class="relative border border-[#d8dce2] rounded-[6px] p-1.5 bg-[#f8f9fa]">
-                            <label :for="'item-notes-takeaway-' + idx" class="text-[10px] font-medium text-[#111827] block mb-0.5">
-                                Catatan customer (Opsional)
-                            </label>
-                            <textarea :id="'item-notes-takeaway-' + idx" x-model="item.notes" maxlength="255" rows="2" :disabled="paymentPending"
-                                placeholder="Contoh: tanpa gula, es sedikit"
-                                class="w-full bg-transparent border-none outline-none text-[10.5px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-1.5">
-                            <button type="button" @click="item.notes = ''; item.showNotes = false" :disabled="paymentPending"
-                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-trash-dark.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
-                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Hapus Catatan</span>
-                            </button>
-                            <button type="button" @click="splitItem(idx)" :disabled="paymentPending || item.qty <= 1 || cart.length >= 50"
-                                class="border border-[#d8dce2] rounded-[7px] py-1 px-1.5 flex items-center justify-center gap-1 bg-white hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-split.svg') }}" alt="" class="w-[12px] h-[12px] shrink-0">
-                                <span class="text-[10.5px] font-semibold text-[#111827] truncate">Pisahkan 1 Item</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    {{-- Price & Stepper Row --}}
-                    <div class="flex items-center justify-between pt-0.5">
-                        <div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-[12.5px] font-bold text-[#df5826] leading-tight">
-                                    Rp<span x-text="formatRp(item.subtotal)"></span>
-                                </span>
-                                <template x-if="item.has_discount">
-                                    <span class="bg-[#fff0e6] text-[#df5826] text-[9px] font-black px-1.5 py-0.2 rounded border border-[#ffd2b8]">PROMO</span>
-                                </template>
-                            </div>
-                            <span x-show="item.qty > 1" class="block text-[10px] text-[#8b8e93]">
-                                @ Rp<span x-text="formatRp(item.price)"></span>
-                            </span>
-                        </div>
-
-                        <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-[2px] px-1 flex items-center gap-1 shadow-2xs">
-                            <button type="button" @click="changeQty(idx, -1)"
-                                class="w-[24px] h-[24px] rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-90 transition cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-[11px] h-[11px]">
-                            </button>
-                            <span class="w-[18px] text-center text-[12px] font-bold text-[#111827] leading-tight select-none" x-text="item.qty"></span>
-                            <button type="button" @click="changeQty(idx, 1)"
-                                class="w-[24px] h-[24px] rounded-full bg-[#df5826] hover:bg-[#cb4c1d] active:scale-90 flex items-center justify-center transition shadow-2xs cursor-pointer">
-                                <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-[11px] h-[11px]">
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </template>
-        </div>
-
-        {{-- Applied Discount Banner (Figma Screen 3: mint green card directly above summary) --}}
-        <div x-show="discountAmount > 0" x-cloak class="mx-3 sm:mx-4 mt-2 p-2.5 px-3 bg-[#e8f8f0] border border-[#a7f3d0] rounded-[10px] flex items-center justify-between transition-all">
-            <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-7 h-7 rounded-[7px] bg-[#d1fae5] text-[#059669] flex items-center justify-center font-bold text-xs shrink-0">
-                    <i class="fas fa-percent text-[10px]" x-show="discount.type === 'percentage'"></i>
-                    <i class="fas fa-ticket-alt text-[10px]" x-show="discount.type !== 'percentage'"></i>
-                </div>
-                <div class="truncate">
-                    <span class="font-bold text-[#065f46] text-[12px] truncate block leading-tight" x-text="discount.code ? ('Voucher ' + discount.code) : (discount.reason || '5% Discount')"></span>
-                    <span class="text-[10px] text-[#047857] font-medium leading-tight">Potongan Harga</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <span class="font-black text-[#059669] text-[13px]">-Rp<span x-text="formatRp(discountAmount)"></span></span>
-                <button type="button" @click="removeDiscount()" class="w-5 h-5 rounded-full bg-white/70 hover:bg-white text-gray-400 hover:text-red-500 flex items-center justify-center text-[10px] transition cursor-pointer shadow-2xs" title="Hapus Diskon">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
         </div>
 
         {{-- Order Summary & CTA Footer (Figma Screen 1 & Screen 3) --}}
         <div class="border-t border-[#e6e5e0] bg-[#fcfcfd] flex flex-col shrink-0 sticky bottom-0 z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(14px,env(safe-area-inset-bottom))]">
+
+            {{-- Applied Discount Banner (Figma Screen 3: full width, rounded top corners only, flush with summary below) --}}
+            <div x-show="discountAmount > 0" x-cloak
+                 class="w-full px-4 py-2.5 bg-[#e8f8f0] border-b border-[#a7f3d0] rounded-t-[14px] rounded-b-none flex items-center justify-between transition-all">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-7 h-7 rounded-[7px] bg-[#d1fae5] text-[#059669] flex items-center justify-center font-bold text-xs shrink-0">
+                        <i class="fas fa-percent text-[10px]" x-show="discount.type === 'percentage'"></i>
+                        <i class="fas fa-ticket-alt text-[10px]" x-show="discount.type !== 'percentage'"></i>
+                    </div>
+                    <div class="truncate">
+                        <span class="font-bold text-[#065f46] text-[12.5px] truncate block leading-tight" x-text="discount.code ? ('Voucher ' + discount.code) : (discount.reason || '5% Discount')"></span>
+                        <span class="text-[10.5px] text-[#047857] font-medium leading-tight">Potongan Harga</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="font-black text-[#047857] text-[13.5px]">-Rp<span x-text="formatRp(discountAmount)"></span></span>
+                    <button type="button" @click="removeDiscount()" class="w-5 h-5 rounded-full bg-white/80 hover:bg-white text-gray-400 hover:text-red-500 flex items-center justify-center text-[10px] transition cursor-pointer shadow-2xs ml-1" title="Hapus Diskon">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
             
             <div class="px-4 pt-3 pb-2 flex flex-col gap-1.5">
                 {{-- Header row: Total Pembayaran on left, Tambah Voucher/Diskon > on right --}}
@@ -792,23 +661,18 @@
                     </button>
                 </div>
 
-                {{-- Price Display: Large Bold Final Total + Strikethrough Subtotal if Discounted --}}
+                {{-- Price Display: Large Bold Final Total + Strikethrough Subtotal if Discounted (Redundant Rincian Harga removed!) --}}
                 <div class="flex items-baseline justify-between pt-0.5">
                     <div class="flex items-baseline gap-2">
-                        <span class="text-[18px] font-black text-[#111827] tracking-tight">
+                        <span class="text-[20px] font-black text-[#111827] tracking-tight">
                             Rp<span x-text="formatRp(grandTotal)"></span>
                         </span>
                         <template x-if="discountAmount > 0">
-                            <span class="text-[12px] font-semibold text-[#8b8e93] line-through">
+                            <span class="text-[13px] font-semibold text-[#8b8e93] line-through">
                                 Rp<span x-text="formatRp(subtotal)"></span>
                             </span>
                         </template>
                     </div>
-
-                    <button type="button" @click="showPriceBreakdown = !showPriceBreakdown"
-                            class="text-[11px] font-semibold text-[#df5826] hover:underline cursor-pointer">
-                        <span x-text="showPriceBreakdown ? 'Tutup Rincian' : 'Rincian Harga'"></span>
-                    </button>
                 </div>
             </div>
 
@@ -845,24 +709,20 @@
                 </div>
             </div>
 
-            {{-- CTA Button (Open Bill & Bayar) --}}
+            {{-- CTA Button (Open Bill & Bayar matching Figma) --}}
             <div class="px-4 pt-1.5 pb-2">
                 @can('manage-payments')
                 <div class="grid grid-cols-2 gap-2">
                     <button type="button" @click="confirmOpenBill()" :disabled="cart.length === 0"
-                        class="py-[11px] px-3.5 rounded-[10px] bg-white hover:bg-[#fff6f0] border border-[#df5826] text-[#df5826] text-[12px] font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
+                        class="py-[11px] px-3.5 rounded-[10px] bg-white hover:bg-[#fff6f0] border border-[#df5826] text-[#df5826] text-[12.5px] font-bold transition flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
                         :title="recalledOrderId ? 'Perbarui Open Bill (F2)' : 'Buka Tagihan Meja / Bayar Nanti (F2)'">
                         <i class="fas fa-receipt text-[11px]"></i>
-                        <span x-text="recalledOrderId ? 'Update Bill' : 'Open Bill'"></span>
-                        <span class="text-[10px] font-normal opacity-75">(F2)</span>
+                        <span x-text="recalledOrderId ? 'Perbarui Open Bill' : 'Open Bill'"></span>
                     </button>
                     <button type="button" @click="openPayment()" :disabled="cart.length === 0"
-                        class="py-[11px] px-[16px] rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_6px_0px_rgba(223,88,38,0.25)] flex items-center justify-center gap-[8px] text-white text-[13px] font-bold hover:opacity-95 active:scale-[0.99] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                        class="py-[11px] px-[16px] rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_2px_6px_0px_rgba(223,88,38,0.25)] flex items-center justify-center gap-[8px] text-white text-[12.5px] font-bold hover:opacity-95 active:scale-[0.99] transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
                         <i class="fas fa-credit-card text-[12px]"></i>
-                        <span class="flex items-center gap-1.5">
-                            <span>Bayar</span>
-                            <span class="hidden sm:inline-block text-[10.5px] font-normal opacity-85">(F4)</span>
-                        </span>
+                        <span>Bayar</span>
                     </button>
                 </div>
                 @else
