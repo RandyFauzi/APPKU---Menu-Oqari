@@ -503,17 +503,17 @@
                                             </template>
                                         </div>
 
-                                        <div class="flex flex-col gap-1 w-full">
+                                        <div class="flex flex-col gap-1.5 w-full">
                                             <button type="button" 
                                                     @click="addToOpenBillCart(p, 'DINE_IN')"
-                                                    class="w-full py-1.5 px-2.5 rounded-[8px] bg-gradient-to-b from-[#f06428] to-[#df5826] hover:opacity-95 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                                                <i class="fas fa-utensils text-[9px]"></i>
+                                                    class="w-full py-2 px-2.5 rounded-[9px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[11.5px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                                <i class="fas fa-utensils text-[10px]"></i>
                                                 <span>Dine In</span>
                                             </button>
                                             <button type="button" 
                                                     @click="addToOpenBillCart(p, 'TAKEAWAY')"
-                                                    class="w-full py-1.5 px-2.5 rounded-[8px] bg-white hover:bg-[#fff6f0] border border-[#df5826] text-[#df5826] text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                                                <i class="fas fa-shopping-bag text-[9px]"></i>
+                                                    class="w-full py-2 px-2.5 rounded-[9px] bg-white hover:bg-[#fff9f6] border border-[#ea580c] text-[#ea580c] text-[11.5px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                                <i class="fas fa-shopping-bag text-[10px]"></i>
                                                 <span>Takeaway</span>
                                             </button>
                                         </div>

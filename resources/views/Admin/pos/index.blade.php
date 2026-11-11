@@ -110,78 +110,83 @@
     {{-- LEFT COLUMN: Antrean + Menu (Figma 45:12193) --}}
     <div class="flex-1 w-full min-w-0 flex flex-col gap-[16px]">
 
-        {{-- 1. ANTREAN STATUS SECTION (Figma 45:12194 - Collapsible for Compact Tablet Displays) --}}
-        <section class="bg-white border border-[#e6e5e0] rounded-[14px] p-3 sm:p-3.5 flex flex-col gap-2.5 shadow-2xs">
+        {{-- 1. ANTREAN STATUS SECTION (Figma 45:12194 / Frame 1597884462) --}}
+        <section class="bg-white border border-[#e6e5e0] rounded-[16px] p-3.5 sm:p-4 flex flex-col gap-3 shadow-2xs">
+            {{-- Header Row: Antrean (N) + Status pesanan on left, Semua Pesanan > on right --}}
             <div class="flex items-center justify-between">
-                <button type="button" @click="isQueueExpanded = !isQueueExpanded" 
-                        class="flex items-center gap-2 group cursor-pointer text-left focus:outline-none select-none">
-                    <div class="text-[13px] font-bold text-[#1e211f] flex items-center gap-1.5">
-                        <span>Antrean Dapur</span>
-                        <span class="text-[10.5px] font-bold px-1.5 py-0.5 rounded-full"
-                              :class="activeOrders.length > 0 ? 'bg-[#fff6f0] text-[#df5826] border border-[#f5d5c6]' : 'bg-gray-100 text-gray-500'"
-                              x-text="activeOrders.length">0</span>
-                    </div>
-                    <i class="fas fa-chevron-down text-[10px] text-gray-400 group-hover:text-[#df5826] transition-transform duration-200"
-                       :class="isQueueExpanded ? 'rotate-180' : ''"></i>
-                </button>
-                <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#df5826] hover:opacity-80 transition">
+                <div>
+                    <h2 class="text-[15px] sm:text-[16px] font-bold text-[#111827] flex items-center gap-1.5 leading-tight">
+                        <span>Antrean</span>
+                        <span class="font-normal text-[#71717a]">(<span x-text="activeOrders.length">0</span>)</span>
+                    </h2>
+                    <p class="text-[11.5px] text-[#71717a] mt-0.5 leading-tight">Status pesanan</p>
+                </div>
+                <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-1 text-[12px] font-semibold text-[#df5826] hover:text-[#b84218] transition">
                     <span>Semua Pesanan</span>
-                    <img src="{{ asset('images/sparta/arrow-right.svg') }}" alt="" class="w-[12px] h-[12px]">
+                    <i class="fas fa-chevron-right text-[10px]"></i>
                 </a>
             </div>
 
-            <div x-show="isQueueExpanded" x-cloak class="space-y-2">
-                {{-- Empty State when no active orders (Compact single-line) --}}
-                <div x-show="activeOrders.length === 0" x-cloak class="bg-[#f8f9fa] border border-dashed border-[#e6e5e0] rounded-[9px] py-2 px-3 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-5 h-5 rounded-full bg-[#fff6f0] text-[#df5826] flex items-center justify-center text-[9px] font-bold shrink-0">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <p class="text-[11.5px] text-[#53565a]">Belum ada antrean pesanan aktif di dapur.</p>
-                    </div>
+            <div>
+                {{-- Empty State when no active orders --}}
+                <div x-show="activeOrders.length === 0" x-cloak class="bg-[#f8f9fa] border border-dashed border-[#e6e5e0] rounded-[12px] py-3 px-4 flex items-center justify-center text-center">
+                    <p class="text-[12px] text-[#71717a]">Belum ada antrean pesanan aktif.</p>
                 </div>
 
-                {{-- Active Queue Cards (Up to 3 cards horizontally, matching Figma 45:12206) --}}
-                <div x-show="activeOrders.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-                    <template x-for="(order, oIdx) in activeOrders.slice(0, 3)" :key="order.id">
-                        <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[10px] p-2.5 pl-3.5 relative overflow-hidden flex flex-col gap-2">
-                            <div class="w-[3px] bg-[#df5826] rounded-l-[10px] absolute left-0 top-0 bottom-0"></div>
-
-                            {{-- Top row: badge + table/title + status pill --}}
-                            <div class="flex items-center justify-between gap-2">
-                                <div class="flex items-center gap-2 min-w-0">
-                                    <div class="w-[26px] h-[26px] rounded-[6px] bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center shrink-0">
-                                        <span class="text-[10.5px] font-bold text-[#df5826]" x-text="getOrderBadge(order, oIdx)"></span>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <p class="text-[12px] font-bold text-[#1e211f] leading-tight truncate" x-text="formatOrderTitle(order)"></p>
-                                        <div class="flex items-center gap-1 text-[10.5px] text-[#8b8e93] leading-tight mt-0.5">
-                                            <span class="truncate" x-text="getOrderItemCount(order) + ' item'"></span>
-                                            <span>•</span>
-                                            <span class="truncate" x-text="'Rp' + formatRp(order.total)"></span>
+                {{-- Active Queue Cards (Horizontal Scroll, matching Figma Frame 1597884462) --}}
+                <div x-show="activeOrders.length > 0" class="flex items-center gap-3 overflow-x-auto hide-scroll pb-1">
+                    <template x-for="(order, oIdx) in activeOrders" :key="order.id">
+                        <div @click="goToActiveOrder(order)"
+                             class="min-w-[260px] sm:min-w-[280px] max-w-[320px] bg-white border border-[#e5e7eb] hover:border-[#df5826]/60 rounded-[14px] p-2.5 sm:p-3 flex items-center justify-between gap-3 shadow-[0px_2px_8px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer group shrink-0 select-none">
+                            
+                            {{-- Left: Table Icon + Number Box (Figma Frame 1597884462) --}}
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-[42px] h-[42px] rounded-[10px] bg-[#f4f4f5] border border-[#e4e4e7] flex items-center justify-center gap-1 shrink-0 text-[#18181b]">
+                                    <template x-if="order.table_number || (order.table && order.table !== 'Takeaway' && order.table !== 'Delivery' && order.table !== 'Tanpa Meja')">
+                                        <div class="flex items-center gap-1">
+                                            <i class="fas fa-chair text-[11px] text-[#71717a]"></i>
+                                            <span class="text-[12.5px] font-bold text-[#18181b]" x-text="formatTableBadge(order, oIdx)"></span>
                                         </div>
+                                    </template>
+                                    <template x-if="!order.table_number && (!order.table || order.table === 'Takeaway')">
+                                        <i class="fas fa-shopping-bag text-[13px] text-[#71717a]"></i>
+                                    </template>
+                                    <template x-if="!order.table_number && order.table === 'Delivery'">
+                                        <i class="fas fa-motorcycle text-[13px] text-[#71717a]"></i>
+                                    </template>
+                                    <template x-if="!order.table_number && order.table === 'Tanpa Meja'">
+                                        <span class="text-[11px] font-bold text-[#71717a]" x-text="'#' + order.id"></span>
+                                    </template>
+                                </div>
+
+                                {{-- Center: Customer Name + Type & ID --}}
+                                <div class="min-w-0">
+                                    <h4 class="text-[13px] sm:text-[13.5px] font-bold text-[#111827] truncate group-hover:text-[#df5826] transition-colors leading-tight" 
+                                        x-text="order.customer_name || 'Pelanggan'"></h4>
+                                    <div class="flex items-center gap-1.5 text-[11px] text-[#71717a] mt-0.5 leading-tight">
+                                        <template x-if="!order.is_open_bill">
+                                            <span class="inline-flex items-center gap-1 font-medium text-[#71717a]">
+                                                <i class="fas fa-money-bill-wave text-[10px] text-[#10b981]"></i>
+                                                <span>Paid</span>
+                                            </span>
+                                        </template>
+                                        <template x-if="order.is_open_bill">
+                                            <span class="inline-flex items-center gap-1 font-medium text-amber-700">
+                                                <i class="fas fa-receipt text-[10px] text-amber-600"></i>
+                                                <span>Open Bill</span>
+                                            </span>
+                                        </template>
+                                        <span>•</span>
+                                        <span x-text="'#' + order.id"></span>
                                     </div>
                                 </div>
-                                <span class="bg-[#fff6f0] px-1.5 py-0.5 rounded-[4px] text-[9.5px] font-semibold text-[#df5826] shrink-0" x-text="getOrderStatusLabel(order)"></span>
                             </div>
 
-                            {{-- Items summary row --}}
-                            <div class="text-[10.5px] font-medium text-[#1e211f] leading-snug truncate">
-                                <span x-text="formatOrderItemsPreview(order)"></span>
-                                <template x-if="(order.items || []).length > 2">
-                                    <span class="text-[#df5826] font-medium" x-text="' +' + (order.items.length - 2) + ' item'"></span>
-                                </template>
-                            </div>
-
-                            {{-- Progress bar & timestamp --}}
-                            <div class="flex items-center gap-2">
-                                <div class="flex-1 h-[4px] bg-[#e6e5e0] rounded-[2px] overflow-hidden">
-                                    <div class="h-full bg-[#df5826] rounded-[2px] transition-all duration-300" :style="'width: ' + getOrderProgress(order) + '%'"></div>
-                                </div>
-                                <div class="flex items-center gap-1 text-[10px] font-medium text-[#53565a] shrink-0">
-                                    <img src="{{ asset('images/sparta/clock.svg') }}" alt="" class="w-[10px] h-[10px]">
-                                    <span x-text="order.time || '--:--'"></span>
-                                </div>
+                            {{-- Right: Status Badge (Consistent with Pesanan Aktif & Figma) --}}
+                            <div class="shrink-0">
+                                <span :class="getOrderStatusInfo(order).classes"
+                                      class="px-2.5 py-1 rounded-[7px] text-[10.5px] font-bold whitespace-nowrap inline-flex items-center gap-1"
+                                      x-text="getOrderStatusInfo(order).label"></span>
                             </div>
                         </div>
                     </template>
@@ -288,22 +293,22 @@
                     @endphp
                     <div
                         x-show="matchesFilter({{ $product->category_id ?? 'null' }}, '{{ addslashes($product->name) }}', {{ (int) ($product->sold_count ?? 0) }}, {{ $product->is_best_seller ? 'true' : 'false' }})"
-                        class="product-card group bg-white border border-[#d8dce2] hover:border-[#df5826] rounded-[12px] p-[10px] flex flex-col justify-between text-left shadow-[0px_4px_12px_0px_rgba(17,24,39,0.03)] transition">
-                        {{-- Product Image --}}
-                        <div class="bg-[#ede7dc] h-[120px] sm:h-[128px] xl:h-[135px] w-full rounded-[10px] overflow-hidden relative cursor-pointer"
+                        class="product-card group bg-white border border-[#e6e5e0] hover:border-[#df5826]/50 rounded-[18px] overflow-hidden flex flex-col justify-between text-left shadow-[0px_4px_16px_0px_rgba(17,24,39,0.03)] hover:shadow-md transition-all duration-200">
+                        {{-- Product Image (Flush to top, matching Figma) --}}
+                        <div class="bg-[#ede7dc] h-[135px] sm:h-[150px] xl:h-[160px] w-full overflow-hidden relative cursor-pointer"
                              @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')">
                             @if($product->has_active_discount)
-                                <span class="absolute top-2 right-2 z-10 bg-red-600 text-white text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+                                <span class="absolute top-2.5 right-2.5 z-10 bg-red-600 text-white text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
                                     <i class="fas fa-tag text-[8px]"></i> -{{ $product->discount_percentage }}%
                                 </span>
                             @endif
                             @if($product->is_best_seller)
-                                <span class="absolute top-2 left-2 z-10 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                                <span class="absolute top-2.5 left-2.5 z-10 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
                                     <i class="fas fa-crown text-[8px]"></i> Best
                                 </span>
                             @endif
                             @if($product->image_url)
-                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                             @else
                                 <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#f3efe6] to-[#e6dfd1] text-[#8b8e93]">
                                     <i class="fas fa-mug-hot text-2xl text-[#df5826]/60 mb-1"></i>
@@ -312,48 +317,53 @@
                             @endif
                         </div>
 
-                        {{-- Product Name --}}
-                        <div class="pt-[8px] pb-[2px] w-full">
-                            <span class="text-[13px] font-semibold text-[#1e211f] leading-[15.6px] truncate block">{{ $product->name }}</span>
-                        </div>
+                        {{-- Product Details & Buttons Container --}}
+                        <div class="p-3 sm:p-3.5 pt-3 flex flex-col flex-1 justify-between gap-2.5">
+                            <div>
+                                {{-- Product Name --}}
+                                <h3 class="text-[14px] sm:text-[15px] font-bold text-[#111827] leading-snug truncate" title="{{ $product->name }}">
+                                    {{ $product->name }}
+                                </h3>
 
-                        {{-- Category • Sold Count & Price --}}
-                        <div class="flex items-center justify-between gap-2 w-full pb-[8px]">
-                            <div class="flex items-center gap-[5px] text-[11px] font-normal text-[#53565a] leading-[16.5px] truncate">
-                                <span class="truncate">{{ $product->category_name ?? ($product->category?->name ?? 'Menu') }}</span>
-                                <span>•</span>
-                                <span>{{ (int) ($product->sold_count ?? 0) }} sold</span>
-                            </div>
-                            @if($product->has_active_discount)
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[10px] text-[#8b8e93] line-through">
-                                        Rp{{ number_format($product->price, 0, ',', '.') }}
-                                    </span>
-                                    <span class="text-[13px] font-bold text-[#df5826] leading-[19.5px]">
-                                        Rp{{ number_format($product->effective_price, 0, ',', '.') }}
-                                    </span>
+                                {{-- Category • Sold Count & Price Row (Figma Screen 2) --}}
+                                <div class="flex items-center justify-between gap-2 pt-1">
+                                    <div class="text-[11.5px] text-[#71717a] font-normal truncate">
+                                        <span>{{ $product->category_name ?? ($product->category?->name ?? 'Menu') }}</span>
+                                        <span class="mx-0.5">•</span>
+                                        <span>{{ (int) ($product->sold_count ?? 0) }} sold</span>
+                                    </div>
+                                    @if($product->has_active_discount)
+                                        <div class="flex items-baseline gap-1.5 shrink-0">
+                                            <span class="text-[10px] text-[#8b8e93] line-through">
+                                                Rp{{ number_format($product->price, 0, ',', '.') }}
+                                            </span>
+                                            <span class="text-[14px] sm:text-[15px] font-extrabold text-[#df5826] leading-none">
+                                                Rp{{ number_format($product->effective_price, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                    @else
+                                        <span class="text-[14px] sm:text-[15px] font-extrabold text-[#111827] leading-none shrink-0">
+                                            Rp{{ number_format($product->price, 0, ',', '.') }}
+                                        </span>
+                                    @endif
                                 </div>
-                            @else
-                                <span class="text-[13px] font-semibold text-[#111827] leading-[19.5px] shrink-0">
-                                    Rp{{ number_format($product->price, 0, ',', '.') }}
-                                </span>
-                            @endif
-                        </div>
+                            </div>
 
-                        {{-- Stacked Action Buttons: [ 🍽️ Dine In ] & [ 🛍️ Takeaway ] --}}
-                        <div class="flex flex-col gap-1.5 w-full pt-1 border-t border-[#f0eee9]">
-                            <button type="button"
-                                @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')"
-                                class="w-full py-1.5 px-3 rounded-[8px] bg-gradient-to-b from-[#f06428] to-[#df5826] hover:opacity-95 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                                <i class="fas fa-utensils text-[9.5px]"></i>
-                                <span>Dine In</span>
-                            </button>
-                            <button type="button"
-                                @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'TAKEAWAY')"
-                                class="w-full py-1.5 px-3 rounded-[8px] bg-white hover:bg-[#fff6f0] border border-[#df5826] text-[#df5826] text-[11px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                                <i class="fas fa-shopping-bag text-[9.5px]"></i>
-                                <span>Takeaway</span>
-                            </button>
+                            {{-- Stacked Action Buttons: [ 🍴 Dine In ] & [ 🛍️ Takeaway ] (Figma 45:12312) --}}
+                            <div class="flex flex-col gap-2 w-full pt-1">
+                                <button type="button"
+                                    @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')"
+                                    class="w-full py-2.5 px-3 rounded-[11px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-xs hover:shadow transition active:scale-[0.98] cursor-pointer">
+                                    <i class="fas fa-utensils text-[11px]"></i>
+                                    <span>Dine In</span>
+                                </button>
+                                <button type="button"
+                                    @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'TAKEAWAY')"
+                                    class="w-full py-2.5 px-3 rounded-[11px] bg-white hover:bg-[#fff9f6] border border-[#ea580c] text-[#ea580c] text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                    <i class="fas fa-shopping-bag text-[11px]"></i>
+                                    <span>Takeaway</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     @endforeach
@@ -1464,6 +1474,8 @@ function posApp() {
                 ? (o.table.name || '')
                 : (typeof o.table === 'string' ? o.table : '');
 
+            const tableDigits = tableName ? tableName.replace(/\D/g, '') : (o.table_number || '');
+
             let formattedTime = o.time || '--:--';
             if ((!o.time || o.time === '--:--') && o.created_at) {
                 const dt = new Date(o.created_at);
@@ -1472,18 +1484,24 @@ function posApp() {
                 }
             }
 
+            const isOpenBill = Boolean(o.is_held || (o.payment_status && o.payment_status.toUpperCase() === 'UNPAID') || (o.order_status && o.order_status.toUpperCase() === 'HOLD') || (o.status && o.status.toUpperCase() === 'HOLD'));
+
             return {
                 id: o.id,
                 table: tableName || (o.fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : (o.fulfillment_type === 'DELIVERY' ? 'Delivery' : 'Tanpa Meja')),
+                table_number: tableDigits,
                 customer_name: o.customer_name || o.customer || 'Walk-in Customer',
                 total: Number(o.total ?? o.grand_total ?? o.total_price ?? 0),
                 status: o.status || o.order_status || 'CONFIRMED',
                 order_status: o.order_status || o.status || 'CONFIRMED',
+                payment_status: o.payment_status || (isOpenBill ? 'UNPAID' : 'PAID'),
+                is_open_bill: isOpenBill,
                 fulfillment_type: o.fulfillment_type || 'DINE_IN',
                 time: formattedTime,
                 items: Array.isArray(o.items) ? o.items.map(i => ({
                     name: i.name || i.product_name || i.product?.name || 'Menu',
                     qty: Number(i.qty ?? i.quantity ?? 1),
+                    status: i.status || null,
                 })) : [],
             };
         },
@@ -1512,53 +1530,66 @@ function posApp() {
             }
         },
 
-        // ── Queue Formatting Helpers ──────────
-        getOrderBadge(order, idx) {
-            if (order && order.table) {
-                const rawTable = typeof order.table === 'object' ? (order.table.name || '') : String(order.table);
-                const digits = rawTable.replace(/\D/g, '');
+        // ── Queue Formatting Helpers (Figma Frame 1597884462) ──
+        goToActiveOrder(order) {
+            if (!order || !order.id) return;
+            window.location.href = '{{ route('admin.orders.index') }}?order=' + order.id;
+        },
+        formatTableBadge(order, idx) {
+            if (!order) return String((idx ?? 0) + 1).padStart(2, '0');
+            if (order.table_number) {
+                return String(order.table_number).padStart(2, '0').slice(-2);
+            }
+            if (order.table) {
+                const raw = typeof order.table === 'object' ? (order.table.name || '') : String(order.table);
+                const digits = raw.replace(/\D/g, '');
                 if (digits) return digits.padStart(2, '0').slice(-2);
             }
             return String((idx ?? 0) + 1).padStart(2, '0');
         },
-        formatOrderTitle(order) {
-            if (!order) return 'Pesanan';
-            const rawTable = order.table && typeof order.table === 'object' ? (order.table.name || '') : String(order.table || '');
-            const t = rawTable.trim();
-            if (!t || t === 'Tanpa Meja') {
-                return order.customer_name && order.customer_name !== 'Walk-in Customer'
-                    ? order.customer_name
-                    : 'Pesanan #' + order.id;
+        getOrderStatusInfo(order) {
+            if (!order) return { label: 'Pesanan Baru', classes: 'bg-[#e0f2fe] border border-[#bae6fd] text-[#0369a1]' };
+
+            if (Array.isArray(order.items) && order.items.length > 1) {
+                const itemStatuses = new Set(order.items.map(i => (i.status || '').toUpperCase()).filter(Boolean));
+                if (itemStatuses.size > 1) {
+                    return {
+                        label: `${itemStatuses.size} Status`,
+                        classes: 'bg-[#fff4ed] border border-[#fed7aa] text-[#ea580c]'
+                    };
+                }
             }
-            if (/^meja/i.test(t) || /^takeaway/i.test(t) || /^delivery/i.test(t)) {
-                return t;
+
+            const st = (order.status || order.order_status || '').toUpperCase();
+            if (['READY', 'SIAP'].includes(st)) {
+                return {
+                    label: 'Siap Disajikan',
+                    classes: 'bg-[#ecfdf5] border border-[#a7f3d0] text-[#059669]'
+                };
             }
-            return 'Meja ' + t.padStart(2, '0');
-        },
-        getOrderItemCount(order) {
-            if (!order || !Array.isArray(order.items)) return 0;
-            return order.items.reduce((sum, item) => sum + Number(item.qty ?? item.quantity ?? 1), 0);
-        },
-        getOrderStatusLabel(order) {
-            const st = order?.status || order?.order_status || '';
-            if (st === 'Diproses' || st === 'PREPARING') return 'Memasak';
-            if (st === 'Siap' || st === 'READY') return 'Siap';
-            return 'Memasak';
-        },
-        getOrderProgress(order) {
-            const st = order?.status || order?.order_status || '';
-            if (st === 'Siap' || st === 'READY') return 90;
-            if (st === 'Diproses' || st === 'PREPARING') return 68;
-            return 45;
-        },
-        formatOrderItemsPreview(order) {
-            if (!order || !Array.isArray(order.items) || order.items.length === 0) {
-                return 'Tidak ada detail item';
+            if (['PREPARING', 'IN PROGRESS', 'DIPROSES', 'MEMASAK'].includes(st)) {
+                return {
+                    label: 'Sedang Dimasak',
+                    classes: 'bg-[#f3e8ff] border border-[#e9d5ff] text-[#7e22ce]'
+                };
             }
-            return order.items
-                .slice(0, 2)
-                .map(i => `${i.name || i.product_name || i.product?.name || 'Menu'} ×${i.qty ?? i.quantity ?? 1}`)
-                .join(', ');
+            if (['COMPLETED', 'SELESAI'].includes(st)) {
+                return {
+                    label: 'Selesai',
+                    classes: 'bg-[#f3f4f6] border border-[#e5e7eb] text-[#4b5563]'
+                };
+            }
+            if (['CANCELLED', 'BATAL', 'DIBATALKAN'].includes(st)) {
+                return {
+                    label: 'Dibatalkan',
+                    classes: 'bg-red-50 border border-red-200 text-red-600'
+                };
+            }
+
+            return {
+                label: 'Pesanan Baru',
+                classes: 'bg-[#e0f2fe] border border-[#bae6fd] text-[#0369a1]'
+            };
         },
 
         // ── Computed ──────────────────────────

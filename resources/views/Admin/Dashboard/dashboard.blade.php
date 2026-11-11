@@ -3093,6 +3093,16 @@ if (res.ok) {
                         }
 
                         this.orders = dbOrders;
+
+                        if (isInit) {
+                            const urlOrderParam = new URLSearchParams(window.location.search).get('order');
+                            if (urlOrderParam && this.currentTab === 'orders') {
+                                const target = this.orders.find(o => String(o.id) === String(urlOrderParam));
+                                if (target) {
+                                    this.$nextTick(() => this.viewOrderDetails(target));
+                                }
+                            }
+                        }
                     } catch (e) {
                         console.error('fetchLiveOrders error:', e);
                     }

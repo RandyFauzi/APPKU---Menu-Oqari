@@ -97,18 +97,25 @@ class PosController extends Controller
                     'READY' => 'Siap',
                 ];
 
+                $isOpenBill = (bool) ($order->is_held || strtoupper((string) ($order->payment_status ?? '')) === 'UNPAID' || strtoupper((string) ($order->order_status ?? '')) === 'HOLD');
+                $tableDigits = $order->table ? preg_replace('/\D/', '', (string) $order->table->name) : '';
+
                 return [
                     'id' => $order->id,
                     'table' => $order->table?->name ?? ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : ($order->fulfillment_type === 'DELIVERY' ? 'Delivery' : 'Tanpa Meja')),
+                    'table_number' => $tableDigits,
                     'customer_name' => $order->customer_name ?: 'Walk-in Customer',
                     'total' => (float) $order->grand_total,
                     'status' => $statusMap[$order->order_status] ?? $order->order_status,
                     'order_status' => $order->order_status,
+                    'payment_status' => $order->payment_status ?? ($isOpenBill ? 'UNPAID' : 'PAID'),
+                    'is_open_bill' => $isOpenBill,
                     'fulfillment_type' => $order->fulfillment_type ?? 'DINE_IN',
                     'time' => $order->created_at?->format('H:i') ?? '--:--',
                     'items' => $order->items->map(fn ($item): array => [
                         'name' => $item->product_name,
                         'qty' => (int) $item->quantity,
+                        'status' => $item->status ?? null,
                     ])->values()->all(),
                 ];
             })
