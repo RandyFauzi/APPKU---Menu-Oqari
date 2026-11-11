@@ -1,7 +1,7 @@
 <div x-show="currentTab === 'orders'" x-cloak class="flex-grow bg-[#f6f5f2] p-4 md:p-[24px] overflow-y-auto hide-scroll font-['DM_Sans',sans-serif] text-[#1e211f]">
 
     <!-- Page Title & Action Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
             <h1 class="text-[22px] font-bold text-[#1e211f] tracking-[-0.3px] leading-tight">Pesanan Aktif</h1>
             <p class="text-[12px] text-[#7f837e] mt-0.5">Pantau dan kelola status antrean pesanan pelanggan secara real-time.</p>
@@ -10,66 +10,122 @@
         <div class="flex items-center gap-2.5">
             <button type="button"
                @click="openCreateOpenBillModal()"
-               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition cursor-pointer">
-                <img src="{{ asset('images/sparta/cart-btn-icon.svg') }}" alt="" class="w-[15px] h-[15px]">
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-bold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition cursor-pointer">
+                <i class="fas fa-shopping-cart text-[12px]"></i>
                 <span>Buat Pesanan</span>
             </button>
         </div>
     </div>
 
-    <!-- Filter & Search Bar Card (Sparta Style) -->
-    <div class="bg-white border border-[#e6e5e0] rounded-[16px] p-[14px] mb-5 shadow-[0px_2px_8px_rgba(0,0,0,0.02)]">
-        <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-            <!-- Status Filter Pills -->
-            <div class="flex items-center gap-2 overflow-x-auto hide-scroll">
-                <button type="button" @click="activeOrderFilter = 'all'"
-                    :class="activeOrderFilter === 'all' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
-                    class="border rounded-[9px] px-3.5 py-2 text-[12px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap">
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- LEVEL 1 FILTER TABS (Figma Frame 1597884473: Semua, Open Bill, Paid) -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="flex items-center gap-2 mb-3.5 overflow-x-auto hide-scroll">
+        <!-- Tab: Semua -->
+        <button type="button" @click="activeOrderFilter = 'all'"
+            :class="activeOrderFilter === 'all' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-bold' : 'bg-white border-[#e6e5e0] text-[#7f837e] hover:text-[#1e211f] font-semibold'"
+            class="border rounded-[10px] px-4 py-2 text-[12.5px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap shadow-2xs cursor-pointer">
+            <span>Semua</span>
+            <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
+                  :class="activeOrderFilter === 'all' ? 'bg-[#df5826] text-white font-bold' : 'bg-[#e6e5e0] text-[#53565a]'"
+                  x-text="orders.length">0</span>
+        </button>
+
+        <!-- Tab: Open Bill -->
+        <button type="button" @click="activeOrderFilter = 'open_bill'"
+            :class="activeOrderFilter === 'open_bill' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-bold' : 'bg-white border-[#e6e5e0] text-[#7f837e] hover:text-[#1e211f] font-semibold'"
+            class="border rounded-[10px] px-4 py-2 text-[12.5px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap shadow-2xs cursor-pointer">
+            <i class="fas fa-bookmark text-[11px] text-amber-600"></i>
+            <span>Open Bill</span>
+            <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
+                  :class="activeOrderFilter === 'open_bill' ? 'bg-[#df5826] text-white font-bold' : 'bg-[#e6e5e0] text-[#53565a]'"
+                  x-text="orders.filter(o => o.status === 'HOLD' || o.order_status === 'HOLD' || o.is_open_bill).length">0</span>
+        </button>
+
+        <!-- Tab: Paid -->
+        <button type="button" @click="activeOrderFilter = 'paid'"
+            :class="activeOrderFilter === 'paid' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-bold' : 'bg-white border-[#e6e5e0] text-[#7f837e] hover:text-[#1e211f] font-semibold'"
+            class="border rounded-[10px] px-4 py-2 text-[12.5px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap shadow-2xs cursor-pointer">
+            <span>Paid</span>
+            <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
+                  :class="activeOrderFilter === 'paid' ? 'bg-[#df5826] text-white font-bold' : 'bg-[#e6e5e0] text-[#53565a]'"
+                  x-text="orders.filter(o => ['Completed','COMPLETED'].includes(o.status || o.order_status) || o.payment_status === 'PAID').length">0</span>
+        </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- LEVEL 2 FILTER BAR (Sub Status Pills + Search + Dropdown)      -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="bg-white border border-[#e6e5e0] rounded-[16px] p-[12px] sm:p-[14px] mb-5 shadow-[0px_2px_8px_rgba(0,0,0,0.02)]">
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+            <!-- Sub Status Filter Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto hide-scroll pb-1 lg:pb-0">
+                <button type="button" @click="subOrderStatusFilter = 'all'"
+                    :class="subOrderStatusFilter === 'all' ? 'bg-[#111827] text-white font-semibold' : 'bg-[#f8f9fa] border border-[#d8dce2] text-[#53565a] hover:bg-gray-100 font-medium'"
+                    class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
                     <span>Semua</span>
-                    <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
-                          :class="activeOrderFilter === 'all' ? 'bg-[#df5826] text-white' : 'bg-[#e6e5e0] text-[#53565a]'"
-                          x-text="orders.length">0</span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + orders.length + ')'"></span>
                 </button>
 
-                <button type="button" @click="activeOrderFilter = 'open_bill'"
-                    :class="activeOrderFilter === 'open_bill' ? 'bg-[#fffbf5] border-amber-400 text-amber-900 font-bold shadow-xs' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
-                    class="border rounded-[9px] px-3.5 py-2 text-[12px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap">
-                    <i class="fas fa-bookmark text-[11px] text-amber-600"></i>
-                    <span>Open Bill</span>
-                    <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
-                          :class="activeOrderFilter === 'open_bill' ? 'bg-amber-500 text-white font-bold' : 'bg-[#e6e5e0] text-[#53565a]'"
-                          x-text="orders.filter(o => o.status === 'HOLD' || o.order_status === 'HOLD' || o.is_open_bill).length">0</span>
+                <button type="button" @click="subOrderStatusFilter = 'new'"
+                    :class="subOrderStatusFilter === 'new' ? 'bg-[#0284c7] text-white font-semibold shadow-xs' : 'bg-[#f0f9ff] border border-[#bae6fd] text-[#0369a1] hover:bg-sky-100 font-medium'"
+                    class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
+                    <span class="w-1.5 h-1.5 rounded-full" :class="subOrderStatusFilter === 'new' ? 'bg-white' : 'bg-[#0284c7]'"></span>
+                    <span>Pesanan Baru</span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + orders.filter(o => ['Masuk','CONFIRMED'].includes(o.status || o.order_status) && o.status !== 'HOLD' && o.order_status !== 'HOLD' && !o.is_open_bill).length + ')'"></span>
                 </button>
 
-                <button type="button" @click="activeOrderFilter = 'process'"
-                    :class="activeOrderFilter === 'process' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
-                    class="border rounded-[9px] px-3.5 py-2 text-[12px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap">
-                    <span>Sedang Diproses</span>
-                    <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
-                          :class="activeOrderFilter === 'process' ? 'bg-[#df5826] text-white' : 'bg-[#e6e5e0] text-[#53565a]'"
-                          x-text="orders.filter(o => ['Masuk','CONFIRMED','In Progress','PREPARING','Ready','READY'].includes(o.status || o.order_status) && o.status !== 'HOLD' && o.order_status !== 'HOLD' && !o.is_open_bill).length">0</span>
+                <button type="button" @click="subOrderStatusFilter = 'cooking'"
+                    :class="subOrderStatusFilter === 'cooking' ? 'bg-[#7e22ce] text-white font-semibold shadow-xs' : 'bg-[#faf5ff] border border-[#e9d5ff] text-[#7e22ce] hover:bg-purple-100 font-medium'"
+                    class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
+                    <span class="w-1.5 h-1.5 rounded-full" :class="subOrderStatusFilter === 'cooking' ? 'bg-white' : 'bg-[#7e22ce]'"></span>
+                    <span>Sedang Dimasak</span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + orders.filter(o => ['In Progress','PREPARING'].includes(o.status || o.order_status)).length + ')'"></span>
                 </button>
 
-                <button type="button" @click="activeOrderFilter = 'completed'"
-                    :class="activeOrderFilter === 'completed' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
-                    class="border rounded-[9px] px-3.5 py-2 text-[12px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap">
+                <button type="button" @click="subOrderStatusFilter = 'ready'"
+                    :class="subOrderStatusFilter === 'ready' ? 'bg-[#15803d] text-white font-semibold shadow-xs' : 'bg-[#f0fdf4] border border-[#bbf7d0] text-[#15803d] hover:bg-emerald-100 font-medium'"
+                    class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
+                    <span class="w-1.5 h-1.5 rounded-full" :class="subOrderStatusFilter === 'ready' ? 'bg-white' : 'bg-[#15803d]'"></span>
+                    <span>Siap Disajikan</span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + orders.filter(o => ['Ready','READY'].includes(o.status || o.order_status)).length + ')'"></span>
+                </button>
+
+                <button type="button" @click="subOrderStatusFilter = 'completed'"
+                    :class="subOrderStatusFilter === 'completed' ? 'bg-[#374151] text-white font-semibold shadow-xs' : 'bg-[#f9fafb] border border-[#e5e7eb] text-[#4b5563] hover:bg-gray-100 font-medium'"
+                    class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
                     <span>Selesai</span>
-                    <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
-                          :class="activeOrderFilter === 'completed' ? 'bg-[#df5826] text-white' : 'bg-[#e6e5e0] text-[#53565a]'"
-                          x-text="orders.filter(o => ['Completed','COMPLETED'].includes(o.status || o.order_status)).length">0</span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + orders.filter(o => ['Completed','COMPLETED'].includes(o.status || o.order_status)).length + ')'"></span>
                 </button>
             </div>
 
-            <!-- Inline Search Input -->
-            <div class="w-full md:w-72 bg-[#f8f9fa] border border-[#d8dce2] rounded-[9px] px-3 py-2 flex items-center gap-2 focus-within:border-[#df5826] focus-within:bg-white transition">
-                <img src="{{ asset('images/sparta/search.svg') }}" alt="" class="w-4 h-4 shrink-0">
-                <input type="text" x-model="searchQuery" placeholder="Cari nama pelanggan, meja, atau #ID..."
-                    class="w-full bg-transparent border-none outline-none text-[12px] font-medium text-[#1e211f] placeholder-[#8b8e93] p-0 focus:ring-0">
+            <!-- Search & Fulfillment Filter on Right -->
+            <div class="flex items-center gap-2.5 shrink-0">
+                <!-- Search Input -->
+                <div class="w-full sm:w-64 bg-[#f8f9fa] border border-[#d8dce2] rounded-[9px] px-3 py-1.5 flex items-center gap-2 focus-within:border-[#df5826] focus-within:bg-white transition">
+                    <img src="{{ asset('images/sparta/search.svg') }}" alt="" class="w-4 h-4 shrink-0">
+                    <input type="text" x-model="searchQuery" placeholder="Cari nama pelanggan, meja, #ID..."
+                        class="w-full bg-transparent border-none outline-none text-[12px] font-medium text-[#1e211f] placeholder-[#8b8e93] p-0 focus:ring-0">
+                </div>
+
+                <!-- Tipe Pesanan Dropdown (Sparta styled) -->
+                <div class="relative shrink-0">
+                    <select x-model="orderFulfillmentFilter"
+                            class="appearance-none bg-[#f8f9fa] border border-[#d8dce2] hover:border-[#8b8e93] focus:border-[#df5826] rounded-[9px] px-3.5 py-1.5 pr-8 text-[12px] font-medium text-[#1e211f] cursor-pointer outline-none transition">
+                        <option value="all">Tipe Pesanan: Semua</option>
+                        <option value="DINE_IN">Dine In</option>
+                        <option value="TAKEAWAY">Takeaway</option>
+                        <option value="DELIVERY">Delivery</option>
+                    </select>
+                    <i class="fas fa-chevron-down text-[10px] text-[#8b8e93] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Orders Cards Grid -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- ORDERS CARDS GRID (Sparta Caffe Cards Style)                    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-16 items-start">
 
         <!-- Empty State -->
@@ -83,237 +139,222 @@
 
         <!-- Order Card -->
         <template x-for="order in filteredOrders" :key="order.id">
-            <div class="bg-white border border-[#e6e5e0] rounded-[16px] p-4 pl-[19px] relative overflow-hidden flex flex-col justify-between shadow-[0px_3px_12px_rgba(38,39,35,0.04)] hover:border-[#df5826]/60 transition-all">
-
-                <!-- Left Accent Bar -->
-                <div class="w-[3.5px] absolute left-0 top-0 bottom-0 rounded-l-[16px]"
-                     :class="{
-                        'bg-amber-500': order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill,
-                        'bg-[#df5826]': ['Masuk', 'CONFIRMED', 'In Progress', 'PREPARING'].includes(order.status) && order.status !== 'HOLD' && !order.is_open_bill,
-                        'bg-[#289e5c]': ['Ready', 'READY'].includes(order.status),
-                        'bg-[#d8dce2]': ['Completed', 'COMPLETED'].includes(order.status),
-                        'bg-red-500': order.status === 'Dibatalkan' || order.status === 'CANCELLED'
-                     }"></div>
-
-                <!-- Top Header: Table Badge + Customer/Order Info + Status Badge -->
+            <div class="bg-white border border-[#e6e5e0] rounded-[16px] p-4 flex flex-col justify-between shadow-[0px_3px_12px_rgba(38,39,35,0.04)] hover:border-[#df5826]/60 transition-all gap-3.5">
+                
+                <!-- TOP HEADER -->
                 <div class="flex items-start justify-between gap-3">
-                    <div class="flex items-start gap-3 min-w-0">
-                        <!-- Table / Type Badge -->
-                        <div class="w-[38px] h-[38px] rounded-[10px] border flex items-center justify-center shrink-0 font-bold text-[13px]"
-                             :class="{
-                                'bg-amber-100 border-amber-300 text-amber-900': order.status === 'HOLD' || order.is_open_bill,
-                                'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a]': ['Completed', 'COMPLETED'].includes(order.status),
-                                'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]': !['Completed', 'COMPLETED'].includes(order.status) && order.status !== 'HOLD' && !order.is_open_bill
-                             }"
-                             x-text="order.table && order.table !== '-' ? String(order.table).replace(/^meja\s*/i, '').padStart(2, '0') : 'TA'">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <!-- Table Badge with Chair Icon -->
+                        <div class="w-[38px] h-[38px] rounded-[10px] border border-[#e6e5e0] bg-[#fbfbfa] flex items-center justify-center shrink-0 font-bold text-[12px] text-[#1e211f] shadow-2xs gap-1">
+                            <i class="fas fa-chair text-[11px] text-[#8b8e93]" x-show="order.table && order.table !== 'TA' && order.table !== '-'"></i>
+                            <i class="fas fa-shopping-bag text-[11px] text-amber-600" x-show="!order.table || order.table === 'TA' || order.table === '-'"></i>
+                            <span x-text="order.table && order.table !== '-' ? String(order.table).replace(/^meja\s*/i, '').padStart(2, '0') : 'TA'"></span>
                         </div>
 
                         <div class="min-w-0">
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="text-[14px] font-bold text-[#1e211f] leading-tight"
-                                      x-text="order.table && order.table !== 'TA' && order.table !== '-' ? (/^meja/i.test(order.table) ? order.table : 'Meja ' + String(order.table).padStart(2, '0')) : (order.type || 'Takeaway')"></span>
-                                <span class="text-[11.5px] font-semibold text-[#8b8e93]" x-text="'#' + order.id"></span>
+                            <!-- Customer Name -->
+                            <h3 class="text-[14.5px] font-bold text-[#1e211f] leading-tight truncate"
+                                x-text="order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') ? order.customer : (order.table && order.table !== 'TA' ? 'Meja ' + String(order.table).replace(/^meja\s*/i, '') : 'Pelanggan Walk-in'))"></h3>
+                            
+                            <!-- Subtitle: Open Bill · Dine In · #42 -->
+                            <div class="flex items-center gap-1.5 text-[11px] font-medium text-[#7f837e] mt-0.5 truncate">
+                                <template x-if="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill">
+                                    <span class="inline-flex items-center gap-1 font-semibold text-amber-700">
+                                        <i class="fas fa-bookmark text-[9.5px]"></i>
+                                        <span>Open Bill</span>
+                                    </span>
+                                </template>
+                                <template x-if="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill">
+                                    <span class="text-[#d8dce2]">•</span>
+                                </template>
+                                
+                                <span class="inline-flex items-center gap-1">
+                                    <i class="fas fa-utensils text-[9px]" x-show="order.type === 'Dine In'"></i>
+                                    <i class="fas fa-shopping-bag text-[9px]" x-show="order.type === 'Takeaway'"></i>
+                                    <span x-text="order.type || 'Dine In'"></span>
+                                </span>
+                                
+                                <span class="text-[#d8dce2]">•</span>
+                                <span class="font-semibold text-[#8b8e93]" x-text="'#' + order.id"></span>
                             </div>
-                            <p class="text-[12px] font-medium text-[#53565a] truncate mt-0.5">
-                                <span x-text="order.customer || 'Walk-in Customer'"></span>
-                                <span class="text-[#d8dce2] mx-1">•</span>
-                                <span class="text-[#8b8e93]" x-text="order.type || 'Dine In'"></span>
-                            </p>
                         </div>
                     </div>
 
-                    <!-- Status Pill & Formatted Time -->
-                    <div class="flex flex-col items-end gap-1.5 shrink-0">
+                    <!-- Right Link: "Lihat Detail ->" -->
+                    <button type="button" @click="viewOrderDetails(order)"
+                            class="text-[#df5826] hover:text-[#b84218] text-[12px] font-semibold flex items-center gap-1 shrink-0 transition cursor-pointer pt-0.5">
+                        <span>Lihat Detail</span>
+                        <i class="fas fa-arrow-right text-[10px]"></i>
+                    </button>
+                </div>
+
+                <!-- SUB-ORDER BODY (Figma Sub-Order Group Layout) -->
+                <div class="bg-[#fcfbf9] border border-[#e6e5e0] rounded-[12px] p-3 flex flex-col gap-2.5">
+                    
+                    <!-- Sub-order Header: #01 Order (N) + Status Badge -->
+                    <div class="flex items-center justify-between gap-2 pb-2 border-b border-[#f0eee9]">
+                        <span class="text-[11.5px] font-bold text-[#1e211f]">
+                            #01 Order (<span x-text="(order.items || []).reduce((s, i) => s + Number(i.qty || 1), 0)"></span>)
+                        </span>
+
+                        <!-- Status Badge Pill -->
                         <span x-show="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill"
-                              class="px-2.5 py-1 rounded-[6px] bg-[#fffbf5] border border-amber-300 text-amber-900 text-[10.5px] font-bold inline-flex items-center gap-1 shadow-2xs">
-                            <i class="fas fa-bookmark text-amber-600 text-[10px]"></i>
+                              class="px-2 py-0.5 rounded-[6px] bg-[#fffbf5] border border-amber-300 text-amber-800 text-[10.5px] font-bold inline-flex items-center gap-1 shadow-2xs">
+                            <i class="fas fa-bookmark text-amber-600 text-[9px]"></i>
                             <span>Open Bill</span>
                         </span>
 
                         <span x-show="(order.status === 'Masuk' || order.status === 'CONFIRMED') && order.status !== 'HOLD' && !order.is_open_bill"
-                              class="px-2.5 py-1 rounded-[6px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] text-[10.5px] font-semibold inline-flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-[#df5826] animate-ping"></span>
+                              class="px-2 py-0.5 rounded-[6px] bg-[#e0f2fe] border border-[#bae6fd] text-[#0369a1] text-[10.5px] font-bold inline-flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#0284c7] animate-ping"></span>
                             <span>Pesanan Baru</span>
                         </span>
 
                         <span x-show="order.status === 'In Progress' || order.status === 'PREPARING'"
-                              class="px-2.5 py-1 rounded-[6px] bg-[#fff6f0] text-[#df5826] text-[10.5px] font-semibold">
-                            Memasak
+                              class="px-2 py-0.5 rounded-[6px] bg-[#f3e8ff] border border-[#e9d5ff] text-[#7e22ce] text-[10.5px] font-bold">
+                            Sedang Dimasak
                         </span>
 
                         <span x-show="order.status === 'Ready' || order.status === 'READY'"
-                              class="px-2.5 py-1 rounded-[6px] bg-[#eaf7ef] text-[#289e5c] text-[10.5px] font-semibold">
+                              class="px-2 py-0.5 rounded-[6px] bg-[#dcfce7] border border-[#bbf7d0] text-[#15803d] text-[10.5px] font-bold">
                             Siap Disajikan
                         </span>
 
                         <span x-show="order.status === 'Completed' || order.status === 'COMPLETED'"
-                              class="px-2.5 py-1 rounded-[6px] bg-[#f1f0ec] text-[#53565a] text-[10.5px] font-semibold">
+                              class="px-2 py-0.5 rounded-[6px] bg-[#f3f4f6] border border-[#e5e7eb] text-[#4b5563] text-[10.5px] font-bold">
                             Selesai
                         </span>
 
                         <span x-show="order.status === 'Dibatalkan' || order.status === 'CANCELLED'"
-                              class="px-2.5 py-1 rounded-[6px] bg-red-50 text-red-600 text-[10.5px] font-semibold">
+                              class="px-2 py-0.5 rounded-[6px] bg-red-50 border border-red-200 text-red-600 text-[10.5px] font-bold">
                             Dibatalkan
                         </span>
-
-                        <div class="flex items-center gap-1 text-[10.5px] font-medium text-[#8b8e93]">
-                            <img src="{{ asset('images/sparta/clock.svg') }}" alt="" class="w-3 h-3 opacity-80">
-                            <span x-text="formatOrderTime(order.time)"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Middle: Items Box -->
-                <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[11px] p-3 my-3.5">
-                    <div class="flex items-center justify-between text-[10px] font-semibold text-[#8b8e93] uppercase tracking-wider pb-2 mb-2 border-b border-[#e6e5e0]">
-                        <span>Daftar Menu (<span x-text="(order.items || []).reduce((s, i) => s + Number(i.qty || 1), 0)"></span> item)</span>
-                        <span>Subtotal</span>
                     </div>
 
-                    <div class="space-y-2 max-h-40 overflow-y-auto hide-scroll">
+                    <!-- Items List -->
+                    <div class="space-y-2 max-h-44 overflow-y-auto hide-scroll">
                         <template x-for="(item, iIdx) in (order.items || [])" :key="iIdx">
-                            <div class="flex items-start justify-between gap-2 text-[12px]"
-                                 :class="['Completed', 'COMPLETED', 'Dibatalkan', 'CANCELLED'].includes(order.status) ? 'text-[#8b8e93] line-through' : 'text-[#1e211f]'">
+                            <div class="flex items-start justify-between gap-2 text-[12px]">
                                 <div class="min-w-0 flex-1">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="font-semibold text-[#df5826] shrink-0" x-text="item.qty + '×'"></span>
-                                        <span class="font-medium truncate" x-text="item.name"></span>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <!-- Serving Type Pill -->
+                                        <template x-if="(item.serving_type || (order.type === 'Takeaway' ? 'TAKEAWAY' : 'DINE_IN')) === 'TAKEAWAY'">
+                                            <span class="px-1.5 py-0.5 rounded bg-[#fff0e6] border border-[#ffd2b8] text-[#df5826] text-[9.5px] font-bold inline-flex items-center gap-1">
+                                                <i class="fas fa-shopping-bag text-[8px]"></i> Takeaway
+                                            </span>
+                                        </template>
+                                        <template x-if="(item.serving_type || (order.type === 'Takeaway' ? 'TAKEAWAY' : 'DINE_IN')) !== 'TAKEAWAY'">
+                                            <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 text-[9.5px] font-bold inline-flex items-center gap-1">
+                                                <i class="fas fa-utensils text-[8px]"></i> Dine In
+                                            </span>
+                                        </template>
+
+                                        <span class="font-bold text-[#111827]" x-text="item.qty + 'x'"></span>
+                                        <span class="font-medium text-[#1e211f] truncate" x-text="item.name"></span>
                                     </div>
                                     <p x-show="item.notes" class="text-[10.5px] text-[#df5826] bg-[#fff6f0] border border-[#f5d5c6] rounded px-1.5 py-0.5 mt-1 inline-block not-italic" x-text="'Catatan: ' + item.notes"></p>
                                 </div>
-                                <span class="font-semibold text-[#111827] shrink-0 whitespace-nowrap" x-text="formatRp((item.price || 0) * (item.qty || 1))"></span>
+                                <span class="font-semibold text-[#111827] shrink-0 whitespace-nowrap text-[11.5px]" x-text="formatRp((item.price || 0) * (item.qty || 1))"></span>
                             </div>
                         </template>
                     </div>
+
+                    <!-- Sub-order Status Action Button (matching Figma dropdown/action button) -->
+                    <template x-if="order.status === 'Masuk' || order.status === 'CONFIRMED'">
+                        <button type="button" @click="updateStatus(order.id, 'In Progress')"
+                                class="w-full py-2 px-3 rounded-[9px] bg-white hover:bg-gray-50 border border-[#d8dce2] text-[#1e211f] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                            <span>Konfirmasi &amp; Masak Pesanan</span>
+                            <i class="fas fa-chevron-right text-[9px] text-[#8b8e93]"></i>
+                        </button>
+                    </template>
+
+                    <template x-if="order.status === 'In Progress' || order.status === 'PREPARING'">
+                        <button type="button" @click="updateStatus(order.id, 'Ready')"
+                                class="w-full py-2 px-3 rounded-[9px] bg-[#faf5ff] hover:bg-purple-100 border border-[#e9d5ff] text-[#7e22ce] text-[11.5px] font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                            <i class="fas fa-check text-[10px]"></i>
+                            <span>Siap Disajikan</span>
+                            <i class="fas fa-chevron-down text-[9px] opacity-60"></i>
+                        </button>
+                    </template>
+
+                    <template x-if="order.status === 'Ready' || order.status === 'READY'">
+                        <button type="button" @click="updateStatus(order.id, 'Completed')"
+                                class="w-full py-2 px-3 rounded-[9px] bg-[#f0fdf4] hover:bg-emerald-100 border border-[#bbf7d0] text-[#15803d] text-[11.5px] font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                            <i class="fas fa-check-double text-[10px]"></i>
+                            <span>Selesaikan Pesanan</span>
+                            <i class="fas fa-chevron-down text-[9px] opacity-60"></i>
+                        </button>
+                    </template>
                 </div>
 
-                <!-- Progress & Total Summary -->
-                <div class="space-y-3">
+                <!-- CARD FOOTER: Total Pembayaran & Action Buttons -->
+                <div class="pt-2 border-t border-[#f0eee9] space-y-2.5">
+                    <!-- Total Row -->
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5 text-[11.5px] text-[#53565a]">
                             <img src="{{ asset('images/sparta/bill-check.svg') }}" alt="" class="w-4 h-4">
                             <span>Total Pembayaran</span>
                         </div>
-                        <span class="text-[16px] font-bold text-[#111827] tracking-[-0.16px]" x-text="formatRp(order.total)"></span>
-                    </div>
-
-                    <!-- Progress Bar -->
-                    <div class="w-full h-[5px] bg-[#e6e5e0] rounded-[3px] overflow-hidden">
-                        <div class="h-full rounded-[3px] transition-all duration-300"
-                             :class="{
-                                'bg-amber-500': order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill,
-                                'bg-[#289e5c]': ['Ready', 'READY', 'Completed', 'COMPLETED'].includes(order.status),
-                                'bg-[#df5826]': !['Ready', 'READY', 'Completed', 'COMPLETED'].includes(order.status) && order.status !== 'HOLD' && !order.is_open_bill
-                             }"
-                             :style="'width: ' + ((order.status === 'HOLD' || order.is_open_bill) ? '40%' : (['Completed', 'COMPLETED'].includes(order.status) ? '100%' : (['Ready', 'READY'].includes(order.status) ? '90%' : (['In Progress', 'PREPARING'].includes(order.status) ? '65%' : '35%'))))"></div>
+                        <span class="text-[15px] font-bold text-[#111827] tracking-tight" x-text="formatRp(order.total)"></span>
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="pt-1">
-                        <!-- 1. OPEN BILL ORDERS (HOLD / UNPAID) -->
+                    <div>
+                        <!-- OPEN BILL CARDS (HOLD / UNPAID): Two buttons matching Figma! -->
                         <template x-if="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill">
-                            <div class="space-y-2 w-full">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button type="button"
-                                       @click="openEditOpenBillModal(order)"
-                                       class="py-[9px] px-3 rounded-[9px] bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[12px] font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
-                                        <i class="fas fa-plus text-[10px] text-amber-700"></i>
-                                        <span>+ Tambah Menu</span>
-                                    </button>
-                                    <a :href="'/admin/pos?recall=' + order.id + '&pay=1'"
-                                       class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-bold shadow-sm hover:opacity-95 transition flex items-center justify-center gap-1.5">
-                                        <i class="fas fa-cash-register text-[11px]"></i>
-                                        <span>Bayar di Kasir</span>
-                                    </a>
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <button type="button" @click="viewOrderDetails(order)"
-                                            class="flex-1 py-[7px] px-2 rounded-[8px] border border-[#d8dce2] bg-white hover:bg-[#f8f9fa] text-[#53565a] text-[11px] font-semibold transition text-center">
-                                        Detail
-                                    </button>
-                                    <button type="button" @click="window.open('/admin/api/orders/' + order.id + '/print?type=kitchen', '_blank')"
-                                            class="py-[7px] px-2.5 rounded-[8px] border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-semibold transition flex items-center gap-1"
-                                            title="Cetak Tiket Dapur / Bar">
-                                        <i class="fas fa-utensils text-[10px]"></i>
-                                        <span>Dapur</span>
-                                    </button>
-                                    <button type="button" @click="window.open('/admin/api/orders/' + order.id + '/print?type=customer', '_blank')"
-                                            class="py-[7px] px-2.5 rounded-[8px] border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 text-[11px] font-semibold transition flex items-center gap-1"
-                                            title="Cetak Bill Sementara">
-                                        <i class="fas fa-receipt text-[10px]"></i>
-                                        <span>Bill</span>
-                                    </button>
-                                </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button"
+                                   @click="openEditOpenBillModal(order)"
+                                   class="py-2 px-2.5 rounded-[9px] bg-white hover:bg-[#f8f9fa] border border-[#d8dce2] hover:border-[#8b8e93] text-[#1e211f] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                                    <i class="fas fa-plus text-[10px] text-[#df5826]"></i>
+                                    <span>Tambah Order</span>
+                                </button>
+                                <a :href="'/admin/pos?recall=' + order.id + '&pay=1'"
+                                   class="py-2 px-2.5 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] hover:opacity-95 text-white text-[11.5px] font-bold shadow-sm transition flex items-center justify-center gap-1.5 text-center">
+                                    <i class="fas fa-cash-register text-[10px]"></i>
+                                    <span>Bayar di Kasir</span>
+                                </a>
                             </div>
                         </template>
 
-                        <!-- 2. STANDARD ORDERS (MASUK / DIPROSES / SELESAI / BATAL) -->
-                        <template x-if="order.status !== 'HOLD' && order.order_status !== 'HOLD' && !order.is_open_bill">
-                            <div class="space-y-1.5 w-full">
-                                <div class="grid grid-cols-2 gap-2.5">
-                                    <button type="button" @click="viewOrderDetails(order)"
-                                            class="py-[9px] px-3 rounded-[9px] border border-[#d8dce2] bg-white hover:bg-[#f8f9fa] text-[#1e211f] text-[12px] font-semibold transition flex items-center justify-center">
-                                        Lihat Detail
-                                    </button>
+                        <!-- REGULAR ACTIVE CARDS (Non-Open Bill) -->
+                        <template x-if="!['Completed', 'COMPLETED', 'Dibatalkan', 'CANCELLED'].includes(order.status) && order.status !== 'HOLD' && order.order_status !== 'HOLD' && !order.is_open_bill">
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button"
+                                   @click="openEditOpenBillModal(order)"
+                                   class="py-2 px-2.5 rounded-[9px] bg-white hover:bg-[#f8f9fa] border border-[#d8dce2] hover:border-[#8b8e93] text-[#1e211f] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+                                    <i class="fas fa-plus text-[10px] text-[#df5826]"></i>
+                                    <span>Tambah Menu</span>
+                                </button>
+                                <button type="button" @click="viewOrderDetails(order)"
+                                        class="py-2 px-2.5 rounded-[9px] bg-[#f8f9fa] hover:bg-[#ede7dc] border border-[#d8dce2] text-[#1e211f] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <span>Lihat Detail</span>
+                                </button>
+                            </div>
+                        </template>
 
-                                    <template x-if="order.status === 'Masuk' || order.status === 'CONFIRMED'">
-                                        <button type="button" @click="updateStatus(order.id, 'In Progress')"
-                                                class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition flex items-center justify-center gap-1.5">
-                                            <span>Terima &amp; Proses</span>
-                                        </button>
-                                    </template>
-
-                                    <template x-if="order.status === 'In Progress' || order.status === 'PREPARING'">
-                                        <button type="button" @click="updateStatus(order.id, 'Ready')"
-                                                class="py-[9px] px-3 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white text-[12px] font-semibold shadow-[0px_1px_2px_rgba(223,88,38,0.18)] hover:opacity-95 transition flex items-center justify-center gap-1.5">
-                                            <img src="{{ asset('images/sparta/check-white.svg') }}" alt="" class="w-3.5 h-3.5">
-                                            <span>Siap Disajikan</span>
-                                        </button>
-                                    </template>
-
-                                    <template x-if="order.status === 'Ready' || order.status === 'READY'">
-                                        <button type="button" @click="updateStatus(order.id, 'Completed')"
-                                                class="py-[9px] px-3 rounded-[9px] bg-[#289e5c] hover:bg-[#21854c] border border-[#289e5c] text-white text-[12px] font-semibold shadow-sm transition flex items-center justify-center gap-1.5">
-                                            <img src="{{ asset('images/sparta/check-white.svg') }}" alt="" class="w-3.5 h-3.5">
-                                            <span>Selesaikan</span>
-                                        </button>
-                                    </template>
-
-                                    <template x-if="order.status === 'Completed' || order.status === 'COMPLETED'">
-                                        <button type="button" disabled
-                                                class="py-[9px] px-3 rounded-[9px] bg-[#f1f0ec] border border-[#e6e5e0] text-[#8b8e93] text-[12px] font-semibold cursor-not-allowed flex items-center justify-center">
-                                            Selesai
-                                        </button>
-                                    </template>
-
-                                    <template x-if="order.status === 'Dibatalkan' || order.status === 'CANCELLED'">
-                                        <button type="button" disabled
-                                                class="py-[9px] px-3 rounded-[9px] bg-red-50 border border-red-200 text-red-400 text-[12px] font-semibold cursor-not-allowed flex items-center justify-center">
-                                            Dibatalkan
-                                        </button>
-                                    </template>
-                                </div>
-
-                                <!-- Shortcut to open in POS and add menu items if still active -->
-                                <template x-if="['Masuk', 'CONFIRMED', 'In Progress', 'PREPARING'].includes(order.status || order.order_status)">
-                                    <button type="button"
-                                       @click="openEditOpenBillModal(order)"
-                                       class="w-full py-[6px] px-2.5 rounded-[8px] bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-[11px] font-semibold transition flex items-center justify-center gap-1 cursor-pointer">
-                                        <i class="fas fa-edit text-[9.5px] text-amber-700"></i>
-                                        <span>+ Tambah Menu ke Pesanan Ini</span>
-                                    </button>
-                                </template>
+                        <!-- REGULAR COMPLETED OR CANCELLED CARDS -->
+                        <template x-if="['Completed', 'COMPLETED', 'Dibatalkan', 'CANCELLED'].includes(order.status)">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[11px] text-[#8b8e93]">
+                                    <span x-text="formatOrderTime(order.time)"></span>
+                                </span>
+                                <button type="button" @click="viewOrderDetails(order)"
+                                        class="py-1.5 px-3 rounded-[8px] border border-[#d8dce2] bg-white hover:bg-gray-50 text-[#53565a] text-[11px] font-semibold transition">
+                                    Lihat Struk
+                                </button>
                             </div>
                         </template>
                     </div>
                 </div>
+
             </div>
         </template>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- MODAL: TAMBAH PESANAN OPEN BILL (DIRECT POPUP)              -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- MODAL: TAMBAH PESANAN OPEN BILL (DIRECT FIGMA FRAME 1597884472) -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
     <div x-show="openBillModal.show" 
          x-cloak 
          @keydown.escape.window="closeOpenBillModal()"
@@ -458,7 +499,7 @@
                                         </p>
                                     </div>
 
-                                    <!-- Price & Stacked Serving Buttons -->
+                                    <!-- Price & TWO Serving Buttons (Direct Dine In & Takeaway) -->
                                     <div class="mt-2 pt-2 border-t border-[#f0eee9] flex flex-col gap-1.5">
                                         <div class="flex items-center justify-between">
                                             <span class="font-bold text-[13px] text-[#111827]" x-text="'Rp ' + formatRp(p.effective_price || p.price)"></span>
@@ -495,7 +536,7 @@
                         <!-- Panel Title -->
                         <div class="flex items-center justify-between">
                             <div>
-                                <h3 class="text-[10px] font-bold tracking-wider text-[#8b8e93] uppercase">CURRENT ORDER</h3>
+                                <h3 class="text-[10px] font-bold tracking-wider text-[#df5826] uppercase">CURRENT ORDER</h3>
                                 <p class="text-[14px] font-bold text-[#111827] leading-tight" x-text="openBillModal.recalledOrderId ? 'Pesanan #' + openBillModal.recalledOrderId : 'Pesanan Baru'"></p>
                             </div>
                             <div class="flex items-center gap-1.5">
@@ -740,19 +781,29 @@
                         </div>
                     </div>
 
-                    <!-- Price Breakdown & Submit Button (Matching Layout) -->
+                    <!-- Price Breakdown & Submit Button (Matching Layout & Collapsible toggle) -->
                     <div class="mt-3 pt-3 border-t border-[#e6e5e0] space-y-2">
-                        <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
-                            <span>Subtotal</span>
-                            <span class="font-semibold text-[#111827]" x-text="'Rp ' + formatRp(openBillCartTotal())"></span>
-                        </div>
-                        <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
-                            <span>Tax (10%)</span>
-                            <span class="font-semibold text-[#111827]" x-text="'Rp ' + formatRp(Math.round(openBillCartTotal() * 0.1))"></span>
-                        </div>
-                        <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
-                            <span>Additional fee</span>
-                            <span class="font-medium text-[#8b8e93]">-</span>
+                        <!-- Collapsible Toggle -->
+                        <button type="button" 
+                                @click="openBillModal.showPriceBreakdown = !openBillModal.showPriceBreakdown"
+                                class="flex items-center justify-between w-full text-[11px] font-semibold text-[#7f837e] hover:text-[#111827] transition cursor-pointer">
+                            <span>Rincian Harga</span>
+                            <i class="fas" :class="openBillModal.showPriceBreakdown ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </button>
+
+                        <div x-show="openBillModal.showPriceBreakdown" class="space-y-1.5 pt-1">
+                            <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
+                                <span>Subtotal</span>
+                                <span class="font-semibold text-[#111827]" x-text="'Rp ' + formatRp(openBillCartTotal())"></span>
+                            </div>
+                            <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
+                                <span>Tax (10%)</span>
+                                <span class="font-semibold text-[#111827]" x-text="'Rp ' + formatRp(Math.round(openBillCartTotal() * 0.1))"></span>
+                            </div>
+                            <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
+                                <span>Additional fee</span>
+                                <span class="font-medium text-[#8b8e93]">-</span>
+                            </div>
                         </div>
 
                         <div class="border-t border-[#e6e5e0] pt-2 flex items-baseline justify-between">

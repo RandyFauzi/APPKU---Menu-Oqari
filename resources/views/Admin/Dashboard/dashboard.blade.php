@@ -729,6 +729,7 @@
                     fulfillmentType: 'DINE_IN',
                     searchQuery: '',
                     selectedCategory: 'all',
+                    showPriceBreakdown: true,
                     products: [],
                     categories: [],
                     cart: [],
@@ -762,7 +763,9 @@
                 menuPage: 1,
                 menuPerPage: 8,
                 selectedMenuIds: [],
-                activeOrderFilter: 'process',
+                activeOrderFilter: 'all',
+                subOrderStatusFilter: 'all',
+                orderFulfillmentFilter: 'all',
                 searchQuery: '',
                 newMenu: { id: null, name: '', price: '', desc: '', categoryId: '', imagePreview: null, cogs: 0, recipes: [] },
                 
@@ -1887,19 +1890,42 @@
                 },
                 get filteredOrders() {
                     let filtered = this.orders;
+
+                    // 1. Primary Tab Filter: 'all', 'open_bill', 'paid' / 'completed'
                     if (this.activeOrderFilter === 'open_bill') {
                         filtered = filtered.filter(o => o.status === 'HOLD' || o.order_status === 'HOLD' || o.is_open_bill);
-                    } else if (this.activeOrderFilter === 'process') {
-                        filtered = filtered.filter(o => ['In Progress', 'PREPARING', 'Ready', 'READY', 'Masuk', 'CONFIRMED'].includes(o.status || o.order_status) && o.status !== 'HOLD' && o.order_status !== 'HOLD' && !o.is_open_bill);
-                    } else if (this.activeOrderFilter === 'completed') {
-                        filtered = filtered.filter(o => ['Completed', 'COMPLETED'].includes(o.status || o.order_status));
+                    } else if (this.activeOrderFilter === 'paid' || this.activeOrderFilter === 'completed') {
+                        filtered = filtered.filter(o => ['Completed', 'COMPLETED'].includes(o.status || o.order_status) || o.payment_status === 'PAID');
+                    }
+
+                    // 2. Secondary Sub-Status Filter: 'all', 'new', 'cooking', 'ready', 'completed'
+                    if (this.subOrderStatusFilter && this.subOrderStatusFilter !== 'all') {
+                        if (this.subOrderStatusFilter === 'new') {
+                            filtered = filtered.filter(o => ['Masuk', 'CONFIRMED'].includes(o.status || o.order_status) && o.status !== 'HOLD' && o.order_status !== 'HOLD' && !o.is_open_bill);
+                        } else if (this.subOrderStatusFilter === 'cooking') {
+                            filtered = filtered.filter(o => ['In Progress', 'PREPARING'].includes(o.status || o.order_status));
+                        } else if (this.subOrderStatusFilter === 'ready') {
+                            filtered = filtered.filter(o => ['Ready', 'READY'].includes(o.status || o.order_status));
+                        } else if (this.subOrderStatusFilter === 'completed') {
+                            filtered = filtered.filter(o => ['Completed', 'COMPLETED'].includes(o.status || o.order_status));
+                        }
+                    }
+
+                    // 3. Fulfillment Type Dropdown Filter: 'all', 'DINE_IN', 'TAKEAWAY', 'DELIVERY'
+                    if (this.orderFulfillmentFilter && this.orderFulfillmentFilter !== 'all') {
+                        const targetFulfillment = this.orderFulfillmentFilter.toUpperCase();
+                        filtered = filtered.filter(o => {
+                            const fType = (o.fulfillment_type || (o.type === 'Dine In' ? 'DINE_IN' : (o.type === 'Takeaway' ? 'TAKEAWAY' : 'DELIVERY'))).toUpperCase();
+                            return fType === targetFulfillment;
+                        });
                     }
                     
+                    // 4. Search Query Filter
                     if (this.searchQuery) {
                         const q = this.searchQuery.toLowerCase();
                         filtered = filtered.filter(o => 
-                            o.customer.toLowerCase().includes(q) || 
-                            o.id.toString().includes(q) ||
+                            (o.customer || '').toLowerCase().includes(q) || 
+                            (o.id || '').toString().includes(q) ||
                             (o.table && o.table.toLowerCase().includes(q))
                         );
                     }
