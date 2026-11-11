@@ -18,11 +18,11 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════ -->
-    <!-- LEVEL 1 FILTER TABS (Figma Frame 1597884473: Semua, Open Bill, Paid) -->
+    <!-- LEVEL 1 FILTER TABS (Figma Frame 1597884473: Semua, Open Bill, Bayar Langsung) -->
     <!-- ═══════════════════════════════════════════════════════════════ -->
     <div class="flex items-center gap-2 mb-3.5 overflow-x-auto hide-scroll">
         <!-- Tab: Semua -->
-        <button type="button" @click="activeOrderFilter = 'all'"
+        <button type="button" @click="setPrimaryOrderFilter('all')"
             :class="activeOrderFilter === 'all' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-bold' : 'bg-white border-[#e6e5e0] text-[#7f837e] hover:text-[#1e211f] font-semibold'"
             class="border rounded-[10px] px-4 py-2 text-[12.5px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap shadow-2xs cursor-pointer">
             <span>Semua</span>
@@ -32,24 +32,25 @@
         </button>
 
         <!-- Tab: Open Bill -->
-        <button type="button" @click="activeOrderFilter = 'open_bill'"
+        <button type="button" @click="setPrimaryOrderFilter('open_bill')"
             :class="activeOrderFilter === 'open_bill' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-bold' : 'bg-white border-[#e6e5e0] text-[#7f837e] hover:text-[#1e211f] font-semibold'"
             class="border rounded-[10px] px-4 py-2 text-[12.5px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap shadow-2xs cursor-pointer">
             <i class="fas fa-bookmark text-[11px] text-amber-600"></i>
             <span>Open Bill</span>
             <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
                   :class="activeOrderFilter === 'open_bill' ? 'bg-[#df5826] text-white font-bold' : 'bg-[#e6e5e0] text-[#53565a]'"
-                  x-text="orders.filter(o => o.status === 'HOLD' || o.order_status === 'HOLD' || o.is_open_bill).length">0</span>
+                  x-text="orders.filter(o => isOpenBillOrder(o)).length">0</span>
         </button>
 
-        <!-- Tab: Paid -->
-        <button type="button" @click="activeOrderFilter = 'paid'"
+        <!-- Tab: Bayar Langsung -->
+        <button type="button" @click="setPrimaryOrderFilter('paid')"
             :class="activeOrderFilter === 'paid' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-bold' : 'bg-white border-[#e6e5e0] text-[#7f837e] hover:text-[#1e211f] font-semibold'"
             class="border rounded-[10px] px-4 py-2 text-[12.5px] leading-none inline-flex items-center gap-2 transition whitespace-nowrap shadow-2xs cursor-pointer">
-            <span>Paid</span>
+            <i class="fas fa-money-bill-wave text-[11px] text-emerald-600"></i>
+            <span>Bayar Langsung</span>
             <span class="px-1.5 py-0.5 rounded-[5px] text-[10.5px]"
                   :class="activeOrderFilter === 'paid' ? 'bg-[#df5826] text-white font-bold' : 'bg-[#e6e5e0] text-[#53565a]'"
-                  x-text="orders.filter(o => ['Completed','COMPLETED'].includes(o.status || o.order_status) || o.payment_status === 'PAID').length">0</span>
+                  x-text="orders.filter(o => isPaidOrder(o)).length">0</span>
         </button>
     </div>
 
@@ -64,7 +65,7 @@
                     :class="subOrderStatusFilter === 'all' ? 'bg-[#111827] text-white font-semibold' : 'bg-[#f8f9fa] border border-[#d8dce2] text-[#53565a] hover:bg-gray-100 font-medium'"
                     class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
                     <span>Semua</span>
-                    <span class="text-[10px] opacity-75" x-text="'(' + orders.length + ')'"></span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + ordersByPrimaryTab.length + ')'"></span>
                 </button>
 
                 <button type="button" @click="subOrderStatusFilter = 'new'"
@@ -72,7 +73,7 @@
                     class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
                     <span class="w-1.5 h-1.5 rounded-full" :class="subOrderStatusFilter === 'new' ? 'bg-white' : 'bg-[#0284c7]'"></span>
                     <span>Pesanan Baru</span>
-                    <span class="text-[10px] opacity-75" x-text="'(' + orders.filter(o => ['Masuk','CONFIRMED'].includes(o.status || o.order_status) && o.status !== 'HOLD' && o.order_status !== 'HOLD' && !o.is_open_bill).length + ')'"></span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + ordersByPrimaryTab.filter(o => getOrderSubStatus(o) === 'new').length + ')'"></span>
                 </button>
 
                 <button type="button" @click="subOrderStatusFilter = 'cooking'"
@@ -80,7 +81,7 @@
                     class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
                     <span class="w-1.5 h-1.5 rounded-full" :class="subOrderStatusFilter === 'cooking' ? 'bg-white' : 'bg-[#7e22ce]'"></span>
                     <span>Sedang Dimasak</span>
-                    <span class="text-[10px] opacity-75" x-text="'(' + orders.filter(o => ['In Progress','PREPARING'].includes(o.status || o.order_status)).length + ')'"></span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + ordersByPrimaryTab.filter(o => getOrderSubStatus(o) === 'cooking').length + ')'"></span>
                 </button>
 
                 <button type="button" @click="subOrderStatusFilter = 'ready'"
@@ -88,14 +89,14 @@
                     class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
                     <span class="w-1.5 h-1.5 rounded-full" :class="subOrderStatusFilter === 'ready' ? 'bg-white' : 'bg-[#15803d]'"></span>
                     <span>Siap Disajikan</span>
-                    <span class="text-[10px] opacity-75" x-text="'(' + orders.filter(o => ['Ready','READY'].includes(o.status || o.order_status)).length + ')'"></span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + ordersByPrimaryTab.filter(o => getOrderSubStatus(o) === 'ready').length + ')'"></span>
                 </button>
 
                 <button type="button" @click="subOrderStatusFilter = 'completed'"
                     :class="subOrderStatusFilter === 'completed' ? 'bg-[#374151] text-white font-semibold shadow-xs' : 'bg-[#f9fafb] border border-[#e5e7eb] text-[#4b5563] hover:bg-gray-100 font-medium'"
                     class="rounded-[8px] px-3 py-1.5 text-[11.5px] leading-none inline-flex items-center gap-1.5 transition whitespace-nowrap cursor-pointer">
                     <span>Selesai</span>
-                    <span class="text-[10px] opacity-75" x-text="'(' + orders.filter(o => ['Completed','COMPLETED'].includes(o.status || o.order_status)).length + ')'"></span>
+                    <span class="text-[10px] opacity-75" x-text="'(' + ordersByPrimaryTab.filter(o => getOrderSubStatus(o) === 'completed').length + ')'"></span>
                 </button>
             </div>
 
@@ -158,13 +159,13 @@
                             
                             <!-- Subtitle: Open Bill · Dine In · #42 -->
                             <div class="flex items-center gap-1.5 text-[11px] font-medium text-[#7f837e] mt-0.5 truncate">
-                                <template x-if="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill">
+                                <template x-if="isOpenBillOrder(order)">
                                     <span class="inline-flex items-center gap-1 font-semibold text-amber-700">
                                         <i class="fas fa-bookmark text-[9.5px]"></i>
                                         <span>Open Bill</span>
                                     </span>
                                 </template>
-                                <template x-if="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill">
+                                <template x-if="isOpenBillOrder(order)">
                                     <span class="text-[#d8dce2]">•</span>
                                 </template>
                                 
@@ -198,34 +199,28 @@
                         </span>
 
                         <!-- Status Badge Pill -->
-                        <span x-show="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill"
-                              class="px-2 py-0.5 rounded-[6px] bg-[#fffbf5] border border-amber-300 text-amber-800 text-[10.5px] font-bold inline-flex items-center gap-1 shadow-2xs">
-                            <i class="fas fa-bookmark text-amber-600 text-[9px]"></i>
-                            <span>Open Bill</span>
-                        </span>
-
-                        <span x-show="(order.status === 'Masuk' || order.status === 'CONFIRMED') && order.status !== 'HOLD' && !order.is_open_bill"
+                        <span x-show="getOrderSubStatus(order) === 'new'"
                               class="px-2 py-0.5 rounded-[6px] bg-[#e0f2fe] border border-[#bae6fd] text-[#0369a1] text-[10.5px] font-bold inline-flex items-center gap-1">
                             <span class="w-1.5 h-1.5 rounded-full bg-[#0284c7] animate-ping"></span>
                             <span>Pesanan Baru</span>
                         </span>
 
-                        <span x-show="order.status === 'In Progress' || order.status === 'PREPARING'"
+                        <span x-show="getOrderSubStatus(order) === 'cooking'"
                               class="px-2 py-0.5 rounded-[6px] bg-[#f3e8ff] border border-[#e9d5ff] text-[#7e22ce] text-[10.5px] font-bold">
                             Sedang Dimasak
                         </span>
 
-                        <span x-show="order.status === 'Ready' || order.status === 'READY'"
+                        <span x-show="getOrderSubStatus(order) === 'ready'"
                               class="px-2 py-0.5 rounded-[6px] bg-[#dcfce7] border border-[#bbf7d0] text-[#15803d] text-[10.5px] font-bold">
                             Siap Disajikan
                         </span>
 
-                        <span x-show="order.status === 'Completed' || order.status === 'COMPLETED'"
+                        <span x-show="getOrderSubStatus(order) === 'completed'"
                               class="px-2 py-0.5 rounded-[6px] bg-[#f3f4f6] border border-[#e5e7eb] text-[#4b5563] text-[10.5px] font-bold">
                             Selesai
                         </span>
 
-                        <span x-show="order.status === 'Dibatalkan' || order.status === 'CANCELLED'"
+                        <span x-show="getOrderSubStatus(order) === 'cancelled'"
                               class="px-2 py-0.5 rounded-[6px] bg-red-50 border border-red-200 text-red-600 text-[10.5px] font-bold">
                             Dibatalkan
                         </span>
@@ -239,7 +234,7 @@
                                     <div class="flex items-center gap-1.5 flex-wrap">
                                         <!-- Serving Type Pill -->
                                         <template x-if="(item.serving_type || (order.type === 'Takeaway' ? 'TAKEAWAY' : 'DINE_IN')) === 'TAKEAWAY'">
-                                            <span class="px-1.5 py-0.5 rounded bg-[#fff0e6] border border-[#ffd2b8] text-[#df5826] text-[9.5px] font-bold inline-flex items-center gap-1">
+                                             <span class="px-1.5 py-0.5 rounded bg-[#fff0e6] border border-[#ffd2b8] text-[#df5826] text-[9.5px] font-bold inline-flex items-center gap-1">
                                                 <i class="fas fa-shopping-bag text-[8px]"></i> Takeaway
                                             </span>
                                         </template>
@@ -260,7 +255,7 @@
                     </div>
 
                     <!-- Sub-order Status Action Button (matching Figma dropdown/action button) -->
-                    <template x-if="order.status === 'Masuk' || order.status === 'CONFIRMED'">
+                    <template x-if="getOrderSubStatus(order) === 'new'">
                         <button type="button" @click="updateStatus(order.id, 'In Progress')"
                                 class="w-full py-2 px-3 rounded-[9px] bg-white hover:bg-gray-50 border border-[#d8dce2] text-[#1e211f] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
                             <span>Konfirmasi &amp; Masak Pesanan</span>
@@ -268,7 +263,7 @@
                         </button>
                     </template>
 
-                    <template x-if="order.status === 'In Progress' || order.status === 'PREPARING'">
+                    <template x-if="getOrderSubStatus(order) === 'cooking'">
                         <button type="button" @click="updateStatus(order.id, 'Ready')"
                                 class="w-full py-2 px-3 rounded-[9px] bg-[#faf5ff] hover:bg-purple-100 border border-[#e9d5ff] text-[#7e22ce] text-[11.5px] font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
                             <i class="fas fa-check text-[10px]"></i>
@@ -277,7 +272,7 @@
                         </button>
                     </template>
 
-                    <template x-if="order.status === 'Ready' || order.status === 'READY'">
+                    <template x-if="getOrderSubStatus(order) === 'ready'">
                         <button type="button" @click="updateStatus(order.id, 'Completed')"
                                 class="w-full py-2 px-3 rounded-[9px] bg-[#f0fdf4] hover:bg-emerald-100 border border-[#bbf7d0] text-[#15803d] text-[11.5px] font-bold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
                             <i class="fas fa-check-double text-[10px]"></i>
@@ -301,7 +296,7 @@
                     <!-- Action Buttons -->
                     <div>
                         <!-- OPEN BILL CARDS (HOLD / UNPAID): Two buttons matching Figma! -->
-                        <template x-if="order.status === 'HOLD' || order.order_status === 'HOLD' || order.is_open_bill">
+                        <template x-if="isOpenBillOrder(order)">
                             <div class="grid grid-cols-2 gap-2">
                                 <button type="button"
                                    @click="openEditOpenBillModal(order)"
@@ -318,7 +313,7 @@
                         </template>
 
                         <!-- REGULAR ACTIVE CARDS (Non-Open Bill) -->
-                        <template x-if="!['Completed', 'COMPLETED', 'Dibatalkan', 'CANCELLED'].includes(order.status) && order.status !== 'HOLD' && order.order_status !== 'HOLD' && !order.is_open_bill">
+                        <template x-if="!['completed', 'cancelled'].includes(getOrderSubStatus(order)) && !isOpenBillOrder(order)">
                             <div class="grid grid-cols-2 gap-2">
                                 <button type="button"
                                    @click="openEditOpenBillModal(order)"
@@ -334,7 +329,7 @@
                         </template>
 
                         <!-- REGULAR COMPLETED OR CANCELLED CARDS -->
-                        <template x-if="['Completed', 'COMPLETED', 'Dibatalkan', 'CANCELLED'].includes(order.status)">
+                        <template x-if="['completed', 'cancelled'].includes(getOrderSubStatus(order))">
                             <div class="flex items-center justify-between gap-2">
                                 <span class="text-[11px] text-[#8b8e93]">
                                     <span x-text="formatOrderTime(order.time)"></span>

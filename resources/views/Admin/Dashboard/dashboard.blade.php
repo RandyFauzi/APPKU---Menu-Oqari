@@ -1888,27 +1888,44 @@
                     }
                     return list;
                 },
-                get filteredOrders() {
-                    let filtered = this.orders;
-
-                    // 1. Primary Tab Filter: 'all', 'open_bill', 'paid' / 'completed'
+                isOpenBillOrder(o) {
+                    if (!o) return false;
+                    if (o.status === 'HOLD' || o.order_status === 'HOLD') return true;
+                    if (o.is_open_bill) return true;
+                    return (o.payment_status === 'UNPAID' && !['Completed', 'COMPLETED', 'Dibatalkan', 'CANCELLED'].includes(o.status || o.order_status));
+                },
+                isPaidOrder(o) {
+                    if (!o) return false;
+                    return !this.isOpenBillOrder(o);
+                },
+                setPrimaryOrderFilter(tab) {
+                    this.activeOrderFilter = tab;
+                    this.subOrderStatusFilter = 'all';
+                },
+                getOrderSubStatus(o) {
+                    if (!o) return 'new';
+                    const s = o.status || o.order_status || '';
+                    if (['Completed', 'COMPLETED'].includes(s)) return 'completed';
+                    if (['Ready', 'READY'].includes(s)) return 'ready';
+                    if (['In Progress', 'PREPARING', 'MEMASAK'].includes(s)) return 'cooking';
+                    if (['Dibatalkan', 'CANCELLED'].includes(s)) return 'cancelled';
+                    return 'new';
+                },
+                get ordersByPrimaryTab() {
                     if (this.activeOrderFilter === 'open_bill') {
-                        filtered = filtered.filter(o => o.status === 'HOLD' || o.order_status === 'HOLD' || o.is_open_bill);
-                    } else if (this.activeOrderFilter === 'paid' || this.activeOrderFilter === 'completed') {
-                        filtered = filtered.filter(o => ['Completed', 'COMPLETED'].includes(o.status || o.order_status) || o.payment_status === 'PAID');
+                        return this.orders.filter(o => this.isOpenBillOrder(o));
                     }
+                    if (this.activeOrderFilter === 'paid' || this.activeOrderFilter === 'completed') {
+                        return this.orders.filter(o => this.isPaidOrder(o));
+                    }
+                    return this.orders;
+                },
+                get filteredOrders() {
+                    let filtered = this.ordersByPrimaryTab;
 
                     // 2. Secondary Sub-Status Filter: 'all', 'new', 'cooking', 'ready', 'completed'
                     if (this.subOrderStatusFilter && this.subOrderStatusFilter !== 'all') {
-                        if (this.subOrderStatusFilter === 'new') {
-                            filtered = filtered.filter(o => ['Masuk', 'CONFIRMED'].includes(o.status || o.order_status) && o.status !== 'HOLD' && o.order_status !== 'HOLD' && !o.is_open_bill);
-                        } else if (this.subOrderStatusFilter === 'cooking') {
-                            filtered = filtered.filter(o => ['In Progress', 'PREPARING'].includes(o.status || o.order_status));
-                        } else if (this.subOrderStatusFilter === 'ready') {
-                            filtered = filtered.filter(o => ['Ready', 'READY'].includes(o.status || o.order_status));
-                        } else if (this.subOrderStatusFilter === 'completed') {
-                            filtered = filtered.filter(o => ['Completed', 'COMPLETED'].includes(o.status || o.order_status));
-                        }
+                        filtered = filtered.filter(o => this.getOrderSubStatus(o) === this.subOrderStatusFilter);
                     }
 
                     // 3. Fulfillment Type Dropdown Filter: 'all', 'DINE_IN', 'TAKEAWAY', 'DELIVERY'
@@ -1925,6 +1942,7 @@
                         const q = this.searchQuery.toLowerCase();
                         filtered = filtered.filter(o => 
                             (o.customer || '').toLowerCase().includes(q) || 
+                            (o.raw_customer_name || '').toLowerCase().includes(q) ||
                             (o.id || '').toString().includes(q) ||
                             (o.table && o.table.toLowerCase().includes(q))
                         );
@@ -1996,7 +2014,6 @@
                     return 'Rp ' + num;
                 },
 
-                orders: [],
                 menuItems: [],
                 formatOrderTime(timeStr) {
                     if (!timeStr) return '--:--';
