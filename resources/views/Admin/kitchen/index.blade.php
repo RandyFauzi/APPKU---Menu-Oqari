@@ -24,14 +24,14 @@
     </style>
     <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="sparta-kitchen min-h-screen bg-[#f6f5f2] text-[#1e211f] antialiased" x-data="kitchenApp()" @refresh-live-orders.window="refresh()">
-<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content flex flex-col min-h-screen bg-[#f6f5f2]">
+<body class="sparta-kitchen min-h-screen bg-white text-[#1e211f] antialiased" x-data="kitchenApp()" @refresh-live-orders.window="refresh()">
+<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content flex flex-col min-h-screen bg-white">
 
     {{-- TOP HEADER BAR (Sparta Style) --}}
-    <header class="h-[52px] bg-[#f6f5f2] border-b border-[#e6e5e0] px-4 lg:px-[26px] flex items-center justify-between shrink-0 sticky top-0 z-20">
+    <header class="h-[52px] bg-white border-b border-[#e6e5e0] px-4 lg:px-[26px] flex items-center justify-between shrink-0 sticky top-0 z-20">
         <div class="flex items-center gap-3">
             <button type="button" @click="$dispatch('toggle-mobile-nav')" aria-label="Buka menu navigasi" aria-controls="app-sidebar"
-                class="w-9 h-9 rounded-lg bg-[#eae8e3] flex items-center justify-center text-[#1e211f] hover:bg-[#dfddd7] transition-colors md:hidden">
+                class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-[#1e211f] hover:bg-gray-200 transition-colors md:hidden">
                 <i class="fas fa-bars text-base"></i>
             </button>
             <div class="flex items-center gap-2">
@@ -153,7 +153,7 @@
                                 </template>
                             </div>
 
-                            <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[10px] p-2.5 space-y-2">
+                            <div class="bg-[#f8f9fa] border border-[#e6e5e0] rounded-[10px] p-2.5 space-y-2">
                                 <template x-for="item in order.items" :key="item.id">
                                     <div class="text-[12px] text-[#1e211f]">
                                         <div class="flex items-baseline gap-1.5">
@@ -252,7 +252,7 @@
                                 </template>
                             </div>
 
-                            <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[10px] p-2.5 space-y-2">
+                            <div class="bg-[#f8f9fa] border border-[#e6e5e0] rounded-[10px] p-2.5 space-y-2">
                                 <template x-for="item in order.items" :key="item.id">
                                     <div class="text-[12px] text-[#1e211f]">
                                         <div class="flex items-baseline gap-1.5">
@@ -348,7 +348,7 @@
                                 </template>
                             </div>
 
-                            <div class="bg-[#f6f5f2] border border-[#e6e5e0] rounded-[10px] p-2.5 space-y-2">
+                            <div class="bg-[#f8f9fa] border border-[#e6e5e0] rounded-[10px] p-2.5 space-y-2">
                                 <template x-for="item in order.items" :key="item.id">
                                     <div class="text-[12px] text-[#53565a]">
                                         <div class="flex items-baseline gap-1.5">

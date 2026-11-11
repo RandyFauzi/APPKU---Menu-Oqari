@@ -26,8 +26,8 @@
     </style>
     <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="sparta-pos bg-[#f6f5f2] text-[#1e211f] min-h-screen w-full antialiased" x-data="posApp()" @keydown.window="handleKey($event)" @refresh-live-orders.window="fetchIncoming()">
-<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content flex flex-col min-h-screen bg-[#f6f5f2]">
+<body class="sparta-pos bg-white text-[#1e211f] min-h-screen w-full antialiased" x-data="posApp()" @keydown.window="handleKey($event)" @refresh-live-orders.window="fetchIncoming()">
+<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content flex flex-col min-h-screen bg-white">
 
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- SHIFT GATE — Blur overlay if no active session             --}}
@@ -58,10 +58,10 @@
 {{-- ═══════════════════════════════════════════════════════════ --}}
 {{-- TOP HEADER (Figma 45:12178)                                 --}}
 {{-- ═══════════════════════════════════════════════════════════ --}}
-<header class="h-[52px] bg-[#f6f5f2] border-b border-[#e6e5e0] px-4 lg:px-[26px] flex items-center justify-between shrink-0 sticky top-0 z-20">
+<header class="h-[52px] bg-white border-b border-[#e6e5e0] px-4 lg:px-[26px] flex items-center justify-between shrink-0 sticky top-0 z-20">
     <div class="flex items-center gap-3">
         <button type="button" @click="$dispatch('toggle-mobile-nav')" aria-label="Buka menu navigasi" aria-controls="app-sidebar"
-            class="w-9 h-9 rounded-lg bg-[#eae8e3] flex items-center justify-center text-[#1e211f] hover:bg-[#dfddd7] transition-colors md:hidden">
+            class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-[#1e211f] hover:bg-gray-200 transition-colors md:hidden">
             <i class="fas fa-bars text-base"></i>
         </button>
         <span class="text-[13px] font-semibold text-[#1e211f]">Kasir</span>
@@ -74,7 +74,7 @@
 
     <div class="flex items-center gap-2 sm:gap-[8px]">
         {{-- Top Search Box --}}
-        <div class="hidden md:flex items-center justify-between bg-[#f1f0ec] border border-[#e6e5e0] h-[34px] w-[220px] px-[10px] rounded-[9px]">
+        <div class="hidden md:flex items-center justify-between bg-[#f8f9fa] border border-[#e6e5e0] h-[34px] w-[220px] px-[10px] rounded-[9px]">
             <div class="flex items-center gap-[7px] flex-1 min-w-0">
                 <img src="{{ asset('images/sparta/search.svg') }}" alt="" class="w-[14px] h-[14px] shrink-0">
                 <input type="text" x-model="search" placeholder="Cari menu atau pesanan…"
@@ -295,7 +295,7 @@
                         x-show="matchesFilter({{ $product->category_id ?? 'null' }}, '{{ addslashes($product->name) }}', {{ (int) ($product->sold_count ?? 0) }}, {{ $product->is_best_seller ? 'true' : 'false' }})"
                         class="product-card group bg-white border border-[#e6e5e0] hover:border-[#df5826]/50 rounded-[18px] overflow-hidden flex flex-col justify-between text-left shadow-[0px_4px_16px_0px_rgba(17,24,39,0.03)] hover:shadow-md transition-all duration-200">
                         {{-- Product Image (Flush to top, matching Figma) --}}
-                        <div class="bg-[#ede7dc] h-[135px] sm:h-[150px] xl:h-[160px] w-full overflow-hidden relative cursor-pointer"
+                        <div class="bg-[#f8f9fa] border-b border-[#e6e5e0] h-[135px] sm:h-[150px] xl:h-[160px] w-full overflow-hidden relative cursor-pointer"
                              @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')">
                             @if($product->has_active_discount)
                                 <span class="absolute top-2.5 right-2.5 z-10 bg-red-600 text-white text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
@@ -310,9 +310,9 @@
                             @if($product->image_url)
                                 <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                             @else
-                                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#f3efe6] to-[#e6dfd1] text-[#8b8e93]">
-                                    <i class="fas fa-mug-hot text-2xl text-[#df5826]/60 mb-1"></i>
-                                    <span class="text-[10px] font-semibold uppercase tracking-wider text-[#8b8e93]">{{ $product->category_name ?? 'Menu' }}</span>
+                                <div class="w-full h-full flex flex-col items-center justify-center bg-[#f8f9fa] text-[#8b8e93]">
+                                    <i class="fas fa-mug-hot text-2xl text-[#df5826]/40 mb-1"></i>
+                                    <span class="text-[10px] font-semibold uppercase tracking-wider text-[#71717a]">{{ $product->category_name ?? 'Menu' }}</span>
                                 </div>
                             @endif
                         </div>
@@ -432,7 +432,7 @@
         class="fixed inset-y-0 right-0 z-40 w-full sm:w-[400px] lg:sticky lg:top-[68px] lg:right-auto lg:bottom-auto lg:z-10 lg:w-[350px] xl:w-[374px] shrink-0 transition-transform duration-300 ease-in-out bg-white border border-[#e6e5e0] lg:rounded-[16px] flex flex-col overflow-hidden shadow-2xl lg:shadow-none h-full h-[100dvh] max-h-[100dvh] lg:h-[calc(100dvh-84px)] lg:max-h-[calc(100dvh-84px)]">
 
         {{-- Mobile Close Bar --}}
-        <div class="lg:hidden flex items-center justify-between px-4 py-3 bg-[#f6f5f2] border-b border-[#e6e5e0] shrink-0">
+        <div class="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-[#e6e5e0] shrink-0">
             <div class="flex items-center gap-2">
                 <span class="text-[13px] font-bold text-[#111827]">Detail Pesanan</span>
                 <span class="bg-[#fff6f0] text-[#df5826] text-[11px] font-bold px-2 py-0.5 rounded-full" x-text="cart.reduce((s,i)=>s+i.qty,0) + ' Item'"></span>

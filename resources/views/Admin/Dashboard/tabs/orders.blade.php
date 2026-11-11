@@ -443,7 +443,7 @@
                                     <span>Tambah Menu</span>
                                 </button>
                                 <button type="button" @click="viewOrderDetails(order)"
-                                        class="py-2 px-2.5 rounded-[9px] bg-[#f8f9fa] hover:bg-[#ede7dc] border border-[#d8dce2] text-[#1e211f] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                        class="py-2 px-2.5 rounded-[9px] bg-[#f8f9fa] hover:bg-gray-100 border border-[#d8dce2] text-[#1e211f] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer">
                                     <span>Lihat Detail</span>
                                 </button>
                             </div>

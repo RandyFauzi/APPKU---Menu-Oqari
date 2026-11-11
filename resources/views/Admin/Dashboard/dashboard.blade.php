@@ -36,7 +36,7 @@
     <!-- Data Scripts removed -->
 
     <style>
-        body { background-color: var(--oq-ivory); color: var(--oq-ink); }
+        body { background-color: #ffffff; color: var(--oq-ink); }
         .hide-scroll::-webkit-scrollbar { display: none; }
         [x-cloak] { display: none !important; }
         .dashed-box { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23CFCFCF' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"); border-radius: 16px; }
@@ -462,7 +462,7 @@
                     <div class="flex flex-col gap-4 max-h-[40vh] overflow-y-auto hide-scroll py-2">
                         <template x-for="(item, idx) in selectedOrder?.items" :key="idx">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-[12px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center"><img x-show="item.image" :src="item.image" class="w-full h-full object-cover"><span x-show="!item.image" class="text-xs font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span></div>
+                                <div class="w-12 h-12 rounded-[12px] bg-[#f4f4f5] border border-gray-100 overflow-hidden shrink-0 flex items-center justify-center"><img x-show="item.image" :src="item.image" class="w-full h-full object-cover"><span x-show="!item.image" class="text-xs font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span></div>
                                 <div class="flex-grow min-w-0">
                                     <h4 class="text-[14px] font-bold text-ink truncate" x-text="item.name"></h4>
                                     <p x-show="item.notes" class="text-[11px] text-gold-600 mt-0.5"><i class="fas fa-comment-dots mr-1"></i> <span x-text="item.notes"></span></p>
@@ -566,7 +566,7 @@
                     <div class="flex flex-col gap-4 max-h-[30vh] overflow-y-auto hide-scroll py-2">
                         <template x-for="(item, idx) in activeIncomingOrder?.items" :key="idx">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-[12px] bg-[#ede7dc] overflow-hidden shrink-0 flex items-center justify-center"><img x-show="item.image" :src="item.image" class="w-full h-full object-cover"><span x-show="!item.image" class="text-xs font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span></div>
+                                <div class="w-12 h-12 rounded-[12px] bg-[#f4f4f5] border border-gray-100 overflow-hidden shrink-0 flex items-center justify-center"><img x-show="item.image" :src="item.image" class="w-full h-full object-cover"><span x-show="!item.image" class="text-xs font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span></div>
                                 <div class="flex-grow min-w-0">
                                     <h4 class="text-[14px] font-bold text-ink truncate" x-text="item.name"></h4>
                                 </div>
