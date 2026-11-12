@@ -194,43 +194,7 @@
             </div>
         </section>
 
-        {{-- 2. OPEN BILL / HELD ORDERS RECALL BAR --}}
-        <template x-if="heldOrders.length > 0">
-            <section class="bg-[#fffbf5] border border-amber-200/90 rounded-[14px] px-[14px] py-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-2xs">
-                <div class="flex items-center gap-2 shrink-0">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span class="text-[11.5px] font-black text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fas fa-bookmark text-amber-600 text-xs"></i>
-                        <span>Tagihan Aktif / Open Bill</span>
-                    </span>
-                    <span class="bg-amber-100 text-amber-800 border border-amber-300 font-bold px-2 py-0.2 rounded-full text-[10px]" x-text="heldOrders.length + ' Meja'"></span>
-                </div>
-                <div class="flex items-center gap-2 overflow-x-auto hide-scroll py-0.5">
-                    <template x-for="held in heldOrders" :key="held.id">
-                        <div class="shrink-0 bg-white border border-amber-200 hover:border-amber-400 rounded-[10px] pl-2.5 pr-1.5 py-1 text-[11.5px] flex items-center gap-2 transition shadow-xs hover:shadow-sm group">
-                            <div class="flex items-center gap-1.5 cursor-pointer" @click="recallOrder(held.id)" title="Buka tagihan untuk bayar / tambah menu">
-                                <span class="font-black text-[#df5826] bg-[#fff6f0] px-1.5 py-0.5 rounded text-[10.5px] border border-[#f5d5c6]" x-text="held.table || ('#' + held.id)"></span>
-                                <span class="font-bold text-[#1e211f] max-w-[90px] truncate" x-text="held.customer_name"></span>
-                                <span class="font-bold text-amber-900">Rp<span x-text="formatRp(held.total)"></span></span>
-                            </div>
-                            <div class="flex items-center gap-0.5 border-l border-gray-200 pl-1.5">
-                                <button type="button" @click.stop="printKitchenTicket(held.id)" class="w-6 h-6 rounded-md hover:bg-emerald-50 text-emerald-600 flex items-center justify-center transition text-[10.5px]" title="Cetak Ulang Tiket Dapur">
-                                    <i class="fas fa-utensils"></i>
-                                </button>
-                                <button type="button" @click.stop="printTempBill(held.id)" class="w-6 h-6 rounded-md hover:bg-blue-50 text-blue-600 flex items-center justify-center transition text-[10.5px]" title="Cetak Bill Sementara (Proforma)">
-                                    <i class="fas fa-receipt"></i>
-                                </button>
-                                <button type="button" @click.stop="cancelHeldBill(held.id)" class="w-6 h-6 rounded-md hover:bg-red-50 text-red-500 flex items-center justify-center transition text-[10.5px]" title="Batalkan Tagihan Meja">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </section>
-        </template>
-
-        {{-- 3. MENU CATALOG SECTION (Figma 45:12312) --}}
+        {{-- 2. MENU CATALOG SECTION (Figma 45:12312) --}}
         <section class="bg-white border border-[#e6e5e0] rounded-[16px] p-[14px] flex flex-col">
             {{-- Search & Category Filter Row (Figma 45:12313) --}}
             <div class="pb-[12px] border-b border-[#e6e5e0] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-[12px]">
