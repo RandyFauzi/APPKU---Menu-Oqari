@@ -2182,9 +2182,13 @@
                 getTopProductsList() {
                     const period = this.topProductsFilter || 'today';
                     const periodList = this.analytics?.topProductsByPeriod?.[period];
-                    const sourceList = Array.isArray(periodList)
+                    let sourceList = Array.isArray(periodList)
                         ? periodList
                         : (period === 'today' && Array.isArray(this.analytics?.topProducts) ? this.analytics.topProducts : []);
+
+                    if ((!sourceList || sourceList.length === 0) && Array.isArray(this.orders) && this.orders.length > 0) {
+                        sourceList = this.calculateTopProductsFromOrders(period);
+                    }
 
                     if (Array.isArray(sourceList) && sourceList.length > 0) {
                         return sourceList.map((p, idx) => ({
@@ -2196,6 +2200,69 @@
                         }));
                     }
                     return [];
+                },
+                calculateTopProductsFromOrders(period) {
+                    if (!Array.isArray(this.orders) || this.orders.length === 0) return [];
+
+                    const now = new Date();
+                    const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+                    // Start of week (Monday)
+                    const day = now.getDay();
+                    const diffToMonday = (day === 0 ? -6 : 1) - day;
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() + diffToMonday);
+                    startOfWeek.setHours(0, 0, 0, 0);
+
+                    // Start of month
+                    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+
+                    const validOrders = this.orders.filter(o => {
+                        const status = String(o.status || o.order_status || '').toUpperCase();
+                        if (['DIBATALKAN', 'CANCELLED'].includes(status)) return false;
+
+                        const rawTime = o.time || o.created_at;
+                        if (!rawTime) return false;
+                        const orderDate = new Date(rawTime);
+                        if (isNaN(orderDate.getTime())) return false;
+
+                        if (period === 'today') {
+                            const oDateStr = orderDate.getFullYear() + '-' + String(orderDate.getMonth() + 1).padStart(2, '0') + '-' + String(orderDate.getDate()).padStart(2, '0');
+                            return oDateStr === todayStr;
+                        } else if (period === 'week') {
+                            return orderDate >= startOfWeek;
+                        } else if (period === 'month') {
+                            return orderDate >= startOfMonth;
+                        }
+                        return true;
+                    });
+
+                    const productMap = {};
+                    validOrders.forEach(o => {
+                        (o.items || []).forEach(item => {
+                            const name = item.name || 'Produk';
+                            const qty = parseInt(item.qty || 1);
+                            const price = parseFloat(item.price || 0);
+                            if (!productMap[name]) {
+                                productMap[name] = {
+                                    name: name,
+                                    sold: 0,
+                                    revenue: 0,
+                                    image: item.image || null
+                                };
+                            }
+                            productMap[name].sold += qty;
+                            productMap[name].revenue += (price * qty);
+                            if (!productMap[name].image && item.image) {
+                                productMap[name].image = item.image;
+                            }
+                        });
+                    });
+
+                    return Object.values(productMap)
+                        .sort((a, b) => b.sold - a.sold)
+                        .slice(0, 5)
+                        .map((p, idx) => ({ ...p, rank: idx + 1 }));
                 },
                 getBusyHoursBars() {
                     if (Array.isArray(this.analytics?.busyHours?.bars) && this.analytics.busyHours.bars.length > 0) {
@@ -3122,7 +3189,9 @@ async initAnalytics() {
     if (!this.can('view-reports')) { this.isLoadingAnalytics = false; return; }
     this.isLoadingAnalytics = true;
     try {
-        const res = await fetch('/admin/api/dashboard/analytics');
+        const res = await fetch('/admin/api/dashboard/analytics?t=' + new Date().getTime(), {
+            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+        });
         if (res.ok) {
             this.analytics = await res.json();
         }
