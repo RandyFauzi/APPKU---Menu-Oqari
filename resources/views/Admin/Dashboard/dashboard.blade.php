@@ -412,94 +412,134 @@
             </div>
         </div>
 
-        <!-- MODAL: ORDER DETAIL -->
-        <div x-show="showOrderDetailModal" x-cloak class="fixed inset-0 z-[200] flex items-center justify-center p-4 font-sans sm:items-center sm:p-0">
+        <!-- MODAL: ORDER DETAIL (Redesigned Sparta Style) -->
+        <div x-show="showOrderDetailModal" x-cloak class="fixed inset-0 z-[200] flex items-center justify-center p-4 font-sans bg-black/40 backdrop-blur-xs" x-transition.opacity>
             <!-- Backdrop -->
-            <div @click="showOrderDetailModal = false" class="absolute inset-0 bg-black/25 backdrop-blur-[2px] transition-opacity"></div>
+            <div @click="showOrderDetailModal = false" class="absolute inset-0"></div>
             
             <!-- Modal Content -->
-            <div class="relative bg-ivory w-full sm:w-[520px] rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col border border-line overflow-hidden" @keydown.escape.window="showOrderDetailModal = false" x-show="selectedOrder"
+            <div class="relative bg-white w-full sm:w-[500px] rounded-[24px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] flex flex-col border border-[#e9ebf0] overflow-hidden mx-auto my-auto" 
+                 @keydown.escape.window="showOrderDetailModal = false" 
+                 x-show="selectedOrder"
                  x-transition:enter="transition ease-out duration-300 transform"
-                 x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                 x-transition:enter-start="opacity-0 translate-y-6 scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                  x-transition:leave="transition ease-in duration-200 transform"
                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                  x-transition:leave-end="opacity-0 translate-y-4 scale-95">
 
                 <!-- Header -->
-                <div class="p-6 bg-ivory border-b border-line flex justify-between items-start">
-                    <div class="flex gap-4">
-                        <div class="w-12 h-12 rounded-[14px] bg-primary text-white flex items-center justify-center shadow-sm shrink-0">
-                            <i class="fas fa-receipt text-xl"></i>
+                <div class="p-5 sm:p-6 bg-white border-b border-[#f0f0ee] flex items-center justify-between shrink-0">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-11 h-11 rounded-[14px] bg-[#fff6f0] border border-[#ffdec9] text-[#df5826] flex items-center justify-center text-lg shrink-0 shadow-2xs">
+                            <i class="fas fa-receipt"></i>
                         </div>
-                        <div class="flex flex-col justify-center">
-                            <h2 class="text-[18px] font-bold text-primary leading-tight mb-1" x-text="'Struk Pesanan #' + (selectedOrder ? selectedOrder.id : '')"></h2>
-                            <p class="text-[13px] font-mono text-muted" x-text="selectedOrder ? formatOrderTime(selectedOrder.time) : ''"></p>
+                        <div>
+                            <h2 class="text-[17px] font-bold text-[#111827] leading-tight flex items-center gap-1.5">
+                                <span>Detail Pesanan</span>
+                                <span class="text-[#df5826]" x-text="'#' + (selectedOrder ? selectedOrder.id : '')"></span>
+                            </h2>
+                            <p class="text-[11.5px] text-[#7f837e] flex items-center gap-1.5 mt-0.5">
+                                <i class="far fa-clock text-[10.5px]"></i>
+                                <span x-text="selectedOrder ? formatOrderTime(selectedOrder.time) : ''"></span>
+                            </p>
                         </div>
                     </div>
 
-                    <button @click="showOrderDetailModal = false" class="w-10 h-10 flex items-center justify-center rounded-[12px] bg-white border border-line text-muted hover:text-ink hover:bg-gray-50 transition-colors shrink-0">
-                        <i class="fas fa-times text-lg"></i>
+                    <button type="button" 
+                            @click="showOrderDetailModal = false" 
+                            class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 flex items-center justify-center transition cursor-pointer"
+                            title="Tutup Modal">
+                        <i class="fas fa-times text-sm"></i>
                     </button>
                 </div>
 
-                <!-- Body -->
-                <div class="px-6 py-5 bg-white relative">
-                    <!-- Order Number & Type -->
-                    <div class="flex gap-4 items-center mt-2 mb-6">
-                        <div class="w-12 h-12 rounded-[14px] bg-ivory border border-line text-ink flex items-center justify-center shrink-0">
-                            <i class="fas fa-user text-lg"></i>
+                <!-- Customer & Fulfillment Card -->
+                <div class="p-5 sm:p-6 pb-2 bg-white flex flex-col gap-3">
+                    <div class="bg-[#fafaf9] rounded-[14px] p-3.5 border border-[#e9ebf0] flex items-center justify-between">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-9 h-9 rounded-[10px] bg-white border border-[#e6e5e0] text-[#df5826] flex items-center justify-center text-sm shrink-0 shadow-2xs">
+                                <i class="far fa-user"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h3 class="text-[13.5px] font-bold text-[#111827] truncate leading-tight" x-text="selectedOrder?.customer || 'Walk-in Customer'"></h3>
+                                <p class="text-[11px] text-[#7f837e] mt-0.5 truncate" x-text="(selectedOrder?.type || 'Takeaway') + ((selectedOrder?.type === 'Dine-in' || selectedOrder?.type === 'Dine In') && selectedOrder?.table && selectedOrder.table !== '-' && selectedOrder.table !== 'TA' ? ' (' + selectedOrder.table + ')' : '')"></p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-[18px] font-bold text-ink mb-1" x-text="selectedOrder?.customer"></h3>
-                            <p class="text-[13px] text-muted" x-text="(selectedOrder?.type || 'Takeaway') + ((selectedOrder?.type === 'Dine-in' || selectedOrder?.type === 'Dine In') && selectedOrder?.table ? ' (' + selectedOrder.table + ')' : '')"></p>
-                        </div>
+
+                        <!-- Fulfillment Pill -->
+                        <span class="px-2.5 py-1 rounded-[8px] text-[10.5px] font-bold border shadow-2xs flex items-center gap-1.5 shrink-0"
+                              :class="selectedOrder?.type === 'Delivery' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#bfdbfe]' : (selectedOrder?.type === 'Takeaway' ? 'bg-[#fff6f0] text-[#df5826] border-[#ffdec9]' : 'bg-[#eafbf2] text-[#00643b] border-[#a6f0c6]')">
+                            <i :class="selectedOrder?.type === 'Delivery' ? 'fas fa-truck' : (selectedOrder?.type === 'Takeaway' ? 'fas fa-bag-shopping' : 'fas fa-utensils')" class="text-[10px]"></i>
+                            <span x-text="selectedOrder?.type || 'Dine In'"></span>
+                        </span>
                     </div>
 
-                    <div class="border-t border-dashed border-line my-4"></div>
+                    <!-- Section Title -->
+                    <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#7f837e] px-1 pt-1">
+                        <span>Daftar Menu</span>
+                        <span x-text="(selectedOrder?.items ? selectedOrder.items.length : 0) + ' Item'"></span>
+                    </div>
+                </div>
 
-                    <!-- Items -->
-                    <div class="flex flex-col gap-4 max-h-[40vh] overflow-y-auto hide-scroll py-2">
-                        <template x-for="(item, idx) in selectedOrder?.items" :key="idx">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-[12px] bg-[#f4f4f5] border border-gray-100 overflow-hidden shrink-0 flex items-center justify-center"><img x-show="item.image" :src="item.image" class="w-full h-full object-cover"><span x-show="!item.image" class="text-xs font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span></div>
-                                <div class="flex-grow min-w-0">
-                                    <h4 class="text-[14px] font-bold text-ink truncate" x-text="item.name"></h4>
-                                    <p x-show="item.notes" class="text-[11px] text-gold-600 mt-0.5"><i class="fas fa-comment-dots mr-1"></i> <span x-text="item.notes"></span></p>
-                                </div>
-                                <div class="text-[13px] font-bold text-muted w-8 text-center shrink-0" x-text="item.qty + 'x'"></div>
-                                <div class="text-[14px] font-bold text-ink w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
+                <!-- Items Scrollable List -->
+                <div class="px-5 sm:px-6 py-2 flex-grow overflow-y-auto max-h-[35vh] custom-scroll space-y-2 bg-white">
+                    <template x-for="(item, idx) in selectedOrder?.items" :key="idx">
+                        <div class="p-2.5 rounded-[12px] border border-[#f0f0ee] bg-white hover:border-[#df5826]/30 transition flex items-center gap-3">
+                            <!-- Thumbnail / Icon -->
+                            <div class="w-10 h-10 rounded-[10px] bg-[#f8f9fa] border border-[#e9ebf0] overflow-hidden shrink-0 flex items-center justify-center">
+                                <img x-show="item.image" :src="item.image" class="w-full h-full object-cover">
+                                <span x-show="!item.image" class="text-[11px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
                             </div>
-                        </template>
+
+                            <!-- Details -->
+                            <div class="flex-grow min-w-0">
+                                <h4 class="text-[13px] font-bold text-[#111827] truncate leading-tight" x-text="item.name"></h4>
+                                <p x-show="item.notes" class="text-[10.5px] text-[#df5826] font-medium flex items-center gap-1 mt-0.5">
+                                    <i class="fas fa-comment-dots text-[9px]"></i>
+                                    <span x-text="item.notes"></span>
+                                </p>
+                            </div>
+
+                            <!-- Qty & Price -->
+                            <div class="text-[11.5px] font-bold text-[#7f837e] px-2 py-0.5 bg-gray-100 rounded-[6px] shrink-0" x-text="item.qty + 'x'"></div>
+                            <div class="text-[13px] font-extrabold text-[#111827] w-24 text-right shrink-0" x-text="formatRp(item.price * item.qty)"></div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Total & Payment Summary -->
+                <div class="px-5 sm:px-6 py-3.5 bg-[#fafaf9] border-t border-[#e9ebf0] flex items-center justify-between">
+                    <div>
+                        <p class="text-[10.5px] uppercase font-bold text-[#7f837e] tracking-wider mb-0.5">Total Harga</p>
+                        <p class="text-[20px] font-extrabold text-[#df5826] leading-none" x-text="selectedOrder ? formatRp(selectedOrder.total) : '0'"></p>
                     </div>
 
-                    <div class="border-t border-dashed border-line my-4"></div>
-
-                    <!-- Total & Payment -->
-                    <div class="flex justify-between items-end mb-2 mt-4">
-                        <div>
-                            <p class="text-[13px] font-bold text-ink mb-1">Total Harga</p>
-                            <p class="text-[26px] font-bold text-primary" x-text="selectedOrder ? formatRp(selectedOrder.total) : '0'"></p>
+                    <!-- Payment Status Badge -->
+                    <div class="bg-white rounded-[10px] px-3 py-1.5 flex items-center gap-2 border border-[#e9ebf0] shadow-2xs">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
+                             :class="(selectedOrder?.payment_status === 'PAID' || selectedOrder?.status === 'COMPLETED' || selectedOrder?.order_status === 'COMPLETED') ? 'bg-[#00643b] text-white' : 'bg-[#df5826] text-white'">
+                            <i :class="(selectedOrder?.payment_status === 'PAID' || selectedOrder?.status === 'COMPLETED' || selectedOrder?.order_status === 'COMPLETED') ? 'fas fa-check' : 'fas fa-clock'"></i>
                         </div>
-
-                        <!-- Payment Badge -->
-                        <div class="bg-brand-100 rounded-[12px] px-4 py-2.5 flex items-start gap-2.5">
-                            <i class="fas fa-check-circle text-primary mt-0.5"></i>
-                            <div>
-                                <p class="text-[13px] font-bold text-primary leading-none mb-1.5">Pembayaran</p>
-                                <p class="text-[11px] font-medium text-primary/80 leading-none">QRIS / Online</p>
-                            </div>
+                        <div>
+                            <p class="text-[11px] font-bold text-[#111827] leading-none mb-0.5" x-text="(selectedOrder?.payment_status === 'PAID' || selectedOrder?.status === 'COMPLETED') ? 'Pembayaran Lunas' : 'Belum Lunas'"></p>
+                            <p class="text-[9.5px] font-medium text-[#7f837e] leading-none" x-text="selectedOrder?.payment_method || 'QRIS / Online'"></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Footer Actions -->
-                <div class="p-4 bg-ivory border-t border-line flex gap-3">
-                    <button @click="showOrderDetailModal = false" class="w-1/3 py-3.5 rounded-[16px] text-[15px] font-bold text-muted bg-white border border-line hover:text-ink hover:bg-gray-50 transition-all flex justify-center items-center">
+                <div class="p-4 sm:p-5 bg-white border-t border-[#e9ebf0] flex items-center gap-3 shrink-0">
+                    <button type="button" 
+                            @click="showOrderDetailModal = false" 
+                            class="w-1/3 py-2.5 px-4 rounded-[12px] text-[13px] font-semibold text-[#53565a] bg-white border border-[#e9ebf0] hover:bg-gray-50 hover:text-[#111827] transition cursor-pointer text-center">
                         Tutup
                     </button>
-                    <button @click="window.open('/admin/api/orders/' + selectedOrder.id + '/print', '_blank')" class="w-2/3 py-3.5 rounded-[16px] text-[15px] font-bold bg-primary text-white shadow-sm hover:bg-[#123A2A] hover:-translate-y-0.5 transition-all flex justify-center items-center gap-2">
-                        <i class="fas fa-print"></i> Cetak Struk
+                    <button type="button" 
+                            @click="window.open('/admin/api/orders/' + selectedOrder.id + '/print', '_blank')" 
+                            class="w-2/3 py-2.5 px-4 rounded-[12px] text-[13px] font-bold bg-[#df5826] hover:bg-[#c94d00] active:scale-[0.98] text-white shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fas fa-print text-xs"></i>
+                        <span>Cetak Struk</span>
                     </button>
                 </div>
             </div>
