@@ -44,7 +44,7 @@
 
     <main id="register-content" class="flex-1 w-full p-4 md:p-[24px] space-y-5">
 
-        {{-- PAGE TITLE --}}
+        {{-- PAGE TITLE & TOP ACTIONS --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <p class="text-[11px] font-semibold text-[#df5826] uppercase tracking-[0.22px]">Operasional &amp; Kasir</p>
@@ -52,7 +52,7 @@
                     Rekonsiliasi Kas
                 </h1>
                 <p class="text-[12px] text-[#7f837e] mt-0.5">
-                    Periksa kas fisik selama shift dan simpan hasil akhir saat menutup kasir.
+                    Hitung dan cocokkan uang fisik di laci kasir dengan catatan sistem saat menutup shift.
                 </p>
             </div>
 
@@ -92,18 +92,19 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
                 {{-- CARD 1: RINGKASAN KAS SISTEM (SHIFT AKTIF) --}}
-                <section aria-labelledby="summary-heading" class="lg:col-span-5 bg-white border border-[#e6e5e0] rounded-[16px] p-5 md:p-6 relative overflow-hidden shadow-[0px_3px_12px_rgba(38,39,35,0.04)] flex flex-col justify-between">
+                <section aria-labelledby="summary-heading" class="lg:col-span-5 bg-white border border-[#e6e5e0] rounded-[20px] p-5 md:p-6 relative overflow-hidden shadow-[0px_3px_12px_rgba(38,39,35,0.04)] flex flex-col justify-between">
                     {{-- Accent top border --}}
                     <div class="h-1 bg-gradient-to-r from-[#f06428] to-[#df5826] absolute top-0 inset-x-0"></div>
 
                     <div>
-                        <div class="flex items-start justify-between gap-2 pb-3.5 border-b border-[#e6e5e0]">
+                        {{-- Shift Header Pill --}}
+                        <div class="flex items-start justify-between gap-2 pb-3.5 border-b border-[#f0f0ee]">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-9 h-9 rounded-xl bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center font-bold text-xs shrink-0">
+                                <div class="w-10 h-10 rounded-[12px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
                                     <i class="fas fa-receipt"></i>
                                 </div>
                                 <div>
-                                    <h2 id="summary-heading" class="text-sm font-bold text-[#111827]">Shift Aktif #{{ $activeSession->id }}</h2>
+                                    <h2 id="summary-heading" class="text-[14px] font-bold text-[#111827]">Shift Aktif #{{ $activeSession->id }}</h2>
                                     <p class="text-[11px] text-[#7f837e]">
                                         {{ auth()->user()->name }} · {{ $activeSession->register->name }}
                                     </p>
@@ -116,92 +117,93 @@
                         </div>
 
                         <p class="text-[11.5px] text-[#53565a] mt-3">
-                            <i class="far fa-clock text-[#7f837e] mr-1"></i>Dibuka {{ $activeSession->opened_at?->format('d/m/Y H:i') }} ({{ config('app.timezone') }})
+                            <i class="far fa-clock text-[#7f837e] mr-1"></i>Dibuka {{ $activeSession->opened_at?->timezone(config('attendance.timezone') ?? config('app.timezone'))->format('d/m/Y H:i') }}
                         </p>
+
+                        {{-- Big Highlighted Box: Kas Seharusnya (Hero Target) --}}
+                        <div class="mt-3.5 p-4 rounded-[16px] bg-[#fff8f3] border border-[#f5d5c6] shadow-2xs">
+                            <span class="text-[10.5px] font-bold uppercase tracking-wider text-[#df5826] block">Kas seharusnya</span>
+                            <div class="text-[24px] font-extrabold text-[#111827] mt-0.5 leading-tight">
+                                Rp {{ number_format($breakdown['expected_cash'], 2, ',', '.') }}
+                            </div>
+                            <p class="text-[11px] text-[#7f837e] mt-1">
+                                Target nominal saldo uang tunai yang harus ada di dalam laci kasir saat ini.
+                            </p>
+                        </div>
 
                         {{-- Calculation Breakdown Table --}}
                         <dl class="mt-4 space-y-2 text-xs">
-                            <div class="flex justify-between items-center py-1.5 border-b border-gray-100">
-                                <dt class="text-[#53565a]">Modal awal:</dt>
+                            <div class="flex justify-between items-center py-1.5 border-b border-[#f0f0ee]">
+                                <dt class="text-[#53565a]">Modal awal kas:</dt>
                                 <dd class="font-semibold text-[#111827]">Rp {{ number_format($breakdown['opening_cash'], 2, ',', '.') }}</dd>
                             </div>
-                            <div class="flex justify-between items-center py-1.5 border-b border-gray-100">
+                            <div class="flex justify-between items-center py-1.5 border-b border-[#f0f0ee]">
                                 <dt class="text-[#53565a]">Penjualan tunai:</dt>
-                                <dd class="font-semibold text-emerald-600">+ Rp {{ number_format($breakdown['cash_sales'], 2, ',', '.') }}</dd>
+                                <dd class="font-bold text-emerald-600">+ Rp {{ number_format($breakdown['cash_sales'], 2, ',', '.') }}</dd>
                             </div>
-                            <div class="flex justify-between items-center py-1.5 border-b border-gray-100">
+                            <div class="flex justify-between items-center py-1.5 border-b border-[#f0f0ee]">
                                 <dt class="text-[#53565a]">Kas masuk lainnya:</dt>
                                 <dd class="font-semibold text-emerald-600">+ Rp {{ number_format($breakdown['cash_in'], 2, ',', '.') }}</dd>
                             </div>
-                            <div class="flex justify-between items-center py-1.5 border-b border-gray-100">
+                            <div class="flex justify-between items-center py-1.5 border-b border-[#f0f0ee]">
                                 <dt class="text-[#53565a]">Kas keluar:</dt>
                                 <dd class="font-semibold text-red-600">− Rp {{ number_format($breakdown['cash_out'], 2, ',', '.') }}</dd>
-                            </div>
-
-                            {{-- Highlighted Box: Kas Seharusnya --}}
-                            <div class="mt-3 p-3.5 rounded-xl bg-[#fff8f3] border border-[#f5d5c6] flex items-center justify-between">
-                                <div>
-                                    <dt class="text-[11px] font-bold uppercase tracking-wider text-[#df5826]">Kas seharusnya</dt>
-                                    <p class="text-[10px] text-[#7f837e]">Nominal saldo tunai sistem</p>
-                                </div>
-                                <dd class="text-lg font-bold text-[#111827]">
-                                    Rp {{ number_format($breakdown['expected_cash'], 2, ',', '.') }}
-                                </dd>
                             </div>
                         </dl>
 
                         {{-- Non-Cash Breakdown --}}
-                        <div class="mt-4 p-3.5 rounded-xl bg-gray-50 border border-[#e6e5e0] text-xs">
-                            <h3 class="font-bold text-[#111827] flex items-center gap-1.5 mb-2">
-                                <i class="fas fa-credit-card text-[#7f837e]"></i>
-                                <span>Pembayaran nontunai (di luar laci kas)</span>
-                            </h3>
-                            <div class="grid grid-cols-2 gap-2 text-[11.5px]">
-                                <div class="bg-white p-2 rounded-lg border border-gray-200">
-                                    <span class="text-[#7f837e] block text-[10px]">QRIS</span>
+                        <div class="mt-4 p-3 rounded-[14px] bg-[#fafaf9] border border-[#e6e5e0] text-xs">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="font-bold text-[#111827] flex items-center gap-1.5 text-[11.5px]">
+                                    <i class="fas fa-credit-card text-[#7f837e]"></i>
+                                    <span>Nontunai (Masuk ke Rekening / QRIS)</span>
+                                </span>
+                                <span class="text-[10px] text-gray-500 font-medium">Di luar laci kas</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+                                <div class="bg-white p-2 rounded-[8px] border border-gray-200">
+                                    <span class="text-[#7f837e] block text-[9.5px]">QRIS</span>
                                     <span class="font-bold text-[#111827]">Rp {{ number_format($activeSession->total_qris_sales, 2, ',', '.') }}</span>
                                 </div>
-                                <div class="bg-white p-2 rounded-lg border border-gray-200">
-                                    <span class="text-[#7f837e] block text-[10px]">Kartu/lainnya</span>
+                                <div class="bg-white p-2 rounded-[8px] border border-gray-200">
+                                    <span class="text-[#7f837e] block text-[9.5px]">Kartu / EDC</span>
                                     <span class="font-bold text-[#111827]">Rp {{ number_format($activeSession->total_other_sales, 2, ',', '.') }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-3 border-t border-[#e6e5e0]">
+                    <div class="mt-4 pt-3 border-t border-[#f0f0ee] flex items-center justify-between">
                         <a href="{{ route('admin.register.index') }}" 
-                           class="inline-flex items-center gap-2 px-3.5 py-2 rounded-[9px] bg-white border border-[#d8dce2] text-xs font-semibold text-[#53565a] hover:bg-gray-50 hover:text-[#111827] transition shadow-2xs">
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] bg-white border border-[#d8dce2] text-xs font-semibold text-[#53565a] hover:bg-gray-50 hover:text-[#111827] transition shadow-2xs">
                             <i class="fas fa-rotate text-xs text-[#df5826]"></i>
                             <span>Perbarui Angka Kas</span>
                         </a>
-                        <p class="text-[10.5px] text-[#7f837e] mt-1.5">
-                            Angka berlaku saat halaman dibuka. Selesaikan seluruh transaksi kasir sebelum tutup shift.
-                        </p>
+                        <span class="text-[10.5px] text-[#7f837e]">Angka realtime sesi</span>
                     </div>
                 </section>
 
                 {{-- CARD 2: HITUNG FISIK & HITUNG SELISIH REALTIME --}}
-                <section aria-labelledby="count-heading" class="lg:col-span-7 bg-white border border-[#e6e5e0] rounded-[16px] p-5 md:p-6 shadow-[0px_3px_12px_rgba(38,39,35,0.04)]"
+                <section aria-labelledby="count-heading" class="lg:col-span-7 bg-white border border-[#e6e5e0] rounded-[20px] p-5 md:p-6 shadow-[0px_3px_12px_rgba(38,39,35,0.04)]"
                          x-data="cashReconciliation({{ Illuminate\Support\Js::from($breakdown['expected_cash']) }}, {{ Illuminate\Support\Js::from(old('actual_cash', '')) }})">
                     
-                    <div class="flex items-center justify-between pb-3.5 border-b border-[#e6e5e0]">
+                    <div class="flex items-center justify-between pb-3.5 border-b border-[#f0f0ee]">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
+                            <div class="w-10 h-10 rounded-[12px] bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
                                 <i class="fas fa-calculator"></i>
                             </div>
                             <div>
-                                <h2 id="count-heading" class="text-sm font-bold text-[#111827]">Hitung Fisik &amp; Tutup Shift</h2>
-                                <p class="text-[11px] text-[#7f837e]">Masukkan uang tunai hasil hitungan fisik di laci kasir.</p>
+                                <h2 id="count-heading" class="text-[14px] font-bold text-[#111827]">Hitung Fisik &amp; Tutup Shift</h2>
+                                <p class="text-[11px] text-[#7f837e]">Ketik uang tunai nyata di laci atau samakan bila pas.</p>
                             </div>
                         </div>
 
                         <!-- 1-Click exact match helper button -->
                         <button type="button" @click="setExact()" 
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#e6e5e0] bg-gray-50 hover:bg-gray-100 text-xs font-semibold text-[#53565a] transition shadow-2xs"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] border border-[#e6e5e0] bg-[#fafaf9] hover:bg-gray-100 text-xs font-bold text-[#df5826] transition shadow-2xs cursor-pointer"
                             title="Isi nominal fisik sama persis dengan kas seharusnya">
-                            <i class="fas fa-wand-magic-sparkles text-[#df5826]"></i>
-                            <span class="hidden sm:inline">Isi Sesuai Kas</span>
+                            <i class="fas fa-wand-magic-sparkles text-xs"></i>
+                            <span>Isi Sesuai Kas</span>
                         </button>
                     </div>
 
@@ -218,29 +220,29 @@
                                 </label>
                                 
                                 <!-- Denomination toggle button -->
-                                <button type="button" @click="showDenom = !showDenom" class="text-[11px] font-semibold text-[#df5826] hover:underline flex items-center gap-1">
+                                <button type="button" @click="showDenom = !showDenom" class="text-[11px] font-semibold text-[#df5826] hover:underline flex items-center gap-1 cursor-pointer">
                                     <i class="fas fa-coins"></i>
-                                    <span x-text="showDenom ? 'Sembunyikan Pecahan' : 'Buka Kalkulator Pecahan Uang'"></span>
+                                    <span x-text="showDenom ? 'Sembunyikan Kalkulator Pecahan' : 'Buka Kalkulator Pecahan Uang'"></span>
                                 </button>
                             </div>
 
                             <div class="relative">
-                                <span class="absolute left-3.5 top-2.5 text-xs font-bold text-gray-400">Rp</span>
+                                <span class="absolute left-3.5 top-3 text-sm font-bold text-gray-400">Rp</span>
                                 <input id="actual-cash" name="actual_cash" type="number" inputmode="decimal" min="0" max="999999999.99" step="any" required
                                     x-model="actual" value="{{ old('actual_cash') }}" aria-describedby="actual-help"
-                                    placeholder="Contoh: 176888"
-                                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] text-sm font-bold text-[#111827] outline-none transition">
+                                    placeholder="Contoh: {{ (int)$breakdown['expected_cash'] }}"
+                                    class="w-full pl-11 pr-4 py-3 rounded-[12px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] text-[16px] font-black text-[#111827] outline-none transition">
                             </div>
-                            <p id="actual-help" class="text-[11px] text-[#7f837e] mt-1">
+                            <p id="actual-help" class="text-[11px] text-[#7f837e] mt-1.5">
                                 Hitung seluruh uang tunai kertas dan koin termasuk modal awal. Jangan masukkan saldo QRIS atau kartu debit.
                             </p>
                         </div>
 
                         <!-- Collapsible Denomination Counter Calculator -->
-                        <div x-show="showDenom" x-collapse x-cloak class="p-3.5 rounded-xl bg-gray-50 border border-gray-200 space-y-2.5">
+                        <div x-show="showDenom" x-collapse x-cloak class="p-3.5 rounded-[14px] bg-gray-50 border border-gray-200 space-y-2.5">
                             <p class="text-[11px] font-bold text-[#111827] uppercase tracking-wider flex items-center justify-between">
                                 <span>Kalkulator Lembaran &amp; Koin</span>
-                                <button type="button" @click="resetDenom()" class="text-[10px] text-red-600 hover:underline">Reset</button>
+                                <button type="button" @click="resetDenom()" class="text-[10px] text-red-600 hover:underline cursor-pointer">Reset</button>
                             </p>
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                                 <div>
@@ -287,17 +289,17 @@
                         </div>
 
                         <!-- ============================================================== -->
-                        <!-- 3-WAY COMPARISON BOX: SEHARUSNYA vs AKTUAL vs SELISIH [USER REQUEST] -->
+                        <!-- 3-WAY COMPARISON BOX: SEHARUSNYA vs AKTUAL vs SELISIH          -->
                         <!-- ============================================================== -->
-                        <div class="rounded-xl border p-4 transition-all"
-                             :class="difference === null ? 'border-[#e6e5e0] bg-[#f8f9fa]' : (difference === 0 ? 'border-emerald-200 bg-emerald-50/60' : (difference < 0 ? 'border-red-200 bg-red-50/60' : 'border-amber-200 bg-amber-50/60'))">
+                        <div class="rounded-[14px] border p-4 transition-all"
+                             :class="difference === null ? 'border-[#e6e5e0] bg-[#fafaf9]' : (difference === 0 ? 'border-emerald-200 bg-emerald-50/60' : (difference < 0 ? 'border-red-200 bg-red-50/60' : 'border-amber-200 bg-amber-50/60'))">
                             
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-[11px] font-bold uppercase tracking-wider text-[#7f837e]">
                                     Perbandingan Rekonsiliasi Kas
                                 </span>
                                 
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold"
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold"
                                       :class="difference === null ? 'bg-gray-200 text-[#53565a]' : (difference === 0 ? 'bg-emerald-100 text-emerald-800' : (difference < 0 ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'))">
                                     <i class="fas" :class="difference === null ? 'fa-hourglass-start' : (difference === 0 ? 'fa-check' : (difference < 0 ? 'fa-arrow-down' : 'fa-arrow-up'))"></i>
                                     <span x-text="label"></span>
@@ -307,20 +309,20 @@
                             <!-- 3 Mini Cards Grid -->
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
                                 <!-- Col 1: Kas Seharusnya -->
-                                <div class="bg-white/80 p-3 rounded-lg border border-gray-200/70">
+                                <div class="bg-white p-3 rounded-[10px] border border-gray-200/70 shadow-2xs">
                                     <span class="text-[10px] text-[#7f837e] font-medium block">Kas Seharusnya</span>
                                     <p class="text-xs font-bold text-[#111827] mt-0.5" x-text="money(expected)"></p>
                                 </div>
 
                                 <!-- Col 2: Kas Fisik Aktual -->
-                                <div class="bg-white/80 p-3 rounded-lg border border-gray-200/70">
+                                <div class="bg-white p-3 rounded-[10px] border border-gray-200/70 shadow-2xs">
                                     <span class="text-[10px] text-[#7f837e] font-medium block">Kas Fisik Aktual</span>
                                     <p class="text-xs font-bold text-[#111827] mt-0.5" x-text="actualValid ? money(actual) : '—'"></p>
                                 </div>
 
                                 <!-- Col 3: Selisih -->
-                                <div class="p-3 rounded-lg border"
-                                     :class="difference === null ? 'bg-white/80 border-gray-200/70' : (difference === 0 ? 'bg-emerald-100/60 border-emerald-300 text-emerald-900' : (difference < 0 ? 'bg-red-100/60 border-red-300 text-red-900' : 'bg-amber-100/60 border-amber-300 text-amber-900'))">
+                                <div class="p-3 rounded-[10px] border shadow-2xs"
+                                     :class="difference === null ? 'bg-white border-gray-200/70' : (difference === 0 ? 'bg-emerald-100/60 border-emerald-300 text-emerald-900' : (difference < 0 ? 'bg-red-100/60 border-red-300 text-red-900' : 'bg-amber-100/60 border-amber-300 text-amber-900'))">
                                     <span class="text-[10px] font-medium block"
                                           :class="difference === null ? 'text-[#7f837e]' : (difference === 0 ? 'text-emerald-700' : (difference < 0 ? 'text-red-700' : 'text-amber-700'))">
                                         Selisih (Fisik − Sistem)
@@ -363,7 +365,7 @@
                             </label>
                             <textarea id="closing-notes" name="notes" rows="2" maxlength="1000" x-model="notes"
                                 :required="isNotesRequired"
-                                class="w-full p-3 rounded-xl border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] text-xs text-[#111827] outline-none transition"
+                                class="w-full p-3 rounded-[12px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] text-xs text-[#111827] outline-none transition"
                                 placeholder="Jelaskan penyebab selisih atau hasil pemeriksaan uang laci..."></textarea>
                             <p class="text-[11px] text-[#7f837e] mt-0.5">
                                 <span x-show="isNotesRequired" class="text-red-600 font-medium">Keterangan wajib diisi ketika ada selisih kas kurang atau lebih. </span>
@@ -374,7 +376,7 @@
                         <!-- Action Submit Button -->
                         <div class="pt-2">
                             <button type="submit" :disabled="submitting || difference === null || (isNotesRequired && (!notes || notes.trim() === ''))"
-                                class="w-full inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-xs font-bold hover:opacity-95 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                class="w-full inline-flex items-center justify-center gap-2 py-3 px-6 rounded-[12px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-xs font-bold hover:opacity-95 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                 <i class="fas fa-lock text-xs"></i>
                                 <span x-text="submitting ? 'Menyimpan & Menutup…' : 'Simpan Hitungan & Tutup Shift'">Simpan Hitungan &amp; Tutup Shift</span>
                             </button>
@@ -387,8 +389,8 @@
             </div>
         @else
             {{-- EMPTY STATE: NO ACTIVE SHIFT --}}
-            <section class="bg-white border border-[#e6e5e0] rounded-[16px] p-6 text-center max-w-xl mx-auto shadow-[0px_3px_12px_rgba(38,39,35,0.04)] space-y-4">
-                <div class="w-12 h-12 rounded-2xl bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center mx-auto text-lg">
+            <section class="bg-white border border-[#e6e5e0] rounded-[20px] p-6 text-center max-w-xl mx-auto shadow-[0px_3px_12px_rgba(38,39,35,0.04)] space-y-4">
+                <div class="w-12 h-12 rounded-[14px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center mx-auto text-lg">
                     <i class="fas fa-cash-register"></i>
                 </div>
                 <div>
@@ -406,13 +408,13 @@
                             Modal Awal Kas di Laci (Rp)
                         </label>
                         <div class="relative">
-                            <span class="absolute left-3 top-2 text-xs font-bold text-gray-400">Rp</span>
+                            <span class="absolute left-3.5 top-2.5 text-xs font-bold text-gray-400">Rp</span>
                             <input id="opening-cash-input" name="opening_cash" type="number" min="0" step="any" required value="100000"
-                                class="w-full pl-9 pr-3 py-2 rounded-xl border border-[#d8dce2] bg-[#f8f9fa] text-xs font-bold text-[#111827] focus:bg-white focus:border-[#df5826] outline-none">
+                                class="w-full pl-9 pr-3 py-2.5 rounded-[12px] border border-[#d8dce2] bg-[#f8f9fa] text-xs font-bold text-[#111827] focus:bg-white focus:border-[#df5826] outline-none">
                         </div>
                     </div>
                     <button type="submit" 
-                        class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-b from-[#f06428] to-[#df5826] text-white text-xs font-bold shadow-xs hover:opacity-95 transition">
+                        class="w-full py-2.5 px-4 rounded-[12px] bg-gradient-to-b from-[#f06428] to-[#df5826] text-white text-xs font-bold shadow-xs hover:opacity-95 transition cursor-pointer">
                         Buka Shift Kasir Sekarang
                     </button>
                 </form>
@@ -420,7 +422,7 @@
         @endif
 
         {{-- RIWAYAT SESI KASIR TABLE --}}
-        <section aria-labelledby="history-heading" class="bg-white border border-[#e6e5e0] rounded-[16px] overflow-hidden shadow-[0px_3px_12px_rgba(38,39,35,0.04)]">
+        <section aria-labelledby="history-heading" class="bg-white border border-[#e6e5e0] rounded-[20px] overflow-hidden shadow-[0px_3px_12px_rgba(38,39,35,0.04)]">
             <div class="p-4 md:p-5 border-b border-[#e6e5e0] flex flex-col lg:flex-row lg:items-end justify-between gap-4">
                 <div>
                     <h2 id="history-heading" class="text-[15px] font-bold text-[#1e211f] leading-tight">
@@ -456,11 +458,11 @@
                     </div>
 
                     <button type="submit" 
-                        class="py-2 px-4 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-[12px] font-semibold hover:opacity-95 transition min-h-[36px]">
+                        class="py-2 px-4 rounded-[9px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] shadow-[0px_1px_2px_rgba(223,88,38,0.18)] text-white text-[12px] font-semibold hover:opacity-95 transition min-h-[36px] cursor-pointer">
                         Terapkan
                     </button>
                     <a href="{{ route('admin.register.index') }}" 
-                       class="py-2 px-3 rounded-[9px] bg-white border border-[#d8dce2] text-[12px] font-semibold text-[#53565a] hover:bg-gray-50 transition min-h-[36px] flex items-center">
+                       class="py-2 px-3 rounded-[9px] bg-white border border-[#d8dce2] text-[12px] font-semibold text-[#53565a] hover:bg-gray-50 transition min-h-[36px] flex items-center cursor-pointer">
                         Reset
                     </a>
                 </form>
@@ -491,10 +493,10 @@
 
                                 <td class="px-4 py-3.5 whitespace-nowrap text-xs">
                                     <div class="text-[#111827] font-medium">
-                                        <i class="fas fa-play text-[9px] text-emerald-600 mr-1"></i>{{ $session->opened_at?->format('d/m/Y H:i') ?? '—' }}
+                                        <i class="fas fa-play text-[9px] text-emerald-600 mr-1"></i>{{ $session->opened_at?->timezone(config('attendance.timezone') ?? config('app.timezone'))->format('d/m/Y H:i') ?? '—' }}
                                     </div>
                                     <div class="text-[#53565a] mt-0.5">
-                                        <i class="fas fa-flag-checkered text-[9px] text-[#7f837e] mr-1"></i>{{ $session->closed_at?->format('d/m/Y H:i') ?? 'Masih Aktif' }}
+                                        <i class="fas fa-flag-checkered text-[9px] text-[#7f837e] mr-1"></i>{{ $session->closed_at?->timezone(config('attendance.timezone') ?? config('app.timezone'))->format('d/m/Y H:i') ?? 'Masih Aktif' }}
                                     </div>
                                 </td>
 
@@ -557,8 +559,8 @@
                                         'id' => $session->id,
                                         'user' => $session->user?->name ?? 'Kasir',
                                         'register' => $session->register?->name ?? 'Main Register',
-                                        'opened_at' => $session->opened_at?->format('d/m/Y H:i'),
-                                        'closed_at' => $session->closed_at?->format('d/m/Y H:i'),
+                                        'opened_at' => $session->opened_at?->timezone(config('attendance.timezone') ?? config('app.timezone'))->format('d/m/Y H:i'),
+                                        'closed_at' => $session->closed_at?->timezone(config('attendance.timezone') ?? config('app.timezone'))->format('d/m/Y H:i'),
                                         'status' => $session->status,
                                         'recon_status' => $labels[$session->reconciliation_status],
                                         'opening_cash' => (float) $session->opening_cash,
@@ -569,7 +571,7 @@
                                         'actual_cash' => (float) $session->actual_cash,
                                         'difference' => (float) $session->difference,
                                         'notes' => $session->notes
-                                    ]) }})" class="inline-flex items-center gap-1 mt-1 text-[11px] font-semibold text-[#df5826] hover:underline">
+                                    ]) }})" class="inline-flex items-center gap-1 mt-1 text-[11px] font-semibold text-[#df5826] hover:underline cursor-pointer">
                                         <i class="fas fa-file-invoice text-[10px]"></i>
                                         <span>Lihat Rincian</span>
                                     </button>
@@ -598,30 +600,35 @@
         </section>
     </main>
 
-    {{-- MODAL DETAIL SESI KASIR --}}
+    {{-- MODAL DETAIL SESI KASIR (Sparta Style) --}}
     <div x-show="detailModalOpen" x-cloak 
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
-         @keydown.escape.window="detailModalOpen = false">
-        <div class="relative w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl space-y-4" @click.away="detailModalOpen = false">
-            <div class="flex items-center justify-between border-b pb-3 border-[#e6e5e0]">
-                <div>
-                    <h3 class="text-sm font-bold text-[#111827]">Rincian Sesi Kasir #<span x-text="activeDetail.id"></span></h3>
-                    <p class="text-[11px] text-[#7f837e]">
-                        <span x-text="activeDetail.user"></span> · <span x-text="activeDetail.register"></span>
-                    </p>
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs font-sans"
+         @keydown.escape.window="detailModalOpen = false" x-transition.opacity>
+        <div class="relative w-full max-w-md rounded-[24px] bg-white p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] border border-[#e9ebf0] space-y-4" @click.away="detailModalOpen = false">
+            <div class="flex items-center justify-between border-b pb-3.5 border-[#f0f0ee]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[12px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center text-sm shadow-2xs">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-[15px] font-bold text-[#111827]">Rincian Shift #<span x-text="activeDetail.id"></span></h3>
+                        <p class="text-[11px] text-[#7f837e]">
+                            <span x-text="activeDetail.user"></span> · <span x-text="activeDetail.register"></span>
+                        </p>
+                    </div>
                 </div>
-                <button type="button" @click="detailModalOpen = false" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#53565a] flex items-center justify-center">
-                    <i class="fas fa-times"></i>
+                <button type="button" @click="detailModalOpen = false" class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 flex items-center justify-center transition cursor-pointer">
+                    <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
 
             <div class="space-y-3 text-xs">
-                <div class="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 border border-gray-200">
-                    <span class="text-[#7f837e]">Status Rekonsiliasi:</span>
-                    <span class="font-bold px-2 py-0.5 rounded-md bg-white border border-gray-200" x-text="activeDetail.recon_status"></span>
+                <div class="flex items-center justify-between p-3 rounded-[14px] bg-[#fafaf9] border border-[#e9ebf0]">
+                    <span class="text-[#7f837e] font-medium">Status Rekonsiliasi:</span>
+                    <span class="font-bold px-2.5 py-1 rounded-[8px] bg-white border border-gray-200 shadow-2xs" x-text="activeDetail.recon_status"></span>
                 </div>
 
-                <div class="space-y-1.5 p-3 rounded-xl border border-gray-100 bg-gray-50/50">
+                <div class="space-y-2 p-3.5 rounded-[14px] border border-[#e9ebf0] bg-[#fafaf9]">
                     <div class="flex justify-between"><span class="text-[#53565a]">Modal Awal:</span><strong class="text-[#111827]" x-text="money(activeDetail.opening_cash)"></strong></div>
                     <div class="flex justify-between"><span class="text-[#53565a]">Penjualan Tunai:</span><strong class="text-emerald-600" x-text="'+ ' + money(activeDetail.cash_sales)"></strong></div>
                     <div class="flex justify-between"><span class="text-[#53565a]">Penjualan QRIS:</span><strong class="text-blue-600" x-text="money(activeDetail.qris_sales)"></strong></div>
@@ -630,15 +637,15 @@
 
                 <!-- 3-Way Summary in Modal -->
                 <div class="grid grid-cols-3 gap-2 text-center">
-                    <div class="p-2.5 rounded-xl bg-gray-50 border border-gray-200">
+                    <div class="p-2.5 rounded-[12px] bg-white border border-gray-200 shadow-2xs">
                         <span class="text-[10px] text-[#7f837e] block">Seharusnya</span>
                         <strong class="text-xs text-[#111827]" x-text="money(activeDetail.expected_cash)"></strong>
                     </div>
-                    <div class="p-2.5 rounded-xl bg-gray-50 border border-gray-200">
+                    <div class="p-2.5 rounded-[12px] bg-white border border-gray-200 shadow-2xs">
                         <span class="text-[10px] text-[#7f837e] block">Fisik (Aktual)</span>
                         <strong class="text-xs text-[#111827]" x-text="money(activeDetail.actual_cash)"></strong>
                     </div>
-                    <div class="p-2.5 rounded-xl border"
+                    <div class="p-2.5 rounded-[12px] border shadow-2xs"
                          :class="activeDetail.difference === 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : (activeDetail.difference < 0 ? 'bg-red-50 border-red-200 text-red-800' : 'bg-amber-50 border-amber-200 text-amber-800')">
                         <span class="text-[10px] block font-medium">Selisih</span>
                         <strong class="text-xs" x-text="(activeDetail.difference > 0 ? '+' : '') + money(activeDetail.difference)"></strong>
@@ -646,11 +653,17 @@
                 </div>
 
                 <template x-if="activeDetail.notes">
-                    <div class="p-3 rounded-xl bg-amber-50/50 border border-amber-100">
+                    <div class="p-3 rounded-[12px] bg-amber-50/60 border border-amber-200">
                         <span class="text-[10px] font-bold text-amber-900 block mb-0.5">Catatan Kasir:</span>
                         <p class="text-[11px] text-[#53565a]" x-text="activeDetail.notes"></p>
                     </div>
                 </template>
+
+                <div class="pt-2">
+                    <button type="button" @click="detailModalOpen = false" class="w-full py-2.5 px-4 rounded-[12px] bg-white border border-[#e9ebf0] hover:bg-gray-50 text-[#111827] text-xs font-bold transition shadow-2xs cursor-pointer">
+                        Tutup Rincian
+                    </button>
+                </div>
             </div>
         </div>
     </div>
