@@ -165,9 +165,23 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 
     <div class="divider"></div>
 
+    {{-- Kitchen Prep Items Table with Dine In / Takeaway Separation Check --}}
+    @php
+        $hasDineIn = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') !== 'TAKEAWAY');
+        $hasTakeaway = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY');
+        $isMixed = $hasDineIn && $hasTakeaway;
+    @endphp
+
     {{-- Big Table or Order Mode Banner --}}
     <div class="target-badge">
-        @if(strtoupper($receiptData->fulfillmentType ?? '') === 'TAKEAWAY')
+        @if($isMixed)
+            @if($receiptData->tableName)
+                <div>MEJA {{ strtoupper($receiptData->tableName) }}</div>
+                <div style="font-size: {{ $is80mm ? '13px' : '11.5px' }}; font-weight: 800; margin-top: 2px; letter-spacing: 0.5px;">DINE IN / TAKE AWAY</div>
+            @else
+                <div style="font-size: {{ $is80mm ? '16px' : '13px' }}; letter-spacing: 0.5px;">DINE IN / TAKE AWAY</div>
+            @endif
+        @elseif(strtoupper($receiptData->fulfillmentType ?? '') === 'TAKEAWAY')
             TAKEAWAY / BUNGKUS
         @elseif(strtoupper($receiptData->fulfillmentType ?? '') === 'DELIVERY')
             DELIVERY
@@ -189,13 +203,6 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
     </div>
 
     <div class="double-divider"></div>
-
-    {{-- Kitchen Prep Items Table with Dine In / Takeaway Separation --}}
-    @php
-        $hasDineIn = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') !== 'TAKEAWAY');
-        $hasTakeaway = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY');
-        $isMixed = $hasDineIn && $hasTakeaway;
-    @endphp
 
     @if($isMixed)
         @if($hasDineIn)

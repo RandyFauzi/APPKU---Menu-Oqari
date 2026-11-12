@@ -204,4 +204,56 @@ class ReceiptAndPrinterTest extends TestCase
         $kitchenResponse->assertOk();
         $kitchenResponse->assertSee('TIKET PESANAN DAPUR');
     }
+
+    public function test_kitchen_ticket_renders_dine_in_take_away_when_order_is_mixed(): void
+    {
+        $shop = Shop::factory()->create(['name' => 'Sparta Coffee']);
+        $owner = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
+
+        $order = Order::create([
+            'shop_id' => $shop->id,
+            'customer_name' => 'Guest',
+            'subtotal' => 125000,
+            'grand_total' => 125000,
+            'order_status' => 'CONFIRMED',
+            'payment_status' => 'PAID',
+            'fulfillment_type' => 'DINE_IN',
+        ]);
+
+        $product1 = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Mont Blanc']);
+        $product2 = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Blue Ocean']);
+
+        // Dine In item
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product1->id,
+            'product_name' => 'Mont Blanc',
+            'quantity' => 1,
+            'unit_price' => 35000,
+            'subtotal' => 35000,
+            'serving_type' => 'DINE_IN',
+        ]);
+
+        // Takeaway item
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_id' => $product2->id,
+            'product_name' => 'Blue Ocean',
+            'quantity' => 1,
+            'unit_price' => 45000,
+            'subtotal' => 45000,
+            'serving_type' => 'TAKEAWAY',
+        ]);
+
+        $response = $this->actingAs($owner)->get("/admin/api/orders/{$order->id}/print?type=kitchen");
+
+        $response->assertOk();
+        $response->assertSee('DINE IN / TAKE AWAY');
+        $response->assertSee('DINE IN (MAKAN DI TEMPAT)');
+        $response->assertSee('TAKEAWAY (BUNGKUS)');
+
+        $thermalResponse = $this->actingAs($owner)->get("/admin/api/orders/{$order->id}/print?type=customer");
+        $thermalResponse->assertOk();
+        $thermalResponse->assertSee('Dine In / Takeaway');
+    }
 }

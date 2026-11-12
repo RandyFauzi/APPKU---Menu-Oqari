@@ -40,9 +40,17 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
     <p>{{ $order->created_at->format('d/m/Y H:i') }}</p>
 </div>
 
+@php
+    $hasDineIn = collect($order->items)->contains(fn($i) => strtoupper($i->serving_type ?? '') !== 'TAKEAWAY');
+    $hasTakeaway = collect($order->items)->contains(fn($i) => strtoupper($i->serving_type ?? '') === 'TAKEAWAY');
+    $isMixed = $hasDineIn && $hasTakeaway;
+@endphp
+
 <div class="divider"></div>
 <div class="text-center font-bold mb-2 mt-1" style="font-size: 12px; letter-spacing: 0.5px;">
-@if(strtoupper($order->fulfillment_type ?? '') === 'TAKEAWAY')
+@if($isMixed)
+    *** DINE IN / TAKE AWAY {{ $order->table ? '(MEJA '.strtoupper($order->table->name).')' : '' }} ***
+@elseif(strtoupper($order->fulfillment_type ?? '') === 'TAKEAWAY')
     *** TAKE AWAY / BUNGKUS ***
 @elseif(strtoupper($order->fulfillment_type ?? '') === 'DELIVERY')
     *** DELIVERY ***
@@ -53,7 +61,7 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 <div class="divider"></div>
 
 <div class="mb-1">Customer: {{ $order->customer_name ?: 'Guest' }}</div>
-<div class="mb-1">Tipe: {{ strtoupper($order->fulfillment_type ?? '') === 'TAKEAWAY' ? 'Take Away (Bungkus)' : (strtoupper($order->fulfillment_type ?? '') === 'DELIVERY' ? 'Delivery' : 'Dine In') }}</div>
+<div class="mb-1">Tipe: {{ $isMixed ? 'Dine In / Take Away' : (strtoupper($order->fulfillment_type ?? '') === 'TAKEAWAY' ? 'Take Away (Bungkus)' : (strtoupper($order->fulfillment_type ?? '') === 'DELIVERY' ? 'Delivery' : 'Dine In')) }}</div>
 <div class="mb-1">Meja: {{ $order->table ? $order->table->name : 'Takeaway' }}</div>
 <div class="divider"></div>
 
