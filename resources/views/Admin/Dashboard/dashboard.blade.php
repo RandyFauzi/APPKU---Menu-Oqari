@@ -2673,12 +2673,13 @@
                 },
 
                 addToOpenBillCart(product, servingType = 'DINE_IN') {
+                    const effectiveServingType = (this.openBillModal.fulfillmentType === 'DELIVERY') ? 'DELIVERY' : (servingType || 'DINE_IN');
                     if ((product.variants && product.variants.length > 0) || (product.modifier_groups && product.modifier_groups.length > 0)) {
-                        this.openOpenBillModifierModal(product, servingType);
+                        this.openOpenBillModifierModal(product, effectiveServingType);
                         return;
                     }
 
-                    const existing = this.openBillModal.cart.find(i => i.id === product.id && !i.variant_id && (!i.modifiers || i.modifiers.length === 0) && (i.serving_type || 'DINE_IN') === servingType);
+                    const existing = this.openBillModal.cart.find(i => i.id === product.id && !i.variant_id && (!i.modifiers || i.modifiers.length === 0) && (i.serving_type || 'DINE_IN') === effectiveServingType);
                     if (existing) {
                         existing.qty = (parseInt(existing.qty) || 1) + 1;
                     } else {
@@ -2692,9 +2693,38 @@
                             modifiers: [],
                             notes: '',
                             showNotes: false,
-                            serving_type: servingType,
+                            serving_type: effectiveServingType,
                             image: product.image_url || null,
                         });
+                    }
+                },
+
+                switchOpenBillFulfillment(type) {
+                    if (this.openBillModal.fulfillmentType === type) return;
+
+                    if (type === 'DELIVERY') {
+                        const hasNonDelivery = this.openBillModal.cart.some(item => (item.serving_type || 'DINE_IN') !== 'DELIVERY');
+                        if (this.openBillModal.cart.length > 0 && hasNonDelivery) {
+                            if (confirm('Ubah semua ' + this.openBillModal.cart.length + ' item di keranjang menjadi tipe Delivery?')) {
+                                this.openBillModal.fulfillmentType = 'DELIVERY';
+                                this.openBillModal.cart.forEach(i => i.serving_type = 'DELIVERY');
+                            }
+                            return;
+                        }
+                        this.openBillModal.fulfillmentType = 'DELIVERY';
+                        return;
+                    }
+
+                    if (type === 'DINE_IN') {
+                        const hasDelivery = this.openBillModal.cart.some(item => item.serving_type === 'DELIVERY');
+                        if (this.openBillModal.cart.length > 0 && hasDelivery) {
+                            if (confirm('Ubah semua ' + this.openBillModal.cart.length + ' item di keranjang menjadi tipe Direct Order (Dine In)?')) {
+                                this.openBillModal.fulfillmentType = 'DINE_IN';
+                                this.openBillModal.cart.forEach(i => i.serving_type = 'DINE_IN');
+                            }
+                            return;
+                        }
+                        this.openBillModal.fulfillmentType = 'DINE_IN';
                     }
                 },
 
@@ -2721,7 +2751,7 @@
                 },
 
                 toggleOpenBillItemServingType(idx) {
-                    if (!this.openBillModal.cart[idx]) return;
+                    if (!this.openBillModal.cart[idx] || this.openBillModal.fulfillmentType === 'DELIVERY') return;
                     const cur = this.openBillModal.cart[idx].serving_type || 'DINE_IN';
                     this.openBillModal.cart[idx].serving_type = (cur === 'TAKEAWAY') ? 'DINE_IN' : 'TAKEAWAY';
                 },

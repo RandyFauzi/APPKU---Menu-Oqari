@@ -625,18 +625,28 @@
                                         </div>
 
                                         <div class="flex flex-col gap-1.5 w-full">
-                                            <button type="button" 
-                                                    @click="addToOpenBillCart(p, 'DINE_IN')"
-                                                    class="w-full py-2 px-2.5 rounded-[9px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[11.5px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                                                <i class="fas fa-utensils text-[10px]"></i>
-                                                <span>Dine In</span>
-                                            </button>
-                                            <button type="button" 
-                                                    @click="addToOpenBillCart(p, 'TAKEAWAY')"
-                                                    class="w-full py-2 px-2.5 rounded-[9px] bg-white hover:bg-[#fff9f6] border border-[#ea580c] text-[#ea580c] text-[11.5px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                                                <i class="fas fa-shopping-bag text-[10px]"></i>
-                                                <span>Takeaway</span>
-                                            </button>
+                                            <div x-show="openBillModal.fulfillmentType !== 'DELIVERY'" class="flex flex-col gap-1.5 w-full">
+                                                <button type="button" 
+                                                        @click="addToOpenBillCart(p, 'DINE_IN')"
+                                                        class="w-full py-2 px-2.5 rounded-[9px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[11.5px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                                    <i class="fas fa-utensils text-[10px]"></i>
+                                                    <span>Dine In</span>
+                                                </button>
+                                                <button type="button" 
+                                                        @click="addToOpenBillCart(p, 'TAKEAWAY')"
+                                                        class="w-full py-2 px-2.5 rounded-[9px] bg-white hover:bg-[#fff9f6] border border-[#ea580c] text-[#ea580c] text-[11.5px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                                    <i class="fas fa-shopping-bag text-[10px]"></i>
+                                                    <span>Takeaway</span>
+                                                </button>
+                                            </div>
+                                            <div x-show="openBillModal.fulfillmentType === 'DELIVERY'" x-cloak class="w-full">
+                                                <button type="button" 
+                                                        @click="addToOpenBillCart(p, 'DELIVERY')"
+                                                        class="w-full py-2.5 px-2.5 rounded-[9px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[11.5px] font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                                    <i class="fas fa-motorcycle text-[10px]"></i>
+                                                    <span>+ Tambah Delivery</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -694,12 +704,12 @@
 
                         <!-- Segmented Control: [ Direct Order ] & [ Delivery ] -->
                         <div class="bg-[#f3f4f6] p-[3px] rounded-[10px] grid grid-cols-2 gap-[3px]">
-                            <button type="button" @click="openBillModal.fulfillmentType = 'DINE_IN'"
+                            <button type="button" @click="switchOpenBillFulfillment('DINE_IN')"
                                 :class="openBillModal.fulfillmentType !== 'DELIVERY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] font-medium hover:text-[#111827]'"
                                 class="py-1.5 px-3 rounded-[8px] text-[11.5px] text-center transition cursor-pointer">
                                 Direct Order
                             </button>
-                            <button type="button" @click="openBillModal.fulfillmentType = 'DELIVERY'"
+                            <button type="button" @click="switchOpenBillFulfillment('DELIVERY')"
                                 :class="openBillModal.fulfillmentType === 'DELIVERY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] font-medium hover:text-[#111827]'"
                                 class="py-1.5 px-3 rounded-[8px] text-[11.5px] text-center transition cursor-pointer">
                                 Delivery
@@ -732,16 +742,24 @@
                                     <div class="flex-1 min-w-0">
                                         <p class="text-[13px] font-bold text-[#111827] leading-tight truncate" x-text="item.name"></p>
                                         
-                                        {{-- Serving Type Badge (Neutral gray background with icon per Figma) --}}
+                                        {{-- Serving Type Badge --}}
                                         <div class="mt-1 flex items-center gap-1.5">
-                                            <button type="button" @click="toggleOpenBillItemServingType(idx)"
-                                                class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#374151] border border-[#e5e7eb] text-[10.5px] font-medium transition cursor-pointer"
-                                                :title="'Klik untuk ubah ke ' + ((item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Dine In' : 'Takeaway')">
-                                                <i class="fas fa-utensils text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'"></i>
-                                                <i class="fas fa-shopping-bag text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'"></i>
-                                                <span x-text="(item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Takeaway' : 'Dine In'"></span>
-                                                <i class="fas fa-right-left text-[8px] text-[#8b8e93] opacity-70 ml-0.5"></i>
-                                            </button>
+                                            <template x-if="openBillModal.fulfillmentType !== 'DELIVERY' && item.serving_type !== 'DELIVERY'">
+                                                <button type="button" @click="toggleOpenBillItemServingType(idx)"
+                                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#374151] border border-[#e5e7eb] text-[10.5px] font-medium transition cursor-pointer"
+                                                    :title="'Klik untuk ubah ke ' + ((item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Dine In' : 'Takeaway')">
+                                                    <i class="fas fa-utensils text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'"></i>
+                                                    <i class="fas fa-shopping-bag text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'"></i>
+                                                    <span x-text="(item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Takeaway' : 'Dine In'"></span>
+                                                    <i class="fas fa-right-left text-[8px] text-[#8b8e93] opacity-70 ml-0.5"></i>
+                                                </button>
+                                            </template>
+                                            <template x-if="openBillModal.fulfillmentType === 'DELIVERY' || item.serving_type === 'DELIVERY'">
+                                                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-sky-50 text-sky-700 border border-sky-200 text-[10.5px] font-bold">
+                                                    <i class="fas fa-motorcycle text-[9px]"></i>
+                                                    <span>Delivery</span>
+                                                </span>
+                                            </template>
                                             <span x-show="item.variant_name" class="text-[10.5px] text-[#53565a] truncate" x-text="'· ' + item.variant_name"></span>
                                         </div>
                                     </div>

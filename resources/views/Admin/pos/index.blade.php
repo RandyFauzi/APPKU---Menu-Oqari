@@ -313,20 +313,30 @@
                                 </div>
                             </div>
 
-                            {{-- Stacked Action Buttons: [ 🍴 Dine In ] & [ 🛍️ Takeaway ] (Figma 45:12312) --}}
+                            {{-- Action Buttons: 2 buttons (Dine In / Takeaway) if Direct Order, OR 1 single button (Add Delivery) if Delivery --}}
                             <div class="flex flex-col gap-2 w-full pt-1">
-                                <button type="button"
-                                    @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')"
-                                    class="w-full py-2.5 px-3 rounded-[11px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-xs hover:shadow transition active:scale-[0.98] cursor-pointer">
-                                    <i class="fas fa-utensils text-[11px]"></i>
-                                    <span>Dine In</span>
-                                </button>
-                                <button type="button"
-                                    @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'TAKEAWAY')"
-                                    class="w-full py-2.5 px-3 rounded-[11px] bg-white hover:bg-[#fff9f6] border border-[#ea580c] text-[#ea580c] text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                                    <i class="fas fa-shopping-bag text-[11px]"></i>
-                                    <span>Takeaway</span>
-                                </button>
+                                <div x-show="fulfillmentType !== 'DELIVERY'" class="flex flex-col gap-2 w-full">
+                                    <button type="button"
+                                        @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')"
+                                        class="w-full py-2.5 px-3 rounded-[11px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-xs hover:shadow transition active:scale-[0.98] cursor-pointer">
+                                        <i class="fas fa-utensils text-[11px]"></i>
+                                        <span>Dine In</span>
+                                    </button>
+                                    <button type="button"
+                                        @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'TAKEAWAY')"
+                                        class="w-full py-2.5 px-3 rounded-[11px] bg-white hover:bg-[#fff9f6] border border-[#ea580c] text-[#ea580c] text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                        <i class="fas fa-shopping-bag text-[11px]"></i>
+                                        <span>Takeaway</span>
+                                    </button>
+                                </div>
+                                <div x-show="fulfillmentType === 'DELIVERY'" x-cloak class="w-full">
+                                    <button type="button"
+                                        @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DELIVERY')"
+                                        class="w-full py-3 px-3 rounded-[11px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-xs hover:shadow transition active:scale-[0.98] cursor-pointer">
+                                        <i class="fas fa-motorcycle text-xs"></i>
+                                        <span>+ Tambah Delivery</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -418,7 +428,15 @@
                     </h2>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    <button type="button" @click="clearCart()" x-show="cart.length > 0" x-cloak
+                    <template x-if="recalledOrderId">
+                        <button type="button" @click="cancelRecallOrder()"
+                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-[7px] bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[11px] font-bold transition cursor-pointer"
+                            title="Batal edit dan buat transaksi baru">
+                            <i class="fas fa-times text-[10px]"></i>
+                            <span>Batal / Pesanan Baru</span>
+                        </button>
+                    </template>
+                    <button type="button" @click="clearCart()" x-show="cart.length > 0 && !recalledOrderId" x-cloak
                         class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#df5826] hover:text-[#b84218] transition cursor-pointer">
                         <span>Reset</span>
                         <i class="fas fa-rotate-right text-[11px]"></i>
@@ -464,12 +482,12 @@
 
             {{-- Segmented Control: [ Direct Order ] & [ Delivery ] (Circled in Cyan) --}}
             <div class="bg-[#f3f4f6] p-[3px] rounded-[10px] grid grid-cols-2 gap-[3px]">
-                <button type="button" @click="fulfillmentType = 'DINE_IN'; paymentModal.fulfillment = 'DINE_IN'"
+                <button type="button" @click="switchFulfillment('DINE_IN')"
                     :class="fulfillmentType !== 'DELIVERY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] font-medium hover:text-[#111827]'"
                     class="py-1.5 px-3 rounded-[8px] text-[11.5px] text-center transition cursor-pointer">
                     Direct Order
                 </button>
-                <button type="button" @click="fulfillmentType = 'DELIVERY'; paymentModal.fulfillment = 'DELIVERY'"
+                <button type="button" @click="switchFulfillment('DELIVERY')"
                     :class="fulfillmentType === 'DELIVERY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] font-medium hover:text-[#111827]'"
                     class="py-1.5 px-3 rounded-[8px] text-[11.5px] text-center transition cursor-pointer">
                     Delivery
@@ -491,7 +509,7 @@
 
             <template x-for="(item, idx) in cart" :key="'cart-item-' + idx">
                 <div class="bg-white border border-[#e6e5e0] rounded-[12px] p-2.5 flex flex-col gap-2 shadow-[0px_1px_3px_rgba(0,0,0,0.03)] hover:border-[#df5826]/40 transition">
-                    {{-- Top Item Row: Thumbnail + Name + Neutral Serving Badge + Red Trash --}}
+                    {{-- Top Item Row: Thumbnail + Name + Serving Badge + Red Trash --}}
                     <div class="flex items-start justify-between gap-2">
                         <div class="w-[36px] h-[36px] rounded-[8px] bg-[#f3f4f6] border border-[#e5e7eb] overflow-hidden shrink-0 flex items-center justify-center">
                             <template x-if="item.image">
@@ -505,16 +523,26 @@
                         <div class="flex-1 min-w-0">
                             <p class="text-[13px] font-bold text-[#111827] leading-tight truncate" x-text="item.name"></p>
                             
-                            {{-- Serving Type Badge (Neutral gray background with icon per Figma) --}}
+                            {{-- Serving Type Badge --}}
                             <div class="mt-1 flex items-center gap-1.5">
-                                <button type="button" @click="toggleServingType(idx)"
-                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#374151] border border-[#e5e7eb] text-[10.5px] font-medium transition cursor-pointer"
-                                    :title="'Klik untuk ubah ke ' + ((item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Dine In' : 'Takeaway')">
-                                    <i class="fas fa-utensils text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'"></i>
-                                    <i class="fas fa-shopping-bag text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'"></i>
-                                    <span x-text="(item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Takeaway' : 'Dine In'"></span>
-                                    <i class="fas fa-right-left text-[8px] text-[#8b8e93] opacity-70 ml-0.5"></i>
-                                </button>
+                                <template x-if="fulfillmentType !== 'DELIVERY' && item.serving_type !== 'DELIVERY'">
+                                    <button type="button" @click="toggleServingType(idx)"
+                                        class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#374151] border border-[#e5e7eb] text-[10.5px] font-medium transition cursor-pointer"
+                                        :title="'Klik untuk ubah ke ' + ((item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Dine In' : 'Takeaway')">
+                                        <i class="fas fa-utensils text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'"></i>
+                                        <i class="fas fa-shopping-bag text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'"></i>
+                                        <span x-text="(item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Takeaway' : 'Dine In'"></span>
+                                        <i class="fas fa-right-left text-[8px] text-[#8b8e93] opacity-70 ml-0.5"></i>
+                                    </button>
+                                </template>
+                                <template x-if="fulfillmentType === 'DELIVERY' || item.serving_type === 'DELIVERY'">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-sky-50 text-sky-700 border border-sky-200 text-[10.5px] font-bold">
+                                        <i class="fas fa-motorcycle text-[9px]"></i>
+                                        <span>Delivery</span>
+                                    </span>
+                                </template>
+                                <span x-show="item.variant" x-cloak class="text-[10.5px] text-[#53565a] truncate" x-text="'· ' + item.variant"></span>
+                            </div>
                                 <span x-show="item.variant" x-cloak class="text-[10.5px] text-[#53565a] truncate" x-text="'· ' + item.variant"></span>
                             </div>
 
@@ -734,20 +762,28 @@
 
         <div class="flex-1 overflow-y-auto p-5 space-y-4 hide-scroll">
             {{-- Serving Type Selection in Modifier Modal --}}
-            <div class="grid grid-cols-2 gap-1.5 p-1 bg-[#f3f4f6] rounded-[10px]">
-                <button type="button" @click="modifierModal.servingType = 'DINE_IN'"
-                    :class="(modifierModal.servingType || 'DINE_IN') === 'DINE_IN' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-gray-500 font-medium'"
-                    class="py-1.5 rounded-[8px] text-[11.5px] transition flex items-center justify-center gap-1.5 cursor-pointer">
-                    <i class="fas fa-utensils text-[10px]"></i>
-                    <span>Dine In</span>
-                </button>
-                <button type="button" @click="modifierModal.servingType = 'TAKEAWAY'"
-                    :class="modifierModal.servingType === 'TAKEAWAY' ? 'bg-white text-[#df5826] font-bold shadow-xs' : 'text-gray-500 font-medium'"
-                    class="py-1.5 rounded-[8px] text-[11.5px] transition flex items-center justify-center gap-1.5 cursor-pointer">
-                    <i class="fas fa-shopping-bag text-[10px]"></i>
-                    <span>Takeaway</span>
-                </button>
-            </div>
+            <template x-if="fulfillmentType === 'DELIVERY'">
+                <div class="py-2 px-3 bg-sky-50 text-sky-700 border border-sky-200 rounded-[10px] flex items-center justify-center gap-2 text-[12px] font-bold">
+                    <i class="fas fa-motorcycle text-xs"></i>
+                    <span>Pesanan Delivery</span>
+                </div>
+            </template>
+            <template x-if="fulfillmentType !== 'DELIVERY'">
+                <div class="grid grid-cols-2 gap-1.5 p-1 bg-[#f3f4f6] rounded-[10px]">
+                    <button type="button" @click="modifierModal.servingType = 'DINE_IN'"
+                        :class="(modifierModal.servingType || 'DINE_IN') === 'DINE_IN' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-gray-500 font-medium'"
+                        class="py-1.5 rounded-[8px] text-[11.5px] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fas fa-utensils text-[10px]"></i>
+                        <span>Dine In</span>
+                    </button>
+                    <button type="button" @click="modifierModal.servingType = 'TAKEAWAY'"
+                        :class="modifierModal.servingType === 'TAKEAWAY' ? 'bg-white text-[#df5826] font-bold shadow-xs' : 'text-gray-500 font-medium'"
+                        class="py-1.5 rounded-[8px] text-[11.5px] transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fas fa-shopping-bag text-[10px]"></i>
+                        <span>Takeaway</span>
+                    </button>
+                </div>
+            </template>
             {{-- Variants --}}
             <template x-if="modifierModal.product?.variants?.length > 0">
             <div>
@@ -955,6 +991,39 @@
             </button>
             <button type="button" @click="newOrder()" class="flex-1 py-2.5 px-3 bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] rounded-[10px] text-white text-[12px] font-bold shadow-sm transition hover:opacity-95">
                 Pesanan Baru
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════════════════════════════════════════════════════ --}}
+{{-- DELIVERY SWITCH CONFIRMATION MODAL                         --}}
+{{-- ═══════════════════════════════════════════════════════════ --}}
+<div x-show="deliveryConfirmModal.show" x-cloak x-transition
+    class="fixed inset-0 z-50 bg-[#1e211f]/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white border border-[#e6e5e0] rounded-[24px] p-6 max-w-sm w-full text-center shadow-2xl relative"
+         @click.outside="deliveryConfirmModal.show = false">
+        
+        <div class="w-14 h-14 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center mx-auto mb-3.5 shadow-xs">
+            <i class="fas fa-motorcycle text-2xl"></i>
+        </div>
+
+        <h3 class="text-[18px] font-bold text-[#111827] leading-tight mb-2"
+            x-text="deliveryConfirmModal.title"></h3>
+        
+        <p class="text-[12.5px] text-[#53565a] mb-5 leading-relaxed"
+            x-text="deliveryConfirmModal.message">
+        </p>
+
+        <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" @click="deliveryConfirmModal.show = false"
+                class="py-2.5 px-3 rounded-[10px] border border-[#d8dce2] bg-gray-100 hover:bg-gray-200 text-[#53565a] text-[12.5px] font-semibold transition cursor-pointer">
+                Batal
+            </button>
+            <button type="button" @click="confirmSwitchFulfillment()"
+                class="py-2.5 px-3 rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] hover:from-[#e0571e] hover:to-[#cb4c1d] text-white text-[12.5px] font-bold shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <i class="fas fa-check text-xs"></i>
+                <span>Ya, Ubah</span>
             </button>
         </div>
     </div>
@@ -1368,6 +1437,12 @@ function posApp() {
         successScreen: { show: false, total: 0, change: 0, orderId: null },
         openBillConfirmModal: { show: false },
         openBillSuccessModal: { show: false, orderId: null, table: '', total: 0, updated: false },
+        deliveryConfirmModal: {
+            show: false,
+            targetType: 'DELIVERY',
+            title: 'Ubah ke Pesanan Delivery?',
+            message: 'Semua item menu di keranjang akan diubah menjadi tipe Delivery. Lanjutkan?'
+        },
         tableSetupModal: { show: false, name: '', loading: false },
 
         quickCash: [10000, 20000, 50000, 100000],
@@ -1621,13 +1696,14 @@ function posApp() {
 
         // ── Modifier Modal ───────────────────
         handleProductClick(product, servingType = 'DINE_IN') {
+            const effectiveServingType = (this.fulfillmentType === 'DELIVERY') ? 'DELIVERY' : (servingType || 'DINE_IN');
             const hasVariants = product.variants && product.variants.length > 0;
             const hasModifiers = product.modifier_groups && product.modifier_groups.length > 0;
 
             if (hasVariants || hasModifiers) {
-                this.openModifier(product, servingType);
+                this.openModifier(product, effectiveServingType);
             } else {
-                this.addToCartDirectly(product, servingType);
+                this.addToCartDirectly(product, effectiveServingType);
             }
         },
         addToCartDirectly(p, servingType = 'DINE_IN') {
@@ -1665,8 +1741,63 @@ function posApp() {
             idx === -1 ? this.modifierModal.selectedModifiers.push(mod) : this.modifierModal.selectedModifiers.splice(idx, 1);
         },
         toggleServingType(idx) {
-            if (!this.cart[idx]) return;
+            if (!this.cart[idx] || this.fulfillmentType === 'DELIVERY') return;
             this.cart[idx].serving_type = (this.cart[idx].serving_type === 'TAKEAWAY') ? 'DINE_IN' : 'TAKEAWAY';
+        },
+
+        switchFulfillment(type) {
+            if (this.fulfillmentType === type) return;
+
+            if (type === 'DELIVERY') {
+                const hasNonDelivery = this.cart.some(item => (item.serving_type || 'DINE_IN') !== 'DELIVERY');
+                if (this.cart.length > 0 && hasNonDelivery) {
+                    this.deliveryConfirmModal = {
+                        show: true,
+                        targetType: 'DELIVERY',
+                        title: 'Ubah ke Pesanan Delivery?',
+                        message: 'Semua item menu di keranjang (' + this.cart.length + ' item) akan otomatis diubah menjadi tipe Delivery. Lanjutkan?'
+                    };
+                    return;
+                }
+                this.fulfillmentType = 'DELIVERY';
+                if (this.paymentModal) this.paymentModal.fulfillment = 'DELIVERY';
+                return;
+            }
+
+            if (type === 'DINE_IN') {
+                const hasDelivery = this.cart.some(item => item.serving_type === 'DELIVERY');
+                if (this.cart.length > 0 && hasDelivery) {
+                    this.deliveryConfirmModal = {
+                        show: true,
+                        targetType: 'DINE_IN',
+                        title: 'Ubah ke Direct Order?',
+                        message: 'Semua item menu di keranjang (' + this.cart.length + ' item) akan otomatis diubah menjadi tipe Direct Order (Dine In). Lanjutkan?'
+                    };
+                    return;
+                }
+                this.fulfillmentType = 'DINE_IN';
+                if (this.paymentModal) this.paymentModal.fulfillment = 'DINE_IN';
+            }
+        },
+
+        confirmSwitchFulfillment() {
+            const target = this.deliveryConfirmModal.targetType || 'DELIVERY';
+            this.fulfillmentType = target;
+            if (this.paymentModal) this.paymentModal.fulfillment = target;
+
+            const newServingType = (target === 'DELIVERY') ? 'DELIVERY' : 'DINE_IN';
+            this.cart.forEach(item => {
+                item.serving_type = newServingType;
+            });
+
+            this.deliveryConfirmModal.show = false;
+            this.notify('Tipe pesanan diubah ke ' + (target === 'DELIVERY' ? 'Delivery' : 'Direct Order'), 'info');
+        },
+
+        cancelRecallOrder() {
+            this.recalledOrderId = null;
+            this.clearCart();
+            this.notify('Batal edit. Kembali ke transaksi baru.', 'info');
         },
 
         addToCart() {
@@ -2173,7 +2304,7 @@ function posApp() {
                 case 'F6': e.preventDefault(); if (this.paymentModal.show) this.paymentModal.method='QRIS'; break;
                 case 'F7': e.preventDefault(); if (this.successScreen.show) this.printReceipt('customer'); break;
                 case 'F8': e.preventDefault(); if (this.successScreen.show) this.printReceipt('kitchen'); break;
-                case 'Escape': this.modifierModal.show = false; this.paymentModal.show = false; this.openBillConfirmModal.show = false; this.openBillSuccessModal.show = false; this.discountModal.show = false; break;
+                case 'Escape': this.modifierModal.show = false; this.paymentModal.show = false; this.openBillConfirmModal.show = false; this.openBillSuccessModal.show = false; this.discountModal.show = false; this.deliveryConfirmModal.show = false; break;
             }
         },
 
