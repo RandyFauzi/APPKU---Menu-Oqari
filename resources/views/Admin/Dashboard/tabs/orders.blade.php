@@ -474,9 +474,9 @@
     <div x-show="openBillModal.show" 
          x-cloak 
          @keydown.escape.window="closeOpenBillModal()"
-         class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto font-sans">
+         class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden font-sans">
         
-        <div class="bg-white rounded-[24px] shadow-2xl border border-[#e6e5e0] w-full max-w-6xl max-h-[94vh] flex flex-col overflow-hidden relative"
+        <div class="bg-white rounded-[24px] shadow-2xl border border-[#e6e5e0] w-full max-w-6xl h-[92vh] max-h-[92vh] flex flex-col overflow-hidden relative"
              @click.outside="closeOpenBillModal()">
             
             <!-- Modal Header -->
@@ -512,7 +512,7 @@
             <div class="flex flex-col md:flex-row flex-1 overflow-hidden min-h-0">
                 
                 <!-- LEFT COLUMN: Catalog / Product Picker -->
-                <div class="flex-1 flex flex-col p-4 sm:p-5 overflow-hidden min-w-0 bg-white">
+                <div class="flex-1 flex flex-col p-4 sm:p-5 overflow-hidden min-w-0 bg-white min-h-0 h-full">
                     
                     <!-- Search & Categories Row -->
                     <div class="space-y-3 mb-4 shrink-0">
@@ -562,7 +562,7 @@
                     </div>
 
                     <!-- Products Grid -->
-                    <div class="flex-1 overflow-y-auto pr-1 min-h-[280px]">
+                    <div class="flex-1 overflow-y-auto pr-1 min-h-0">
                         
                         <!-- Loading State -->
                         <div x-show="openBillModal.isLoading" class="py-16 text-center text-gray-400">
@@ -618,9 +618,9 @@
                                     <!-- Price & TWO Serving Buttons (Direct Dine In & Takeaway) -->
                                     <div class="mt-2 pt-2 border-t border-[#f0eee9] flex flex-col gap-1.5">
                                         <div class="flex items-center justify-between">
-                                            <span class="font-bold text-[13px] text-[#111827]" x-text="'Rp ' + formatRp(p.effective_price || p.price)"></span>
+                                            <span class="font-bold text-[13px] text-[#111827]" x-text="formatRp(p.effective_price || p.price)"></span>
                                             <template x-if="p.has_active_discount">
-                                                <span class="text-[10px] text-gray-400 line-through" x-text="'Rp ' + formatRp(p.price)"></span>
+                                                <span class="text-[10px] text-gray-400 line-through" x-text="formatRp(p.price)"></span>
                                             </template>
                                         </div>
 
@@ -645,10 +645,11 @@
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN: CURRENT ORDER (Matching Layout & Segments) -->
-                <div class="w-full md:w-[360px] lg:w-[400px] shrink-0 border-t md:border-t-0 md:border-l border-[#e6e5e0] bg-[#fafaf9] flex flex-col justify-between p-4 lg:p-5 overflow-y-auto">
+                <!-- RIGHT COLUMN: CURRENT ORDER (Sticky Header, Scrollable Cart, Sticky Footer) -->
+                <div class="w-full md:w-[380px] lg:w-[410px] shrink-0 border-t md:border-t-0 md:border-l border-[#e6e5e0] bg-white flex flex-col h-full min-h-0 overflow-hidden">
                     
-                    <div class="space-y-3">
+                    <!-- TOP: Order Header & Information Inputs (Sticky Top) -->
+                    <div class="p-4 lg:p-5 border-b border-[#e6e5e0] bg-white shrink-0 space-y-3">
                         <!-- Panel Title -->
                         <div class="flex items-center justify-between">
                             <div>
@@ -671,7 +672,7 @@
                                 <input type="text" 
                                        x-model="openBillModal.customerName" 
                                        placeholder="Walk-in Customer"
-                                       class="w-full bg-white border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#111827] placeholder-[#8b8e93] outline-none transition">
+                                       class="w-full bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#111827] placeholder-[#8b8e93] outline-none transition">
                             </div>
 
                             <div>
@@ -681,7 +682,7 @@
                                            x-model="openBillModal.selectedTable" 
                                            list="openbill-table-options"
                                            placeholder="Pilih Meja" 
-                                           class="w-full bg-white border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#111827] outline-none transition">
+                                           class="w-full bg-[#f8f9fa] border border-[#d8dce2] focus:border-[#df5826] focus:bg-white rounded-[8px] px-2.5 py-1.5 text-[11.5px] font-semibold text-[#111827] outline-none transition">
                                     <datalist id="openbill-table-options">
                                         <template x-for="t in tables" :key="t.id">
                                             <option :value="t.name || t.id"></option>
@@ -691,7 +692,7 @@
                             </div>
                         </div>
 
-                        <!-- Segmented Control: [ Direct Order ] & [ Delivery ] (Circled in Cyan) -->
+                        <!-- Segmented Control: [ Direct Order ] & [ Delivery ] -->
                         <div class="bg-[#f3f4f6] p-[3px] rounded-[10px] grid grid-cols-2 gap-[3px]">
                             <button type="button" @click="openBillModal.fulfillmentType = 'DINE_IN'"
                                 :class="openBillModal.fulfillmentType !== 'DELIVERY' ? 'bg-white text-[#111827] font-bold shadow-xs' : 'text-[#53565a] font-medium hover:text-[#111827]'"
@@ -704,102 +705,102 @@
                                 Delivery
                             </button>
                         </div>
-
-                        <!-- Cart Items List (Single unified list matching Figma) -->
-                        <div class="flex flex-col gap-2.5 max-h-[36vh] overflow-y-auto pr-1">
-                            <template x-if="openBillModal.cart.length === 0">
-                                <div class="py-8 text-center text-gray-400 bg-white border border-dashed border-[#d8dce2] rounded-[12px] p-4">
-                                    <i class="fas fa-shopping-basket text-2xl mb-1.5 opacity-30"></i>
-                                    <p class="text-[11.5px] font-semibold text-gray-600">Keranjang masih kosong</p>
-                                    <p class="text-[10px] text-gray-400 mt-0.5">Pilih menu di samping untuk menambahkan ke pesanan.</p>
-                                </div>
-                            </template>
-
-                            <template x-for="(item, idx) in openBillModal.cart" :key="'ob-item-' + idx">
-                                <div class="bg-white border border-[#e6e5e0] rounded-[12px] p-2.5 flex flex-col gap-2 shadow-[0px_1px_3px_rgba(0,0,0,0.03)] hover:border-[#df5826]/40 transition">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <div class="w-[36px] h-[36px] rounded-[8px] bg-[#f3f4f6] border border-[#e5e7eb] overflow-hidden shrink-0 flex items-center justify-center">
-                                            <template x-if="item.image">
-                                                <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
-                                            </template>
-                                            <template x-if="!item.image">
-                                                <span class="text-[11px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
-                                            </template>
-                                        </div>
-
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-[13px] font-bold text-[#111827] leading-tight truncate" x-text="item.name"></p>
-                                            
-                                            {{-- Serving Type Badge (Neutral gray background with icon per Figma) --}}
-                                            <div class="mt-1 flex items-center gap-1.5">
-                                                <button type="button" @click="toggleOpenBillItemServingType(idx)"
-                                                    class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#374151] border border-[#e5e7eb] text-[10.5px] font-medium transition cursor-pointer"
-                                                    :title="'Klik untuk ubah ke ' + ((item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Dine In' : 'Takeaway')">
-                                                    <i class="fas fa-utensils text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'"></i>
-                                                    <i class="fas fa-shopping-bag text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'"></i>
-                                                    <span x-text="(item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Takeaway' : 'Dine In'"></span>
-                                                    <i class="fas fa-right-left text-[8px] text-[#8b8e93] opacity-70 ml-0.5"></i>
-                                                </button>
-                                                <span x-show="item.variant_name" class="text-[10.5px] text-[#53565a] truncate" x-text="'· ' + item.variant_name"></span>
-                                            </div>
-                                        </div>
-
-                                        <button type="button" @click="openBillModal.cart.splice(idx, 1)" class="w-6 h-6 flex items-center justify-center shrink-0 text-[#ef4444] hover:text-[#dc2626] hover:bg-red-50 rounded-full transition cursor-pointer" title="Hapus item">
-                                            <i class="far fa-trash-can text-[13px]"></i>
-                                        </button>
-                                    </div>
-
-                                    {{-- Collapsed Note Trigger --}}
-                                    <button type="button"
-                                        x-show="!item.showNotes && !item.notes"
-                                        @click="item.showNotes = true"
-                                        class="flex items-center gap-1.5 text-left w-fit hover:opacity-80 transition cursor-pointer py-0.5">
-                                        <i class="fas fa-pen-to-square text-[10.5px] text-[#df5826]"></i>
-                                        <span class="text-[11px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
-                                    </button>
-
-                                    {{-- Expanded Note Box --}}
-                                    <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] p-2 flex flex-col gap-1.5 border border-[#e6e5e0]">
-                                        <div class="relative border border-[#d8dce2] rounded-[6px] p-2 bg-white focus-within:border-[#df5826] transition">
-                                            <label class="text-[10px] font-medium text-[#7f837e] block mb-0.5">Catatan customer (Opsional)</label>
-                                            <textarea x-model="item.notes" rows="2" placeholder="Contoh: tanpa gula, es sedikit"
-                                                class="w-full bg-transparent border-none outline-none text-[11px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-1.5">
-                                            <button type="button" @click="item.notes = ''; item.showNotes = false"
-                                                class="border border-[#d8dce2] rounded-[7px] py-1.5 px-2 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-50 text-[#111827] text-[11px] font-semibold transition cursor-pointer">
-                                                <i class="far fa-trash-can text-[11px] text-[#53565a]"></i>
-                                                <span class="truncate">Hapus Catatan</span>
-                                            </button>
-                                            <button type="button" @click="splitOpenBillItem(idx)" :disabled="item.qty <= 1"
-                                                class="border border-[#d8dce2] rounded-[7px] py-1.5 px-2 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-50 text-[#111827] text-[11px] font-semibold transition disabled:opacity-40 cursor-pointer">
-                                                <i class="fas fa-up-right-from-square text-[10.5px] text-[#53565a]"></i>
-                                                <span class="truncate">Pisahkan 1 Item</span>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center justify-between pt-0.5">
-                                        <span class="text-[13.5px] font-bold text-[#111827]" x-text="'Rp ' + formatRp(item.price * item.qty)"></span>
-                                        <div class="flex items-center gap-1">
-                                            <button type="button" @click="if (item.qty > 1) { item.qty--; } else { openBillModal.cart.splice(idx, 1); }"
-                                                class="w-6 h-6 rounded-full border border-[#d8dce2] bg-white text-[#111827] hover:bg-gray-100 active:scale-95 flex items-center justify-center transition cursor-pointer">
-                                                <i class="fas fa-minus text-[9px]"></i>
-                                            </button>
-                                            <span class="w-6 text-center text-[12.5px] font-bold text-[#111827]" x-text="item.qty"></span>
-                                            <button type="button" @click="item.qty++"
-                                                class="w-6 h-6 rounded-full bg-[#111827] text-white hover:bg-[#df5826] active:scale-95 flex items-center justify-center transition shadow-2xs cursor-pointer">
-                                                <i class="fas fa-plus text-[9px]"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
                     </div>
 
-                    <!-- Price Breakdown & Submit Button -->
-                    <div class="mt-3 pt-3 border-t border-[#e6e5e0] space-y-2">
+                    <!-- MIDDLE: Cart Items List (Independent Scroll Area) -->
+                    <div class="flex-1 min-h-0 overflow-y-auto p-4 lg:p-5 space-y-2.5 bg-[#fafaf9]">
+                        <template x-if="openBillModal.cart.length === 0">
+                            <div class="py-8 text-center text-gray-400 bg-white border border-dashed border-[#d8dce2] rounded-[12px] p-4">
+                                <i class="fas fa-shopping-basket text-2xl mb-1.5 opacity-30"></i>
+                                <p class="text-[11.5px] font-semibold text-gray-600">Keranjang masih kosong</p>
+                                <p class="text-[10px] text-gray-400 mt-0.5">Pilih menu di samping untuk menambahkan ke pesanan.</p>
+                            </div>
+                        </template>
+
+                        <template x-for="(item, idx) in openBillModal.cart" :key="'ob-item-' + idx">
+                            <div class="bg-white border border-[#e6e5e0] rounded-[12px] p-2.5 flex flex-col gap-2 shadow-[0px_1px_3px_rgba(0,0,0,0.03)] hover:border-[#df5826]/40 transition">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="w-[36px] h-[36px] rounded-[8px] bg-[#f3f4f6] border border-[#e5e7eb] overflow-hidden shrink-0 flex items-center justify-center">
+                                        <template x-if="item.image">
+                                            <img :src="item.image" :alt="item.name" class="w-full h-full object-cover">
+                                        </template>
+                                        <template x-if="!item.image">
+                                            <span class="text-[11px] font-bold text-[#df5826]" x-text="(item.name || 'M').substring(0, 2).toUpperCase()"></span>
+                                        </template>
+                                    </div>
+
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-[13px] font-bold text-[#111827] leading-tight truncate" x-text="item.name"></p>
+                                        
+                                        {{-- Serving Type Badge (Neutral gray background with icon per Figma) --}}
+                                        <div class="mt-1 flex items-center gap-1.5">
+                                            <button type="button" @click="toggleOpenBillItemServingType(idx)"
+                                                class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#374151] border border-[#e5e7eb] text-[10.5px] font-medium transition cursor-pointer"
+                                                :title="'Klik untuk ubah ke ' + ((item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Dine In' : 'Takeaway')">
+                                                <i class="fas fa-utensils text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') !== 'TAKEAWAY'"></i>
+                                                <i class="fas fa-shopping-bag text-[9px] text-[#53565a]" x-show="(item.serving_type || 'DINE_IN') === 'TAKEAWAY'"></i>
+                                                <span x-text="(item.serving_type || 'DINE_IN') === 'TAKEAWAY' ? 'Takeaway' : 'Dine In'"></span>
+                                                <i class="fas fa-right-left text-[8px] text-[#8b8e93] opacity-70 ml-0.5"></i>
+                                            </button>
+                                            <span x-show="item.variant_name" class="text-[10.5px] text-[#53565a] truncate" x-text="'· ' + item.variant_name"></span>
+                                        </div>
+                                    </div>
+
+                                    <button type="button" @click="openBillModal.cart.splice(idx, 1)" class="w-6 h-6 flex items-center justify-center shrink-0 text-[#ef4444] hover:text-[#dc2626] hover:bg-red-50 rounded-full transition cursor-pointer" title="Hapus item">
+                                        <i class="far fa-trash-can text-[13px]"></i>
+                                    </button>
+                                </div>
+
+                                {{-- Collapsed Note Trigger --}}
+                                <button type="button"
+                                    x-show="!item.showNotes && !item.notes"
+                                    @click="item.showNotes = true"
+                                    class="flex items-center gap-1.5 text-left w-fit hover:opacity-80 transition cursor-pointer py-0.5">
+                                    <i class="fas fa-pen-to-square text-[10.5px] text-[#df5826]"></i>
+                                    <span class="text-[11px] font-semibold text-[#df5826]">Buat Catatan Customer</span>
+                                </button>
+
+                                {{-- Expanded Note Box --}}
+                                <div x-show="item.showNotes || item.notes" class="bg-[#f8f9fa] rounded-[8px] p-2 flex flex-col gap-1.5 border border-[#e6e5e0]">
+                                    <div class="relative border border-[#d8dce2] rounded-[6px] p-2 bg-white focus-within:border-[#df5826] transition">
+                                        <label class="text-[10px] font-medium text-[#7f837e] block mb-0.5">Catatan customer (Opsional)</label>
+                                        <textarea x-model="item.notes" rows="2" placeholder="Contoh: tanpa gula, es sedikit"
+                                            class="w-full bg-transparent border-none outline-none text-[11px] text-[#111827] placeholder-[#8b8e93] resize-none p-0 focus:ring-0"></textarea>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-1.5">
+                                        <button type="button" @click="item.notes = ''; item.showNotes = false"
+                                            class="border border-[#d8dce2] rounded-[7px] py-1.5 px-2 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-50 text-[#111827] text-[11px] font-semibold transition cursor-pointer">
+                                            <i class="far fa-trash-can text-[11px] text-[#53565a]"></i>
+                                            <span class="truncate">Hapus Catatan</span>
+                                        </button>
+                                        <button type="button" @click="splitOpenBillItem(idx)" :disabled="item.qty <= 1"
+                                            class="border border-[#d8dce2] rounded-[7px] py-1.5 px-2 flex items-center justify-center gap-1.5 bg-white hover:bg-gray-50 text-[#111827] text-[11px] font-semibold transition disabled:opacity-40 cursor-pointer">
+                                            <i class="fas fa-up-right-from-square text-[10.5px] text-[#53565a]"></i>
+                                            <span class="truncate">Pisahkan 1 Item</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between pt-0.5">
+                                    <span class="text-[13.5px] font-bold text-[#111827]" x-text="formatRp(item.price * item.qty)"></span>
+                                    <div class="flex items-center gap-1">
+                                        <button type="button" @click="if (item.qty > 1) { item.qty--; } else { openBillModal.cart.splice(idx, 1); }"
+                                            class="w-6 h-6 rounded-full border border-[#d8dce2] bg-white text-[#111827] hover:bg-gray-100 active:scale-95 flex items-center justify-center transition cursor-pointer">
+                                            <i class="fas fa-minus text-[9px]"></i>
+                                        </button>
+                                        <span class="w-6 text-center text-[12.5px] font-bold text-[#111827]" x-text="item.qty"></span>
+                                        <button type="button" @click="item.qty++"
+                                            class="w-6 h-6 rounded-full bg-[#111827] text-white hover:bg-[#df5826] active:scale-95 flex items-center justify-center transition shadow-2xs cursor-pointer">
+                                            <i class="fas fa-plus text-[9px]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- BOTTOM: Price Breakdown & Submit Button (Sticky Footer) -->
+                    <div class="p-4 lg:p-5 border-t border-[#e6e5e0] bg-white shrink-0 space-y-2 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
                         <div class="flex items-center justify-between text-[11.5px]">
                             <button type="button" @click="openBillModal.showPriceBreakdown = !openBillModal.showPriceBreakdown" 
                                     class="font-semibold text-[#53565a] hover:text-[#111827] flex items-center gap-1 select-none transition-colors cursor-pointer group">
@@ -809,17 +810,17 @@
                         </div>
 
                         <div class="flex items-baseline justify-between pt-0.5">
-                            <span class="text-[18px] font-black text-[#df5826] tracking-tight" x-text="'Rp ' + formatRp(openBillCartTotal() + Math.round(openBillCartTotal() * 0.1))"></span>
+                            <span class="text-[18px] font-black text-[#df5826] tracking-tight" x-text="formatRp(openBillCartTotal() + Math.round(openBillCartTotal() * 0.1))"></span>
                         </div>
 
                         <div x-show="openBillModal.showPriceBreakdown" class="space-y-1.5 pt-1 border-t border-dashed border-[#e6e5e0]">
                             <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
                                 <span>Subtotal</span>
-                                <span class="font-semibold text-[#111827]" x-text="'Rp ' + formatRp(openBillCartTotal())"></span>
+                                <span class="font-semibold text-[#111827]" x-text="formatRp(openBillCartTotal())"></span>
                             </div>
                             <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
                                 <span>Tax (10%)</span>
-                                <span class="font-semibold text-[#111827]" x-text="'Rp ' + formatRp(Math.round(openBillCartTotal() * 0.1))"></span>
+                                <span class="font-semibold text-[#111827]" x-text="formatRp(Math.round(openBillCartTotal() * 0.1))"></span>
                             </div>
                             <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
                                 <span>Additional fee</span>
