@@ -8,8 +8,8 @@ $groups = [
         ['access-pos', 'Kasir', 'fa-cash-register', 'admin.pos.index', 'images/sparta/nav-kasir.svg'],
         ['view-orders', 'Pesanan Aktif', 'fa-receipt', 'admin.orders.index', 'images/sparta/nav-pesanan.svg'],
         ['record-attendance', 'Absensi', 'fa-user-clock', 'admin.attendance.index', 'images/sparta/nav-absensi.svg'],
-        ['view-kitchen', 'Layar Dapur', 'fa-fire-burner', 'admin.kitchen.index', null],
-        ['manage-register', 'Rekonsiliasi Kas', 'fa-wallet', 'admin.register.index', null],
+        ['view-kitchen', 'Layar Dapur', 'fa-fire-burner', 'admin.kitchen.index', 'images/sparta/nav-dapur.svg'],
+        ['manage-register', 'Rekonsiliasi Kas', 'fa-wallet', 'admin.register.index', 'images/sparta/nav-rekonsiliasi.svg'],
     ],
     'Menu & Stok' => [
         ['manage-menu', 'Kelola Menu', 'fa-burger', 'admin.menu.index', 'images/sparta/nav-menu.svg'],
@@ -18,7 +18,7 @@ $groups = [
     'Manajemen Tim' => [
         ['manage-users', 'Manajemen Staf', 'fa-user-shield', 'admin.users.index', 'images/sparta/nav-staf.svg'],
         ['manage-crew', 'Jadwal Shift', 'fa-calendar-days', 'admin.shifts.index', 'images/sparta/nav-shift.svg'],
-        ['view-own-schedule', 'Jadwal Saya', 'fa-calendar', 'admin.my-schedule', null],
+        ['view-own-schedule', 'Jadwal Saya', 'fa-calendar', 'admin.my-schedule', 'images/sparta/nav-jadwal-saya.svg'],
     ],
     'Laporan' => [
         ['view-reports', 'Laporan Keuangan', 'fa-book', 'admin.reports.index', 'images/sparta/nav-laporan.svg'],
@@ -30,7 +30,7 @@ $groups = [
         ['manage-settings', 'Jam Operasional', 'fa-clock', 'admin.operating-hours.index', 'images/sparta/clock.svg'],
         ['manage-settings', 'Pengaturan Struk', 'fa-print', 'admin.receipt-settings.index', 'images/sparta/nav-struk.svg'],
         ['manage-hpp', 'Kalkulator HPP', 'fa-calculator', 'admin.hpp.index', 'images/sparta/nav-hpp.svg'],
-        ['manage-settings', 'Voucher Promo', 'fa-ticket-alt', 'admin.vouchers.index', 'images/sparta/tag-price-bold-duotone.svg'],
+        ['manage-settings', 'Voucher Promo', 'fa-ticket-alt', 'admin.vouchers.index', 'images/sparta/nav-voucher.svg'],
     ],
 ];
 if ($member?->role === 'superadmin') {
