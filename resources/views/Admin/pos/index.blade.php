@@ -543,8 +543,6 @@
                                 </template>
                                 <span x-show="item.variant" x-cloak class="text-[10.5px] text-[#53565a] truncate" x-text="'· ' + item.variant"></span>
                             </div>
-                                <span x-show="item.variant" x-cloak class="text-[10.5px] text-[#53565a] truncate" x-text="'· ' + item.variant"></span>
-                            </div>
 
                             <p x-show="item.modifiers && item.modifiers.length > 0" x-cloak
                                class="text-[10px] text-[#53565a] truncate mt-0.5"
