@@ -117,41 +117,72 @@ class ReportingService
             'bars' => $busyHoursBars,
         ];
 
-        // 3. Top Products Today (Top 5)
-        $top5Items = DB::table('order_items')
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.shop_id', $shopId)
-            ->whereNotIn('orders.order_status', ['Dibatalkan', 'CANCELLED', 'Cancelled'])
-            ->whereDate('orders.created_at', $today)
-            ->select(
+        // 3. Top Products By Period (Today, This Week, This Month - Top 5)
+        $fetchTopItems = function (?Carbon $specificDate = null, ?Carbon $startDate = null, ?Carbon $endDate = null) use ($shopId) {
+            $query = DB::table('order_items')
+                ->join('orders', 'order_items.order_id', '=', 'orders.id')
+                ->where('orders.shop_id', $shopId)
+                ->whereNotIn('orders.order_status', ['Dibatalkan', 'CANCELLED', 'Cancelled']);
+
+            if ($specificDate) {
+                $query->whereDate('orders.created_at', $specificDate);
+            } elseif ($startDate && $endDate) {
+                $query->whereBetween('orders.created_at', [$startDate, $endDate]);
+            }
+
+            return $query->select(
                 'order_items.product_id',
                 'order_items.product_name',
                 DB::raw('SUM(order_items.quantity) as total_sold'),
                 DB::raw('SUM(order_items.subtotal) as total_revenue')
             )
-            ->groupBy('order_items.product_id', 'order_items.product_name')
-            ->orderByDesc('total_sold')
-            ->limit(5)
-            ->get();
+                ->groupBy('order_items.product_id', 'order_items.product_name')
+                ->orderByDesc('total_sold')
+                ->limit(5)
+                ->get();
+        };
 
-        $topItem = $top5Items->first();
-        $productIds = $top5Items->pluck('product_id')->filter()->all();
-        $productsById = ! empty($productIds)
-            ? Product::where('shop_id', $shopId)->whereIn('id', $productIds)->get()->keyBy('id')
+        $now = Carbon::now();
+        $startOfWeek = $now->copy()->startOfWeek()->startOfDay();
+        $endOfWeek = $now->copy()->endOfWeek()->endOfDay();
+        $startOfMonth = $now->copy()->startOfMonth()->startOfDay();
+        $endOfMonth = $now->copy()->endOfMonth()->endOfDay();
+
+        $top5Today = $fetchTopItems(specificDate: $today);
+        $top5Week = $fetchTopItems(startDate: $startOfWeek, endDate: $endOfWeek);
+        $top5Month = $fetchTopItems(startDate: $startOfMonth, endDate: $endOfMonth);
+
+        $allProductIds = $top5Today->pluck('product_id')
+            ->concat($top5Week->pluck('product_id'))
+            ->concat($top5Month->pluck('product_id'))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $productsById = ! empty($allProductIds)
+            ? Product::where('shop_id', $shopId)->whereIn('id', $allProductIds)->get()->keyBy('id')
             : collect();
 
-        $topProductsList = $top5Items->map(function ($item, $index) use ($productsById) {
-            $product = $productsById->get($item->product_id);
+        $formatTopList = function ($collection) use ($productsById) {
+            return $collection->map(function ($item, $index) use ($productsById) {
+                $product = $productsById->get($item->product_id);
 
-            return [
-                'rank' => $index + 1,
-                'name' => $item->product_name,
-                'sold' => (int) $item->total_sold,
-                'revenue' => (float) $item->total_revenue,
-                'image' => $product?->image_url,
-            ];
-        })->toArray();
+                return [
+                    'rank' => $index + 1,
+                    'name' => $item->product_name,
+                    'sold' => (int) $item->total_sold,
+                    'revenue' => (float) $item->total_revenue,
+                    'image' => $product?->image_url,
+                ];
+            })->values()->toArray();
+        };
 
+        $topProductsListToday = $formatTopList($top5Today);
+        $topProductsListWeek = $formatTopList($top5Week);
+        $topProductsListMonth = $formatTopList($top5Month);
+
+        $topItem = $top5Today->first();
         $topProduct = $topItem?->product_id ? $productsById->get($topItem->product_id) : null;
 
         // 4. Customer Retention (Today & Monthly Comparison)
@@ -332,7 +363,12 @@ class ReportingService
             'returningCount' => $monthlyReturningCount,
             'newCount' => $monthlyNewCount,
             'totalCustomers' => $todayVisitors,
-            'topProducts' => $topProductsList,
+            'topProducts' => $topProductsListToday,
+            'topProductsByPeriod' => [
+                'today' => $topProductsListToday,
+                'week' => $topProductsListWeek,
+                'month' => $topProductsListMonth,
+            ],
             'hourlySales' => $hourlySales,
             'busyHours' => $busyHourSummary,
             'monthlyTrend' => [

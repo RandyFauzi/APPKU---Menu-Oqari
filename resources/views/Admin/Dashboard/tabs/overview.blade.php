@@ -265,12 +265,42 @@
 
         </div>
 
-        <!-- Right Column: Menu Terlaris Hari Ini -->
+        <!-- Right Column: Menu Terlaris (Hari Ini / Minggu Ini / Bulan Ini) -->
         <div class="lg:col-span-6">
             <div class="bg-white border border-[#e9ebf0] rounded-[12px] shadow-[0px_3px_12px_rgba(38,39,35,0.04)] h-full flex flex-col overflow-hidden">
-                <div class="p-4 border-b border-[#e9ebf0]">
-                    <h2 class="text-[14px] font-semibold text-[#111827] leading-tight">Menu Terlaris Hari Ini</h2>
-                    <p class="text-[12px] text-[#7f837e] font-normal mt-0.5">5 menu terlaris</p>
+                <div class="p-3.5 sm:p-4 border-b border-[#e9ebf0] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-[14px] font-semibold text-[#111827] leading-tight"
+                            x-text="topProductsFilter === 'week' ? 'Menu Terlaris Minggu Ini' : (topProductsFilter === 'month' ? 'Menu Terlaris Bulan Ini' : 'Menu Terlaris Hari Ini')">
+                            Menu Terlaris Hari Ini
+                        </h2>
+                        <p class="text-[12px] text-[#7f837e] font-normal mt-0.5"
+                           x-text="topProductsFilter === 'week' ? '5 menu terlaris minggu ini' : (topProductsFilter === 'month' ? '5 menu terlaris bulan ini' : '5 menu terlaris hari ini')">
+                            5 menu terlaris
+                        </p>
+                    </div>
+
+                    <!-- Filter Tabs: Hari Ini / Minggu Ini / Bulan Ini -->
+                    <div class="inline-flex items-center p-1 bg-[#f4f5f7] rounded-[10px] border border-[#e9ebf0] self-start sm:self-auto gap-0.5">
+                        <button type="button"
+                                @click="topProductsFilter = 'today'"
+                                :class="topProductsFilter === 'today' ? 'bg-white text-[#df5826] font-bold shadow-2xs border border-[#ffdec9]' : 'text-[#7f837e] hover:text-[#111827] font-medium border border-transparent'"
+                                class="px-2.5 py-1 rounded-[7px] text-[11px] transition cursor-pointer">
+                            Hari Ini
+                        </button>
+                        <button type="button"
+                                @click="topProductsFilter = 'week'"
+                                :class="topProductsFilter === 'week' ? 'bg-white text-[#df5826] font-bold shadow-2xs border border-[#ffdec9]' : 'text-[#7f837e] hover:text-[#111827] font-medium border border-transparent'"
+                                class="px-2.5 py-1 rounded-[7px] text-[11px] transition cursor-pointer">
+                            Minggu Ini
+                        </button>
+                        <button type="button"
+                                @click="topProductsFilter = 'month'"
+                                :class="topProductsFilter === 'month' ? 'bg-white text-[#df5826] font-bold shadow-2xs border border-[#ffdec9]' : 'text-[#7f837e] hover:text-[#111827] font-medium border border-transparent'"
+                                class="px-2.5 py-1 rounded-[7px] text-[11px] transition cursor-pointer">
+                            Bulan Ini
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Table -->
@@ -283,7 +313,7 @@
                         <div class="w-28 text-right pr-2">Pendapatan</div>
                     </div>
 
-                    <!-- State: Ada Produk Terjual Hari Ini -->
+                    <!-- State: Ada Produk Terjual -->
                     <template x-if="getTopProductsList().length > 0">
                         <div class="divide-y divide-[#e9ebf0]">
                             <template x-for="(item, idx) in getTopProductsList()" :key="idx">
@@ -308,14 +338,20 @@
                         </div>
                     </template>
 
-                    <!-- State: Belum Ada Produk Terjual Hari Ini -->
+                    <!-- State: Belum Ada Produk Terjual -->
                     <template x-if="getTopProductsList().length === 0">
                         <div class="flex-1 py-12 px-4 flex flex-col items-center justify-center text-center">
                             <div class="w-11 h-11 rounded-full bg-[#f8f9fa] border border-[#e9ebf0] flex items-center justify-center text-[#7f837e] mb-2.5">
                                 <i class="fas fa-award text-sm"></i>
                             </div>
-                            <p class="text-[13px] font-medium text-[#111827]">Belum ada penjualan menu hari ini</p>
-                            <p class="text-[11px] text-[#7f837e] mt-0.5 max-w-xs">Peringkat 5 menu terlaris akan otomatis dihitung dari pesanan hari ini.</p>
+                            <p class="text-[13px] font-medium text-[#111827]"
+                               x-text="topProductsFilter === 'week' ? 'Belum ada penjualan menu minggu ini' : (topProductsFilter === 'month' ? 'Belum ada penjualan menu bulan ini' : 'Belum ada penjualan menu hari ini')">
+                                Belum ada penjualan menu hari ini
+                            </p>
+                            <p class="text-[11px] text-[#7f837e] mt-0.5 max-w-xs"
+                               x-text="topProductsFilter === 'week' ? 'Peringkat 5 menu terlaris akan otomatis dihitung dari pesanan minggu ini.' : (topProductsFilter === 'month' ? 'Peringkat 5 menu terlaris akan otomatis dihitung dari pesanan bulan ini.' : 'Peringkat 5 menu terlaris akan otomatis dihitung dari pesanan hari ini.')">
+                                Peringkat 5 menu terlaris akan otomatis dihitung dari pesanan hari ini.
+                            </p>
                         </div>
                     </template>
                 </div>

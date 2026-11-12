@@ -784,6 +784,7 @@
                 },
                 orders: [],
                 analytics: null,
+                topProductsFilter: 'today',
                 isSaving: false,
                 showOrderDetailModal: false,
                 selectedOrder: null,
@@ -2179,8 +2180,14 @@
                     }
                 },
                 getTopProductsList() {
-                    if (Array.isArray(this.analytics?.topProducts) && this.analytics.topProducts.length > 0) {
-                        return this.analytics.topProducts.map((p, idx) => ({
+                    const period = this.topProductsFilter || 'today';
+                    const periodList = this.analytics?.topProductsByPeriod?.[period];
+                    const sourceList = Array.isArray(periodList)
+                        ? periodList
+                        : (period === 'today' && Array.isArray(this.analytics?.topProducts) ? this.analytics.topProducts : []);
+
+                    if (Array.isArray(sourceList) && sourceList.length > 0) {
+                        return sourceList.map((p, idx) => ({
                             rank: p.rank || (idx + 1),
                             name: p.name || 'Produk',
                             sold: Number(p.sold || 0),
