@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\CashRegister;
 use App\Models\CashRegisterSession;
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\Shop;
 use App\Models\User;
@@ -338,5 +339,26 @@ class AdminDashboardTest extends TestCase
             'category_id' => $catFallback->id,
             'category_name' => 'General',
         ]);
+    }
+
+    public function test_admin_can_update_order_status(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $user = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+        $order = Order::create([
+            'shop_id' => $shop->id,
+            'order_status' => 'CONFIRMED',
+            'order_number' => 'ORD-123',
+            'customer_name' => 'John',
+            'fulfillment_type' => 'DINE_IN',
+            'total_price' => 50000,
+        ]);
+
+        $response = $this->actingAs($user)->postJson("/admin/api/orders/{$order->id}/status", [
+            'status' => 'In Progress',
+        ]);
+
+        $response->assertOk()->assertJson(['success' => true]);
+        $this->assertEquals('PREPARING', $order->fresh()->order_status);
     }
 }
