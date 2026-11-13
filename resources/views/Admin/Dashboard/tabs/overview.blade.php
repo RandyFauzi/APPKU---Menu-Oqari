@@ -135,7 +135,7 @@
                         </h2>
                         <p class="text-[12px] text-[#7f837e] font-normal mt-0.5">Status pesanan di dapur</p>
                     </div>
-                    <button type="button" @click="navigateToPage('orders')" class="inline-flex items-center gap-1 text-[11px] text-[#c94d00] hover:text-[#ea580c] font-normal transition-colors">
+                    <button type="button" @click="navigateToPage('orders')" class="inline-flex items-center gap-1 text-[11px] text-[#c94d00] hover:text-[#ea580c] font-normal transition-colors cursor-pointer">
                         <span>Semua Pesanan</span>
                         <img src="{{ asset('images/sparta/chevron-right.svg') }}" class="w-3 h-3" alt="">
                     </button>
@@ -149,9 +149,9 @@
                             <div class="w-full bg-[#f9731f] rounded-full h-10 transition-all duration-300"></div>
                         </div>
 
-                        <!-- Order Cards List -->
-                        <div class="flex-1 flex flex-col gap-3">
-                            <template x-for="(item, idx) in getLiveKitchenQueue().slice(0, 2)" :key="item.id || idx">
+                        <!-- Order Cards List (Scrollable) -->
+                        <div class="flex-1 flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:#ffd6bd_transparent]">
+                            <template x-for="(item, idx) in getLiveKitchenQueue()" :key="item.id || idx">
                                 <div class="bg-white border border-[#e9ebf0] rounded-[12px] p-3 shadow-[0px_4px_7.5px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow">
                                     <!-- Order Header -->
                                     <div class="flex items-center justify-between gap-2">
@@ -191,10 +191,10 @@
 
                                     <!-- Action Buttons -->
                                     <div class="mt-3 flex items-center gap-2">
-                                        <button type="button" @click="openOrderDetail(item)" class="flex-1 py-1.5 px-3 rounded-[8px] border border-[#e9ebf0] hover:bg-orange-50/40 text-[12px] font-medium text-[#c94d00] text-center transition-colors">
+                                        <button type="button" @click="openOrderDetail(item)" class="flex-1 py-1.5 px-3 rounded-[8px] border border-[#e9ebf0] hover:bg-orange-50/40 text-[12px] font-medium text-[#c94d00] text-center transition-colors cursor-pointer">
                                             Lihat Detail
                                         </button>
-                                        <button type="button" @click="markOrderReady(item)" class="flex-1 py-1.5 px-3 rounded-[8px] bg-gradient-to-r from-[#f9731f] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-[12px] font-medium text-white flex items-center justify-center gap-1.5 shadow-[0_2px_4px_rgba(249,115,31,0.2)] transition-all">
+                                        <button type="button" @click="markOrderReady(item)" class="flex-1 py-1.5 px-3 rounded-[8px] bg-gradient-to-r from-[#f9731f] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-[12px] font-medium text-white flex items-center justify-center gap-1.5 shadow-[0_2px_4px_rgba(249,115,31,0.2)] transition-all cursor-pointer">
                                             <img src="{{ asset('images/sparta/check-bold.svg') }}" class="w-3.5 h-3.5" alt="">
                                             <span>Siap Disajikan</span>
                                         </button>
