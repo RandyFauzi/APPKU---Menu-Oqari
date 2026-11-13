@@ -17,7 +17,7 @@
 
     <!-- Quick Stats Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-[16px] border border-[#e9ebf0] p-4.5 shadow-2xs">
+        <div class="bg-white rounded-[16px] border border-[#e9ebf0] p-4 sm:p-5 shadow-2xs">
             <div class="flex items-center justify-between">
                 <span class="text-[11px] font-semibold text-[#7f837e] uppercase tracking-wider">Total Voucher</span>
                 <div class="w-8 h-8 rounded-[10px] bg-[#fff0e6] text-[#df5826] flex items-center justify-center text-sm">
@@ -28,7 +28,7 @@
             <p class="text-[11px] text-[#7f837e] mt-0.5">Semua voucher yang telah dibuat</p>
         </div>
 
-        <div class="bg-white rounded-[16px] border border-[#e9ebf0] p-4.5 shadow-2xs">
+        <div class="bg-white rounded-[16px] border border-[#e9ebf0] p-4 sm:p-5 shadow-2xs">
             <div class="flex items-center justify-between">
                 <span class="text-[11px] font-semibold text-[#7f837e] uppercase tracking-wider">Voucher Aktif</span>
                 <div class="w-8 h-8 rounded-[10px] bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
@@ -39,7 +39,7 @@
             <p class="text-[11px] text-[#7f837e] mt-0.5">Dapat digunakan pelanggan sekarang</p>
         </div>
 
-        <div class="bg-white rounded-[16px] border border-[#e9ebf0] p-4.5 shadow-2xs">
+        <div class="bg-white rounded-[16px] border border-[#e9ebf0] p-4 sm:p-5 shadow-2xs">
             <div class="flex items-center justify-between">
                 <span class="text-[11px] font-semibold text-[#7f837e] uppercase tracking-wider">Total Terpakai</span>
                 <div class="w-8 h-8 rounded-[10px] bg-blue-50 text-blue-600 flex items-center justify-center text-sm">

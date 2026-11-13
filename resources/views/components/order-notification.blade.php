@@ -2,7 +2,7 @@
      @new-order-received.window="handleNewOrder($event.detail)"
      x-show="show"
      x-cloak
-     class="fixed bottom-5 right-5 z-[9999] w-[350px] max-w-[calc(100vw-32px)] bg-white rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.16)] border border-[#e6e5e0] p-4.5 transform transition-all select-none"
+     class="fixed bottom-5 right-5 z-[9999] w-[350px] max-w-[calc(100vw-32px)] bg-white rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.18)] border border-[#e6e5e0] p-4 sm:p-5 select-none"
      x-transition:enter="transition ease-out duration-300"
      x-transition:enter-start="opacity-0 translate-y-4 scale-95"
      x-transition:enter-end="opacity-100 translate-y-0 scale-100"
