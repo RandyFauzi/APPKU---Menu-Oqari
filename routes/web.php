@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HppCalculatorController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\KitchenController;
+use App\Http\Controllers\Admin\ModifierController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\ReportController;
@@ -115,6 +116,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/api/category', [DashboardController::class, 'saveCategory']);
         Route::put('/admin/api/category/{id}', [DashboardController::class, 'updateCategory']);
         Route::delete('/admin/api/category/{id}', [DashboardController::class, 'deleteCategory']);
+
+        // Add-ons / Modifiers Management
+        Route::get('/admin/api/addons', [ModifierController::class, 'index'])->name('admin.addons.api.index');
+        Route::post('/admin/api/addons', [ModifierController::class, 'store'])->name('admin.addons.store');
+        Route::put('/admin/api/addons/{id}', [ModifierController::class, 'update'])->whereNumber('id')->name('admin.addons.update');
+        Route::delete('/admin/api/addons/{id}', [ModifierController::class, 'destroy'])->whereNumber('id')->name('admin.addons.destroy');
+        Route::patch('/admin/api/addons/{id}/toggle', [ModifierController::class, 'toggle'])->whereNumber('id')->name('admin.addons.toggle');
 
     });
 

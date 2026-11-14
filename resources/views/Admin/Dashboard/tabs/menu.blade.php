@@ -878,6 +878,60 @@
                                     </template>
                                 </div>
                             </div>
+
+                            <!-- Add-ons / Modifiers Section -->
+                            <div class="w-full pt-3 mt-3 border-t border-dashed border-[#e9ebf0] rounded-[12px] bg-[#f8f9fa] p-3 border border-[#e9ebf0]">
+                                <div class="flex items-center justify-between">
+                                    <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                                        <input type="checkbox" x-model="draft.has_addons" @change="if(!draft.has_addons) draft.modifier_group_ids = []" class="sr-only">
+                                        <div class="relative w-10 h-5 rounded-full transition-colors duration-200 ease-in-out p-0.5 shadow-inner"
+                                             :class="draft.has_addons ? 'bg-[#df5826]' : 'bg-gray-300 hover:bg-gray-400'">
+                                            <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-200 ease-in-out"
+                                                 :class="draft.has_addons ? 'translate-x-5' : 'translate-x-0'"></div>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-[12px] font-bold text-[#111827] flex items-center gap-1.5">
+                                                <i class="fas fa-layer-group text-[#df5826] text-[11px]"></i>
+                                                <span>Aktifkan Add-ons untuk menu ini</span>
+                                            </span>
+                                            <span class="text-[10.5px] text-[#7f837e]">Munculkan pop-up pilihan addon saat menu ini dipesan</span>
+                                        </div>
+                                    </label>
+                                    <template x-if="draft.has_addons && draft.modifier_group_ids?.length > 0">
+                                        <span class="text-[11px] font-bold text-[#df5826] px-2 py-0.5 rounded-[6px] bg-[#fff0e6] border border-[#ffd2b8]" x-text="draft.modifier_group_ids.length + ' Grup Add-on Terpilih'"></span>
+                                    </template>
+                                </div>
+
+                                <!-- Addon Groups Checklist (shown only when has_addons is true) -->
+                                <div x-show="draft.has_addons" x-transition class="mt-3 pt-3 border-t border-gray-200/60">
+                                    <template x-if="(modifierGroups || []).length === 0">
+                                        <div class="py-2.5 px-3 rounded-[8px] bg-white border border-[#e9ebf0] text-center text-[11.5px] text-[#7f837e]">
+                                            <span>Belum ada grup addon yang dibuat di toko Anda. </span>
+                                            <a href="/admin/addons" class="text-[#df5826] font-bold hover:underline">Kelola Add-ons di sini</a>.
+                                        </div>
+                                    </template>
+
+                                    <template x-if="(modifierGroups || []).length > 0">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            <template x-for="grp in (modifierGroups || [])" :key="grp.id">
+                                                <label class="flex items-start gap-2.5 p-2.5 rounded-[10px] bg-white border cursor-pointer transition text-xs"
+                                                       :class="(draft.modifier_group_ids || []).includes(grp.id) ? 'border-[#df5826] bg-[#fffaf5]' : 'border-[#e9ebf0] hover:border-gray-300'">
+                                                    <input type="checkbox" :value="grp.id" x-model.number="draft.modifier_group_ids" class="rounded text-[#df5826] focus:ring-[#df5826] mt-0.5">
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                                            <span class="font-bold text-[#111827] truncate" x-text="grp.name"></span>
+                                                            <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded"
+                                                                  :class="grp.selection_type === 'SINGLE' ? 'bg-sky-50 text-sky-700' : 'bg-emerald-50 text-emerald-700'"
+                                                                  x-text="grp.selection_type === 'SINGLE' ? 'Pilih 1 (Radio)' : 'Bisa Banyak (Checkbox)'"></span>
+                                                        </div>
+                                                        <p class="text-[10px] text-[#7f837e] truncate mt-0.5" x-text="(grp.modifiers || []).map(m => m.name).join(', ')"></p>
+                                                    </div>
+                                                </label>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </div>
                     </template>
 

@@ -802,17 +802,44 @@
             {{-- Modifier Groups --}}
             <template x-for="group in (modifierModal.product?.modifier_groups ?? [])" :key="group.id">
             <div>
-                <p class="text-[11px] font-bold text-[#8b8e93] uppercase tracking-wider mb-2" x-text="group.name"></p>
-                <div class="space-y-2">
-                    <template x-for="mod in group.modifiers" :key="mod.id">
-                        <label class="flex items-center gap-3 p-3 rounded-[10px] border cursor-pointer transition"
-                            :class="isModifierSelected(mod.id) ? 'border-[#df5826] bg-[#fff6f0]' : 'border-[#d8dce2] hover:border-[#8b8e93]'">
-                            <input type="checkbox" class="rounded text-[#df5826] focus:ring-[#df5826]" :checked="isModifierSelected(mod.id)" @change="toggleModifier(mod)">
-                            <span class="text-[12.5px] font-semibold text-[#111827] flex-1" x-text="mod.name"></span>
-                            <span class="text-[11.5px] text-[#df5826] font-bold" x-show="mod.price_adjustment > 0" x-text="'+Rp' + formatRp(mod.price_adjustment)"></span>
-                        </label>
-                    </template>
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-[11px] font-bold text-[#8b8e93] uppercase tracking-wider" x-text="group.name"></p>
+                    <span class="text-[9.5px] font-bold px-1.5 py-0.5 rounded"
+                          :class="(group.selection_type === 'SINGLE' || group.max_selections === 1) ? 'bg-sky-50 text-sky-700' : 'bg-emerald-50 text-emerald-700'"
+                          x-text="(group.selection_type === 'SINGLE' || group.max_selections === 1) ? 'Pilih 1 (Radio)' : 'Bisa Pilih Banyak'"></span>
                 </div>
+
+                {{-- Single Choice (Radio) e.g. Less Ice, Normal Ice --}}
+                <template x-if="group.selection_type === 'SINGLE' || group.max_selections === 1">
+                    <div class="space-y-1.5">
+                        <template x-for="mod in group.modifiers" :key="mod.id">
+                            <label class="flex items-center gap-3 p-2.5 rounded-[10px] border cursor-pointer transition"
+                                :class="isModifierSelected(mod.id) ? 'border-[#df5826] bg-[#fff6f0]' : 'border-[#d8dce2] hover:border-[#8b8e93]'">
+                                <input type="radio" :name="'pos_mod_grp_' + group.id" class="sr-only" :checked="isModifierSelected(mod.id)" @change="selectModifierRadio(group, mod)">
+                                <div class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
+                                     :class="isModifierSelected(mod.id) ? 'border-[#df5826]' : 'border-gray-300'">
+                                    <div class="w-2 h-2 rounded-full bg-[#df5826]" x-show="isModifierSelected(mod.id)"></div>
+                                </div>
+                                <span class="text-[12.5px] font-semibold text-[#111827] flex-1" x-text="mod.name"></span>
+                                <span class="text-[11.5px] text-[#df5826] font-bold" x-show="Number(mod.price_adjustment) > 0" x-text="'+Rp' + formatRp(mod.price_adjustment)"></span>
+                            </label>
+                        </template>
+                    </div>
+                </template>
+
+                {{-- Multiple Choice (Checkbox) e.g. Toppings --}}
+                <template x-if="group.selection_type !== 'SINGLE' && group.max_selections !== 1">
+                    <div class="space-y-1.5">
+                        <template x-for="mod in group.modifiers" :key="mod.id">
+                            <label class="flex items-center gap-3 p-2.5 rounded-[10px] border cursor-pointer transition"
+                                :class="isModifierSelected(mod.id) ? 'border-[#df5826] bg-[#fff6f0]' : 'border-[#d8dce2] hover:border-[#8b8e93]'">
+                                <input type="checkbox" class="rounded text-[#df5826] focus:ring-[#df5826]" :checked="isModifierSelected(mod.id)" @change="toggleModifier(mod)">
+                                <span class="text-[12.5px] font-semibold text-[#111827] flex-1" x-text="mod.name"></span>
+                                <span class="text-[11.5px] text-[#df5826] font-bold" x-show="Number(mod.price_adjustment) > 0" x-text="'+Rp' + formatRp(mod.price_adjustment)"></span>
+                            </label>
+                        </template>
+                    </div>
+                </template>
             </div>
             </template>
 
@@ -1726,14 +1753,26 @@ function posApp() {
             }
         },
         openModifier(product, servingType = 'DINE_IN') {
+            const initialMods = [];
+            (product.modifier_groups || []).forEach(group => {
+                if ((group.selection_type === 'SINGLE' || group.max_selections === 1) && (group.modifiers || []).length > 0) {
+                    initialMods.push(group.modifiers[0]);
+                }
+            });
+
             this.modifierModal = {
                 show: true, product, selectedVariant: null, selectedVariantId: null,
-                selectedModifiers: [], qty: 1, notes: '', servingType: servingType,
+                selectedModifiers: initialMods, qty: 1, notes: '', servingType: servingType,
             };
             if (product.variants?.length === 1) this.selectVariant(product.variants[0]);
         },
         selectVariant(v) { this.modifierModal.selectedVariant = v; },
         isModifierSelected(id) { return this.modifierModal.selectedModifiers.some(m => m.id === id); },
+        selectModifierRadio(group, mod) {
+            const groupModIds = (group.modifiers || []).map(m => m.id);
+            this.modifierModal.selectedModifiers = this.modifierModal.selectedModifiers.filter(m => !groupModIds.includes(m.id));
+            this.modifierModal.selectedModifiers.push(mod);
+        },
         toggleModifier(mod) {
             const idx = this.modifierModal.selectedModifiers.findIndex(m => m.id === mod.id);
             idx === -1 ? this.modifierModal.selectedModifiers.push(mod) : this.modifierModal.selectedModifiers.splice(idx, 1);

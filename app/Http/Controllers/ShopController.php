@@ -65,7 +65,7 @@ class ShopController extends Controller
 
         $menuItems = Product::where('shop_id', $shop->id)
             ->where('is_sold_out', false)
-            ->with('category')
+            ->with(['category', 'variants', 'modifierGroups.modifiers'])
             ->get()
             ->each(function ($product) use ($validCategoryIds): void {
                 if (! $product->category || ! in_array($product->category_id, $validCategoryIds, true)) {

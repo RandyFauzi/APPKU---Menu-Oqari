@@ -60,7 +60,10 @@ class CalculateCart
             $modifiersSnapshot = [];
             foreach ($item['modifiers'] ?? [] as $modId) {
                 $modifier = Modifier::where('id', $modId)
-                    ->whereHas('group', fn ($q) => $q->where('product_id', $product->id))
+                    ->whereHas('group', fn ($q) => $q->where(function ($sub) use ($product) {
+                        $sub->whereHas('products', fn ($p) => $p->where('products.id', $product->id))
+                            ->orWhere('modifier_groups.product_id', $product->id);
+                    }))
                     ->where('is_active', true)
                     ->first();
 
@@ -70,7 +73,7 @@ class CalculateCart
                     $modifiersSnapshot[] = [
                         'id' => $modifier->id,
                         'name' => $modifier->name,
-                        'price_adjustment' => $modifier->price_adjustment,
+                        'price_adjustment' => (float) $modifier->price_adjustment,
                     ];
                 }
             }

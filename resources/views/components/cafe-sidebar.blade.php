@@ -13,6 +13,7 @@ $groups = [
     ],
     'Menu & Stok' => [
         ['manage-menu', 'Kelola Menu', 'fa-burger', 'admin.menu.index', 'images/sparta/nav-menu.svg'],
+        ['manage-menu', 'Kelola Add-ons', 'fa-layer-group', 'admin.addons.index', null],
         ['manage-inventory', 'Bahan & Stok', 'fa-boxes-stacked', 'admin.inventory.index', 'images/sparta/nav-stok.svg'],
     ],
     'Manajemen Tim' => [

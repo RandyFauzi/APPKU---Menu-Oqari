@@ -74,7 +74,9 @@ class Product extends Model
 
     public function modifierGroups()
     {
-        return $this->hasMany(ModifierGroup::class);
+        return $this->belongsToMany(ModifierGroup::class, 'product_modifier_group')
+            ->withPivot('sort_order')
+            ->withTimestamps();
     }
 
     public function recipes()

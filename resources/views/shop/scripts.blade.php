@@ -120,7 +120,8 @@
                             categoryName: matchedCat ? matchedCat.name : '',
                             img: item.image_url ? item.image_url : '/Assests/null image.webp',
                             soldOut: item.is_sold_out,
-                            isBestSeller: Boolean(item.is_best_seller)
+                            isBestSeller: Boolean(item.is_best_seller),
+                            modifier_groups: item.modifier_groups || item.modifierGroups || []
                         };
                     });
                 }
@@ -160,7 +161,8 @@
                         items: items.map(item => ({
                             id: item.id,
                             qty: item.qty,
-                            notes: item.notes
+                            notes: item.notes,
+                            modifiers: item.modifier_ids || []
                         }))
                     })
                 })

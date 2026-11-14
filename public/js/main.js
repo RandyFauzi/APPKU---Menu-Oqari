@@ -601,57 +601,118 @@ function quickAddToCart(itemId, event) {
     }
 }
 
-// Fitur Detail Produk & Customization
-function openItemDetail(itemId) {
-    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : apiData.menu;
-    currentSelectedItem = menuData.find(m => m.id == itemId);
-    if(!currentSelectedItem) return;
+function updateDetailPrice() {
+    if (!currentSelectedItem) return;
+    const isPromo = currentSelectedItem.has_active_discount || (Boolean(currentSelectedItem.is_discount_active) && currentSelectedItem.discount_price > 0 && currentSelectedItem.discount_price < currentSelectedItem.price);
+    let basePrice = isPromo ? Number(currentSelectedItem.effective_price || currentSelectedItem.discount_price) : Number(currentSelectedItem.price);
+    
+    let addonTotal = 0;
+    const checkedInputs = document.querySelectorAll('#dynamic-addons input:checked');
+    checkedInputs.forEach(input => {
+        addonTotal += parseInt(input.getAttribute('data-price') || '0');
+    });
 
-    document.getElementById('detail-img').src = currentSelectedItem.image || currentSelectedItem.img || '/Assests/null%20image.webp';
-    document.getElementById('detail-name').innerText = currentSelectedItem.name;
-    document.getElementById('detail-desc').innerText = currentSelectedItem.desc;
-    const isPromoDetail = currentSelectedItem.has_active_discount || (Boolean(currentSelectedItem.is_discount_active) && currentSelectedItem.discount_price > 0 && currentSelectedItem.discount_price < currentSelectedItem.price);
-    const effPriceDetail = isPromoDetail ? Number(currentSelectedItem.effective_price || currentSelectedItem.discount_price) : Number(currentSelectedItem.price);
+    const totalPrice = basePrice + addonTotal;
     const priceEl = document.getElementById('detail-price');
     if (priceEl) {
-        if (isPromoDetail) {
-            const savings = currentSelectedItem.price - effPriceDetail;
-            const pct = currentSelectedItem.discount_percentage || Math.round((savings / currentSelectedItem.price) * 100);
+        if (isPromo) {
             priceEl.innerHTML = `
                 <div class="flex items-baseline gap-2 flex-wrap">
-                    <span class="text-xl font-bold text-primary">${formatRp(effPriceDetail)}</span>
-                    <span class="text-sm text-gray-400 line-through font-normal">${formatRp(currentSelectedItem.price)}</span>
-                    <span class="bg-red-50 text-red-600 border border-red-200 text-xs font-bold px-2 py-0.5 rounded-full">Hemat ${formatRp(savings)} (-${pct}%)</span>
+                    <span class="text-xl font-bold text-primary">${formatRp(totalPrice)}</span>
+                    <span class="text-sm text-gray-400 line-through font-normal">${formatRp(Number(currentSelectedItem.price) + addonTotal)}</span>
                 </div>
             `;
         } else {
-            priceEl.innerText = formatRp(currentSelectedItem.price);
+            priceEl.innerText = formatRp(totalPrice);
         }
     }
+
+    const addBtn = document.getElementById('add-cart-btn');
+    if (addBtn) {
+        addBtn.innerText = `Tambah ke Keranjang — ${formatRp(totalPrice)}`;
+    }
+}
+
+// Fitur Detail Produk & Customization (Pop-up Add-ons)
+function openItemDetail(itemId) {
+    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : apiData.menu;
+    currentSelectedItem = menuData.find(m => m.id == itemId);
+    if (!currentSelectedItem) return;
+
+    const modGroups = (currentSelectedItem.modifier_groups || currentSelectedItem.modifierGroups || []).filter(g => g.is_active !== false);
+
+    // Jika menu TIDAK memiliki addons, langsung masuk ke keranjang tanpa pop-up
+    if (modGroups.length === 0) {
+        const isPromoAdd = currentSelectedItem.has_active_discount || (Boolean(currentSelectedItem.is_discount_active) && currentSelectedItem.discount_price > 0 && currentSelectedItem.discount_price < currentSelectedItem.price);
+        const effPriceAdd = isPromoAdd ? Number(currentSelectedItem.effective_price || currentSelectedItem.discount_price) : Number(currentSelectedItem.price);
+        
+        const itemToAdd = {
+            ...currentSelectedItem,
+            price: effPriceAdd,
+            regular_price: Number(currentSelectedItem.price),
+            has_discount: isPromoAdd,
+            modifier_ids: []
+        };
+
+        CartStore.add(itemToAdd, {}, '');
+        updateFloatingCart();
+        showToast(`Ditambahkan <b>${escapeHtml(currentSelectedItem.name)}</b>`);
+        return;
+    }
+
+    // Jika menu MEMILIKI addons, tampilkan pop-up / bottom sheet
+    document.getElementById('detail-img').src = currentSelectedItem.image || currentSelectedItem.img || '/Assests/null%20image.webp';
+    document.getElementById('detail-name').innerText = currentSelectedItem.name;
+    document.getElementById('detail-desc').innerText = currentSelectedItem.desc || '';
     
     document.getElementById('detail-notes').value = '';
     
     const addonsContainer = document.getElementById('dynamic-addons');
     if (addonsContainer) {
-        if (currentSelectedItem.categoryId === 'beverages') {
-            addonsContainer.innerHTML = `
-                <h4 class="font-bold text-sm text-textdark mb-3 font-heading">Add-ons Minuman</h4>
-                <div class="flex flex-col gap-2 mb-4">
-                    <label class="flex items-center gap-3 p-3 border-2 border-primary/10 rounded-xl cursor-pointer">
-                        <input type="checkbox" name="addon" value="Extra Espresso (+5k)" data-price="5000" class="accent-primary w-4 h-4">
-                        <span class="text-sm font-bold text-textdark">Extra Espresso (+Rp 5.000)</span>
+        let html = '';
+        modGroups.forEach(group => {
+            const isSingle = (group.selection_type === 'SINGLE' || group.max_selections === 1);
+            const modifiers = (group.modifiers || []).filter(m => m.is_active !== false);
+            if (modifiers.length === 0) return;
+
+            html += `
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-sm text-textdark font-heading">${escapeHtml(group.name)}</h4>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isSingle ? 'bg-sky-50 text-sky-700 border border-sky-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
+                            ${isSingle ? 'Pilih 1 (Radio)' : 'Bisa Pilih Banyak'}
+                        </span>
+                    </div>
+                    <div class="flex flex-col gap-2">
+            `;
+
+            modifiers.forEach((mod, idx) => {
+                const inputType = isSingle ? 'radio' : 'checkbox';
+                const inputName = isSingle ? `addon_group_${group.id}` : `addon_check_${mod.id}`;
+                const isChecked = (isSingle && idx === 0) ? 'checked' : '';
+                const priceNum = Number(mod.price_adjustment) || 0;
+                const priceText = priceNum > 0 ? `+${formatRp(priceNum)}` : 'Gratis';
+
+                html += `
+                    <label class="flex items-center justify-between p-3 border-2 border-primary/10 rounded-xl cursor-pointer hover:border-primary/30 transition bg-white" onchange="updateDetailPrice()">
+                        <div class="flex items-center gap-3">
+                            <input type="${inputType}" name="${inputName}" data-group-id="${group.id}" data-mod-id="${mod.id}" data-mod-name="${escapeHtml(mod.name)}" data-price="${priceNum}" ${isChecked} class="accent-primary w-4 h-4">
+                            <span class="text-sm font-semibold text-textdark">${escapeHtml(mod.name)}</span>
+                        </div>
+                        <span class="text-xs font-bold text-primary">${priceText}</span>
                     </label>
-                    <label class="flex items-center gap-3 p-3 border-2 border-primary/10 rounded-xl cursor-pointer">
-                        <input type="checkbox" name="addon" value="Oatmilk (+7k)" data-price="7000" class="accent-primary w-4 h-4">
-                        <span class="text-sm font-bold text-textdark">Oatmilk (+Rp 7.000)</span>
-                    </label>
+                `;
+            });
+
+            html += `
+                    </div>
                 </div>
             `;
-        } else {
-            addonsContainer.innerHTML = '';
-        }
+        });
+        addonsContainer.innerHTML = html;
     }
 
+    updateDetailPrice();
     document.getElementById('modal-item-detail').classList.remove('hidden');
 }
 
@@ -661,7 +722,7 @@ function closeItemDetail() {
 }
 
 function confirmAddToCart() {
-    if(!currentSelectedItem) return;
+    if (!currentSelectedItem) return;
     
     if (navigator.vibrate) navigator.vibrate(100);
     const btn = document.getElementById('add-cart-btn');
@@ -671,14 +732,27 @@ function confirmAddToCart() {
     }
 
     let notesElement = document.getElementById('detail-notes');
-    let notes = notesElement ? notesElement.value.trim() : '';
+    let customNotes = notesElement ? notesElement.value.trim() : '';
     let additionalPrice = 0;
+    let selectedAddonNames = [];
+    let selectedModifierIds = [];
     
-    const addonsInputs = document.querySelectorAll('input[name="addon"]:checked');
-    addonsInputs.forEach(input => {
-        notes += (notes ? ', ' : '') + input.value;
-        additionalPrice += parseInt(input.getAttribute('data-price') || '0');
+    const checkedInputs = document.querySelectorAll('#dynamic-addons input:checked');
+    checkedInputs.forEach(input => {
+        const modName = input.getAttribute('data-mod-name');
+        const modId = parseInt(input.getAttribute('data-mod-id'));
+        const price = parseInt(input.getAttribute('data-price') || '0');
+        
+        if (modName) selectedAddonNames.push(modName);
+        if (modId) selectedModifierIds.push(modId);
+        additionalPrice += price;
     });
+
+    let fullNotes = customNotes;
+    if (selectedAddonNames.length > 0) {
+        const addonText = selectedAddonNames.join(', ');
+        fullNotes = fullNotes ? `${addonText} (${fullNotes})` : addonText;
+    }
 
     const isPromoAdd = currentSelectedItem.has_active_discount || (Boolean(currentSelectedItem.is_discount_active) && currentSelectedItem.discount_price > 0 && currentSelectedItem.discount_price < currentSelectedItem.price);
     const effPriceAdd = isPromoAdd ? Number(currentSelectedItem.effective_price || currentSelectedItem.discount_price) : Number(currentSelectedItem.price);
@@ -686,13 +760,17 @@ function confirmAddToCart() {
     const itemToAdd = {
         ...currentSelectedItem,
         price: effPriceAdd + additionalPrice,
-        regular_price: currentSelectedItem.price + additionalPrice,
-        has_discount: isPromoAdd
+        regular_price: Number(currentSelectedItem.price) + additionalPrice,
+        has_discount: isPromoAdd,
+        modifier_ids: selectedModifierIds
     };
 
-    CartStore.add(itemToAdd, {}, notes);
+    CartStore.add(itemToAdd, {}, fullNotes);
     
     closeItemDetail();
+    updateFloatingCart();
+    showToast(`Ditambahkan <b>${escapeHtml(currentSelectedItem.name)}</b>`);
+}
     updateFloatingCart();
     showToast(`Ditambahkan <b>${currentSelectedItem.name}</b>`);
 }

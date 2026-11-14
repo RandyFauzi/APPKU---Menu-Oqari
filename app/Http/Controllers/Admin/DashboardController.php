@@ -6,6 +6,7 @@ use App\Actions\ActivityLogs\ListActivityLogs;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Category;
+use App\Models\ModifierGroup;
 use App\Models\Order;
 use App\Models\Printer;
 use App\Models\Product;
@@ -365,7 +366,24 @@ class DashboardController extends Controller
             }
         }
 
-        $menu->load(['category', 'recipes.rawMaterial']);
+        // Simpan tautan Add-on Groups jika dikirim
+        if ($request->has('modifier_group_ids')) {
+            $groupIds = $request->input('modifier_group_ids');
+            if (is_string($groupIds)) {
+                $groupIds = json_decode($groupIds, true);
+            }
+            if (is_array($groupIds)) {
+                $validGroupIds = ModifierGroup::where('shop_id', $shopId)
+                    ->whereIn('id', $groupIds)
+                    ->pluck('id')
+                    ->all();
+                $menu->modifierGroups()->sync($validGroupIds);
+            } else {
+                $menu->modifierGroups()->detach();
+            }
+        }
+
+        $menu->load(['category', 'recipes.rawMaterial', 'modifierGroups.modifiers']);
 
         $isNew = empty($request->id);
         $menuPriceFormatted = 'Rp '.number_format((float) $menu->price, 0, ',', '.');
@@ -664,6 +682,19 @@ class DashboardController extends Controller
                     $menu = Product::create($productData);
                     $saved[] = $menu;
                 }
+
+                if (isset($itemData['modifier_group_ids'])) {
+                    $groupIds = $itemData['modifier_group_ids'];
+                    if (is_string($groupIds)) {
+                        $groupIds = json_decode($groupIds, true);
+                    }
+                    if (is_array($groupIds)) {
+                        $validGroupIds = ModifierGroup::where('shop_id', $shopId)->whereIn('id', $groupIds)->pluck('id')->all();
+                        $menu->modifierGroups()->sync($validGroupIds);
+                    } else {
+                        $menu->modifierGroups()->detach();
+                    }
+                }
             }
 
             return $saved;
@@ -675,7 +706,7 @@ class DashboardController extends Controller
 
         $savedIds = collect($savedMenus)->pluck('id');
         $freshMenus = Product::whereIn('id', $savedIds)
-            ->with(['recipes.rawMaterial', 'category'])
+            ->with(['recipes.rawMaterial', 'category', 'modifierGroups.modifiers'])
             ->get();
 
         $allCategories = Category::where('shop_id', $shopId)->get();

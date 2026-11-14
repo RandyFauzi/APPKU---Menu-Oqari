@@ -733,7 +733,8 @@
             pages: {{ Illuminate\Support\Js::from($pageLinks) }},
             categories: @json($categories ?? []),
             tables: @json($tables ?? []),
-            shopProducts: {{ Illuminate\Support\Js::from($shopProducts ?? []) }}
+            shopProducts: {{ Illuminate\Support\Js::from($shopProducts ?? []) }},
+            modifierGroups: {{ Illuminate\Support\Js::from($modifierGroups ?? []) }}
         };
 
         const formatRp = (num) => {
@@ -1221,7 +1222,9 @@
                         categoryId: this.categories.length > 0 ? this.categories[0].id : '', 
                         desc: '',
                         imagePreview: null, 
-                        imageFile: null 
+                        imageFile: null,
+                        has_addons: false,
+                        modifier_group_ids: [] 
                     });
                 },
                 setDiscountType(draft, type) {
@@ -1434,6 +1437,13 @@
                         formData.append(`items[${index}][is_discount_active]`, item.is_discount_active ? '1' : '0');
                         if (item.desc) formData.append(`items[${index}][description]`, item.desc);
                         if (item.imageFile) formData.append(`images[${index}]`, item.imageFile);
+                        if (item.has_addons && Array.isArray(item.modifier_group_ids)) {
+                            item.modifier_group_ids.forEach((gid, gIdx) => {
+                                formData.append(`items[${index}][modifier_group_ids][${gIdx}]`, gid);
+                            });
+                        } else {
+                            formData.append(`items[${index}][modifier_group_ids]`, '[]');
+                        }
                     });
 
                     fetch('/admin/api/menu/bulk', {
@@ -2359,6 +2369,7 @@
                     if (['menu', 'inventory'].includes(this.currentTab)) this.loadMenu();
                     if (['menu', 'inventory'].includes(this.currentTab)) this.fetchInventory();
                     this.loadVouchers();
+                    this.loadAddons();
                     if (window.INITIAL_DATA.shop) {
                         this.settings.name = window.INITIAL_DATA.shop.name || '';
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
@@ -2434,6 +2445,9 @@
                         discPercent = Math.round(((basePrice - Number(discPrice)) / basePrice) * 100);
                     }
 
+                    const attachedGroupIds = (item.modifier_groups || item.modifierGroups || []).map(g => g.id);
+                    const hasAddons = attachedGroupIds.length > 0;
+
                     this.draftMenus = [{
                         id: item.id,
                         name: item.name,
@@ -2445,7 +2459,9 @@
                         categoryId: matchedCatId || (this.categories.length > 0 ? this.categories[0].id : ''),
                         desc: item.desc || item.description || '',
                         imagePreview: item.image || item.image_url || null,
-                        imageFile: null
+                        imageFile: null,
+                        has_addons: hasAddons,
+                        modifier_group_ids: attachedGroupIds
                     }];
                     this.showBulkUpload = true;
                 },
@@ -4255,6 +4271,7 @@ if (res.ok) {
                             this.addToast(data.message || 'Voucher berhasil disimpan!', 'success');
                             this.voucherModal.show = false;
                             this.loadVouchers();
+                    this.loadAddons();
                         } else {
                             this.addToast(data.message || (data.errors ? Object.values(data.errors)[0][0] : 'Gagal menyimpan voucher'), 'error');
                         }
@@ -4301,6 +4318,197 @@ if (res.ok) {
                         }
                     } catch (e) {
                         this.addToast('Gagal menghapus voucher', 'error');
+                    }
+                },
+                // ── Addons & Modifiers ──────────────────────────────
+                modifierGroups: window.INITIAL_DATA.modifierGroups || [],
+                isLoadingAddons: false,
+                isSavingAddon: false,
+                addonFilter: 'all',
+                addonSearch: '',
+                addonModal: {
+                    show: false,
+                    id: null,
+                    name: '',
+                    selection_type: 'SINGLE',
+                    category_target: 'all',
+                    is_required: false,
+                    is_active: true,
+                    items: [],
+                    product_ids: []
+                },
+                get filteredModifierGroups() {
+                    let list = this.modifierGroups || [];
+                    if (this.addonFilter === 'SINGLE') {
+                        list = list.filter(g => g.selection_type === 'SINGLE');
+                    } else if (this.addonFilter === 'MULTIPLE') {
+                        list = list.filter(g => g.selection_type === 'MULTIPLE');
+                    }
+                    if (this.addonSearch && this.addonSearch.trim()) {
+                        const q = this.addonSearch.toLowerCase().trim();
+                        list = list.filter(g => 
+                            g.name.toLowerCase().includes(q) || 
+                            (g.modifiers || []).some(m => m.name.toLowerCase().includes(q))
+                        );
+                    }
+                    return list;
+                },
+                async loadAddons() {
+                    this.isLoadingAddons = true;
+                    try {
+                        const res = await fetch('/admin/api/addons', {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.modifierGroups = data.groups || [];
+                        }
+                    } catch (e) {
+                        console.error('Failed to load addons', e);
+                    } finally {
+                        this.isLoadingAddons = false;
+                    }
+                },
+                openCreateAddonModal() {
+                    this.addonModal = {
+                        show: true,
+                        id: null,
+                        name: '',
+                        selection_type: 'SINGLE',
+                        category_target: 'all',
+                        is_required: false,
+                        is_active: true,
+                        items: [
+                            { name: 'Normal Ice', price_adjustment: 0, cogs_adjustment: 0, is_active: true },
+                            { name: 'Less Ice', price_adjustment: 0, cogs_adjustment: 0, is_active: true },
+                            { name: 'No Ice', price_adjustment: 0, cogs_adjustment: 0, is_active: true },
+                        ],
+                        product_ids: []
+                    };
+                },
+                editAddonGroup(group) {
+                    this.addonModal = {
+                        show: true,
+                        id: group.id,
+                        name: group.name,
+                        selection_type: group.selection_type || 'MULTIPLE',
+                        category_target: group.category_target || 'all',
+                        is_required: Boolean(group.is_required),
+                        is_active: Boolean(group.is_active),
+                        items: (group.modifiers || []).map(m => ({
+                            id: m.id,
+                            name: m.name,
+                            price_adjustment: Number(m.price_adjustment) || 0,
+                            cogs_adjustment: Number(m.cogs_adjustment) || 0,
+                            is_active: Boolean(m.is_active)
+                        })),
+                        product_ids: (group.products || []).map(p => p.id)
+                    };
+                    if (this.addonModal.items.length === 0) {
+                        this.addAddonItemRow();
+                    }
+                },
+                addAddonItemRow() {
+                    this.addonModal.items.push({
+                        name: '',
+                        price_adjustment: 0,
+                        cogs_adjustment: 0,
+                        is_active: true
+                    });
+                },
+                removeAddonItemRow(index) {
+                    if (this.addonModal.items.length > 1) {
+                        this.addonModal.items.splice(index, 1);
+                    } else {
+                        this.addToast('Minimal harus ada 1 opsi addon.', 'error');
+                    }
+                },
+                async saveAddonGroup() {
+                    if (!this.addonModal.name || !this.addonModal.name.trim()) {
+                        this.addToast('Nama grup addon wajib diisi!', 'error');
+                        return;
+                    }
+                    const validItems = this.addonModal.items.filter(i => i.name && i.name.trim());
+                    if (validItems.length === 0) {
+                        this.addToast('Minimal harus ada 1 nama opsi addon!', 'error');
+                        return;
+                    }
+                    this.isSavingAddon = true;
+                    try {
+                        const payload = {
+                            name: this.addonModal.name.trim(),
+                            selection_type: this.addonModal.selection_type,
+                            category_target: this.addonModal.category_target,
+                            is_required: this.addonModal.is_required,
+                            is_active: this.addonModal.is_active,
+                            items: validItems,
+                            product_ids: this.addonModal.product_ids
+                        };
+                        const url = this.addonModal.id ? `/admin/api/addons/${this.addonModal.id}` : '/admin/api/addons';
+                        const method = this.addonModal.id ? 'PUT' : 'POST';
+
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+                        if (!res.ok || !data.success) {
+                            throw new Error(data.message || 'Gagal menyimpan grup addon');
+                        }
+                        this.addToast(data.message || 'Grup addon berhasil disimpan!', 'success');
+                        this.addonModal.show = false;
+                        await this.loadAddons();
+                        if (typeof this.loadMenu === 'function') {
+                            this.loadMenu();
+                        }
+                    } catch (e) {
+                        this.addToast(e.message || 'Terjadi kesalahan sistem', 'error');
+                    } finally {
+                        this.isSavingAddon = false;
+                    }
+                },
+                async toggleAddonStatus(group) {
+                    try {
+                        const res = await fetch(`/admin/api/addons/${group.id}/toggle`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            group.is_active = data.is_active;
+                            this.addToast(data.message || 'Status addon berhasil diperbarui', 'success');
+                        }
+                    } catch (e) {
+                        this.addToast('Gagal mengubah status addon', 'error');
+                    }
+                },
+                async deleteAddonGroup(group) {
+                    if (!confirm(`Hapus grup addon "${group.name}"? Pilihan ini akan dilepas dari seluruh menu terkait.`)) return;
+                    try {
+                        const res = await fetch(`/admin/api/addons/${group.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.addToast(data.message || 'Grup addon berhasil dihapus', 'success');
+                            await this.loadAddons();
+                        } else {
+                            throw new Error(data.message || 'Gagal menghapus');
+                        }
+                    } catch (e) {
+                        this.addToast(e.message || 'Gagal menghapus grup addon', 'error');
                     }
                 },
                 saveSettings() {
