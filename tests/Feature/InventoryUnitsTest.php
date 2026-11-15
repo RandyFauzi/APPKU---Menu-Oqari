@@ -195,6 +195,41 @@ class InventoryUnitsTest extends TestCase
         $this->assertNotSoftDeleted('raw_materials', ['id' => $matOther->id]);
     }
 
+    public function test_shop_can_add_custom_unit_and_use_it_for_materials(): void
+    {
+        $user = $this->owner();
+
+        // Add custom unit
+        $res = $this->actingAs($user)->postJson('/admin/api/inventory/units', [
+            'unit' => 'ikat',
+            'label' => 'Ikat (Sayur/Bumbu)',
+        ]);
+
+        $res->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('unit', 'ikat')
+            ->assertJsonPath('label', 'Ikat (Sayur/Bumbu)')
+            ->assertJsonPath('units.ikat', 'Ikat (Sayur/Bumbu)');
+
+        // Now save material using the newly added custom unit
+        $materialRes = $this->actingAs($user)->postJson('/admin/api/inventory/material', [
+            'name' => 'Kangkung Segar',
+            'unit' => 'ikat',
+            'current_stock' => 50,
+            'minimum_stock' => 5,
+            'cost_per_unit' => 2000,
+        ]);
+
+        $materialRes->assertOk()
+            ->assertJsonPath('material.unit', 'ikat');
+
+        $this->assertDatabaseHas('raw_materials', [
+            'shop_id' => $user->shop_id,
+            'name' => 'Kangkung Segar',
+            'unit' => 'ikat',
+        ]);
+    }
+
     private function owner(): User
     {
         return User::factory()->create(['shop_id' => Shop::factory()->create(['onboarding_status' => 'completed'])->id, 'role' => 'owner']);

@@ -454,17 +454,330 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="stock-unit" class="block text-[11px] font-semibold text-[#53565a] mb-1">Satuan Dasar *</label>
-                        <select id="stock-unit" x-model="materialForm.unit" :disabled="editingUnitLocked" aria-describedby="stock-unit-help" class="w-full bg-[#f8f9fa] border border-[#e9ebf0] rounded-[10px] px-3 py-2 text-[12px] font-medium text-[#111827] focus:border-[#df5826] focus:bg-white disabled:opacity-60 outline-none">
+                    <!-- Satuan Dasar Custom Dropdown (matching Category design) -->
+                    <div x-data="{
+                            openDropdown: false,
+                            searchUnit: '',
+                            isAddingNew: false,
+                            newUnitLabel: '',
+                            isCreatingUnit: false,
+                            dropdownPos: { top: 0, bottom: 0, left: 0, width: 300, dropUp: false },
+                            get dropdownStyle() {
+                                if (this.dropdownPos.dropUp) {
+                                    return `position: fixed; bottom: calc(100vh - ${this.dropdownPos.bottom}px); left: ${this.dropdownPos.left}px; width: ${this.dropdownPos.width}px; z-index: 99999;`;
+                                }
+                                return `position: fixed; top: ${this.dropdownPos.top}px; left: ${this.dropdownPos.left}px; width: ${this.dropdownPos.width}px; z-index: 99999;`;
+                            },
+                            updatePosition() {
+                                if (!this.$refs.unitTrigger) return;
+                                const rect = this.$refs.unitTrigger.getBoundingClientRect();
+                                const dropdownHeight = 350;
+                                const spaceBelow = window.innerHeight - rect.bottom;
+                                const dropUp = spaceBelow < dropdownHeight && rect.top > dropdownHeight;
+                                const width = Math.max(rect.width, 280);
+                                const left = Math.min(Math.max(16, rect.left), window.innerWidth - width - 16);
+                                this.dropdownPos = {
+                                    top: Math.round(rect.bottom + 6),
+                                    bottom: Math.round(rect.top - 6),
+                                    left: Math.round(left),
+                                    width: Math.round(width),
+                                    dropUp: dropUp
+                                };
+                            },
+                            toggleDropdown() {
+                                if (editingUnitLocked) return;
+                                if (this.openDropdown) {
+                                    this.openDropdown = false;
+                                    return;
+                                }
+                                this.isAddingNew = false;
+                                this.updatePosition();
+                                this.openDropdown = true;
+                                this.$nextTick(() => {
+                                    this.$refs.searchUnitInput?.focus();
+                                });
+                            },
+                            get unitList() {
+                                const list = [];
+                                for (const [key, label] of Object.entries(stockUnits || {})) {
+                                    let icon = 'fas fa-tag';
+                                    const lk = key.toLowerCase();
+                                    if (['gram', 'g', 'kg'].includes(lk)) icon = 'fas fa-weight-hanging';
+                                    else if (['ml', 'liter', 'l'].includes(lk)) icon = 'fas fa-glass-water';
+                                    else if (['cup'].includes(lk)) icon = 'fas fa-mug-hot';
+                                    else if (['botol'].includes(lk)) icon = 'fas fa-wine-bottle';
+                                    else if (['dus'].includes(lk)) icon = 'fas fa-box-archive';
+                                    else if (['pack'].includes(lk)) icon = 'fas fa-box';
+                                    else if (['pcs'].includes(lk)) icon = 'fas fa-shapes';
+                                    else if (['shot'].includes(lk)) icon = 'fas fa-whiskey-glass';
+                                    else if (['slice'].includes(lk)) icon = 'fas fa-pizza-slice';
+                                    else if (['oz'].includes(lk)) icon = 'fas fa-scale-balanced';
+                                    list.push({ key, label, icon });
+                                }
+                                if (materialForm.unit && !stockUnits[materialForm.unit]) {
+                                    list.unshift({ key: materialForm.unit, label: materialForm.unit + ' (satuan lama)', icon: 'fas fa-history' });
+                                }
+                                return list;
+                            },
+                            get filteredUnits() {
+                                if (!this.searchUnit.trim()) return this.unitList;
+                                const q = this.searchUnit.toLowerCase();
+                                return this.unitList.filter(u => u.label.toLowerCase().includes(q) || u.key.toLowerCase().includes(q));
+                            },
+                            get isExactMatch() {
+                                const q = this.searchUnit.trim().toLowerCase();
+                                return this.unitList.some(u => u.label.toLowerCase() === q || u.key.toLowerCase() === q);
+                            },
+                            selectUnit(unitKey) {
+                                materialForm.unit = unitKey;
+                                this.openDropdown = false;
+                                this.searchUnit = '';
+                                this.isAddingNew = false;
+                            },
+                            async handleCreateUnit(nameOrKey) {
+                                const raw = (nameOrKey || this.newUnitLabel || this.searchUnit || '').trim();
+                                if (!raw) return;
+                                this.isCreatingUnit = true;
+                                const createdKey = await createQuickUnit(raw);
+                                this.isCreatingUnit = false;
+                                if (createdKey) {
+                                    materialForm.unit = createdKey;
+                                    this.searchUnit = '';
+                                    this.isAddingNew = false;
+                                    this.openDropdown = false;
+                                }
+                            }
+                        }"
+                        @close-all-dropdowns.window="openDropdown = false"
+                        @scroll.window="if(openDropdown) openDropdown = false"
+                        @resize.window="if(openDropdown) openDropdown = false"
+                        @keydown.escape.window="openDropdown = false"
+                        class="relative">
+
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="flex items-center gap-1.5">
+                                <label class="block text-[11px] font-semibold text-[#53565a]">Satuan Dasar <span class="text-red-500">*</span></label>
+                                <span class="text-[10px] text-[#7f837e] font-normal" x-text="'(' + Object.keys(stockUnits || {}).length + ')'"></span>
+                            </div>
+                            <template x-if="editingUnitLocked">
+                                <span class="text-[9.5px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 font-medium flex items-center gap-1">
+                                    <i class="fas fa-lock text-[8.5px]"></i> Terkunci
+                                </span>
+                            </template>
+                        </div>
+
+                        <!-- Dropdown Trigger Button -->
+                        <button type="button" 
+                                x-ref="unitTrigger"
+                                @click.stop="toggleDropdown()"
+                                :disabled="editingUnitLocked"
+                                class="w-full bg-[#f8f9fa] border rounded-[10px] px-3.5 py-2.5 text-[12px] text-left flex items-center justify-between transition-all cursor-pointer outline-none shadow-2xs"
+                                :class="editingUnitLocked ? 'opacity-60 cursor-not-allowed bg-gray-100 border-[#e9ebf0]' : (openDropdown ? 'border-[#df5826] bg-white ring-2 ring-[#df5826]/15 shadow-2xs' : 'border-[#e9ebf0] hover:border-gray-300 hover:bg-white')">
+                            <span class="truncate flex items-center gap-2">
+                                <template x-if="materialForm.unit">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[7px] bg-[#fff6f0] text-[#df5826] border border-[#ffdec9] font-bold text-[11.5px] truncate max-w-[190px]">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#df5826] shrink-0"></span>
+                                        <span class="truncate" x-text="stockUnitLabel(materialForm.unit)"></span>
+                                    </span>
+                                </template>
+                                <template x-if="!materialForm.unit">
+                                    <span class="text-[#9ca3af] flex items-center gap-2 text-[12px]">
+                                        <i class="fas fa-boxes-stacked text-gray-400 text-xs"></i>
+                                        <span>-- Pilih Satuan --</span>
+                                    </span>
+                                </template>
+                            </span>
+                            <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors"
+                                 :class="openDropdown ? 'bg-[#fff6f0] text-[#df5826]' : 'text-gray-400'">
+                                <i class="fas fa-chevron-down text-[10px] transition-transform duration-200" 
+                                   :class="openDropdown ? 'rotate-180' : ''"></i>
+                            </div>
+                        </button>
+                        <p id="stock-unit-help" class="text-[9px] text-[#7f837e] mt-1" x-text="editingUnitLocked ? 'Satuan dikunci karena bahan sudah memiliki stok/resep.' : 'Satuan untuk modal dan racikan resep.'"></p>
+
+                        <!-- Hidden select for form binding & fallback -->
+                        <select id="stock-unit" x-model="materialForm.unit" :disabled="editingUnitLocked" class="hidden">
                             <template x-for="(label, unit) in stockUnits" :key="unit"><option :value="unit" x-text="label"></option></template>
                             <template x-if="materialForm.unit && !stockUnits[materialForm.unit]"><option :value="materialForm.unit" x-text="materialForm.unit + ' (satuan lama)'"></option></template>
                         </select>
-                        <p id="stock-unit-help" class="text-[9px] text-[#7f837e] mt-1" x-text="editingUnitLocked ? 'Satuan dikunci karena bahan sudah memiliki stok/resep.' : 'Satuan untuk modal dan racikan resep.'"></p>
+
+                        <!-- Dropdown Menu Popover (Teleported to body) -->
+                        <template x-teleport="body">
+                            <div x-show="openDropdown" 
+                                 x-transition:enter="transition ease-out duration-150"
+                                 x-transition:enter-start="opacity-0 translate-y-1 scale-[0.98]"
+                                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                                 x-transition:leave="transition ease-in duration-100"
+                                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                                 x-transition:leave-end="opacity-0 translate-y-1 scale-[0.98]"
+                                 x-cloak
+                                 @click.outside="if (!$refs.unitTrigger?.contains($event.target)) { openDropdown = false; isAddingNew = false; searchUnit = ''; }"
+                                 @keydown.escape.window="openDropdown = false"
+                                 :style="dropdownStyle"
+                                 class="bg-white border border-[#e5e7eb] rounded-[18px] shadow-[0_24px_60px_-12px_rgba(15,23,42,0.28),0_6px_20px_rgba(15,23,42,0.08)] p-3 min-w-[290px] font-sans">
+                            
+                                <!-- Header inside Dropdown -->
+                                <div class="flex items-center justify-between pb-2 mb-2 border-b border-[#f1f3f5] text-[11px]">
+                                    <div class="flex items-center gap-1.5 font-bold text-[#111827] uppercase tracking-wider text-[10px]">
+                                        <i class="fas fa-boxes-stacked text-[#df5826]"></i>
+                                        <span>Daftar Satuan</span>
+                                    </div>
+                                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#f8f9fa] border border-[#e9ebf0] text-[#7f837e]" 
+                                          x-text="filteredUnits.length + ' item'"></span>
+                                </div>
+
+                                <!-- Search input inside dropdown -->
+                                <div class="relative mb-2.5">
+                                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none"></i>
+                                    <input type="text" 
+                                           x-ref="searchUnitInput" 
+                                           x-model="searchUnit" 
+                                           @keydown.enter.prevent="if(searchUnit.trim() && !isExactMatch) { handleCreateUnit(searchUnit); }"
+                                           placeholder="Cari atau ketik nama baru..." 
+                                           style="padding-left: 36px; padding-right: 32px;"
+                                           class="w-full bg-[#f8f9fa] border border-[#e5e7eb] focus:border-[#df5826] focus:bg-white focus:ring-2 focus:ring-[#df5826]/10 rounded-[10px] pl-9 pr-8 py-2 text-[12px] text-[#111827] placeholder:text-[#9ca3af] outline-none transition-all">
+                                    
+                                    <!-- Clear Search Button -->
+                                    <button type="button" 
+                                            x-show="searchUnit.length > 0" 
+                                            @click="searchUnit = ''; $refs.searchUnitInput?.focus()" 
+                                            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 w-5 h-5 rounded-full flex items-center justify-center hover:bg-gray-200 transition text-[11px] cursor-pointer">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Dynamic Creation Card (When No Units Found) -->
+                                <template x-if="filteredUnits.length === 0 && !isAddingNew">
+                                    <div class="p-3 my-1 rounded-[14px] bg-gradient-to-br from-[#ffffff] via-[#fffbf8] to-[#fff4ec] border border-[#fed7c3] shadow-2xs text-left transition-all">
+                                        <div class="flex items-start gap-2.5">
+                                            <div class="w-8 h-8 rounded-[10px] bg-gradient-to-tr from-[#df5826] to-[#ff7844] text-white flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                                                <i class="fas fa-magic text-[11px]"></i>
+                                            </div>
+                                            <div class="flex-grow min-w-0">
+                                                <div class="flex items-center justify-between gap-1">
+                                                    <span class="text-[12px] font-bold text-[#111827]">Satuan Baru</span>
+                                                    <span class="text-[9px] text-[#7f837e] bg-white border border-[#e9ebf0] px-1.5 py-0.5 rounded font-mono font-medium">↵ Enter</span>
+                                                </div>
+                                                <p class="text-[11px] text-[#53565a] mt-0.5 leading-tight">Belum ada di daftar satuan toko.</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Live Preview Badge of the New Unit -->
+                                        <template x-if="searchUnit.trim()">
+                                            <div class="mt-2.5 pt-2 border-t border-[#f7e6dc] flex items-center justify-between gap-2">
+                                                <span class="text-[10px] font-semibold text-[#7f837e]">Preview Label:</span>
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#fff0e6] text-[#c94d00] border border-[#ffd2b8] shadow-2xs">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-[#df5826] animate-pulse"></span>
+                                                    <span class="truncate max-w-[130px]" x-text="searchUnit.trim()"></span>
+                                                </span>
+                                            </div>
+                                        </template>
+
+                                        <!-- Action Button -->
+                                        <button type="button" 
+                                                @click="handleCreateUnit(searchUnit)" 
+                                                :disabled="isCreatingUnit || !searchUnit.trim()"
+                                                class="mt-2.5 w-full bg-[#df5826] hover:bg-[#c94d00] active:scale-[0.98] text-white py-2 px-3.5 rounded-[10px] text-[12px] font-bold transition-all shadow-[0_2px_8px_rgba(223,88,38,0.28)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
+                                            <i :class="isCreatingUnit ? 'fas fa-spinner fa-spin' : 'fas fa-plus-circle text-xs'"></i>
+                                            <span x-text="isCreatingUnit ? 'Menyimpan Satuan...' : 'Buat & Pilih Satuan Ini'"></span>
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <!-- Units List (When matches exist) -->
+                                <div class="max-h-48 overflow-y-auto space-y-1 pr-1 custom-scroll" x-show="filteredUnits.length > 0">
+                                    <template x-for="item in filteredUnits" :key="item.key">
+                                        <button type="button" 
+                                                @click="selectUnit(item.key)" 
+                                                class="w-full text-left px-3 py-2 rounded-[10px] text-[12px] flex items-center justify-between transition-all cursor-pointer group"
+                                                :class="(materialForm.unit === item.key || String(materialForm.unit).toLowerCase() === String(item.key).toLowerCase()) ? 'bg-[#fff6f0] text-[#df5826] font-semibold border border-[#ffdec9]' : 'text-[#374151] hover:bg-gray-50 border border-transparent'">
+                                            <span class="flex items-center gap-2.5 truncate">
+                                                <span class="w-2 h-2 rounded-full shrink-0 transition-transform group-hover:scale-125" 
+                                                      :class="(materialForm.unit === item.key || String(materialForm.unit).toLowerCase() === String(item.key).toLowerCase()) ? 'bg-[#df5826]' : 'bg-gray-300'"></span>
+                                                <i :class="item.icon + ' text-xs opacity-70 w-4 text-center'"></i>
+                                                <span class="truncate" x-text="item.label"></span>
+                                            </span>
+                                            <span x-show="(materialForm.unit === item.key || String(materialForm.unit).toLowerCase() === String(item.key).toLowerCase())" 
+                                                  class="w-4 h-4 rounded-full bg-[#df5826] text-white flex items-center justify-center text-[9px] shrink-0">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+                                        </button>
+                                    </template>
+                                </div>
+
+                                <!-- Quick create banner when search query has partial matches but not exact match -->
+                                <template x-if="searchUnit.trim() && !isExactMatch && filteredUnits.length > 0">
+                                    <div class="mt-2.5 pt-2.5 border-t border-[#f0f2f5]">
+                                        <button type="button" 
+                                                @click="handleCreateUnit(searchUnit)" 
+                                                :disabled="isCreatingUnit"
+                                                class="w-full bg-[#fff6f0] hover:bg-[#ffede0] active:scale-[0.99] text-[#c94d00] border border-[#ffdec9] p-2.5 rounded-[12px] text-[12px] font-semibold transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 shadow-2xs">
+                                            <div class="flex items-center gap-2 truncate">
+                                                <span class="w-6 h-6 rounded-[8px] bg-[#df5826]/10 text-[#df5826] flex items-center justify-center text-xs group-hover:bg-[#df5826] group-hover:text-white transition">
+                                                    <i :class="isCreatingUnit ? 'fas fa-spinner fa-spin' : 'fas fa-plus'"></i>
+                                                </span>
+                                                <span class="truncate">Tambah "<strong><span x-text="searchUnit.trim()"></span></strong>" Baru</span>
+                                            </div>
+                                            <span class="text-[10px] font-mono text-gray-400 group-hover:text-[#df5826] transition bg-white/70 px-1.5 py-0.5 rounded border border-[#ffd8c2]">↵ Enter</span>
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <!-- Bottom Section: Add New Unit Option or Inline Form -->
+                                <div class="mt-2 pt-2 border-t border-[#f0f2f5]">
+                                    <template x-if="!isAddingNew">
+                                        <button type="button" 
+                                                @click="isAddingNew = true; newUnitLabel = ''; $nextTick(() => $refs.inlineNewUnitInput?.focus())" 
+                                                class="w-full px-3 py-2 rounded-[10px] text-[12px] font-semibold text-[#df5826] hover:bg-[#fff6f0] flex items-center justify-between transition cursor-pointer group">
+                                            <span class="flex items-center gap-2">
+                                                <span class="w-5 h-5 rounded-full bg-[#df5826]/10 text-[#df5826] group-hover:bg-[#df5826] group-hover:text-white flex items-center justify-center text-[10px] transition">
+                                                    <i class="fas fa-plus"></i>
+                                                </span>
+                                                <span>Tambah Satuan Baru</span>
+                                            </span>
+                                            <span class="text-[10px] text-[#7f837e] group-hover:text-[#df5826] transition font-normal">Form manual</span>
+                                        </button>
+                                    </template>
+
+                                    <!-- Expanded Inline Form -->
+                                    <template x-if="isAddingNew">
+                                        <div class="p-2.5 rounded-[12px] bg-[#f8f9fa] border border-[#e9ebf0] space-y-2 text-left">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-[11px] font-bold text-[#111827]">Tambah Satuan Manual</span>
+                                                <button type="button" @click="isAddingNew = false" class="text-gray-400 hover:text-gray-600 text-xs">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-medium text-[#7f837e] mb-1">Nama / Label Satuan</label>
+                                                <input type="text" 
+                                                       x-ref="inlineNewUnitInput"
+                                                       x-model="newUnitLabel" 
+                                                       placeholder="Contoh: Ikat (Sayur), Butir (Telur)..." 
+                                                       @keydown.enter.prevent="if(newUnitLabel.trim()) handleCreateUnit(newUnitLabel)"
+                                                       class="w-full bg-white border border-[#e5e7eb] focus:border-[#df5826] rounded-[8px] px-2.5 py-1.5 text-[11px] text-[#111827] outline-none">
+                                            </div>
+                                            <div class="flex items-center justify-end gap-2 pt-1">
+                                                <button type="button" @click="isAddingNew = false" class="px-2.5 py-1 text-[11px] text-[#53565a] hover:bg-gray-200 rounded-[6px] transition">
+                                                    Batal
+                                                </button>
+                                                <button type="button" 
+                                                        @click="handleCreateUnit(newUnitLabel)"
+                                                        :disabled="isCreatingUnit || !newUnitLabel.trim()" 
+                                                        class="px-3 py-1 bg-[#df5826] hover:bg-[#c94d00] disabled:opacity-50 text-white text-[11px] font-bold rounded-[6px] transition flex items-center gap-1.5 cursor-pointer">
+                                                    <i :class="isCreatingUnit ? 'fas fa-spinner fa-spin' : 'fas fa-save'"></i>
+                                                    <span x-text="isCreatingUnit ? 'Menyimpan...' : 'Simpan'"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-[#53565a] mb-1">SKU / Kode Bahan</label>
-                        <input type="text" x-model="materialForm.sku" placeholder="cth: RM-COF-01" class="w-full bg-[#f8f9fa] border border-[#e9ebf0] rounded-[10px] px-3.5 py-2 text-[12px] font-medium text-[#111827] focus:border-[#df5826] focus:bg-white outline-none">
+                        <input type="text" x-model="materialForm.sku" placeholder="cth: RM-COF-01" class="w-full bg-[#f8f9fa] border border-[#e9ebf0] rounded-[10px] px-3.5 py-2.5 text-[12px] font-medium text-[#111827] focus:border-[#df5826] focus:bg-white outline-none">
                     </div>
                 </div>
 
