@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Crew\CreateShift;
+use App\Actions\Crew\ReplicateMonthShiftsAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ReplicateMonthShiftsRequest;
 use App\Http\Requests\SaveShiftRequest;
 use App\Models\CrewShift;
 use App\Models\ShiftTemplate;
@@ -279,5 +281,12 @@ class ShiftController extends Controller
         $shift = $createShift->execute($request->user()->shop, $data, isset($data['id']) ? (int) $data['id'] : null);
 
         return response()->json(['success' => true, 'shift' => $shift], isset($data['id']) ? 200 : 201);
+    }
+
+    public function replicateMonths(ReplicateMonthShiftsRequest $request, ReplicateMonthShiftsAction $action): JsonResponse
+    {
+        $result = $action->execute($request->user()->shop, $request->user(), $request->validated());
+
+        return response()->json($result);
     }
 }

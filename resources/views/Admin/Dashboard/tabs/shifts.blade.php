@@ -11,6 +11,9 @@
                 <i class="fas fa-user-clock text-[#f9731f]" aria-hidden="true"></i>Buka Absensi
             </a>
             @endcan
+            <button type="button" @click="openReplicateShiftModal()" :disabled="shiftsLoading || !!shiftsError" class="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl border border-[#e9ebf0] bg-white px-4 text-xs font-semibold text-[#111827] shadow-xs hover:bg-gray-50 hover:border-orange-300 transition-all" title="Terapkan jadwal bulan ini ke semua bulan">
+                <i class="fas fa-copy text-[#f9731f]" aria-hidden="true"></i>Terapkan di Semua Bulan
+            </button>
             <button type="button" @click="openShiftTemplateModal()" :disabled="shiftsLoading || !!shiftsError" class="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#f9731f] to-[#ea580c] px-4 text-xs font-semibold text-white shadow-sm hover:from-[#ea580c] hover:to-[#c2410c] disabled:opacity-50 transition-all">
                 <i class="fas fa-clock" aria-hidden="true"></i>Kelola Template Shift
             </button>
@@ -72,6 +75,10 @@
                                 <i class="fas fa-chevron-right"></i>
                             </button>
                             <span class="ml-2 text-sm font-bold text-[#111827]" x-text="currentMatrixMonthLabel"></span>
+                            <button type="button" @click="openReplicateShiftModal()" :disabled="shiftsLoading" class="ml-2 inline-flex h-8 items-center gap-1.5 rounded-lg border border-orange-200 bg-orange-50/70 px-2.5 text-[11px] font-bold text-[#c94d00] hover:bg-orange-100 transition-colors" title="Terapkan jadwal bulan ini ke semua bulan">
+                                <i class="fas fa-copy text-xs text-[#ea580c]"></i>
+                                <span>Terapkan di Semua Bulan</span>
+                            </button>
                         </div>
                     </template>
 
@@ -775,6 +782,146 @@
                 <button type="button" @click="saveShiftTemplates()" :disabled="shiftTemplateSaving" class="h-9 rounded-xl bg-gradient-to-r from-[#ea580c] to-[#f9731f] px-4 text-xs font-bold text-white shadow-sm hover:from-[#c2410c] hover:to-[#ea580c] disabled:opacity-50 transition-all flex items-center gap-2">
                     <i x-show="shiftTemplateSaving" class="fas fa-spinner fa-spin text-xs"></i>
                     <span x-text="shiftTemplateSaving ? 'Menyimpan...' : 'Simpan Template Shift'"></span>
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- ============================================================== -->
+    <!-- DIALOG: TERAPKAN KE SEMUA BULAN (REPLICATE MONTH SHIFTS)        -->
+    <!-- ============================================================== -->
+    <dialog x-ref="replicateShiftDialog" class="w-full max-w-2xl rounded-2xl border-0 p-0 shadow-2xl backdrop:bg-black/50" @keydown.escape.prevent="closeReplicateShiftModal()">
+        <div class="flex items-center justify-between border-b border-[#e9ebf0] px-6 py-4 bg-white">
+            <div class="flex items-center gap-3">
+                <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-100 text-[#ea580c] shadow-xs">
+                    <i class="fas fa-copy text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-[#111827]">Terapkan Jadwal ke Semua Bulan</h2>
+                    <p class="text-xs text-[#7f837e]">Duplikasi dan sinkronisasi pola shift kru ke bulan target secara otomatis.</p>
+                </div>
+            </div>
+            <button type="button" @click="closeReplicateShiftModal()" :disabled="replicateShiftLoading" aria-label="Tutup dialog" class="h-9 w-9 rounded-lg text-[#7f837e] hover:bg-gray-100 flex items-center justify-center transition-colors">
+                <i class="fas fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+            <!-- Error message if any -->
+            <p x-show="replicateShiftError" x-text="replicateShiftError" role="alert" class="rounded-xl bg-red-50 p-3 text-xs leading-relaxed text-red-700 border border-red-200"></p>
+
+            <!-- Source Month Card -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl bg-gradient-to-r from-orange-50/80 to-amber-50/50 border border-orange-200/80 p-4">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#ea580c] shadow-2xs">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-semibold text-[#9a3412] uppercase tracking-wider">Bulan Sumber Jadwal</div>
+                        <div class="text-sm font-bold text-[#111827]" x-text="replicateSourceMonthLabel || currentMatrixMonthLabel"></div>
+                    </div>
+                </div>
+                <div class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-[#c94d00] shadow-2xs border border-orange-100">
+                    <i class="fas fa-user-check text-xs"></i>
+                    <span><strong x-text="shifts.length"></strong> shift siap diterapkan</span>
+                </div>
+            </div>
+
+            <!-- Strategy Selection -->
+            <div>
+                <label class="block text-xs font-bold text-[#111827] mb-2">Metode Replikasi Jadwal:</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="relative flex cursor-pointer flex-col rounded-xl border p-3.5 transition-all shadow-2xs"
+                           :class="replicateStrategy === 'date' ? 'border-[#ea580c] bg-orange-50/30 ring-2 ring-orange-200' : 'border-[#e9ebf0] bg-white hover:border-gray-300'">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs font-bold text-[#111827] flex items-center gap-1.5">
+                                <i class="fas fa-calendar-check text-[#ea580c]"></i> Berdasarkan Tanggal (1-31)
+                            </span>
+                            <input type="radio" name="replicate_strategy" value="date" x-model="replicateStrategy" class="text-orange-600 focus:ring-orange-500">
+                        </div>
+                        <p class="text-[11px] text-[#7f837e] leading-relaxed">
+                            Shift tgl 1 disalin ke tgl 1, tgl 2 ke tgl 2, dst. Tanggal yang tidak ada (misal tgl 31 di Feb/April) dilewati dengan aman.
+                        </p>
+                    </label>
+
+                    <label class="relative flex cursor-pointer flex-col rounded-xl border p-3.5 transition-all shadow-2xs"
+                           :class="replicateStrategy === 'day_of_week' ? 'border-[#ea580c] bg-orange-50/30 ring-2 ring-orange-200' : 'border-[#e9ebf0] bg-white hover:border-gray-300'">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs font-bold text-[#111827] flex items-center gap-1.5">
+                                <i class="fas fa-arrows-rotate text-[#ea580c]"></i> Pola Mingguan (Senin-Minggu)
+                            </span>
+                            <input type="radio" name="replicate_strategy" value="day_of_week" x-model="replicateStrategy" class="text-orange-600 focus:ring-orange-500">
+                        </div>
+                        <p class="text-[11px] text-[#7f837e] leading-relaxed">
+                            Pola shift mingguan kru di bulan sumber diulang secara beraturan ke seluruh hari sejenis di bulan target.
+                        </p>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Target Month Presets & Checklist -->
+            <div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                    <label class="text-xs font-bold text-[#111827]">
+                        Pilih Bulan Target (<span x-text="replicateTargetMonths.length"></span> dipilih):
+                    </label>
+                    <!-- Quick Presets -->
+                    <div class="flex flex-wrap items-center gap-1">
+                        <button type="button" @click="setReplicatePreset('rest_of_year')" class="rounded-md border border-[#e9ebf0] bg-white px-2 py-1 text-[10px] font-semibold text-[#53565a] hover:bg-orange-50 hover:text-[#ea580c] transition-colors">
+                            Sisa Tahun Ini
+                        </button>
+                        <button type="button" @click="setReplicatePreset('next_3')" class="rounded-md border border-[#e9ebf0] bg-white px-2 py-1 text-[10px] font-semibold text-[#53565a] hover:bg-orange-50 hover:text-[#ea580c] transition-colors">
+                            3 Bulan ke Depan
+                        </button>
+                        <button type="button" @click="setReplicatePreset('next_6')" class="rounded-md border border-[#e9ebf0] bg-white px-2 py-1 text-[10px] font-semibold text-[#53565a] hover:bg-orange-50 hover:text-[#ea580c] transition-colors">
+                            6 Bulan ke Depan
+                        </button>
+                        <button type="button" @click="setReplicatePreset('all_year')" class="rounded-md border border-[#e9ebf0] bg-white px-2 py-1 text-[10px] font-semibold text-[#53565a] hover:bg-orange-50 hover:text-[#ea580c] transition-colors">
+                            Semua Bulan Tahun Ini
+                        </button>
+                        <button type="button" @click="setReplicatePreset('clear')" class="rounded-md border border-[#e9ebf0] bg-white px-2 py-1 text-[10px] font-semibold text-red-600 hover:bg-red-50 transition-colors">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grid of Target Months -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto p-1.5 rounded-xl border border-[#e9ebf0] bg-gray-50/50">
+                    <template x-for="m in replicateAvailableMonths" :key="m.value">
+                        <label class="flex items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-medium cursor-pointer transition-all select-none"
+                               :class="replicateTargetMonths.includes(m.value) ? 'bg-orange-50 border-orange-300 text-[#c94d00] font-bold shadow-2xs' : 'bg-white border-gray-200 text-[#53565a] hover:border-gray-300'">
+                            <input type="checkbox" :value="m.value" :checked="replicateTargetMonths.includes(m.value)" @change="toggleTargetMonth(m.value)" class="rounded text-orange-600 focus:ring-orange-500">
+                            <span class="truncate text-[11px]" x-text="m.label"></span>
+                        </label>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Conflict Handling Options -->
+            <div class="rounded-xl border border-[#e9ebf0] bg-white p-3.5 space-y-2">
+                <div class="text-xs font-bold text-[#111827]">Pengaturan Penanganan Jadwal:</div>
+                <label class="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input type="checkbox" x-model="replicateOverwrite" class="mt-0.5 rounded text-orange-600 focus:ring-orange-500">
+                    <div class="text-xs">
+                        <span class="font-semibold text-[#111827]">Gantikan / Timpa jadwal yang sudah ada (Overwrite)</span>
+                        <p class="text-[11px] text-[#7f837e]">Jika dicentang, shift kru yang ada pada bulan target akan dibersihkan terlebih dahulu sebelum jadwal baru dibuat. Jika tidak dicentang, sistem hanya mengisi tanggal dan jam yang kosong (jadwal lama tidak dihapus).</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-[#e9ebf0] px-6 py-4 bg-gray-50/50 rounded-b-2xl">
+            <span class="text-xs text-[#7f837e]">
+                Target: <strong class="text-[#111827]" x-text="replicateTargetMonths.length"></strong> bulan dipilih
+            </span>
+            <div class="flex items-center gap-2.5">
+                <button type="button" @click="closeReplicateShiftModal()" :disabled="replicateShiftLoading" class="h-9 rounded-xl border border-[#e9ebf0] bg-white px-4 text-xs font-semibold text-[#53565a] hover:bg-gray-100 transition-colors">
+                    Batal
+                </button>
+                <button type="button" @click="executeReplicateShifts()" :disabled="replicateShiftLoading || replicateTargetMonths.length === 0" class="h-9 rounded-xl bg-gradient-to-r from-[#ea580c] to-[#f9731f] px-5 text-xs font-bold text-white shadow-sm hover:from-[#c2410c] hover:to-[#ea580c] disabled:opacity-40 transition-all flex items-center gap-2">
+                    <i x-show="replicateShiftLoading" class="fas fa-spinner fa-spin text-xs"></i>
+                    <i x-show="!replicateShiftLoading" class="fas fa-check text-xs"></i>
+                    <span x-text="replicateShiftLoading ? 'Menerapkan...' : 'Terapkan Jadwal Sekarang'"></span>
                 </button>
             </div>
         </div>

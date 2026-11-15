@@ -248,6 +248,34 @@ class RegisterReconciliationTest extends TestCase
             ->assertJsonPath('success', false);
     }
 
+    public function test_record_cash_out_succeeds_even_when_legacy_table_lacks_user_id_and_shop_id_columns(): void
+    {
+        [$cashier, $session] = $this->scenario();
+
+        Schema::table('cash_drawer_transactions', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('shop_id');
+            $table->dropConstrainedForeignId('user_id');
+        });
+
+        $response = $this->actingAs($cashier)->postJson(route('shift.cash-out'), [
+            'item' => 'Beli Es Kristal',
+            'amount' => 20000,
+            'notes' => 'Kas keluar legacy',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('breakdown.cash_out', 20000)
+            ->assertJsonPath('breakdown.expected_cash', 130000);
+
+        $this->assertDatabaseHas('cash_drawer_transactions', [
+            'cash_register_session_id' => $session->id,
+            'type' => 'CASH_OUT',
+            'amount' => 20000,
+            'description' => 'Beli Es Kristal - Kas keluar legacy',
+        ]);
+    }
+
     /** @return array{User, CashRegisterSession} */
     private function scenario(): array
     {

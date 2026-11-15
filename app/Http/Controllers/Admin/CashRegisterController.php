@@ -172,11 +172,14 @@ class CashRegisterController extends Controller
         $description = $notes ? "{$item} - {$notes}" : $item;
 
         $transactionData = [
-            'user_id' => $user->id,
             'type' => 'CASH_OUT',
             'amount' => (float) $validated['amount'],
             'description' => $description,
         ];
+
+        if (Schema::hasColumn('cash_drawer_transactions', 'user_id')) {
+            $transactionData['user_id'] = $user->id;
+        }
 
         if (Schema::hasColumn('cash_drawer_transactions', 'shop_id')) {
             $transactionData['shop_id'] = $user->shop_id;

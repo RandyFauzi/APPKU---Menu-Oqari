@@ -3715,6 +3715,14 @@ if (res.ok) {
                 draftShiftTemplates: [],
                 shiftTemplateSaving: false,
                 shiftTemplateError: '',
+                replicateShiftLoading: false,
+                replicateShiftError: '',
+                replicateSourceMonth: '',
+                replicateSourceMonthLabel: '',
+                replicateStrategy: 'date',
+                replicateOverwrite: false,
+                replicateTargetMonths: [],
+                replicateAvailableMonths: [],
                 shiftPresets: {
                     '1': { code: '1', name: 'Shift 1', start_time: '07:00', end_time: '15:00', duration_minutes: 480, label: 'Shift 1', color: 'blue', badgeClass: 'bg-blue-600 text-white' },
                     '2': { code: '2', name: 'Shift 2', start_time: '11:00', end_time: '19:00', duration_minutes: 480, label: 'Shift 2', color: 'emerald', badgeClass: 'bg-emerald-600 text-white' },
@@ -3819,6 +3827,159 @@ if (res.ok) {
                 closeShiftTemplateModal() {
                     if (this.shiftTemplateSaving) return;
                     this.$refs.shiftTemplateDialog.close();
+                },
+                openReplicateShiftModal() {
+                    this.replicateShiftError = '';
+                    this.replicateShiftLoading = false;
+                    this.replicateSourceMonth = this.currentMatrixMonth;
+                    this.replicateSourceMonthLabel = this.currentMatrixMonthLabel;
+                    this.replicateStrategy = 'date';
+                    this.replicateOverwrite = false;
+                    this.replicateTargetMonths = [];
+
+                    // Generate list of available target months (current year + next year)
+                    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                    const [srcYear, srcMonth] = (this.currentMatrixMonth || '').split('-').map(Number);
+                    const validYear = isNaN(srcYear) ? new Date().getFullYear() : srcYear;
+                    const validMonth = isNaN(srcMonth) ? (new Date().getMonth() + 1) : srcMonth;
+
+                    const list = [];
+                    // All 12 months of current year (except source month)
+                    for (let m = 1; m <= 12; m++) {
+                        const val = `${validYear}-${String(m).padStart(2, '0')}`;
+                        if (val !== this.currentMatrixMonth) {
+                            list.push({ value: val, label: `${months[m - 1]} ${validYear}` });
+                        }
+                    }
+                    // All 12 months of next year
+                    const nextYear = validYear + 1;
+                    for (let m = 1; m <= 12; m++) {
+                        const val = `${nextYear}-${String(m).padStart(2, '0')}`;
+                        list.push({ value: val, label: `${months[m - 1]} ${nextYear}` });
+                    }
+                    this.replicateAvailableMonths = list;
+
+                    // Default preset: rest of current year if any, otherwise next 3 months
+                    this.setReplicatePreset('rest_of_year');
+                    if (this.replicateTargetMonths.length === 0) {
+                        this.setReplicatePreset('next_3');
+                    }
+
+                    if (this.$refs.replicateShiftDialog) {
+                        this.$refs.replicateShiftDialog.showModal();
+                    }
+                },
+                closeReplicateShiftModal() {
+                    if (this.replicateShiftLoading) return;
+                    if (this.$refs.replicateShiftDialog) {
+                        this.$refs.replicateShiftDialog.close();
+                    }
+                },
+                setReplicatePreset(type) {
+                    const [srcYear, srcMonth] = (this.currentMatrixMonth || '').split('-').map(Number);
+                    const validYear = isNaN(srcYear) ? new Date().getFullYear() : srcYear;
+                    const validMonth = isNaN(srcMonth) ? (new Date().getMonth() + 1) : srcMonth;
+
+                    if (type === 'clear') {
+                        this.replicateTargetMonths = [];
+                        return;
+                    }
+                    if (type === 'rest_of_year') {
+                        const targets = [];
+                        for (let m = validMonth + 1; m <= 12; m++) {
+                            targets.push(`${validYear}-${String(m).padStart(2, '0')}`);
+                        }
+                        this.replicateTargetMonths = targets;
+                        return;
+                    }
+                    if (type === 'all_year') {
+                        const targets = [];
+                        for (let m = 1; m <= 12; m++) {
+                            const val = `${validYear}-${String(m).padStart(2, '0')}`;
+                            if (val !== this.currentMatrixMonth) {
+                                targets.push(val);
+                            }
+                        }
+                        this.replicateTargetMonths = targets;
+                        return;
+                    }
+                    if (type === 'next_3' || type === 'next_6') {
+                        const count = type === 'next_3' ? 3 : 6;
+                        const targets = [];
+                        let curYear = validYear;
+                        let curMonth = validMonth;
+                        for (let i = 0; i < count; i++) {
+                            curMonth++;
+                            if (curMonth > 12) {
+                                curMonth = 1;
+                                curYear++;
+                            }
+                            targets.push(`${curYear}-${String(curMonth).padStart(2, '0')}`);
+                        }
+                        this.replicateTargetMonths = targets;
+                    }
+                },
+                toggleTargetMonth(monthValue) {
+                    const idx = this.replicateTargetMonths.indexOf(monthValue);
+                    if (idx > -1) {
+                        this.replicateTargetMonths.splice(idx, 1);
+                    } else {
+                        this.replicateTargetMonths.push(monthValue);
+                    }
+                },
+                async executeReplicateShifts() {
+                    if (this.replicateShiftLoading) return;
+                    this.replicateShiftError = '';
+
+                    if (!this.replicateTargetMonths || this.replicateTargetMonths.length === 0) {
+                        this.replicateShiftError = 'Silakan pilih minimal satu bulan target.';
+                        return;
+                    }
+
+                    this.replicateShiftLoading = true;
+                    try {
+                        const payload = {
+                            source_month: this.replicateSourceMonth || this.currentMatrixMonth,
+                            target_months: this.replicateTargetMonths,
+                            strategy: this.replicateStrategy || 'date',
+                            overwrite: this.replicateOverwrite || false
+                        };
+
+                        const res = await fetch('{{ route('admin.shifts.replicate', [], false) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+                        if (!res.ok) {
+                            this.replicateShiftError = Object.values(data.errors || {}).flat().join(' ') || data.message || 'Gagal menerapkan jadwal ke bulan lain.';
+                            return;
+                        }
+
+                        this.closeReplicateShiftModal();
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil Diterapkan!',
+                                text: data.message || `Jadwal shift berhasil diterapkan ke ${this.replicateTargetMonths.length} bulan target.`,
+                                confirmButtonColor: '#ea580c'
+                            });
+                        } else {
+                            this.addToast(data.message || 'Jadwal shift berhasil diterapkan.', 'success');
+                        }
+
+                        await this.fetchShifts();
+                    } catch (err) {
+                        console.error('executeReplicateShifts error:', err);
+                        this.replicateShiftError = 'Terjadi kesalahan sistem saat menerapkan jadwal. Silakan periksa koneksi internet Anda.';
+                    } finally {
+                        this.replicateShiftLoading = false;
+                    }
                 },
                 addShiftTemplate() {
                     const palette = ['blue', 'emerald', 'purple', 'amber', 'rose', 'cyan', 'indigo'];
