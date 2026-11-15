@@ -15,7 +15,7 @@
     </style>
     <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="sparta-attendance min-h-screen bg-white text-[#1e211f] antialiased" x-data="attendanceRoot()">
+<body class="sparta-attendance min-h-screen bg-white text-[#1e211f] antialiased" x-data="attendanceRoot()" @open-attendance-photo.window="openPhotoPreview($event.detail)">
 <div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content flex flex-col min-h-screen bg-white">
     <a href="#attendance-content" class="sr-only focus:not-sr-only">Lewati navigasi</a>
 
@@ -156,7 +156,7 @@
                                 @if($todayRecord->check_in_photo_path)
                                     <div class="relative w-40 h-40 rounded-xl overflow-hidden border border-[#d8dce2] shadow-xs group bg-gray-100">
                                         <img src="{{ Storage::url($todayRecord->check_in_photo_path) }}" alt="Foto Selfie Masuk" class="w-full h-full object-cover">
-                                        <button type="button" @click="openPhotoPreview('{{ Storage::url($todayRecord->check_in_photo_path) }}', '{{ auth()->user()->name }} (Masuk)', '{{ $todayRecord->checked_in_at->setTimezone($todayRecord->timezone)->format('d/m/Y H:i') }}', '{{ $todayRecord->check_in_latitude }}', '{{ $todayRecord->check_in_longitude }}', {{ $todayRecord->check_in_distance_meters ?? 'null' }}, {{ $todayRecord->check_in_in_radius !== null ? ($todayRecord->check_in_in_radius ? 'true' : 'false') : 'null' }})" 
+                                        <button type="button" @click="$dispatch('open-attendance-photo', { url: '{{ Storage::url($todayRecord->check_in_photo_path) }}', title: '{{ addslashes(auth()->user()->name) }} (Masuk)', timestamp: '{{ $todayRecord->checked_in_at->setTimezone($todayRecord->timezone)->format('d/m/Y H:i') }}', lat: '{{ $todayRecord->check_in_latitude }}', lng: '{{ $todayRecord->check_in_longitude }}', distance: {{ $todayRecord->check_in_distance_meters ?? 'null' }}, inRadius: {{ $todayRecord->check_in_in_radius !== null ? ($todayRecord->check_in_in_radius ? 'true' : 'false') : 'null' }} })" 
                                                 class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1.5 cursor-pointer">
                                             <i class="fas fa-search-plus"></i> Lihat Foto
                                         </button>
@@ -604,18 +604,29 @@
                                         <!-- Masuk Verification -->
                                         <div class="flex items-center gap-2">
                                             @if($attendance->check_in_photo_path)
-                                                <button type="button" @click="openPhotoPreview('{{ $attendance->check_in_photo_url }}', '{{ $empName }} (Masuk)', '{{ $attendance->checked_in_at->setTimezone($attendance->timezone)->format('d/m/Y H:i') }}', '{{ $attendance->check_in_latitude }}', '{{ $attendance->check_in_longitude }}', {{ $attendance->check_in_distance_meters ?? 'null' }}, {{ $attendance->check_in_in_radius !== null ? ($attendance->check_in_in_radius ? 'true' : 'false') : 'null' }})"
-                                                    class="relative w-8 h-8 rounded-lg overflow-hidden border border-emerald-300 shadow-2xs hover:scale-105 transition shrink-0 group cursor-pointer"
-                                                    title="Lihat foto selfie masuk">
+                                                <button type="button" @click="$dispatch('open-attendance-photo', { url: '{{ $attendance->check_in_photo_url }}', title: '{{ addslashes($empName) }} (Masuk)', timestamp: '{{ $attendance->checked_in_at->setTimezone($attendance->timezone)->format('d/m/Y H:i') }}', lat: '{{ $attendance->check_in_latitude }}', lng: '{{ $attendance->check_in_longitude }}', distance: {{ $attendance->check_in_distance_meters ?? 'null' }}, inRadius: {{ $attendance->check_in_in_radius !== null ? ($attendance->check_in_in_radius ? 'true' : 'false') : 'null' }} })"
+                                                    class="relative w-9 h-9 rounded-lg overflow-hidden border border-emerald-400 shadow-2xs hover:scale-110 hover:shadow-md transition-all shrink-0 group cursor-pointer bg-gray-100"
+                                                    title="Klik untuk melihat foto selfie masuk">
                                                     <img src="{{ $attendance->check_in_photo_url }}" alt="Foto Masuk" class="w-full h-full object-cover">
-                                                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent flex items-center justify-center text-white text-[9px]">
-                                                        <i class="fas fa-search"></i>
+                                                    <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px]">
+                                                        <i class="fas fa-search-plus"></i>
                                                     </div>
                                                 </button>
                                             @else
-                                                <span class="w-8 h-8 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs shrink-0" title="Tanpa foto masuk">
-                                                    <i class="fas fa-camera-slash text-[10px]"></i>
+                                                <span class="w-9 h-9 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs shrink-0" title="Tanpa foto masuk">
+                                                    <i class="fas fa-camera-slash text-[11px]"></i>
                                                 </span>
+                                            @endif
+
+                                            @if($attendance->check_out_photo_path)
+                                                <button type="button" @click="$dispatch('open-attendance-photo', { url: '{{ $attendance->check_out_photo_url }}', title: '{{ addslashes($empName) }} (Pulang)', timestamp: '{{ $attendance->checked_out_at ? $attendance->checked_out_at->setTimezone($attendance->timezone)->format('d/m/Y H:i') : '' }}', lat: '{{ $attendance->check_out_latitude }}', lng: '{{ $attendance->check_out_longitude }}', distance: {{ $attendance->check_out_distance_meters ?? 'null' }}, inRadius: {{ $attendance->check_out_in_radius !== null ? ($attendance->check_out_in_radius ? 'true' : 'false') : 'null' }} })"
+                                                    class="relative w-9 h-9 rounded-lg overflow-hidden border border-blue-400 shadow-2xs hover:scale-110 hover:shadow-md transition-all shrink-0 group cursor-pointer bg-gray-100"
+                                                    title="Klik untuk melihat foto selfie pulang">
+                                                    <img src="{{ $attendance->check_out_photo_url }}" alt="Foto Pulang" class="w-full h-full object-cover">
+                                                    <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px]">
+                                                        <i class="fas fa-search-plus"></i>
+                                                    </div>
+                                                </button>
                                             @endif
 
                                             <div class="text-[11px] leading-tight">
@@ -689,49 +700,64 @@
         </p>
     </main>
 
-    {{-- MODAL 1: FULL RESOLUTION PHOTO & GPS PREVIEW --}}
+    {{-- MODAL 1: FULL RESOLUTION PHOTO POPUP PREVIEW --}}
     <div x-show="previewPhotoModal" x-cloak 
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
-         @keydown.escape.window="previewPhotoModal = false">
-        <div class="relative w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl space-y-4" @click.away="previewPhotoModal = false">
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xs"
+         @keydown.escape.window="previewPhotoModal = false"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        <div class="relative w-full max-w-lg rounded-2xl bg-white p-4 sm:p-5 shadow-2xl space-y-3.5 mx-auto" 
+             @click.away="previewPhotoModal = false"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100">
+            <!-- Header -->
             <div class="flex items-center justify-between border-b pb-3 border-[#e6e5e0]">
-                <div>
-                    <h3 class="text-sm font-bold text-[#111827]" x-text="activePhoto.title"></h3>
-                    <p class="text-[11px] text-[#7f837e]" x-text="activePhoto.timestamp"></p>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-[#fff6f0] border border-[#ffd6bd] text-[#c94d00] flex items-center justify-center shrink-0">
+                        <i class="fas fa-camera text-xs"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-[#111827]" x-text="activePhoto.title || 'Foto Bukti Kehadiran'"></h3>
+                        <p class="text-[11px] text-[#7f837e]" x-text="activePhoto.timestamp"></p>
+                    </div>
                 </div>
-                <button type="button" @click="previewPhotoModal = false" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#53565a] flex items-center justify-center">
-                    <i class="fas fa-times"></i>
+                <button type="button" @click="previewPhotoModal = false" class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-[#53565a] flex items-center justify-center transition cursor-pointer" title="Tutup">
+                    <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
 
-            <div class="overflow-hidden rounded-xl bg-gray-900 border border-gray-200 max-h-[380px] flex items-center justify-center">
-                <img :src="activePhoto.url" alt="Foto Bukti Kehadiran" class="w-full h-auto max-h-[380px] object-contain">
+            <!-- Full Resolution Photo Container -->
+            <div class="overflow-hidden rounded-xl bg-black/95 border border-gray-200 flex items-center justify-center min-h-[260px] max-h-[75vh]">
+                <template x-if="activePhoto.url">
+                    <img :src="activePhoto.url" alt="Foto Bukti Kehadiran" class="w-full h-auto max-h-[75vh] object-contain select-none">
+                </template>
+                <template x-if="!activePhoto.url">
+                    <div class="py-12 text-center text-gray-400">
+                        <i class="fas fa-image text-3xl mb-2"></i>
+                        <p class="text-xs">Foto tidak tersedia</p>
+                    </div>
+                </template>
             </div>
 
-            <!-- GPS Detail in Modal -->
-            <div class="rounded-xl bg-gray-50 p-3 border border-[#e6e5e0] text-xs space-y-1.5">
-                <div class="flex items-center justify-between">
-                    <span class="text-[#7f837e]">Status Lokasi:</span>
-                    <span class="font-bold" :class="activePhoto.inRadius ? 'text-emerald-700' : 'text-amber-700'" 
-                          x-text="activePhoto.inRadius ? '✓ Dalam Radius Kafe' : (activePhoto.inRadius === false ? '⚠️ Di Luar Radius Kafe' : 'Tanpa Lokasi')"></span>
+            <!-- GPS Verification Badge (if coordinates exist) -->
+            <template x-if="activePhoto.lat && activePhoto.lng">
+                <div class="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                    <span class="text-[#7f837e] text-[11px] flex items-center gap-1.5">
+                        <i class="fas fa-location-dot text-emerald-600"></i>
+                        <span x-text="activePhoto.inRadius ? 'Terverifikasi di dalam radius kafe' : 'Lokasi terdeteksi GPS'"></span>
+                        <span x-show="activePhoto.distance !== null" class="font-medium text-[#111827]" x-text="'(' + activePhoto.distance + 'm)'"></span>
+                    </span>
+                    <a :href="'https://www.google.com/maps?q=' + activePhoto.lat + ',' + activePhoto.lng" target="_blank" class="text-[11px] font-bold text-[#df5826] hover:underline flex items-center gap-1">
+                        <span>Lihat Peta</span>
+                        <i class="fas fa-arrow-up-right-from-square text-[9px]"></i>
+                    </a>
                 </div>
-                <template x-if="activePhoto.distance !== null">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[#7f837e]">Jarak ke Kafe:</span>
-                        <span class="font-bold text-[#111827]" x-text="activePhoto.distance + ' meter'"></span>
-                    </div>
-                </template>
-                <template x-if="activePhoto.lat && activePhoto.lng">
-                    <div class="flex items-center justify-between pt-1 border-t border-gray-200">
-                        <span class="text-[11px] font-mono text-[#53565a]" x-text="activePhoto.lat + ', ' + activePhoto.lng"></span>
-                        <a :href="'https://www.google.com/maps?q=' + activePhoto.lat + ',' + activePhoto.lng" target="_blank"
-                           class="inline-flex items-center gap-1 text-[11px] font-bold text-[#df5826] hover:underline">
-                            <i class="fas fa-location-arrow"></i>
-                            <span>Buka di Google Maps</span>
-                        </a>
-                    </div>
-                </template>
-            </div>
+            </template>
         </div>
     </div>
 
@@ -866,8 +892,28 @@ function attendanceRoot() {
             inRadius: null,
         },
 
-        openPhotoPreview(url, title, timestamp, lat, lng, distance, inRadius) {
-            this.activePhoto = { url, title, timestamp, lat, lng, distance, inRadius };
+        openPhotoPreview(data, title, timestamp, lat, lng, distance, inRadius) {
+            if (typeof data === 'object' && data !== null) {
+                this.activePhoto = {
+                    url: data.url || '',
+                    title: data.title || 'Foto Bukti Kehadiran',
+                    timestamp: data.timestamp || '',
+                    lat: data.lat || null,
+                    lng: data.lng || null,
+                    distance: data.distance !== undefined ? data.distance : null,
+                    inRadius: data.inRadius !== undefined ? data.inRadius : null,
+                };
+            } else {
+                this.activePhoto = {
+                    url: data || '',
+                    title: title || 'Foto Bukti Kehadiran',
+                    timestamp: timestamp || '',
+                    lat: lat || null,
+                    lng: lng || null,
+                    distance: distance !== undefined ? distance : null,
+                    inRadius: inRadius !== undefined ? inRadius : null,
+                };
+            }
             this.previewPhotoModal = true;
         },
 

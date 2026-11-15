@@ -168,11 +168,31 @@ class PosController extends Controller
                 $hasBatchNoColumn = Schema::hasColumn('order_items', 'batch_no');
                 $hasStatusColumn = Schema::hasColumn('order_items', 'status');
 
+                // Auto-ensure batch_no and status columns exist if unmigrated
+                if (! $hasBatchNoColumn || ! $hasStatusColumn) {
+                    try {
+                        if (! $hasBatchNoColumn && Schema::hasTable('order_items')) {
+                            Schema::table('order_items', function ($table) {
+                                $table->unsignedInteger('batch_no')->default(1)->after('order_id')->index();
+                            });
+                            $hasBatchNoColumn = true;
+                        }
+                        if (! $hasStatusColumn && Schema::hasTable('order_items')) {
+                            Schema::table('order_items', function ($table) {
+                                $table->string('status', 30)->default('new')->after('batch_no')->index();
+                            });
+                            $hasStatusColumn = true;
+                        }
+                    } catch (\Throwable $e) {
+                        // Keep graceful fallback if DB user lacks ALTER privilege
+                    }
+                }
+
                 $isAppend = ! empty($validated['append_batch']);
 
                 if ($isAppend) {
-                    $maxBatch = (int) ($order->items()->max('batch_no') ?: 1);
-                    $newBatchNo = $order->items()->count() > 0 ? ($maxBatch + 1) : 1;
+                    $maxBatch = $hasBatchNoColumn ? (int) ($order->items()->max('batch_no') ?: 1) : 1;
+                    $newBatchNo = $hasBatchNoColumn && $order->items()->count() > 0 ? ($maxBatch + 1) : 1;
 
                     foreach ($cart['items'] as $item) {
                         if ($hasPriceColumn && ! isset($item['price'])) {

@@ -376,4 +376,28 @@ class OpenBillTest extends TestCase
         $this->assertSame('ready', $order->items->where('batch_no', 1)->first()->status);
         $this->assertSame('cooking', $order->items->where('batch_no', 2)->first()->status);
     }
+
+    public function test_cashier_can_append_batch_gracefully_when_table_schema_is_checked(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $cashier = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
+        $product = Product::factory()->create(['shop_id' => $shop->id, 'price' => 20000]);
+
+        $r1 = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), [
+            'table' => '10',
+            'customer_name' => 'Doni',
+            'items' => [['id' => $product->id, 'qty' => 1]],
+        ])->assertOk();
+        $orderId = $r1->json('order_id');
+
+        $r2 = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), [
+            'recalled_order_id' => $orderId,
+            'append_batch' => true,
+            'items' => [['id' => $product->id, 'qty' => 2]],
+        ]);
+
+        $r2->assertOk()->assertJson(['success' => true, 'updated' => true]);
+        $order = Order::with('items')->findOrFail($orderId);
+        $this->assertEquals(60000, (float) $order->grand_total);
+    }
 }

@@ -38,12 +38,26 @@ class Attendance extends Model
 
     public function getCheckInPhotoUrlAttribute(): ?string
     {
-        return $this->check_in_photo_path ? Storage::disk('public')->url($this->check_in_photo_path) : null;
+        if (! $this->check_in_photo_path) {
+            return null;
+        }
+        if (str_starts_with($this->check_in_photo_path, 'http://') || str_starts_with($this->check_in_photo_path, 'https://') || str_starts_with($this->check_in_photo_path, 'data:image/')) {
+            return $this->check_in_photo_path;
+        }
+
+        return Storage::disk('public')->url($this->check_in_photo_path);
     }
 
     public function getCheckOutPhotoUrlAttribute(): ?string
     {
-        return $this->check_out_photo_path ? Storage::disk('public')->url($this->check_out_photo_path) : null;
+        if (! $this->check_out_photo_path) {
+            return null;
+        }
+        if (str_starts_with($this->check_out_photo_path, 'http://') || str_starts_with($this->check_out_photo_path, 'https://') || str_starts_with($this->check_out_photo_path, 'data:image/')) {
+            return $this->check_out_photo_path;
+        }
+
+        return Storage::disk('public')->url($this->check_out_photo_path);
     }
 
     public function user(): BelongsTo

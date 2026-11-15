@@ -152,8 +152,35 @@ class DashboardController extends Controller
         ];
         $itemStatus = $itemStatusMap[$rawStatus] ?? 'new';
 
-        if (Schema::hasColumn('order_items', 'status')) {
-            $order->items()->where('batch_no', $batchNo)->update(['status' => $itemStatus]);
+        $hasStatus = Schema::hasColumn('order_items', 'status');
+        $hasBatch = Schema::hasColumn('order_items', 'batch_no');
+
+        // Auto-ensure batch_no and status columns exist if unmigrated
+        if (! $hasStatus || ! $hasBatch) {
+            try {
+                if (! $hasBatch && Schema::hasTable('order_items')) {
+                    Schema::table('order_items', function ($table) {
+                        $table->unsignedInteger('batch_no')->default(1)->after('order_id')->index();
+                    });
+                    $hasBatch = true;
+                }
+                if (! $hasStatus && Schema::hasTable('order_items')) {
+                    Schema::table('order_items', function ($table) {
+                        $table->string('status', 30)->default('new')->after('batch_no')->index();
+                    });
+                    $hasStatus = true;
+                }
+            } catch (\Throwable $e) {
+                // Graceful fallback
+            }
+        }
+
+        if ($hasStatus) {
+            $query = $order->items();
+            if ($hasBatch) {
+                $query->where('batch_no', $batchNo);
+            }
+            $query->update(['status' => $itemStatus]);
 
             $allItems = $order->items()->get();
             $statuses = $allItems->pluck('status')->all();
