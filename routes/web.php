@@ -99,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/cash-reconciliation', [CashRegisterController::class, 'index'])->middleware(['can:manage-register', 'schema:register'])->name('admin.register.index');
     Route::post('/shift/open', [CashRegisterController::class, 'openShift'])->middleware(['can:manage-register', 'schema:register'])->name('shift.open');
     Route::post('/shift/close', [CashRegisterController::class, 'closeShift'])->middleware(['can:manage-register', 'schema:register'])->name('shift.close');
+    Route::post('/shift/cash-out', [CashRegisterController::class, 'recordCashOut'])->middleware(['can:manage-register', 'schema:register'])->name('shift.cash-out');
 
     Route::middleware(['can:manage-hpp', 'schema:hpp'])->group(function () {
         Route::get('/admin/hpp', [HppCalculatorController::class, 'index'])->name('admin.hpp.index');

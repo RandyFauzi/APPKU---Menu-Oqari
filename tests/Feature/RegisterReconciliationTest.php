@@ -188,6 +188,66 @@ class RegisterReconciliationTest extends TestCase
         $this->assertSame('OPEN', $otherSession->fresh()->status);
     }
 
+    public function test_record_cash_out_successfully_records_transaction_and_updates_expected_cash(): void
+    {
+        [$cashier, $session] = $this->scenario();
+        // Initial expected cash: opening (100.000) + cash sales (50.000) = 150.000
+
+        $response = $this->actingAs($cashier)->postJson(route('shift.cash-out'), [
+            'item' => 'Beli Es Batu',
+            'amount' => 15000,
+            'notes' => '2 kantong es kristal',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('breakdown.cash_out', 15000)
+            ->assertJsonPath('breakdown.expected_cash', 135000);
+
+        $this->assertDatabaseHas('cash_drawer_transactions', [
+            'shop_id' => $cashier->shop_id,
+            'user_id' => $cashier->id,
+            'cash_register_session_id' => $session->id,
+            'type' => 'CASH_OUT',
+            'amount' => 15000,
+            'description' => 'Beli Es Batu - 2 kantong es kristal',
+        ]);
+
+        // Verifikasi pada halaman rekonsiliasi kas
+        $this->actingAs($cashier)->get(route('admin.register.index'))
+            ->assertOk()
+            ->assertSee('135.000,00')
+            ->assertSee('15.000,00')
+            ->assertSee('Beli Es Batu - 2 kantong es kristal');
+    }
+
+    public function test_record_cash_out_validates_required_fields(): void
+    {
+        [$cashier] = $this->scenario();
+
+        $response = $this->actingAs($cashier)->postJson(route('shift.cash-out'), [
+            'item' => '',
+            'amount' => 0,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['item', 'amount']);
+    }
+
+    public function test_record_cash_out_fails_if_no_active_shift(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $cashier = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
+
+        $response = $this->actingAs($cashier)->postJson(route('shift.cash-out'), [
+            'item' => 'Beli Gas',
+            'amount' => 22000,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false);
+    }
+
     /** @return array{User, CashRegisterSession} */
     private function scenario(): array
     {

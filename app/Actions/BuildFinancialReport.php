@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\LazyCollection;
 
 class BuildFinancialReport
@@ -61,7 +62,17 @@ class BuildFinancialReport
             ->groupBy('product_name')->orderByDesc('total_qty')->limit(5)->get();
         $timezone = config('attendance.timezone');
 
-        return compact('date', 'period', 'transactionsCount', 'grossSales', 'netSales', 'totalCogs', 'grossProfit', 'grandTotal', 'aov', 'margin', 'payments', 'transactions', 'bestSellers', 'timezone');
+        $totalCashOut = 0.0;
+        if (Schema::hasTable('cash_drawer_transactions')) {
+            $totalCashOut = (float) DB::table('cash_drawer_transactions')
+                ->where('shop_id', $user->shop_id)
+                ->where('type', 'CASH_OUT')
+                ->whereNull('cancelled_at')
+                ->when($period !== 'all', fn ($q) => $q->whereBetween('created_at', [$start, $end]))
+                ->sum('amount');
+        }
+
+        return compact('date', 'period', 'transactionsCount', 'grossSales', 'netSales', 'totalCogs', 'grossProfit', 'grandTotal', 'aov', 'margin', 'payments', 'transactions', 'bestSellers', 'timezone', 'totalCashOut');
     }
 
     /** @param array<string, mixed> $filters */

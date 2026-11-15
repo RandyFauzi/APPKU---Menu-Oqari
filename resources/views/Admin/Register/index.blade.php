@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         [x-cloak] { display: none !important; }
         .sparta-register { font-family: 'DM Sans', sans-serif; }
@@ -57,6 +58,13 @@
             </div>
 
             <div class="flex items-center gap-2">
+                @if($activeSession)
+                    <button type="button" @click="$dispatch('open-cash-out-modal')" 
+                       class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-2xs transition cursor-pointer">
+                        <i class="fas fa-arrow-up-from-bracket"></i>
+                        <span>Catat Kas Keluar</span>
+                    </button>
+                @endif
                 <a href="{{ route('admin.pos.index') }}" 
                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] bg-white border border-[#e6e5e0] text-[#111827] text-xs font-semibold shadow-[0px_1px_2px_rgba(0,0,0,0.02)] hover:bg-gray-50 transition">
                     <i class="fas fa-cash-register text-[#df5826]"></i>
@@ -146,10 +154,40 @@
                                 <dd class="font-semibold text-emerald-600">+ Rp {{ number_format($breakdown['cash_in'], 2, ',', '.') }}</dd>
                             </div>
                             <div class="flex justify-between items-center py-1.5 border-b border-[#f0f0ee]">
-                                <dt class="text-[#53565a]">Kas keluar:</dt>
+                                <div class="flex items-center gap-2">
+                                    <dt class="text-[#53565a]">Kas keluar:</dt>
+                                    <button type="button" @click="$dispatch('open-cash-out-modal')" 
+                                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10.5px] font-bold text-red-600 hover:bg-red-50 hover:underline transition cursor-pointer"
+                                            title="Catat pengeluaran kas sekarang">
+                                        <i class="fas fa-plus-circle text-[10px]"></i> Catat
+                                    </button>
+                                </div>
                                 <dd class="font-semibold text-red-600">− Rp {{ number_format($breakdown['cash_out'], 2, ',', '.') }}</dd>
                             </div>
                         </dl>
+
+                        {{-- Rincian Item Kas Keluar Shift Ini --}}
+                        @php
+                            $cashOutList = $activeSession->transactions ? $activeSession->transactions->where('type', 'CASH_OUT') : collect();
+                        @endphp
+                        @if($cashOutList->isNotEmpty())
+                            <div class="mt-2.5 p-2.5 rounded-[12px] bg-red-50/50 border border-red-100 text-xs space-y-1.5">
+                                <div class="text-[10px] font-bold text-red-700 uppercase tracking-wider flex items-center justify-between">
+                                    <span class="flex items-center gap-1">
+                                        <i class="fas fa-receipt text-[9px]"></i>
+                                        <span>Rincian Pengeluaran Shift Ini ({{ $cashOutList->count() }} item):</span>
+                                    </span>
+                                </div>
+                                <div class="space-y-1 max-h-28 overflow-y-auto pr-1">
+                                    @foreach($cashOutList as $t)
+                                        <div class="flex justify-between items-center text-[11px] py-0.5 border-b border-red-100/60 last:border-0">
+                                            <span class="text-[#53565a] truncate max-w-[200px]" title="{{ $t->description }}">• {{ $t->description }}</span>
+                                            <span class="font-bold text-red-600 shrink-0">Rp {{ number_format($t->amount, 0, ',', '.') }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
 
                         {{-- Non-Cash Breakdown --}}
                         <div class="mt-4 p-3 rounded-[14px] bg-[#fafaf9] border border-[#e6e5e0] text-xs">
@@ -173,12 +211,19 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 pt-3 border-t border-[#f0f0ee] flex items-center justify-between">
-                        <a href="{{ route('admin.register.index') }}" 
-                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] bg-white border border-[#d8dce2] text-xs font-semibold text-[#53565a] hover:bg-gray-50 hover:text-[#111827] transition shadow-2xs">
-                            <i class="fas fa-rotate text-xs text-[#df5826]"></i>
-                            <span>Perbarui Angka Kas</span>
-                        </a>
+                    <div class="mt-4 pt-3 border-t border-[#f0f0ee] flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('admin.register.index') }}" 
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] bg-white border border-[#d8dce2] text-xs font-semibold text-[#53565a] hover:bg-gray-50 hover:text-[#111827] transition shadow-2xs">
+                                <i class="fas fa-rotate text-xs text-[#df5826]"></i>
+                                <span>Perbarui Angka Kas</span>
+                            </a>
+                            <button type="button" @click="$dispatch('open-cash-out-modal')"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[9px] bg-red-50 border border-red-200 text-xs font-bold text-red-700 hover:bg-red-100 transition shadow-2xs cursor-pointer">
+                                <i class="fas fa-arrow-up-from-bracket text-xs"></i>
+                                <span>+ Catat Kas Keluar</span>
+                            </button>
+                        </div>
                         <span class="text-[10.5px] text-[#7f837e]">Angka realtime sesi</span>
                     </div>
                 </section>
@@ -777,5 +822,8 @@ function cashReconciliation(expected, initialActual = '') {
     };
 }
 </script>
+
+{{-- MODAL CATAT KAS KELUAR --}}
+<x-cash-out-modal />
 </body>
 </html>

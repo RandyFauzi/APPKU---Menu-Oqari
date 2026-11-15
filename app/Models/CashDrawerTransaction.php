@@ -10,7 +10,7 @@ class CashDrawerTransaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'cash_register_session_id', 'type', 'amount', 'description', 'payment_id',
+        'shop_id', 'user_id', 'cash_register_session_id', 'type', 'amount', 'description', 'payment_id',
         'cancelled_at',
         'cancelled_by',
         'cancellation_reason',
@@ -19,6 +19,16 @@ class CashDrawerTransaction extends Model
     public function session()
     {
         return $this->belongsTo(CashRegisterSession::class, 'cash_register_session_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function canceller()
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
     }
 
     public function payment()

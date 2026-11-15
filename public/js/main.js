@@ -771,9 +771,6 @@ function confirmAddToCart() {
     updateFloatingCart();
     showToast(`Ditambahkan <b>${escapeHtml(currentSelectedItem.name)}</b>`);
 }
-    updateFloatingCart();
-    showToast(`Ditambahkan <b>${currentSelectedItem.name}</b>`);
-}
 
 function updateFloatingCart() {
     const cartBar = document.getElementById('cart-bar');
