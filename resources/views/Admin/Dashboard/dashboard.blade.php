@@ -2062,7 +2062,6 @@
                     const destination = this.tabs.find(tab => tab.id === id);
                     if (destination) window.location.assign(destination.url);
                 },
-                                tables: [],
                 getQRUrl(tableCode, token = '') {
                     const slug = window.INITIAL_DATA.shop?.slug || 'menu';
                     const baseUrl = window.location.origin + '/' + slug;
@@ -2769,24 +2768,24 @@
 
                 openEditOpenBillModal(order) {
                     this.openBillModal.recalledOrderId = order.id;
-                    this.openBillModal.customerName = order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') && order.customer !== 'Walk-in Customer' ? order.customer : '');
+                    this.openBillModal.customerName = order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') ? order.customer : '') || 'Walk-in Customer';
                     this.openBillModal.selectedTable = order.raw_table || (order.table && order.table !== 'TA' && order.table !== '-' ? order.table : (this.tables.length > 0 ? (this.tables[0].name || this.tables[0].id) : ''));
                     this.openBillModal.fulfillmentType = order.fulfillment_type || (order.type === 'Takeaway' ? 'TAKEAWAY' : 'DINE_IN');
                     this.openBillModal.searchQuery = '';
                     this.openBillModal.selectedCategory = 'all';
                     this.openBillModal.cart = (order.items || []).map(i => ({
-                        id: i.id || i.product_id || (i.product ? i.product.id : null),
+                        id: i.product_id || (i.product ? i.product.id : i.id),
                         order_item_id: i.order_item_id || i.id,
-                        name: i.name || 'Produk',
-                        price: parseFloat(i.price || 0),
-                        qty: parseInt(i.qty || 1),
+                        name: i.name || i.product_name || (i.product ? i.product.name : 'Produk'),
+                        price: parseFloat(i.unit_price ?? i.price ?? 0),
+                        qty: parseInt(i.qty || i.quantity || 1),
                         notes: i.notes || '',
                         showNotes: Boolean(i.notes),
                         serving_type: i.serving_type || (order.fulfillment_type === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN'),
                         variant_id: i.variant_id || null,
-                        variant_name: i.variant_name || null,
-                        modifiers: (i.modifiers || []).map(m => typeof m === 'object' ? m.id : m),
-                        image: i.image || null,
+                        variant_name: i.variant_name || (i.variant ? i.variant.name : null),
+                        modifiers: (i.modifiers || []).map(m => typeof m === 'object' && m !== null ? m.id : parseInt(m)).filter(m => !isNaN(m) && m > 0),
+                        image: i.image || i.product?.image_url || null,
                     }));
                     this.openBillModal.show = true;
                     if (!this.openBillModal.products || this.openBillModal.products.length === 0) {
@@ -2977,7 +2976,8 @@
                         return;
                     }
 
-                    if (this.openBillModal.fulfillmentType === 'DINE_IN' && !this.openBillModal.selectedTable && !this.openBillModal.customerName) {
+                    // For new order (not updating), require table or customer name for Dine In
+                    if (!this.openBillModal.recalledOrderId && this.openBillModal.fulfillmentType === 'DINE_IN' && !this.openBillModal.selectedTable && !this.openBillModal.customerName) {
                         Swal.fire({
                             icon: 'warning',
                             title: 'Tentukan Meja / Pelanggan',
@@ -2989,18 +2989,20 @@
 
                     this.openBillModal.isSaving = true;
 
+                    const effectiveCustomerName = (this.openBillModal.customerName || '').trim() || (this.openBillModal.selectedTable ? 'Pelanggan Meja ' + this.openBillModal.selectedTable : 'Walk-in Customer');
+
                     const payload = {
                         items: this.openBillModal.cart.map(i => ({
-                            id: i.id,
+                            id: parseInt(i.id || i.product_id),
                             qty: parseInt(i.qty || 1),
-                            variant_id: i.variant_id || null,
-                            modifiers: i.modifiers || [],
+                            variant_id: i.variant_id ? parseInt(i.variant_id) : null,
+                            modifiers: (i.modifiers || []).map(m => typeof m === 'object' && m !== null ? m.id : parseInt(m)).filter(m => !isNaN(m) && m > 0),
                             notes: (i.notes || '').trim() || null,
                             serving_type: i.serving_type || 'DINE_IN',
                         })),
                         table: this.openBillModal.fulfillmentType === 'DINE_IN' ? (this.openBillModal.selectedTable || null) : null,
                         fulfillment_type: this.openBillModal.fulfillmentType || 'DINE_IN',
-                        customer_name: (this.openBillModal.customerName || '').trim() || null,
+                        customer_name: effectiveCustomerName,
                         recalled_order_id: this.openBillModal.recalledOrderId || null,
                     };
 
@@ -3230,10 +3232,16 @@
                         total: parseFloat(newOrder.total || newOrder.grand_total || newOrder.total_price || 0),
                         time: newOrder.created_at,
                         items: (newOrder.items || []).map(i => ({
+                            id: i.product_id || (i.product ? i.product.id : i.id),
+                            order_item_id: i.id,
                             name: i.product_name || i.product?.name || i.name || 'Produk',
-                            qty: i.quantity,
-                            price: parseFloat(i.unit_price ?? i.price ?? i.product?.price ?? 0), notes: i.notes || '',
-                            image: i.product?.image_url ? (i.product.image_url) : null,
+                            qty: parseInt(i.quantity || i.qty || 1),
+                            price: parseFloat(i.unit_price ?? i.price ?? i.product?.price ?? 0),
+                            notes: i.notes || '',
+                            variant_id: i.variant_id || null,
+                            variant_name: i.variant_name || (i.variant ? i.variant.name : null),
+                            modifiers: (i.modifiers || []).map(m => typeof m === 'object' && m !== null ? m.id : parseInt(m)).filter(m => !isNaN(m) && m > 0),
+                            image: i.product?.image_url ? (i.product.image_url) : (i.image || null),
                             desc: i.product?.description || ''
                         }))
                     };
@@ -3321,14 +3329,16 @@ if (res.ok) {
                             total_cogs: parseFloat(o.total_cogs || 0),
                             time: o.created_at,
                             items: (o.items || []).map(i => ({
-                                id: i.product_id || (i.product ? i.product.id : null),
+                                id: i.product_id || (i.product ? i.product.id : i.id),
                                 order_item_id: i.id,
                                 name: i.product_name || i.product?.name || i.name || 'Produk',
                                 qty: parseInt(i.quantity || 1),
                                 price: parseFloat(i.unit_price ?? i.price ?? i.product?.price ?? 0),
                                 notes: i.notes || '',
                                 variant_id: i.variant_id || null,
-                                modifiers: (i.modifiers || []).map(m => typeof m === 'object' ? m.id : m),
+                                variant_name: i.variant_name || (i.variant ? i.variant.name : null),
+                                serving_type: i.serving_type || (o.fulfillment_type === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN'),
+                                modifiers: (i.modifiers || []).map(m => typeof m === 'object' && m !== null ? m.id : parseInt(m)).filter(m => !isNaN(m) && m > 0),
                                 image: i.product?.image_url ? (i.product.image_url) : null,
                                 desc: i.product?.description || ''
                             })),

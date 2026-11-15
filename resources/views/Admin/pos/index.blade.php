@@ -2224,7 +2224,7 @@ function posApp() {
                             id: i.id, name: i.name,
                             image: i.image || null,
                             variant_id: i.variant_id, variant: i.variant,
-                            modifiers: i.modifiers, notes: i.notes || '',
+                            modifiers: Array.isArray(i.modifiers) ? i.modifiers : [], notes: i.notes || '',
                             showNotes: Boolean(i.notes),
                             qty: i.qty, price: i.price, subtotal: i.subtotal,
                             serving_type: i.serving_type || 'DINE_IN',
@@ -2350,7 +2350,7 @@ function posApp() {
             return this.cart.map(i => ({
                 id: i.id, qty: i.qty,
                 variant_id: i.variant_id,
-                modifiers: (i.modifiers ?? []).map(m => m.id),
+                modifiers: (i.modifiers ?? []).map(m => typeof m === 'object' && m !== null ? m.id : parseInt(m)).filter(m => !isNaN(m) && m > 0),
                 notes: (i.notes || '').trim() || null,
                 serving_type: i.serving_type || 'DINE_IN',
             }));

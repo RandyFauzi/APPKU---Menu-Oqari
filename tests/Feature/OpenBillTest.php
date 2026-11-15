@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Modifier;
+use App\Models\ModifierGroup;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Shop;
@@ -209,5 +211,39 @@ class OpenBillTest extends TestCase
         $printRes->assertSee('TAKEAWAY / BUNGKUS');
         $printRes->assertSee('Es Kopi Susu');
         $printRes->assertSee('Chicken Katsu');
+    }
+
+    public function test_cashier_can_update_open_bill_with_walk_in_customer_and_modifiers(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $cashier = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
+        $product = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Kopi Tubruk', 'price' => 15000]);
+        $modGroup = ModifierGroup::create(['shop_id' => $shop->id, 'name' => 'Gula', 'selection_type' => 'SINGLE', 'is_active' => true]);
+        $mod = Modifier::create(['modifier_group_id' => $modGroup->id, 'name' => 'Less Sugar', 'price_adjustment' => 0, 'is_active' => true]);
+        $product->modifierGroups()->attach($modGroup->id);
+
+        // Initial Hold: Walk-in without table
+        $initialRes = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), [
+            'fulfillment_type' => 'DINE_IN',
+            'customer_name' => 'Walk-in Customer',
+            'items' => [['id' => $product->id, 'qty' => 1]],
+        ])->assertOk();
+        $orderId = $initialRes->json('order_id');
+
+        // Update Hold with modifier
+        $updateRes = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), [
+            'recalled_order_id' => $orderId,
+            'fulfillment_type' => 'DINE_IN',
+            'customer_name' => 'Walk-in Customer',
+            'items' => [
+                ['id' => $product->id, 'qty' => 2, 'modifiers' => [$mod->id]],
+            ],
+        ])->assertOk()->assertJson(['success' => true, 'updated' => true, 'order_id' => $orderId]);
+
+        $order = Order::with('items')->findOrFail($orderId);
+        $this->assertEquals(30000, $order->grand_total);
+        $this->assertCount(1, $order->items);
+        $this->assertEquals(2, $order->items[0]->quantity);
+        $this->assertNotNull($order->items[0]->modifiers);
     }
 }
