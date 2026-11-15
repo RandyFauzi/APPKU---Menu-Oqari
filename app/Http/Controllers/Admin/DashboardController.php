@@ -84,6 +84,26 @@ class DashboardController extends Controller
         $order->order_status = $newStatus;
         $order->save();
 
+        if (Schema::hasColumn('order_items', 'status')) {
+            $itemStatusMap = [
+                'CONFIRMED' => 'new',
+                'PREPARING' => 'cooking',
+                'READY' => 'ready',
+                'COMPLETED' => 'completed',
+                'CANCELLED' => 'cancelled',
+            ];
+            if (isset($itemStatusMap[$newStatus])) {
+                $targetItemStatus = $itemStatusMap[$newStatus];
+                if (in_array($targetItemStatus, ['cooking', 'ready'], true)) {
+                    $order->items()->whereNotIn('status', ['completed', 'cancelled'])->update(['status' => $targetItemStatus]);
+                } elseif ($targetItemStatus === 'completed') {
+                    $order->items()->where('status', '!=', 'cancelled')->update(['status' => 'completed']);
+                } elseif ($targetItemStatus === 'cancelled') {
+                    $order->items()->update(['status' => 'cancelled']);
+                }
+            }
+        }
+
         if (class_exists(ActivityLog::class)) {
             $desc = in_array($newStatus, ['Batal', 'CANCELLED'])
                 ? 'Membatalkan pesanan #'.$order->id
@@ -99,6 +119,78 @@ class DashboardController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function updateBatchStatus(Request $request, $orderId)
+    {
+        $order = Order::where('shop_id', Auth::user()->shop_id)->findOrFail($orderId);
+
+        $validated = $request->validate([
+            'batch_no' => ['required', 'integer', 'min:1'],
+            'status' => ['required', 'string'],
+        ]);
+
+        $batchNo = (int) $validated['batch_no'];
+        $rawStatus = $validated['status'];
+
+        $itemStatusMap = [
+            'new' => 'new',
+            'Masuk' => 'new',
+            'CONFIRMED' => 'new',
+            'cooking' => 'cooking',
+            'In Progress' => 'cooking',
+            'PREPARING' => 'cooking',
+            'ready' => 'ready',
+            'Ready' => 'ready',
+            'READY' => 'ready',
+            'completed' => 'completed',
+            'Completed' => 'completed',
+            'COMPLETED' => 'completed',
+            'cancelled' => 'cancelled',
+            'Dibatalkan' => 'cancelled',
+            'CANCELLED' => 'cancelled',
+        ];
+        $itemStatus = $itemStatusMap[$rawStatus] ?? 'new';
+
+        if (Schema::hasColumn('order_items', 'status')) {
+            $order->items()->where('batch_no', $batchNo)->update(['status' => $itemStatus]);
+
+            $allItems = $order->items()->get();
+            $statuses = $allItems->pluck('status')->all();
+
+            if (! empty($statuses)) {
+                if (collect($statuses)->every(fn ($s) => $s === 'cancelled')) {
+                    $order->order_status = 'CANCELLED';
+                } elseif (collect($statuses)->every(fn ($s) => $s === 'completed')) {
+                    $order->order_status = 'COMPLETED';
+                } elseif (collect($statuses)->contains(fn ($s) => $s === 'cooking')) {
+                    $order->order_status = 'PREPARING';
+                } elseif (collect($statuses)->every(fn ($s) => in_array($s, ['ready', 'completed'], true))) {
+                    $order->order_status = 'READY';
+                } elseif (collect($statuses)->contains(fn ($s) => $s === 'new')) {
+                    $order->order_status = ($order->payment_status === 'UNPAID' && $order->order_status === 'HOLD') ? 'HOLD' : 'CONFIRMED';
+                }
+                $order->save();
+            }
+        }
+
+        if (class_exists(ActivityLog::class)) {
+            ActivityLog::create([
+                'shop_id' => auth()->user()->shop_id,
+                'user_id' => auth()->id(),
+                'action' => 'update_order_batch_status',
+                'description' => "Mengubah status batch #{$batchNo} pesanan #{$order->id} menjadi {$itemStatus}",
+                'ip_address' => request()->ip(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'order_id' => $order->id,
+            'batch_no' => $batchNo,
+            'batch_status' => $itemStatus,
+            'order_status' => $order->order_status,
+        ]);
     }
 
     public function printOrder($orderId, Request $request)

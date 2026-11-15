@@ -246,4 +246,134 @@ class OpenBillTest extends TestCase
         $this->assertEquals(2, $order->items[0]->quantity);
         $this->assertNotNull($order->items[0]->modifiers);
     }
+
+    public function test_cashier_can_append_sub_order_batch_to_open_bill_without_resetting_previous_completed_items(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $cashier = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
+        $table = Table::create(['shop_id' => $shop->id, 'name' => '02']);
+
+        $americano = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Americano', 'price' => 25000]);
+        $montBlanc = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Mont Blanc', 'price' => 35000]);
+        $blueOcean = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Blue Ocean', 'price' => 45000]);
+        $nasiGoreng = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Nasi Goreng', 'price' => 40000]);
+
+        // Round 1: Order 3 items (Americano, Mont Blanc, Blue Ocean)
+        $r1Payload = [
+            'table' => '02',
+            'customer_name' => 'Budi',
+            'fulfillment_type' => 'DINE_IN',
+            'items' => [
+                ['id' => $americano->id, 'qty' => 1],
+                ['id' => $montBlanc->id, 'qty' => 1],
+                ['id' => $blueOcean->id, 'qty' => 1],
+            ],
+        ];
+
+        $r1Res = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), $r1Payload)->assertOk();
+        $orderId = $r1Res->json('order_id');
+        $this->assertEquals(105000, $r1Res->json('total'));
+
+        // Advance Round 1 items to 'completed' (Selesai dikerjakan)
+        $batchStatusRes = $this->actingAs($cashier)->postJson("/admin/api/orders/{$orderId}/batch-status", [
+            'batch_no' => 1,
+            'status' => 'completed',
+        ])->assertOk();
+        $this->assertSame('completed', $batchStatusRes->json('batch_status'));
+
+        // Verify Round 1 items are all 'completed' and batch_no = 1
+        $order = Order::with('items')->findOrFail($orderId);
+        $this->assertCount(3, $order->items);
+        foreach ($order->items as $item) {
+            $this->assertEquals(1, $item->batch_no);
+            $this->assertSame('completed', $item->status);
+        }
+
+        // Round 2: Customer orders additional item: Nasi Goreng x1 with append_batch = true
+        $r2Payload = [
+            'recalled_order_id' => $orderId,
+            'append_batch' => true,
+            'table' => '02',
+            'customer_name' => 'Budi',
+            'fulfillment_type' => 'DINE_IN',
+            'items' => [
+                ['id' => $nasiGoreng->id, 'qty' => 1],
+            ],
+        ];
+
+        $r2Res = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), $r2Payload)->assertOk();
+        $r2Res->assertJson([
+            'success' => true,
+            'order_id' => $orderId,
+            'total' => 145000,
+            'updated' => true,
+            'batch_no' => 2,
+        ]);
+
+        // Reload order: Must have 4 items total!
+        // Round 1 items MUST retain batch_no = 1 and status = 'completed'!
+        // Round 2 item (Nasi Goreng) MUST have batch_no = 2 and status = 'new'!
+        $order->refresh();
+        $order->load('items');
+
+        $this->assertCount(4, $order->items);
+        $this->assertEquals(145000, (float) $order->grand_total);
+        $this->assertSame('UNPAID', $order->payment_status);
+
+        $round1Items = $order->items->where('batch_no', 1);
+        $this->assertCount(3, $round1Items);
+        foreach ($round1Items as $item) {
+            $this->assertSame('completed', $item->status, 'Round 1 items must stay completed!');
+        }
+
+        $round2Items = $order->items->where('batch_no', 2);
+        $this->assertCount(1, $round2Items);
+        $this->assertSame('new', $round2Items->first()->status, 'Round 2 item must have status new!');
+        $this->assertSame('Nasi Goreng', $round2Items->first()->product_name);
+    }
+
+    public function test_cashier_can_transition_batch_statuses_independently(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $cashier = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
+        $table = Table::create(['shop_id' => $shop->id, 'name' => '05']);
+
+        $tea = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Lemon Tea', 'price' => 18000]);
+        $burger = Product::factory()->create(['shop_id' => $shop->id, 'name' => 'Beef Burger', 'price' => 45000]);
+
+        // Batch 1: Lemon Tea
+        $r1 = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), [
+            'table' => '05',
+            'customer_name' => 'Siti',
+            'fulfillment_type' => 'DINE_IN',
+            'items' => [['id' => $tea->id, 'qty' => 1]],
+        ])->assertOk();
+        $orderId = $r1->json('order_id');
+
+        // Mark Batch 1 as ready
+        $this->actingAs($cashier)->postJson("/admin/api/orders/{$orderId}/batch-status", [
+            'batch_no' => 1,
+            'status' => 'ready',
+        ])->assertOk()->assertJson(['batch_status' => 'ready']);
+
+        // Batch 2: Beef Burger
+        $r2 = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), [
+            'recalled_order_id' => $orderId,
+            'append_batch' => true,
+            'table' => '05',
+            'customer_name' => 'Siti',
+            'fulfillment_type' => 'DINE_IN',
+            'items' => [['id' => $burger->id, 'qty' => 1]],
+        ])->assertOk();
+
+        // Advance Batch 2 to cooking
+        $this->actingAs($cashier)->postJson("/admin/api/orders/{$orderId}/batch-status", [
+            'batch_no' => 2,
+            'status' => 'cooking',
+        ])->assertOk()->assertJson(['batch_status' => 'cooking']);
+
+        $order = Order::with('items')->findOrFail($orderId);
+        $this->assertSame('ready', $order->items->where('batch_no', 1)->first()->status);
+        $this->assertSame('cooking', $order->items->where('batch_no', 2)->first()->status);
+    }
 }

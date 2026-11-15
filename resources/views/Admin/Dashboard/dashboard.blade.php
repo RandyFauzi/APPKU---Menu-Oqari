@@ -622,7 +622,7 @@
                                 </div>
                             </div>
 
-                            <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-bold bg-[#f4f4f5] text-gray-700 border border-gray-200" x-text="activeIncomingOrder?.table ? ('Meja ' + activeIncomingOrder.table) : 'TA'"></span>
+                            <span class="px-2.5 py-1 rounded-[8px] text-[11px] font-bold bg-[#f4f4f5] text-gray-700 border border-gray-200" x-text="formatTableDisplay(activeIncomingOrder?.table)"></span>
                         </div>
 
                         <!-- Items List -->
@@ -798,6 +798,8 @@
                     isLoading: false,
                     isSaving: false,
                     recalledOrderId: null,
+                    recalledOrderTotal: 0,
+                    tableBadge: '',
                     customerName: '',
                     selectedTable: '',
                     fulfillmentType: 'DINE_IN',
@@ -816,6 +818,7 @@
                         qty: 1,
                     }
                 },
+                expandedCompletedBatches: {},
                 orders: [],
                 analytics: null,
                 topProductsFilter: 'today',
@@ -1986,14 +1989,127 @@
                     this.activeOrderFilter = tab;
                     this.subOrderStatusFilter = 'all';
                 },
+                formatTableDisplay(tbl) {
+                    if (!tbl || tbl === 'TA' || tbl === '-') return 'TA';
+                    const s = String(tbl).trim();
+                    if (s.toLowerCase().startsWith('meja')) {
+                        return s.replace(/^meja\s*/i, 'Meja ');
+                    }
+                    return 'Meja ' + s;
+                },
+                formatTableBadge(tbl) {
+                    if (!tbl || tbl === 'TA' || tbl === '-') return 'TA';
+                    const s = String(tbl).trim();
+                    const match = s.match(/\d+/);
+                    if (match) return match[0].padStart(2, '0');
+                    return s.replace(/^meja\s*/i, '').substring(0, 3).toUpperCase() || 'TA';
+                },
                 getOrderSubStatus(o) {
                     if (!o) return 'new';
+                    if (Array.isArray(o.items) && o.items.length > 0) {
+                        const statuses = o.items.map(i => i.status || 'new');
+                        if (statuses.includes('new')) return 'new';
+                        if (statuses.includes('cooking')) return 'cooking';
+                        if (statuses.includes('ready')) return 'ready';
+                        if (statuses.every(s => s === 'cancelled')) return 'cancelled';
+                        if (statuses.every(s => s === 'completed')) return 'completed';
+                    }
                     const s = o.status || o.order_status || '';
                     if (['Completed', 'COMPLETED'].includes(s)) return 'completed';
                     if (['Ready', 'READY'].includes(s)) return 'ready';
                     if (['In Progress', 'PREPARING', 'MEMASAK'].includes(s)) return 'cooking';
                     if (['Dibatalkan', 'CANCELLED'].includes(s)) return 'cancelled';
                     return 'new';
+                },
+                getOrderBatches(order) {
+                    if (!order || !Array.isArray(order.items) || order.items.length === 0) return [];
+                    const map = new Map();
+                    order.items.forEach(item => {
+                        const bNo = parseInt(item.batch_no || 1);
+                        if (!map.has(bNo)) {
+                            map.set(bNo, {
+                                batch_no: bNo,
+                                status: item.status || 'new',
+                                items: [],
+                                total_qty: 0,
+                            });
+                        }
+                        const b = map.get(bNo);
+                        b.items.push(item);
+                        b.total_qty += parseInt(item.qty || item.quantity || 1);
+                    });
+
+                    const batches = Array.from(map.values()).map(b => {
+                        const statuses = b.items.map(i => i.status || 'new');
+                        let effStatus = 'completed';
+                        if (statuses.includes('new')) effStatus = 'new';
+                        else if (statuses.includes('cooking')) effStatus = 'cooking';
+                        else if (statuses.includes('ready')) effStatus = 'ready';
+                        else if (statuses.every(s => s === 'cancelled')) effStatus = 'cancelled';
+                        b.status = effStatus;
+                        return b;
+                    });
+
+                    return batches.sort((a, b) => b.batch_no - a.batch_no);
+                },
+                getActiveBatches(order) {
+                    return this.getOrderBatches(order).filter(b => b.status !== 'completed' && b.status !== 'cancelled');
+                },
+                getCompletedBatches(order) {
+                    return this.getOrderBatches(order).filter(b => b.status === 'completed');
+                },
+                toggleCompletedBatches(orderId) {
+                    this.expandedCompletedBatches[orderId] = !this.expandedCompletedBatches[orderId];
+                },
+                isCompletedBatchesExpanded(orderId) {
+                    return Boolean(this.expandedCompletedBatches[orderId]);
+                },
+                getItemsByFulfillment(items, type) {
+                    if (!Array.isArray(items)) return [];
+                    const target = (type || 'DINE_IN').toUpperCase();
+                    return items.filter(i => {
+                        const sType = (i.serving_type || 'DINE_IN').toUpperCase();
+                        if (target === 'DINE_IN') return sType === 'DINE_IN' || (sType !== 'TAKEAWAY' && sType !== 'DELIVERY');
+                        if (target === 'TAKEAWAY') return sType === 'TAKEAWAY';
+                        if (target === 'DELIVERY') return sType === 'DELIVERY';
+                        return false;
+                    });
+                },
+                async updateBatchStatus(orderId, batchNo, nextStatus) {
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+                        const res = await fetch(`/admin/api/orders/${orderId}/batch-status`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token
+                            },
+                            body: JSON.stringify({
+                                batch_no: batchNo,
+                                status: nextStatus
+                            })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            const order = this.orders.find(o => o.id === orderId);
+                            if (order && Array.isArray(order.items)) {
+                                order.items.forEach(i => {
+                                    if (parseInt(i.batch_no || 1) === parseInt(batchNo)) {
+                                        i.status = data.batch_status;
+                                    }
+                                });
+                                if (data.order_status) {
+                                    order.status = data.order_status;
+                                    order.order_status = data.order_status;
+                                }
+                            }
+                        } else {
+                            alert(data.message || 'Gagal mengubah status pesanan.');
+                        }
+                    } catch (err) {
+                        console.error('updateBatchStatus network error:', err);
+                    }
                 },
                 getDineInItems(order) {
                     if (!order || !Array.isArray(order.items)) return [];
@@ -2754,8 +2870,10 @@
 
                 openCreateOpenBillModal() {
                     this.openBillModal.recalledOrderId = null;
+                    this.openBillModal.recalledOrderTotal = 0;
                     this.openBillModal.customerName = '';
                     this.openBillModal.selectedTable = this.tables.length > 0 ? (this.tables[0].name || this.tables[0].id) : '';
+                    this.openBillModal.tableBadge = this.formatTableBadge(this.openBillModal.selectedTable);
                     this.openBillModal.fulfillmentType = 'DINE_IN';
                     this.openBillModal.searchQuery = '';
                     this.openBillModal.selectedCategory = 'all';
@@ -2768,29 +2886,23 @@
 
                 openEditOpenBillModal(order) {
                     this.openBillModal.recalledOrderId = order.id;
+                    this.openBillModal.recalledOrderTotal = parseFloat(order.total || 0);
                     this.openBillModal.customerName = order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') ? order.customer : '') || 'Walk-in Customer';
                     this.openBillModal.selectedTable = order.raw_table || (order.table && order.table !== 'TA' && order.table !== '-' ? order.table : (this.tables.length > 0 ? (this.tables[0].name || this.tables[0].id) : ''));
+                    this.openBillModal.tableBadge = this.formatTableBadge(this.openBillModal.selectedTable);
                     this.openBillModal.fulfillmentType = order.fulfillment_type || (order.type === 'Takeaway' ? 'TAKEAWAY' : 'DINE_IN');
                     this.openBillModal.searchQuery = '';
                     this.openBillModal.selectedCategory = 'all';
-                    this.openBillModal.cart = (order.items || []).map(i => ({
-                        id: i.product_id || (i.product ? i.product.id : i.id),
-                        order_item_id: i.order_item_id || i.id,
-                        name: i.name || i.product_name || (i.product ? i.product.name : 'Produk'),
-                        price: parseFloat(i.unit_price ?? i.price ?? 0),
-                        qty: parseInt(i.qty || i.quantity || 1),
-                        notes: i.notes || '',
-                        showNotes: Boolean(i.notes),
-                        serving_type: i.serving_type || (order.fulfillment_type === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN'),
-                        variant_id: i.variant_id || null,
-                        variant_name: i.variant_name || (i.variant ? i.variant.name : null),
-                        modifiers: (i.modifiers || []).map(m => typeof m === 'object' && m !== null ? m.id : parseInt(m)).filter(m => !isNaN(m) && m > 0),
-                        image: i.image || i.product?.image_url || null,
-                    }));
+                    // Empty cart: customer is appending newly ordered items
+                    this.openBillModal.cart = [];
                     this.openBillModal.show = true;
                     if (!this.openBillModal.products || this.openBillModal.products.length === 0) {
                         this.fetchOpenBillProducts();
                     }
+                },
+
+                getRecalledOrderTotal() {
+                    return parseFloat(this.openBillModal.recalledOrderTotal || 0);
                 },
 
                 closeOpenBillModal() {
@@ -3004,6 +3116,7 @@
                         fulfillment_type: this.openBillModal.fulfillmentType || 'DINE_IN',
                         customer_name: effectiveCustomerName,
                         recalled_order_id: this.openBillModal.recalledOrderId || null,
+                        append_batch: Boolean(this.openBillModal.recalledOrderId),
                     };
 
                     try {
@@ -3335,6 +3448,8 @@ if (res.ok) {
                                 qty: parseInt(i.quantity || 1),
                                 price: parseFloat(i.unit_price ?? i.price ?? i.product?.price ?? 0),
                                 notes: i.notes || '',
+                                batch_no: parseInt(i.batch_no || 1),
+                                status: i.status || 'new',
                                 variant_id: i.variant_id || null,
                                 variant_name: i.variant_name || (i.variant ? i.variant.name : null),
                                 serving_type: i.serving_type || (o.fulfillment_type === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN'),

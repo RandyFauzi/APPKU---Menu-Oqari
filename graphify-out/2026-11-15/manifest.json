@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1794620358.8328433,
-    "seen": 1794620746.079344,
-    "ast_hash": "a788e894c85e742e5e68b5bc4f962487",
+    "mtime": 1794727263.769153,
+    "seen": 1794727372.372352,
+    "ast_hash": "e0750550c7b622d3156c08fccfb85e2d",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
-    "mtime": 1794620439.271519,
-    "seen": 1794620746.0794072,
-    "ast_hash": "6ef8e12e083a4133f742ebf2b08f0ac4",
+    "mtime": 1794727286.8729603,
+    "seen": 1794727372.372422,
+    "ast_hash": "eeec435ef0c044b166814f56f67fcd71",
     "semantic_hash": ""
   },
   "resources/views/Admin/reports/index.blade.php": {
@@ -3030,9 +3030,9 @@
     "semantic_hash": ""
   },
   "tests/Feature/OpenBillTest.php": {
-    "mtime": 1794143507.9475982,
-    "seen": 1794145518.763375,
-    "ast_hash": "9446308b33873bf7bf5a40592ddc21ba",
+    "mtime": 1794727328.15353,
+    "seen": 1794727372.3726718,
+    "ast_hash": "4b17976ac2d99a861c941c966a135874",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/VoucherController.php": {

@@ -242,7 +242,7 @@
                             <template x-if="order.fulfillment_type !== 'DELIVERY' && order.type !== 'Delivery' && order.table && order.table !== 'TA' && order.table !== '-'">
                                 <span class="flex items-center gap-1">
                                     <i class="fas fa-chair text-[10px] text-[#71717a]"></i>
-                                    <span x-text="String(order.table).replace(/^meja\s*/i, '').padStart(2, '0')"></span>
+                                    <span x-text="formatTableBadge(order.table)"></span>
                                 </span>
                             </template>
                         </div>
@@ -250,7 +250,7 @@
                         <div class="min-w-0">
                             <!-- Customer Name -->
                             <h3 class="text-[14.5px] font-bold text-[#18181b] leading-tight truncate"
-                                x-text="order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') ? order.customer : (order.table && order.table !== 'TA' ? 'Meja ' + String(order.table).replace(/^meja\s*/i, '') : 'Pelanggan Walk-in'))"></h3>
+                                x-text="order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') ? order.customer : (order.table && order.table !== 'TA' ? formatTableDisplay(order.table) : 'Pelanggan Walk-in'))"></h3>
                             
                             <!-- Subtitle: Neutral text Open Bill · #42 or Paid · #41 -->
                             <div class="flex items-center gap-1.5 text-[11px] text-[#71717a] mt-0.5 truncate font-normal">
@@ -281,128 +281,161 @@
                     </button>
                 </div>
 
-                <!-- SUB-ORDER BODY (Figma Sub-Order Group Layout) -->
-                <div class="bg-[#fafafa] border border-[#f4f4f5] rounded-[12px] p-3 flex flex-col gap-2.5">
-                    
-                    <!-- Sub-order Header: #1 Order (N) + Status Badge -->
-                    <div class="flex items-center justify-between gap-2 pb-2 border-b border-[#f0eee9]">
-                        <span class="text-[12px] font-bold text-[#18181b]">
-                            #1 Order (<span x-text="(order.items || []).reduce((s, i) => s + Number(i.qty || 1), 0)"></span>)
-                        </span>
+                <!-- SUB-ORDERS BATCHES CONTAINER (Figma Sub-Order Group Layout) -->
+                <div class="space-y-2.5">
+                    <!-- ACTIVE BATCHES (e.g. #3 [Pesanan Baru], #2 [Sedang Diproses]) -->
+                    <template x-for="batch in getActiveBatches(order)" :key="'batch-' + order.id + '-' + batch.batch_no">
+                        <div class="bg-[#fafafa] border border-[#f4f4f5] rounded-[12px] p-3 flex flex-col gap-2.5">
+                            <!-- Batch Header: #N Order (qty) + Status Badge -->
+                            <div class="flex items-center justify-between gap-2 pb-2 border-b border-[#f0eee9]">
+                                <span class="text-[12px] font-bold text-[#18181b]">
+                                    <span x-text="'#' + batch.batch_no + ' Order (' + batch.total_qty + ')'"></span>
+                                </span>
 
-                        <!-- Status Badge Pill (Only progress badge retains color) -->
-                        <span x-show="getOrderSubStatus(order) === 'new'"
-                              class="px-2 py-0.5 rounded-[6px] bg-[#e0f2fe] border border-[#bae6fd] text-[#0284c7] text-[10.5px] font-bold inline-flex items-center gap-1">
-                            <span>Pesanan Baru</span>
-                        </span>
+                                <!-- Status Badge Pill -->
+                                <span x-show="batch.status === 'new'"
+                                      class="px-2 py-0.5 rounded-[6px] bg-[#e0f2fe] border border-[#bae6fd] text-[#0284c7] text-[10.5px] font-bold inline-flex items-center gap-1">
+                                    <span>Pesanan Baru</span>
+                                </span>
 
-                        <span x-show="getOrderSubStatus(order) === 'cooking'"
-                              class="px-2 py-0.5 rounded-[6px] bg-[#f3e8ff] border border-[#e9d5ff] text-[#7e22ce] text-[10.5px] font-bold">
-                            Sedang Diproses
-                        </span>
+                                <span x-show="batch.status === 'cooking'"
+                                      class="px-2 py-0.5 rounded-[6px] bg-[#f3e8ff] border border-[#e9d5ff] text-[#7e22ce] text-[10.5px] font-bold">
+                                    Sedang Diproses
+                                </span>
 
-                        <span x-show="getOrderSubStatus(order) === 'ready'"
-                              class="px-2 py-0.5 rounded-[6px] bg-[#dcfce7] border border-[#bbf7d0] text-[#15803d] text-[10.5px] font-bold">
-                            Siap Disajikan
-                        </span>
-
-                        <span x-show="getOrderSubStatus(order) === 'completed'"
-                              class="px-2 py-0.5 rounded-[6px] bg-[#f4f4f5] border border-[#e4e4e7] text-[#71717a] text-[10.5px] font-bold">
-                            Selesai
-                        </span>
-
-                        <span x-show="getOrderSubStatus(order) === 'cancelled'"
-                              class="px-2 py-0.5 rounded-[6px] bg-red-50 border border-red-200 text-red-600 text-[10.5px] font-bold">
-                            Dibatalkan
-                        </span>
-                    </div>
-
-                    <!-- Items List Grouped by Dine In, Takeaway, and Delivery -->
-                    <div class="space-y-2.5 max-h-48 overflow-y-auto hide-scroll">
-                        <!-- Dine In Section -->
-                        <div x-show="getDineInItems(order).length > 0" class="space-y-1">
-                            <div class="flex items-center gap-1.5 text-[11px] font-medium text-[#71717a]">
-                                <i class="fas fa-utensils text-[9px]"></i>
-                                <span>Dine In</span>
+                                <span x-show="batch.status === 'ready'"
+                                      class="px-2 py-0.5 rounded-[6px] bg-[#dcfce7] border border-[#bbf7d0] text-[#15803d] text-[10.5px] font-bold">
+                                    Siap Disajikan
+                                </span>
                             </div>
-                            <div class="space-y-1 pl-1">
-                                <template x-for="(item, idx) in getDineInItems(order)" :key="'di-' + idx">
-                                    <div class="text-[12px] text-[#18181b] flex items-baseline justify-between gap-2">
-                                        <div class="truncate">
-                                            <span class="font-bold text-[#18181b]" x-text="item.qty + '×'"></span>
-                                            <span class="text-[#27272a] font-normal" x-text="' ' + item.name"></span>
-                                            <span x-show="item.notes" class="text-[10px] text-[#df5826] ml-1" x-text="'(' + item.notes + ')'"></span>
-                                        </div>
+
+                            <!-- Items List Grouped by Dine In, Takeaway, and Delivery -->
+                            <div class="space-y-2.5 max-h-48 overflow-y-auto hide-scroll">
+                                <!-- Dine In Section -->
+                                <div x-show="getItemsByFulfillment(batch.items, 'DINE_IN').length > 0" class="space-y-1">
+                                    <div class="flex items-center gap-1.5 text-[11px] font-medium text-[#71717a]">
+                                        <i class="fas fa-utensils text-[9px]"></i>
+                                        <span>Dine In</span>
                                     </div>
-                                </template>
-                            </div>
-                        </div>
-
-                        <!-- Takeaway Section -->
-                        <div x-show="getTakeawayItems(order).length > 0" class="space-y-1">
-                            <div class="flex items-center gap-1.5 text-[11px] font-medium text-[#71717a]">
-                                <i class="fas fa-shopping-bag text-[9px]"></i>
-                                <span>Takeaway</span>
-                            </div>
-                            <div class="space-y-1 pl-1">
-                                <template x-for="(item, idx) in getTakeawayItems(order)" :key="'ta-' + idx">
-                                    <div class="text-[12px] text-[#18181b] flex items-baseline justify-between gap-2">
-                                        <div class="truncate">
-                                            <span class="font-bold text-[#18181b]" x-text="item.qty + '×'"></span>
-                                            <span class="text-[#27272a] font-normal" x-text="' ' + item.name"></span>
-                                            <span x-show="item.notes" class="text-[10px] text-[#df5826] ml-1" x-text="'(' + item.notes + ')'"></span>
-                                        </div>
+                                    <div class="space-y-1 pl-1">
+                                        <template x-for="(item, idx) in getItemsByFulfillment(batch.items, 'DINE_IN')" :key="'di-' + idx">
+                                            <div class="text-[12px] text-[#18181b] flex items-baseline justify-between gap-2">
+                                                <div class="truncate">
+                                                    <span class="font-bold text-[#18181b]" x-text="item.qty + '×'"></span>
+                                                    <span class="text-[#27272a] font-normal" x-text="' ' + item.name"></span>
+                                                    <span x-show="item.notes" class="text-[10px] text-[#df5826] ml-1" x-text="'(' + item.notes + ')'"></span>
+                                                </div>
+                                            </div>
+                                        </template>
                                     </div>
-                                </template>
-                            </div>
-                        </div>
+                                </div>
 
-                        <!-- Delivery Section -->
-                        <div x-show="getDeliveryItems(order).length > 0" class="space-y-1">
-                            <div class="flex items-center gap-1.5 text-[11px] font-medium text-[#71717a]">
-                                <i class="fas fa-motorcycle text-[9px]"></i>
-                                <span>Delivery</span>
-                            </div>
-                            <div class="space-y-1 pl-1">
-                                <template x-for="(item, idx) in getDeliveryItems(order)" :key="'dlv-' + idx">
-                                    <div class="text-[12px] text-[#18181b] flex items-baseline justify-between gap-2">
-                                        <div class="truncate">
-                                            <span class="font-bold text-[#18181b]" x-text="item.qty + '×'"></span>
-                                            <span class="text-[#27272a] font-normal" x-text="' ' + item.name"></span>
-                                            <span x-show="item.notes" class="text-[10px] text-[#df5826] ml-1" x-text="'(' + item.notes + ')'"></span>
-                                        </div>
+                                <!-- Takeaway Section -->
+                                <div x-show="getItemsByFulfillment(batch.items, 'TAKEAWAY').length > 0" class="space-y-1">
+                                    <div class="flex items-center gap-1.5 text-[11px] font-medium text-[#71717a]">
+                                        <i class="fas fa-shopping-bag text-[9px]"></i>
+                                        <span>Takeaway</span>
                                     </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
+                                    <div class="space-y-1 pl-1">
+                                        <template x-for="(item, idx) in getItemsByFulfillment(batch.items, 'TAKEAWAY')" :key="'ta-' + idx">
+                                            <div class="text-[12px] text-[#18181b] flex items-baseline justify-between gap-2">
+                                                <div class="truncate">
+                                                    <span class="font-bold text-[#18181b]" x-text="item.qty + '×'"></span>
+                                                    <span class="text-[#27272a] font-normal" x-text="' ' + item.name"></span>
+                                                    <span x-show="item.notes" class="text-[10px] text-[#df5826] ml-1" x-text="'(' + item.notes + ')'"></span>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
 
-                    <!-- Sub-order Status Action Button (Neutral button with arrow matching Figma) -->
-                    <template x-if="getOrderSubStatus(order) === 'new'">
-                        <button type="button" @click="updateStatus(order.id, 'In Progress')"
-                                class="w-full py-2 px-3 rounded-[8px] bg-white hover:bg-gray-50 border border-[#e4e4e7] text-[#18181b] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer mt-1">
-                            <span>Konfirmasi Pesanan</span>
-                            <i class="fas fa-arrow-right text-[10px] text-[#71717a]"></i>
-                        </button>
+                                <!-- Delivery Section -->
+                                <div x-show="getItemsByFulfillment(batch.items, 'DELIVERY').length > 0" class="space-y-1">
+                                    <div class="flex items-center gap-1.5 text-[11px] font-medium text-[#71717a]">
+                                        <i class="fas fa-motorcycle text-[9px]"></i>
+                                        <span>Delivery</span>
+                                    </div>
+                                    <div class="space-y-1 pl-1">
+                                        <template x-for="(item, idx) in getItemsByFulfillment(batch.items, 'DELIVERY')" :key="'dlv-' + idx">
+                                            <div class="text-[12px] text-[#18181b] flex items-baseline justify-between gap-2">
+                                                <div class="truncate">
+                                                    <span class="font-bold text-[#18181b]" x-text="item.qty + '×'"></span>
+                                                    <span class="text-[#27272a] font-normal" x-text="' ' + item.name"></span>
+                                                    <span x-show="item.notes" class="text-[10px] text-[#df5826] ml-1" x-text="'(' + item.notes + ')'"></span>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub-order Status Action Button (Matching Figma) -->
+                            <template x-if="batch.status === 'new'">
+                                <button type="button" @click="updateBatchStatus(order.id, batch.batch_no, 'cooking')"
+                                        class="w-full py-2 px-3 rounded-[8px] bg-white hover:bg-gray-50 border border-[#e4e4e7] text-[#18181b] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer mt-1">
+                                    <span>Konfirmasi Pesanan</span>
+                                    <i class="fas fa-arrow-right text-[10px] text-[#71717a]"></i>
+                                </button>
+                            </template>
+
+                            <template x-if="batch.status === 'cooking'">
+                                <button type="button" @click="updateBatchStatus(order.id, batch.batch_no, 'ready')"
+                                        class="w-full py-2 px-3 rounded-[8px] bg-white hover:bg-gray-50 border border-[#e4e4e7] text-[#18181b] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer mt-1">
+                                    <span>Siap Disajikan</span>
+                                    <i class="fas fa-arrow-right text-[10px] text-[#71717a]"></i>
+                                </button>
+                            </template>
+
+                            <template x-if="batch.status === 'ready'">
+                                <button type="button" @click="updateBatchStatus(order.id, batch.batch_no, 'completed')"
+                                        class="w-full py-2 px-3 rounded-[8px] bg-white hover:bg-gray-50 border border-[#e4e4e7] text-[#18181b] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer mt-1">
+                                    <span>Selesaikan</span>
+                                    <i class="fas fa-arrow-right text-[10px] text-[#71717a]"></i>
+                                </button>
+                            </template>
+                        </div>
                     </template>
 
-                    <template x-if="getOrderSubStatus(order) === 'cooking'">
-                        <button type="button" @click="updateStatus(order.id, 'Ready')"
-                                class="w-full py-2 px-3 rounded-[8px] bg-white hover:bg-gray-50 border border-[#e4e4e7] text-[#18181b] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer mt-1">
-                            <span>Siap Disajikan</span>
-                            <i class="fas fa-arrow-right text-[10px] text-[#71717a]"></i>
-                        </button>
-                    </template>
+                    <!-- COMPLETED BATCHES (Collapsible when active batches exist, or direct when all completed) -->
+                    <template x-if="getCompletedBatches(order).length > 0">
+                        <div class="space-y-2">
+                            <!-- Collapsible toggle button matching Figma 'Lihat N Order Selesai >' -->
+                            <div x-show="getActiveBatches(order).length > 0" class="text-center py-1">
+                                <button type="button" @click="toggleCompletedBatches(order.id)"
+                                        class="text-[12px] font-semibold text-[#df5826] hover:text-[#b84218] inline-flex items-center gap-1.5 cursor-pointer transition">
+                                    <span x-text="isCompletedBatchesExpanded(order.id) ? 'Sembunyikan Order Selesai' : 'Lihat ' + getCompletedBatches(order).length + ' Order Selesai'"></span>
+                                    <i class="fas" :class="isCompletedBatchesExpanded(order.id) ? 'fa-chevron-up text-[10px]' : 'fa-chevron-right text-[10px]'"></i>
+                                </button>
+                            </div>
 
-                    <template x-if="getOrderSubStatus(order) === 'ready'">
-                        <button type="button" @click="updateStatus(order.id, 'Completed')"
-                                class="w-full py-2 px-3 rounded-[8px] bg-white hover:bg-gray-50 border border-[#e4e4e7] text-[#18181b] text-[11.5px] font-semibold transition flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer mt-1">
-                            <span>Selesaikan</span>
-                            <i class="fas fa-arrow-right text-[10px] text-[#71717a]"></i>
-                        </button>
+                            <!-- Completed batches cards -->
+                            <div x-show="getActiveBatches(order).length === 0 || isCompletedBatchesExpanded(order.id)" class="space-y-2.5">
+                                <template x-for="batch in getCompletedBatches(order)" :key="'batch-done-' + order.id + '-' + batch.batch_no">
+                                    <div class="bg-[#fafafa] border border-[#f4f4f5] rounded-[12px] p-3 flex flex-col gap-2.5 opacity-85 hover:opacity-100 transition">
+                                        <div class="flex items-center justify-between gap-2 pb-2 border-b border-[#f0eee9]">
+                                            <span class="text-[12px] font-bold text-[#71717a]">
+                                                <span x-text="'#' + batch.batch_no + ' Order (' + batch.total_qty + ')'"></span>
+                                            </span>
+                                            <span class="px-2 py-0.5 rounded-[6px] bg-[#f4f4f5] border border-[#e4e4e7] text-[#71717a] text-[10.5px] font-bold">
+                                                Selesai
+                                            </span>
+                                        </div>
+                                        <div class="space-y-1.5 max-h-36 overflow-y-auto hide-scroll text-[11.5px] text-[#71717a]">
+                                            <template x-for="(item, idx) in batch.items" :key="'done-item-' + idx">
+                                                <div class="flex items-baseline justify-between gap-2">
+                                                    <div class="truncate">
+                                                        <span class="font-semibold text-[#52525b]" x-text="item.qty + '×'"></span>
+                                                        <span x-text="' ' + item.name"></span>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
                     </template>
                 </div>
-
                 <!-- CARD FOOTER: Total Pembayaran & Action Buttons (Pinned to bottom with mt-auto) -->
                 <div class="mt-auto pt-3 border-t border-[#f0eee9] space-y-2.5">
                     <!-- Total Row -->
@@ -662,10 +695,30 @@
                     <div class="p-4 lg:p-5 border-b border-[#e6e5e0] bg-white shrink-0 space-y-3">
                         <!-- Panel Title -->
                         <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="text-[10px] font-bold tracking-wider text-[#df5826] uppercase">CURRENT ORDER</h3>
-                                <p class="text-[14px] font-bold text-[#111827] leading-tight" x-text="openBillModal.recalledOrderId ? 'Pesanan #' + openBillModal.recalledOrderId : 'Pesanan Baru'"></p>
-                            </div>
+                            <template x-if="openBillModal.recalledOrderId">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-[10px] bg-[#f4f4f5] border border-[#e4e4e7] flex items-center justify-center font-bold text-[13px] text-[#18181b] shrink-0">
+                                        <i class="fas fa-chair text-[11px] text-[#71717a] mr-1" x-show="!openBillModal.tableBadge"></i>
+                                        <span x-text="openBillModal.tableBadge || 'TA'"></span>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h4 class="text-[14px] font-bold text-[#111827] leading-tight truncate" x-text="openBillModal.customerName || 'Walk-in Customer'"></h4>
+                                        <p class="text-[11px] text-[#71717a] mt-0.5 truncate font-normal">
+                                            <span>Open Bill</span>
+                                            <span class="text-[#d4d4d8] mx-0.5">•</span>
+                                            <span x-text="'#' + openBillModal.recalledOrderId"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template x-if="!openBillModal.recalledOrderId">
+                                <div>
+                                    <h3 class="text-[10px] font-bold tracking-wider text-[#df5826] uppercase">CURRENT ORDER</h3>
+                                    <p class="text-[14px] font-bold text-[#111827] leading-tight">Pesanan Baru</p>
+                                </div>
+                            </template>
+
                             <div class="flex items-center gap-1.5">
                                 <button type="button" @click="openBillModal.cart = []" x-show="openBillModal.cart.length > 0"
                                     class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#df5826] hover:text-[#b84218] transition cursor-pointer">
@@ -820,29 +873,21 @@
                     <!-- BOTTOM: Price Breakdown & Submit Button (Sticky Footer) -->
                     <div class="p-4 lg:p-5 border-t border-[#e6e5e0] bg-white shrink-0 space-y-2 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
                         <div class="flex items-center justify-between text-[11.5px]">
-                            <button type="button" @click="openBillModal.showPriceBreakdown = !openBillModal.showPriceBreakdown" 
-                                    class="font-semibold text-[#53565a] hover:text-[#111827] flex items-center gap-1 select-none transition-colors cursor-pointer group">
-                                <span>Total Pembayaran</span>
-                                <i class="fas fa-chevron-right text-[8.5px] text-gray-400 group-hover:text-[#df5826] transition-transform duration-200" :class="openBillModal.showPriceBreakdown ? 'rotate-90' : ''"></i>
-                            </button>
+                            <span class="font-semibold text-[#53565a]">Total Tagihan</span>
+                            <span class="text-[16px] font-black text-[#df5826] tracking-tight" 
+                                  x-text="formatRp(openBillModal.recalledOrderId ? (getRecalledOrderTotal() + openBillCartTotal()) : openBillCartTotal())"></span>
                         </div>
 
-                        <div class="flex items-baseline justify-between pt-0.5">
-                            <span class="text-[18px] font-black text-[#df5826] tracking-tight" x-text="formatRp(openBillCartTotal() + Math.round(openBillCartTotal() * 0.1))"></span>
-                        </div>
-
-                        <div x-show="openBillModal.showPriceBreakdown" class="space-y-1.5 pt-1 border-t border-dashed border-[#e6e5e0]">
-                            <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
-                                <span>Subtotal</span>
-                                <span class="font-semibold text-[#111827]" x-text="formatRp(openBillCartTotal())"></span>
-                            </div>
-                            <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
-                                <span>Tax (10%)</span>
-                                <span class="font-semibold text-[#111827]" x-text="formatRp(Math.round(openBillCartTotal() * 0.1))"></span>
-                            </div>
-                            <div class="flex items-center justify-between text-[11.5px] text-[#53565a]">
-                                <span>Additional fee</span>
-                                <span class="font-medium text-[#8b8e93]">-</span>
+                        <div class="space-y-1.5 pt-1.5 border-t border-dashed border-[#e6e5e0] text-[11.5px]">
+                            <template x-if="openBillModal.recalledOrderId">
+                                <div class="flex items-center justify-between text-[#71717a]">
+                                    <span>Pesanan Sebelumnya</span>
+                                    <span class="font-semibold text-[#18181b]" x-text="formatRp(getRecalledOrderTotal())"></span>
+                                </div>
+                            </template>
+                            <div class="flex items-center justify-between text-[#71717a]">
+                                <span x-text="openBillModal.recalledOrderId ? 'Tambah Pesanan Baru' : 'Subtotal'"></span>
+                                <span class="font-semibold text-[#18181b]" x-text="formatRp(openBillCartTotal())"></span>
                             </div>
                         </div>
 

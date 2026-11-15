@@ -9,6 +9,8 @@ class OrderItem extends Model
 {
     protected $fillable = [
         'order_id',
+        'batch_no',
+        'status',
         'product_id',
         'quantity',
         'unit_price',
@@ -38,6 +40,7 @@ class OrderItem extends Model
     }
 
     protected $casts = [
+        'batch_no' => 'integer',
         'modifiers' => 'array',
     ];
 

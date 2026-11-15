@@ -159,19 +159,106 @@ class PosController extends Controller
             $order = Order::where('shop_id', $shop->id)
                 ->whereKey($validated['recalled_order_id'])
                 ->where('payment_status', 'UNPAID')
-                ->whereNotIn('order_status', ['COMPLETED', 'CANCELLED'])
+                ->where('order_status', '!=', 'CANCELLED')
                 ->first();
 
             if ($order) {
-                $order->items()->delete();
                 $hasPriceColumn = Schema::hasColumn('order_items', 'price');
                 $hasServingTypeColumn = Schema::hasColumn('order_items', 'serving_type');
+                $hasBatchNoColumn = Schema::hasColumn('order_items', 'batch_no');
+                $hasStatusColumn = Schema::hasColumn('order_items', 'status');
+
+                $isAppend = ! empty($validated['append_batch']);
+
+                if ($isAppend) {
+                    $maxBatch = (int) ($order->items()->max('batch_no') ?: 1);
+                    $newBatchNo = $order->items()->count() > 0 ? ($maxBatch + 1) : 1;
+
+                    foreach ($cart['items'] as $item) {
+                        if ($hasPriceColumn && ! isset($item['price'])) {
+                            $item['price'] = $item['unit_price'] ?? 0;
+                        }
+                        if (! $hasServingTypeColumn) {
+                            unset($item['serving_type']);
+                        }
+                        if ($hasBatchNoColumn) {
+                            $item['batch_no'] = $newBatchNo;
+                        }
+                        if ($hasStatusColumn) {
+                            $item['status'] = 'new';
+                        }
+                        $order->items()->create($item);
+                    }
+
+                    $allItems = $order->items()->get();
+                    $newSubtotal = (float) $allItems->sum('subtotal');
+                    $newTotalCogs = (float) $allItems->sum('cogs_total');
+                    $discountAmt = (float) ($order->discount_amount ?? 0);
+                    $newGrandTotal = max(0, $newSubtotal - $discountAmt);
+
+                    $tableId = $order->table_id;
+                    if (! empty($validated['table'])) {
+                        $tableModel = Table::where('shop_id', $shop->id)
+                            ->where('name', $validated['table'])
+                            ->first()
+                            ?? Table::create(['shop_id' => $shop->id, 'name' => $validated['table']]);
+                        $tableId = $tableModel->id;
+                    }
+
+                    $order->update([
+                        'table_id' => $tableId,
+                        'customer_name' => $validated['customer_name'] ?? $order->customer_name,
+                        'subtotal' => $newSubtotal,
+                        'grand_total' => $newGrandTotal,
+                        'total_cogs' => $newTotalCogs,
+                        'order_status' => 'HOLD',
+                        'payment_status' => 'UNPAID',
+                        'fulfillment_type' => $validated['fulfillment_type'] ?? $order->fulfillment_type ?? 'DINE_IN',
+                    ]);
+
+                    OrderCreated::dispatch($order);
+
+                    if (class_exists(ActivityLog::class)) {
+                        $tableLabel = $order->table?->name ? 'Meja '.$order->table->name : ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja');
+                        ActivityLog::create([
+                            'shop_id' => $shop->id,
+                            'user_id' => Auth::id(),
+                            'action' => 'pos.order_batch_appended',
+                            'entity_type' => Order::class,
+                            'entity_id' => $order->id,
+                            'description' => 'Menambahkan sub-order batch #'.$newBatchNo.' ke Open Bill #'.$order->id.' ('.$tableLabel.' · '.($order->customer_name ?: 'Walk-in').') - Total Baru: Rp '.number_format((float) $order->grand_total, 0, ',', '.'),
+                            'ip_address' => request()->ip(),
+                            'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
+                        ]);
+                    }
+
+                    return response()->json([
+                        'success' => true,
+                        'order_id' => $order->id,
+                        'total' => (float) $order->grand_total,
+                        'table' => $order->table?->name ?? ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja'),
+                        'customer_name' => $order->customer_name ?: 'Walk-in',
+                        'time' => $order->created_at?->format('H:i') ?? '',
+                        'items_count' => (int) $order->items()->sum('quantity'),
+                        'updated' => true,
+                        'batch_no' => $newBatchNo,
+                    ]);
+                }
+
+                // Overwrite mode (legacy or full cart edit)
+                $order->items()->delete();
                 foreach ($cart['items'] as $item) {
                     if ($hasPriceColumn && ! isset($item['price'])) {
                         $item['price'] = $item['unit_price'] ?? 0;
                     }
                     if (! $hasServingTypeColumn) {
                         unset($item['serving_type']);
+                    }
+                    if ($hasBatchNoColumn) {
+                        $item['batch_no'] = 1;
+                    }
+                    if ($hasStatusColumn) {
+                        $item['status'] = 'new';
                     }
                     $order->items()->create($item);
                 }
@@ -329,9 +416,9 @@ class PosController extends Controller
     {
         $shopId = Auth::user()->shop_id;
 
-        // Tenant check and ensure order is unpaid and active
-        if ($order->shop_id !== $shopId || $order->payment_status === 'PAID' || in_array($order->order_status, ['COMPLETED', 'CANCELLED'], true)) {
-            return response()->json(['error' => 'Pesanan tidak ditemukan, sudah lunas, atau sudah selesai.'], 404);
+        // Tenant check and ensure order is unpaid and not cancelled
+        if ($order->shop_id !== $shopId || $order->payment_status === 'PAID' || $order->order_status === 'CANCELLED') {
+            return response()->json(['error' => 'Pesanan tidak ditemukan, sudah lunas, atau dibatalkan.'], 404);
         }
 
         $order->load(['items.product', 'table']);

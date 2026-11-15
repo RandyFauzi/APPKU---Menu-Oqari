@@ -134,10 +134,18 @@ class CreateOrderAction
 
             // 4. Attach Items
             $hasPriceColumn = Schema::hasColumn('order_items', 'price');
+            $hasBatchNoColumn = Schema::hasColumn('order_items', 'batch_no');
+            $hasStatusColumn = Schema::hasColumn('order_items', 'status');
             foreach ($orderItems as $orderItem) {
                 $orderItem['order_id'] = $order->id;
                 if ($hasPriceColumn && ! isset($orderItem['price'])) {
                     $orderItem['price'] = $orderItem['unit_price'] ?? 0;
+                }
+                if ($hasBatchNoColumn && ! isset($orderItem['batch_no'])) {
+                    $orderItem['batch_no'] = 1;
+                }
+                if ($hasStatusColumn && ! isset($orderItem['status'])) {
+                    $orderItem['status'] = 'new';
                 }
                 OrderItem::create($orderItem);
             }

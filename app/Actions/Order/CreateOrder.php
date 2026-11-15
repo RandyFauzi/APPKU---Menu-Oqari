@@ -63,7 +63,9 @@ class CreateOrder
             $now = now();
             $hasPriceColumn = Schema::hasColumn('order_items', 'price');
             $hasServingTypeColumn = Schema::hasColumn('order_items', 'serving_type');
-            $rows = array_map(function ($item) use ($order, $now, $hasPriceColumn, $hasServingTypeColumn) {
+            $hasBatchNoColumn = Schema::hasColumn('order_items', 'batch_no');
+            $hasStatusColumn = Schema::hasColumn('order_items', 'status');
+            $rows = array_map(function ($item) use ($order, $now, $hasPriceColumn, $hasServingTypeColumn, $hasBatchNoColumn, $hasStatusColumn) {
                 $row = array_merge($item, [
                     'order_id' => $order->id,
                     'modifiers' => $item['modifiers'] ? json_encode($item['modifiers']) : null,
@@ -77,6 +79,14 @@ class CreateOrder
 
                 if (! $hasServingTypeColumn) {
                     unset($row['serving_type']);
+                }
+
+                if ($hasBatchNoColumn && ! isset($row['batch_no'])) {
+                    $row['batch_no'] = 1;
+                }
+
+                if ($hasStatusColumn && ! isset($row['status'])) {
+                    $row['status'] = 'new';
                 }
 
                 return $row;

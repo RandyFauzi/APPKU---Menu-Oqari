@@ -18,15 +18,15 @@
     "semantic_hash": "b11244ab85cce1b15adc19bd0c6e8b2c"
   },
   "app/Actions/Order/CreateOrder.php": {
-    "mtime": 1794142614.331355,
-    "seen": 1794145518.7624416,
-    "ast_hash": "6c08ea138b52db40172b7ed588a82164",
+    "mtime": 1794727988.233361,
+    "seen": 1794728485.8103619,
+    "ast_hash": "087d043112ef85e082ccfdd9434a7351",
     "semantic_hash": ""
   },
   "app/Actions/Orders/CreateOrderAction.php": {
-    "mtime": 1794148127.8162558,
-    "seen": 1794148579.2242799,
-    "ast_hash": "46b6bd1fcaf9e554ea4bee395d9d71d1",
+    "mtime": 1794727994.6890006,
+    "seen": 1794728485.810365,
+    "ast_hash": "e2dcb1e188b0c70c320a2cfe974425b0",
     "semantic_hash": ""
   },
   "app/Actions/POS/ApplyDiscount.php": {
@@ -162,9 +162,9 @@
     "semantic_hash": "2f3a26c9d7d3571350aee2b768761b8a"
   },
   "app/Http/Controllers/Admin/DashboardController.php": {
-    "mtime": 1794620702.6871097,
-    "seen": 1794620746.0781682,
-    "ast_hash": "fce8d888baa646129769aa7563cbb741",
+    "mtime": 1794728037.2643807,
+    "seen": 1794728485.8104532,
+    "ast_hash": "2dd8c0d4d5eed5ce827263a186574f7c",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/GoBizIntegrationController.php": {
@@ -216,9 +216,9 @@
     "semantic_hash": "a61188d8e352cd1b10f4f3cbdb1227de"
   },
   "app/Http/Controllers/Admin/PosController.php": {
-    "mtime": 1794373789.7481513,
-    "seen": 1794374050.7397351,
-    "ast_hash": "e3e04e10bf3e3b3a74362693be391c51",
+    "mtime": 1794728084.2213917,
+    "seen": 1794728485.8104773,
+    "ast_hash": "91dea3919a99d3c6dafd5386e28c097a",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/ProductController.php": {
@@ -420,9 +420,9 @@
     "semantic_hash": ""
   },
   "app/Models/OrderItem.php": {
-    "mtime": 1794148279.0879164,
-    "seen": 1794148579.2245612,
-    "ast_hash": "ca68f4ebe65734bb4b333561f0f428a9",
+    "mtime": 1794727972.6601353,
+    "seen": 1794728485.81062,
+    "ast_hash": "90bebdd0d9640f8f34e7b5271c8abf57",
     "semantic_hash": ""
   },
   "app/Models/Payment.php": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1794727263.769153,
-    "seen": 1794727372.372352,
-    "ast_hash": "e0750550c7b622d3156c08fccfb85e2d",
+    "mtime": 1794728241.7980702,
+    "seen": 1794728485.8110378,
+    "ast_hash": "49164823b30f2e897477d37b204ece52",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
-    "mtime": 1794451088.0695052,
-    "seen": 1794620746.0793602,
-    "ast_hash": "75a5a7457603b26f0b0a925781a9476f",
+    "mtime": 1794728406.9528773,
+    "seen": 1794728485.8110528,
+    "ast_hash": "5a5d8bee97a0d45f8811a9af5fd0b56f",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/qr.blade.php": {
@@ -1536,9 +1536,9 @@
     "semantic_hash": "3c6ce2e6d16444282b24a9aa63885563"
   },
   "routes/web.php": {
-    "mtime": 1794620111.0911632,
-    "seen": 1794620746.0795765,
-    "ast_hash": "cd63cb7e5b85b5ff9f4304436e289fd9",
+    "mtime": 1794728022.1582234,
+    "seen": 1794728485.811254,
+    "ast_hash": "85222985667e58f81ef869f8d4daf409",
     "semantic_hash": ""
   },
   "tailwind.config.js": {
@@ -2166,9 +2166,9 @@
     "semantic_hash": ""
   },
   "app/Http/Requests/HoldPosOrderRequest.php": {
-    "mtime": 1794142593.5094872,
-    "seen": 1794145518.7626367,
-    "ast_hash": "07e7db59e1971b5c1b1f95b5779267b4",
+    "mtime": 1794727977.4476495,
+    "seen": 1794728485.81055,
+    "ast_hash": "fa8702e64abea0277b6663fab70b9695",
     "semantic_hash": ""
   },
   "tests/Feature/PosItemNotesTest.php": {
@@ -3030,9 +3030,9 @@
     "semantic_hash": ""
   },
   "tests/Feature/OpenBillTest.php": {
-    "mtime": 1794727328.15353,
-    "seen": 1794727372.3726718,
-    "ast_hash": "4b17976ac2d99a861c941c966a135874",
+    "mtime": 1794728102.1591158,
+    "seen": 1794728485.8113182,
+    "ast_hash": "739dde772da64ab75ae5b4514f14c31f",
     "semantic_hash": ""
   },
   "app/Http/Controllers/Admin/VoucherController.php": {
@@ -3189,6 +3189,12 @@
     "mtime": 1794456065.9022489,
     "seen": 1794620746.0796485,
     "ast_hash": "9e8862f185f99722f62c7fba566b8558",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_11_15_160000_add_batch_and_status_to_order_items_table.php": {
+    "mtime": 1794727591.785163,
+    "seen": 1794728485.8109806,
+    "ast_hash": "66273a644494ffa5b3e6fe9d86d5c78c",
     "semantic_hash": ""
   },
   "package-lock.json": {

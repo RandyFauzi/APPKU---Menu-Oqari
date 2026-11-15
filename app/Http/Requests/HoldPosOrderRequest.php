@@ -27,6 +27,7 @@ class HoldPosOrderRequest extends FormRequest
             'customer_name' => ['nullable', 'string', 'max:100'],
             'fulfillment_type' => ['nullable', 'in:DINE_IN,TAKEAWAY,DELIVERY'],
             'recalled_order_id' => ['nullable', 'integer'],
+            'append_batch' => ['nullable', 'boolean'],
             'voucher_code' => ['nullable', 'string', 'max:50'],
             'discount_type' => ['nullable', 'string', 'in:percentage,fixed'],
             'discount_value' => ['nullable', 'numeric', 'min:0'],
