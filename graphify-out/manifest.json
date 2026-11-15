@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1794728241.7980702,
-    "seen": 1794728485.8110378,
-    "ast_hash": "49164823b30f2e897477d37b204ece52",
+    "mtime": 1794728749.6933484,
+    "seen": 1794728821.7439263,
+    "ast_hash": "e38627984f1b50d08f6141789bfce9de",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
-    "mtime": 1794727286.8729603,
-    "seen": 1794727372.372422,
-    "ast_hash": "eeec435ef0c044b166814f56f67fcd71",
+    "mtime": 1794728771.2686777,
+    "seen": 1794728821.743985,
+    "ast_hash": "3935319a89b69295b01245f5bdbf0d04",
     "semantic_hash": ""
   },
   "resources/views/Admin/reports/index.blade.php": {
@@ -1470,9 +1470,9 @@
     "semantic_hash": ""
   },
   "resources/views/receipts/thermal.blade.php": {
-    "mtime": 1794456517.7390606,
-    "seen": 1794620746.0795505,
-    "ast_hash": "8a1ae9890e5e826172c9019f3df0ab78",
+    "mtime": 1794728705.8092968,
+    "seen": 1794728821.7441118,
+    "ast_hash": "1607d6c3dab2de16d81048ebbb8ed11f",
     "semantic_hash": ""
   },
   "resources/views/receipts/web.blade.php": {
@@ -3018,9 +3018,9 @@
     "semantic_hash": ""
   },
   "resources/views/receipts/kitchen.blade.php": {
-    "mtime": 1794456501.4348917,
-    "seen": 1794620746.079545,
-    "ast_hash": "30dbd80fa6c46f9054e5e6641190e0fa",
+    "mtime": 1794728684.1302545,
+    "seen": 1794728821.7441072,
+    "ast_hash": "6bcadd839747e5dba937607c3be70168",
     "semantic_hash": ""
   },
   "tests/Feature/ReceiptAndPrinterTest.php": {

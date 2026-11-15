@@ -56,6 +56,16 @@ body {
     background-color: #e5e7eb;
     color: #374151;
 }
+.btn-back {
+    background-color: #1f2937;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-back:hover {
+    background-color: #111827;
+}
 .ticket {
     background-color: #fff;
     width: {{ $is80mm ? '80mm' : '58mm' }};
@@ -149,12 +159,60 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 }
 </style>
 <x-shop-favicon :shop="$shop ?? null" />
+<script>
+    function handleExit() {
+        try {
+            window.close();
+        } catch (e) {}
+
+        setTimeout(function() {
+            if (!window.closed) {
+                const returnUrl = @json(request()->query('return_url') ?: request()->header('referer') ?: url('/admin/dashboard'));
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else if (returnUrl) {
+                    window.location.href = returnUrl;
+                } else {
+                    window.location.href = '/admin/dashboard';
+                }
+            }
+        }, 150);
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        if (window.self === window.top) {
+            setTimeout(function() {
+                window.print();
+            }, 300);
+        } else {
+            setTimeout(function() {
+                window.print();
+            }, 100);
+        }
+    });
+
+    window.onafterprint = function() {
+        if (window.self !== window.top) {
+            return;
+        }
+        setTimeout(function() {
+            handleExit();
+        }, 300);
+    };
+
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            handleExit();
+        }
+    });
+</script>
 </head>
-<body onload="window.print(); window.onafterprint = function(){ window.close(); }">
+<body>
 
 <div class="action-bar">
     <button type="button" onclick="window.print()" class="action-btn btn-print">Cetak Ulang</button>
-    <button type="button" onclick="window.close()" class="action-btn btn-close">Tutup</button>
+    <button type="button" onclick="handleExit()" class="action-btn btn-close" title="Tutup jendela atau tekan Esc">Tutup (Esc)</button>
+    <a href="{{ request()->query('return_url') ?: request()->header('referer') ?: url('/admin/dashboard') }}" class="action-btn btn-back">Kembali</a>
 </div>
 
 <div class="ticket">

@@ -536,7 +536,7 @@
                         Tutup
                     </button>
                     <button type="button" 
-                            @click="window.open('/admin/api/orders/' + selectedOrder.id + '/print', '_blank')" 
+                            @click="printReceiptSilently('/admin/api/orders/' + selectedOrder.id + '/print')" 
                             class="w-2/3 py-2.5 px-4 rounded-[12px] text-[13px] font-bold bg-[#df5826] hover:bg-[#c94d00] active:scale-[0.98] text-white shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
                         <i class="fas fa-print text-xs"></i>
                         <span>Cetak Struk</span>
@@ -3151,7 +3151,7 @@
                                 cancelButtonColor: '#6b7280',
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    window.open(`/admin/api/orders/${data.order_id}/print?type=kitchen`, '_blank');
+                                    this.printReceiptSilently(`/admin/api/orders/${data.order_id}/print?type=kitchen`);
                                 }
                             });
                         } else {
@@ -3173,6 +3173,24 @@
                     } finally {
                         this.openBillModal.isSaving = false;
                     }
+                },
+                printReceiptSilently(url) {
+                    let iframe = document.getElementById('receipt-print-iframe');
+                    if (!iframe) {
+                        iframe = document.createElement('iframe');
+                        iframe.id = 'receipt-print-iframe';
+                        iframe.style.position = 'fixed';
+                        iframe.style.right = '0';
+                        iframe.style.bottom = '0';
+                        iframe.style.width = '1px';
+                        iframe.style.height = '1px';
+                        iframe.style.opacity = '0.01';
+                        iframe.style.border = '0';
+                        iframe.style.pointerEvents = 'none';
+                        iframe.style.zIndex = '-9999';
+                        document.body.appendChild(iframe);
+                    }
+                    iframe.src = url;
                 },
                 updateStatus(id, newStatus) {
                     return fetch(`/admin/api/orders/${id}/status`, {

@@ -2166,12 +2166,12 @@ function posApp() {
 
         printKitchenTicket(orderId) {
             if (!orderId) return;
-            window.open(`/admin/api/orders/${orderId}/print?type=kitchen`, '_blank');
+            this.printReceiptSilently(`/admin/api/orders/${orderId}/print?type=kitchen`);
         },
 
         printTempBill(orderId) {
             if (!orderId) return;
-            window.open(`/admin/api/orders/${orderId}/print?type=customer`, '_blank');
+            this.printReceiptSilently(`/admin/api/orders/${orderId}/print?type=customer`);
         },
 
         async cancelHeldBill(orderId) {
@@ -2293,14 +2293,32 @@ function posApp() {
         // ── Success / New Order ───────────────
         printReceipt(type = 'customer') {
             if (!this.successScreen.orderId) return;
-            window.open(`/admin/api/orders/${this.successScreen.orderId}/print?type=${type}`, '_blank');
+            this.printReceiptSilently(`/admin/api/orders/${this.successScreen.orderId}/print?type=${type}`);
         },
         printAll() {
             if (!this.successScreen.orderId) return;
-            window.open(`/admin/api/orders/${this.successScreen.orderId}/print?type=customer`, '_blank');
+            this.printReceiptSilently(`/admin/api/orders/${this.successScreen.orderId}/print?type=customer`);
             setTimeout(() => {
-                window.open(`/admin/api/orders/${this.successScreen.orderId}/print?type=kitchen`, '_blank');
-            }, 500);
+                this.printReceiptSilently(`/admin/api/orders/${this.successScreen.orderId}/print?type=kitchen`);
+            }, 800);
+        },
+        printReceiptSilently(url) {
+            let iframe = document.getElementById('receipt-print-iframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'receipt-print-iframe';
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '1px';
+                iframe.style.height = '1px';
+                iframe.style.opacity = '0.01';
+                iframe.style.border = '0';
+                iframe.style.pointerEvents = 'none';
+                iframe.style.zIndex = '-9999';
+                document.body.appendChild(iframe);
+            }
+            iframe.src = url;
         },
         newOrder() {
             this.successScreen = { show: false, total: 0, change: 0, orderId: null };
