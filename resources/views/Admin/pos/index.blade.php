@@ -251,28 +251,33 @@
                             'category_id' => $product->category_id,
                             'category_name' => $product->category_name ?? ($product->category?->name ?? 'Menu'),
                             'sold_count' => (int) ($product->sold_count ?? 0),
+                            'is_sold_out' => (bool) $product->is_sold_out,
                             'variants' => $product->variants,
                             'modifier_groups' => $product->modifierGroups,
                         ];
                     @endphp
                     <div
                         x-show="matchesFilter({{ $product->category_id ?? 'null' }}, '{{ addslashes($product->name) }}', {{ (int) ($product->sold_count ?? 0) }}, {{ $product->is_best_seller ? 'true' : 'false' }})"
-                        class="product-card group bg-white border border-[#e6e5e0] hover:border-[#df5826]/50 rounded-[18px] overflow-hidden flex flex-col justify-between text-left shadow-[0px_4px_16px_0px_rgba(17,24,39,0.03)] hover:shadow-md transition-all duration-200">
+                        class="product-card group {{ $product->is_sold_out ? 'bg-gray-50/80 border-gray-200 opacity-75' : 'bg-white border-[#e6e5e0] hover:border-[#df5826]/50' }} rounded-[18px] overflow-hidden flex flex-col justify-between text-left shadow-[0px_4px_16px_0px_rgba(17,24,39,0.03)] hover:shadow-md transition-all duration-200">
                         {{-- Product Image (Flush to top, matching Figma) --}}
                         <div class="bg-[#f8f9fa] border-b border-[#e6e5e0] h-[135px] sm:h-[150px] xl:h-[160px] w-full overflow-hidden relative cursor-pointer"
                              @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')">
+                            @if($product->is_sold_out)
+                                <span class="absolute top-2.5 left-2.5 z-10 bg-red-600 text-white text-[9.5px] font-black px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1 uppercase tracking-wider">
+                                    <i class="fas fa-ban text-[8px]"></i> Sold Out
+                                </span>
+                            @elseif($product->is_best_seller)
+                                <span class="absolute top-2.5 left-2.5 z-10 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                                    <i class="fas fa-crown text-[8px]"></i> Best
+                                </span>
+                            @endif
                             @if($product->has_active_discount)
                                 <span class="absolute top-2.5 right-2.5 z-10 bg-red-600 text-white text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
                                     <i class="fas fa-tag text-[8px]"></i> -{{ $product->discount_percentage }}%
                                 </span>
                             @endif
-                            @if($product->is_best_seller)
-                                <span class="absolute top-2.5 left-2.5 z-10 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
-                                    <i class="fas fa-crown text-[8px]"></i> Best
-                                </span>
-                            @endif
                             @if($product->image_url)
-                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover {{ $product->is_sold_out ? 'grayscale-[50%]' : 'group-hover:scale-105' }} transition-transform duration-300">
                             @else
                                 <div class="w-full h-full flex flex-col items-center justify-center bg-[#f8f9fa] text-[#8b8e93]">
                                     <i class="fas fa-mug-hot text-2xl text-[#df5826]/40 mb-1"></i>
@@ -285,9 +290,14 @@
                         <div class="p-3 sm:p-3.5 pt-3 flex flex-col flex-1 justify-between gap-2.5">
                             <div>
                                 {{-- Product Name --}}
-                                <h3 class="text-[14px] sm:text-[15px] font-bold text-[#111827] leading-snug truncate" title="{{ $product->name }}">
-                                    {{ $product->name }}
-                                </h3>
+                                <div class="flex items-center gap-1.5 justify-between">
+                                    <h3 class="text-[14px] sm:text-[15px] font-bold text-[#111827] leading-snug truncate" title="{{ $product->name }}">
+                                        {{ $product->name }}
+                                    </h3>
+                                    @if($product->is_sold_out)
+                                        <span class="text-[9px] font-black text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wide">Sold Out</span>
+                                    @endif
+                                </div>
 
                                 {{-- Category • Sold Count & Price Row (Figma Screen 2) --}}
                                 <div class="flex items-center justify-between gap-2 pt-1">
@@ -315,28 +325,36 @@
 
                             {{-- Action Buttons: 2 buttons (Dine In / Takeaway) if Direct Order, OR 1 single button (Add Delivery) if Delivery --}}
                             <div class="flex flex-col gap-2 w-full pt-1">
-                                <div x-show="fulfillmentType !== 'DELIVERY'" class="flex flex-col gap-2 w-full">
-                                    <button type="button"
-                                        @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')"
-                                        class="w-full py-2.5 px-3 rounded-[11px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-xs hover:shadow transition active:scale-[0.98] cursor-pointer">
-                                        <i class="fas fa-utensils text-[11px]"></i>
-                                        <span>Dine In</span>
+                                @if($product->is_sold_out)
+                                    <button type="button" disabled
+                                        class="w-full py-2.5 px-3 rounded-[11px] bg-gray-200 text-gray-500 text-[12.5px] font-bold flex items-center justify-center gap-1.5 cursor-not-allowed">
+                                        <i class="fas fa-ban text-[11px]"></i>
+                                        <span>Sold Out (Habis)</span>
                                     </button>
-                                    <button type="button"
-                                        @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'TAKEAWAY')"
-                                        class="w-full py-2.5 px-3 rounded-[11px] bg-white hover:bg-[#fff9f6] border border-[#ea580c] text-[#ea580c] text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                                        <i class="fas fa-shopping-bag text-[11px]"></i>
-                                        <span>Takeaway</span>
-                                    </button>
-                                </div>
-                                <div x-show="fulfillmentType === 'DELIVERY'" x-cloak class="w-full">
-                                    <button type="button"
-                                        @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DELIVERY')"
-                                        class="w-full py-3 px-3 rounded-[11px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-xs hover:shadow transition active:scale-[0.98] cursor-pointer">
-                                        <i class="fas fa-motorcycle text-xs"></i>
-                                        <span>+ Tambah Delivery</span>
-                                    </button>
-                                </div>
+                                @else
+                                    <div x-show="fulfillmentType !== 'DELIVERY'" class="flex flex-col gap-2 w-full">
+                                        <button type="button"
+                                            @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DINE_IN')"
+                                            class="w-full py-2.5 px-3 rounded-[11px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-xs hover:shadow transition active:scale-[0.98] cursor-pointer">
+                                            <i class="fas fa-utensils text-[11px]"></i>
+                                            <span>Dine In</span>
+                                        </button>
+                                        <button type="button"
+                                            @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'TAKEAWAY')"
+                                            class="w-full py-2.5 px-3 rounded-[11px] bg-white hover:bg-[#fff9f6] border border-[#ea580c] text-[#ea580c] text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                                            <i class="fas fa-shopping-bag text-[11px]"></i>
+                                            <span>Takeaway</span>
+                                        </button>
+                                    </div>
+                                    <div x-show="fulfillmentType === 'DELIVERY'" x-cloak class="w-full">
+                                        <button type="button"
+                                            @click="handleProductClick({{ Illuminate\Support\Js::from($productPayload) }}, 'DELIVERY')"
+                                            class="w-full py-3 px-3 rounded-[11px] bg-gradient-to-r from-[#f97316] to-[#ea580c] hover:opacity-95 text-white text-[12.5px] font-bold flex items-center justify-center gap-2 shadow-xs hover:shadow transition active:scale-[0.98] cursor-pointer">
+                                            <i class="fas fa-motorcycle text-xs"></i>
+                                            <span>+ Tambah Delivery</span>
+                                        </button>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -1721,6 +1739,10 @@ function posApp() {
 
         // ── Modifier Modal ───────────────────
         handleProductClick(product, servingType = 'DINE_IN') {
+            if (product.is_sold_out) {
+                this.addToast('Menu "' + product.name + '" sedang Sold Out (Habis).', 'error');
+                return;
+            }
             const effectiveServingType = (this.fulfillmentType === 'DELIVERY') ? 'DELIVERY' : (servingType || 'DINE_IN');
             const hasVariants = product.variants && product.variants.length > 0;
             const hasModifiers = product.modifier_groups && product.modifier_groups.length > 0;

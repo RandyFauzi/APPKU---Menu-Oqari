@@ -169,4 +169,32 @@ class CustomerMenuCategorySyncTest extends TestCase
         $response->assertOk();
         $this->assertStringNotContainsString('"name":"Kategori Nonaktif"', $response->getContent());
     }
+
+    public function test_sold_out_products_appear_on_customer_menu_with_sold_out_flag(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed', 'slug' => 'sparta-cafe']);
+
+        $category = Category::create([
+            'shop_id' => $shop->id,
+            'name' => 'Signature',
+            'slug' => 'signature',
+            'sort_order' => 1,
+            'is_active' => true,
+        ]);
+
+        $soldOutProduct = Product::create([
+            'shop_id' => $shop->id,
+            'category_id' => $category->id,
+            'category_name' => 'Signature',
+            'name' => 'Cold Brew Sold Out',
+            'price' => 28000,
+            'is_sold_out' => true,
+        ]);
+
+        $response = $this->get(route('shop.menu', $shop->slug));
+
+        $response->assertOk();
+        $response->assertSee('Cold Brew Sold Out');
+        $this->assertStringContainsString('"is_sold_out":true', $response->getContent());
+    }
 }

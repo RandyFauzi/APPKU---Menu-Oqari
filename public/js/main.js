@@ -226,16 +226,19 @@ function isItemInCategory(item, categoryTarget) {
         if (found) targetName = found.name;
     }
 
+    const itemCatId = item.categoryId ?? item.category_id ?? (item.category ? item.category.id : null);
+    const itemCatName = item.categoryName ?? item.category_name ?? (item.category ? item.category.name : null);
+
     // 1. Match by ID (loose string comparison to handle 1 == '1')
-    if (item.categoryId !== undefined && item.categoryId !== null && targetId !== undefined && targetId !== null) {
-        if (String(item.categoryId).trim().toLowerCase() === String(targetId).trim().toLowerCase()) {
+    if (itemCatId !== undefined && itemCatId !== null && targetId !== undefined && targetId !== null) {
+        if (String(itemCatId).trim().toLowerCase() === String(targetId).trim().toLowerCase()) {
             return true;
         }
     }
 
     // 2. Match by categoryName
-    if (item.categoryName && targetName) {
-        if (item.categoryName.trim().toLowerCase() === targetName.trim().toLowerCase()) {
+    if (itemCatName && targetName) {
+        if (String(itemCatName).trim().toLowerCase() === String(targetName).trim().toLowerCase()) {
             return true;
         }
     }
@@ -340,17 +343,19 @@ function handleCategoryClick(catId) {
         const searchInput = document.getElementById('search-menu');
         if (searchInput) searchInput.value = '';
         searchQuery = '';
-        renderMenu();
     }
 
     if (catId === 'all') {
-        setActiveCategoryPill('all');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        filterCategory('all');
+        const header = document.getElementById('sticky-header');
+        const catBar = document.getElementById('sticky-categories');
+        const totalOffset = (header ? header.offsetHeight : 0) + (catBar ? catBar.offsetHeight : 0);
+        window.scrollTo({ top: Math.max(0, (catBar ? catBar.offsetTop : 0) - totalOffset), behavior: 'smooth' });
         return;
     }
 
     const section = document.getElementById('cat-section-' + catId);
-    if (section) {
+    if (section && activeCategory === 'all') {
         isProgrammaticScroll = true;
         clearTimeout(scrollTimeout);
         
@@ -462,6 +467,26 @@ function renderMenu() {
         filteredMenu = filteredMenu.filter(m => m.name.toLowerCase().includes(searchQuery));
     }
 
+    // Dynamic Header Title & "Lihat Semua" Link
+    const titleEl = document.getElementById('menu-list-title');
+    const viewAllEl = document.getElementById('menu-view-all-btn');
+    if (titleEl) {
+        if (searchQuery) {
+            titleEl.textContent = `Hasil Pencarian "${searchQuery}"`;
+            if (viewAllEl) viewAllEl.classList.remove('hidden');
+        } else if (activeCategory === 'all') {
+            titleEl.textContent = 'Semua Menu';
+            if (viewAllEl) viewAllEl.classList.add('hidden');
+        } else if (activeCategory === 'promo-diskon') {
+            titleEl.textContent = 'Menu Promo';
+            if (viewAllEl) viewAllEl.classList.remove('hidden');
+        } else {
+            const foundCat = categories.find(c => String(c.id).toLowerCase() === String(activeCategory).toLowerCase());
+            titleEl.textContent = foundCat ? foundCat.name : 'Daftar Menu';
+            if (viewAllEl) viewAllEl.classList.remove('hidden');
+        }
+    }
+
     let htmlOutput = '';
 
     if (activeCategory === 'all' && !searchQuery) {
@@ -521,48 +546,60 @@ function formatItemPriceHtml(item, textSize = 'text-sm') {
 
 function renderMenuItem(item) {
     const theme = typeof SHOP_THEME !== 'undefined' ? SHOP_THEME : 'list';
+    const isSoldOut = Boolean(item.soldOut);
     
     if (theme === 'compact') {
         return `
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-2.5 flex items-center justify-between gap-3 hover:shadow-md transition duration-200 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-2.5 flex items-center justify-between gap-3 hover:shadow-md transition duration-200 relative ${isSoldOut ? 'opacity-65 bg-gray-50/70' : 'cursor-pointer'}" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="${isSoldOut ? `showToast('Menu ini sedang habis (Sold Out)')` : `openItemDetail('${Number(item.id)}')`}">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-gray-100 bg-gray-50">
-                        <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" class="w-full h-full object-cover">
-                        ${item.isBestSeller ? '<span class="absolute top-0.5 left-0.5 bg-amber-500 text-white text-[7px] font-black px-1 rounded shadow-sm">⭐</span>' : ''}
+                        <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" class="w-full h-full object-cover ${isSoldOut ? 'grayscale-[50%]' : ''}">
+                        ${isSoldOut ? '<span class="absolute top-0.5 left-0.5 bg-red-600 text-white text-[7px] font-black px-1 rounded shadow-sm">Habis</span>' : (item.isBestSeller ? '<span class="absolute top-0.5 left-0.5 bg-amber-500 text-white text-[7px] font-black px-1 rounded shadow-sm">⭐</span>' : '')}
                     </div>
                     <div class="truncate">
                         <div class="flex items-center gap-1.5">
                             <h4 class="font-bold text-xs text-textdark truncate">${escapeHtml(item.name)}</h4>
-                            ${item.isBestSeller ? '<span class="text-[9px] text-amber-600 font-extrabold shrink-0 bg-amber-50 px-1 rounded">Best</span>' : ''}
+                            ${isSoldOut ? '<span class="text-[8px] font-bold text-red-600 bg-red-50 px-1 rounded border border-red-200">Sold Out</span>' : (item.isBestSeller ? '<span class="text-[9px] text-amber-600 font-extrabold shrink-0 bg-amber-50 px-1 rounded">Best</span>' : '')}
                         </div>
                         <div class="mt-0.5 block">${formatItemPriceHtml(item, 'text-xs')}</div>
                     </div>
                 </div>
-                <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="bg-primary text-white h-7 w-7 rounded-lg flex items-center justify-center shadow-sm active:scale-95 transition-transform shrink-0">
-                    <i class="fas fa-plus text-[10px]"></i>
-                </button>
+                ${isSoldOut ? `
+                    <span class="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-1 rounded-lg shrink-0">Habis</span>
+                ` : `
+                    <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="bg-primary text-white h-7 w-7 rounded-lg flex items-center justify-center shadow-sm active:scale-95 transition-transform shrink-0">
+                        <i class="fas fa-plus text-[10px]"></i>
+                    </button>
+                `}
             </div>
         `;
     }
 
     if (theme === 'cards') {
         return `
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative ${isSoldOut ? 'opacity-65 bg-gray-50/70' : 'cursor-pointer'}" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="${isSoldOut ? `showToast('Menu ini sedang habis (Sold Out)')` : `openItemDetail('${Number(item.id)}')`}">
                 <div class="relative w-full h-44 bg-gray-100">
-                    <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="w-full h-full object-cover">
-                    ${item.isBestSeller ? '<span class="absolute top-3 left-3 bg-amber-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md flex items-center gap-1"><i class="fas fa-crown text-[9px]"></i> Best Seller</span>' : ''}
+                    <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="w-full h-full object-cover ${isSoldOut ? 'grayscale-[50%]' : ''}">
+                    ${isSoldOut ? '<span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 uppercase tracking-wider"><i class="fas fa-ban text-[9px]"></i> Sold Out</span>' : (item.isBestSeller ? '<span class="absolute top-3 left-3 bg-amber-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md flex items-center gap-1"><i class="fas fa-crown text-[9px]"></i> Best Seller</span>' : '')}
                     ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
                 </div>
                 <div class="p-4 flex flex-col flex-grow">
                     <div class="flex justify-between items-start gap-2 mb-1">
-                        <h3 class="font-extrabold text-textdark text-base leading-tight">${escapeHtml(item.name)}</h3>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-extrabold text-textdark text-base leading-tight">${escapeHtml(item.name)}</h3>
+                            ${isSoldOut ? '<span class="text-[9px] font-black text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded uppercase">Sold Out</span>' : ''}
+                        </div>
                         <div class="shrink-0 text-right">${formatItemPriceHtml(item, 'text-base')}</div>
                     </div>
                     ${item.desc ? `<p class="text-xs text-gray-500 line-clamp-2 mt-1 mb-3">${escapeHtml(item.desc)}</p>` : ''}
                     <div class="mt-auto pt-2 flex justify-end">
-                        <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-transform flex items-center gap-1.5">
-                            <i class="fas fa-plus text-[10px]"></i> Tambah
-                        </button>
+                        ${isSoldOut ? `
+                            <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-xl">Sold Out (Habis)</span>
+                        ` : `
+                            <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-transform flex items-center gap-1.5">
+                                <i class="fas fa-plus text-[10px]"></i> Tambah
+                            </button>
+                        `}
                     </div>
                 </div>
             </div>
@@ -572,43 +609,59 @@ function renderMenuItem(item) {
     if (theme === 'list') {
         // Horizontal Layout (GoFood style)
         return `
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex hover:shadow-md transition duration-300 relative h-28">
-                <div class="w-28 flex-shrink-0 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
-                    <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="h-full w-full object-cover">
-                    ${item.isBestSeller ? '<span class="absolute top-1.5 left-1.5 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5"><i class="fas fa-crown text-[7px]"></i> Best</span>' : ''}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex hover:shadow-md transition duration-300 relative h-28 ${isSoldOut ? 'opacity-65 bg-gray-50/70' : ''}">
+                <div class="w-28 flex-shrink-0 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="${isSoldOut ? `showToast('Menu ini sedang habis (Sold Out)')` : `openItemDetail('${Number(item.id)}')`}">
+                    <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="h-full w-full object-cover ${isSoldOut ? 'grayscale-[50%]' : ''}">
+                    ${isSoldOut ? '<span class="absolute top-1.5 left-1.5 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">Habis</span>' : (item.isBestSeller ? '<span class="absolute top-1.5 left-1.5 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5"><i class="fas fa-crown text-[7px]"></i> Best</span>' : '')}
                     ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
                 </div>
-                <div class="p-3 flex flex-col flex-grow relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
-                    <h3 class="font-bold text-textdark text-sm leading-tight mb-1 pr-6 truncate">${escapeHtml(item.name)}</h3>
+                <div class="p-3 flex flex-col flex-grow relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="${isSoldOut ? `showToast('Menu ini sedang habis (Sold Out)')` : `openItemDetail('${Number(item.id)}')`}">
+                    <div class="flex items-center gap-1.5 mb-1 pr-6">
+                        <h3 class="font-bold text-textdark text-sm leading-tight truncate">${escapeHtml(item.name)}</h3>
+                        ${isSoldOut ? '<span class="text-[8px] font-black text-red-600 bg-red-50 border border-red-200 px-1 py-0.2 rounded shrink-0">Sold Out</span>' : ''}
+                    </div>
                     <p class="text-xs text-gray-500 line-clamp-2 leading-snug">${escapeHtml(item.desc || '')}</p>
                     <div class="mt-auto flex justify-between items-end">
                         ${formatItemPriceHtml(item, 'text-sm')}
                     </div>
                 </div>
-                <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="absolute bottom-3 right-3 bg-primary text-white h-8 w-8 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
-                    <i class="fas fa-plus text-xs"></i>
-                </button>
+                ${isSoldOut ? `
+                    <span class="absolute bottom-3 right-3 text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-1 rounded-full">Habis</span>
+                ` : `
+                    <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="absolute bottom-3 right-3 bg-primary text-white h-8 w-8 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
+                        <i class="fas fa-plus text-xs"></i>
+                    </button>
+                `}
             </div>
         `;
     }
 
     // Vertical Layout (Instagram style grid)
     return `
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative">
-            <div class="p-2 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
-                <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="h-32 w-full object-cover rounded-xl">
-                ${item.isBestSeller ? '<span class="absolute top-3 left-3 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5"><i class="fas fa-crown text-[7px]"></i> Best</span>' : ''}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition duration-300 relative ${isSoldOut ? 'opacity-65 bg-gray-50/70' : ''}">
+            <div class="p-2 relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="${isSoldOut ? `showToast('Menu ini sedang habis (Sold Out)')` : `openItemDetail('${Number(item.id)}')`}">
+                <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="h-32 w-full object-cover rounded-xl ${isSoldOut ? 'grayscale-[50%]' : ''}">
+                ${isSoldOut ? '<span class="absolute top-3 left-3 bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm uppercase tracking-wide">Sold Out</span>' : (item.isBestSeller ? '<span class="absolute top-3 left-3 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5"><i class="fas fa-crown text-[7px]"></i> Best</span>' : '')}
                 ${item.categoryId === 'beverages' ? '<div class="steam-effect"></div>' : ''}
             </div>
-            <div class="px-3 pb-3 pt-1 flex flex-col flex-grow relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="openItemDetail('${Number(item.id)}')">
-                <h3 class="font-bold text-textdark text-xs leading-tight mb-1 truncate">${escapeHtml(item.name)}</h3>
+            <div class="px-3 pb-3 pt-1 flex flex-col flex-grow relative cursor-pointer" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="${isSoldOut ? `showToast('Menu ini sedang habis (Sold Out)')` : `openItemDetail('${Number(item.id)}')`}">
+                <div class="flex items-center gap-1 mb-1">
+                    <h3 class="font-bold text-textdark text-xs leading-tight truncate">${escapeHtml(item.name)}</h3>
+                    ${isSoldOut ? '<span class="text-[7.5px] font-black text-red-600 bg-red-50 border border-red-200 px-1 rounded shrink-0">Habis</span>' : ''}
+                </div>
                 <div class="mt-auto flex justify-between items-end">
                     ${formatItemPriceHtml(item, 'text-sm')}
                 </div>
             </div>
-            <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="absolute bottom-2 right-2 bg-primary text-white h-7 w-7 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
-                <i class="fas fa-plus text-[10px]"></i>
-            </button>
+            ${isSoldOut ? `
+                <div class="absolute bottom-2 right-2 bg-red-50 border border-red-200 text-red-600 h-7 px-2 rounded-full flex items-center justify-center text-[9px] font-extrabold cursor-not-allowed">
+                    Habis
+                </div>
+            ` : `
+                <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="absolute bottom-2 right-2 bg-primary text-white h-7 w-7 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform z-10">
+                    <i class="fas fa-plus text-[10px]"></i>
+                </button>
+            `}
         </div>
     `;
 }
@@ -618,6 +671,10 @@ function quickAddToCart(itemId, event) {
     const menuData = getApiMenu();
     currentSelectedItem = menuData.find(m => m.id == itemId);
     if(currentSelectedItem) {
+        if (currentSelectedItem.soldOut) {
+            showToast(`Menu <b>${escapeHtml(currentSelectedItem.name)}</b> sedang habis (Sold Out).`);
+            return;
+        }
         confirmAddToCart(); // Adds defaults
     }
 }
@@ -659,6 +716,11 @@ function openItemDetail(itemId) {
     const menuData = getApiMenu();
     currentSelectedItem = menuData.find(m => m.id == itemId);
     if (!currentSelectedItem) return;
+
+    if (currentSelectedItem.soldOut) {
+        showToast(`Menu <b>${escapeHtml(currentSelectedItem.name)}</b> sedang habis (Sold Out).`);
+        return;
+    }
 
     const modGroups = (currentSelectedItem.modifier_groups || currentSelectedItem.modifierGroups || []).filter(g => g.is_active !== false);
 
@@ -1142,14 +1204,40 @@ function initTrackingPage() {
     setTimeout(() => { const modal = document.getElementById('modal-rating'); if(modal) modal.classList.remove('hidden'); }, 3000);
 }
 
+function sanitizeToastHtml(html) {
+    if (!html) return '';
+    let safe = escapeHtml(html);
+    return safe.replace(/&lt;b&gt;/gi, '<b class="font-bold text-white">')
+               .replace(/&lt;\/b&gt;/gi, '</b>')
+               .replace(/&lt;strong&gt;/gi, '<strong class="font-bold text-white">')
+               .replace(/&lt;\/strong&gt;/gi, '</strong>');
+}
+
 function showToast(message) {
     const container = document.getElementById('toast-container');
     if (!container) return;
+
+    // Bersihkan toast aktif sebelumnya agar tidak menumpuk
+    container.innerHTML = '';
+
     const toast = document.createElement('div');
-    toast.className = 'toast-msg bg-textdark text-white text-sm px-4 py-3 rounded-full shadow-lg flex items-center gap-3 font-bold mx-auto w-max';
-    toast.innerHTML = `<i class="fas fa-check-circle text-primary"></i> <span>${escapeHtml(message)}</span>`;
+    toast.className = 'toast-msg bg-textdark text-white text-xs sm:text-sm px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2.5 font-medium mx-auto w-max max-w-[92vw] pointer-events-auto border border-white/10';
+
+    const isWarning = typeof message === 'string' && (message.includes('⚠️') || message.toLowerCase().includes('mohon') || message.toLowerCase().includes('tidak valid'));
+    const iconClass = isWarning ? 'fa-exclamation-circle text-amber-400' : 'fa-check-circle text-primary';
+
+    const cleanMessage = typeof message === 'string' ? message.replace(/^[⚠️✅]\s*/, '') : '';
+
+    toast.innerHTML = `<i class="fas ${iconClass} text-sm shrink-0"></i> <span class="truncate">${sanitizeToastHtml(cleanMessage)}</span>`;
     container.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; toast.style.transition = 'all 0.3s ease'; setTimeout(() => toast.remove(), 300); }, 2500);
+
+    clearTimeout(window.__toastTimeout);
+    window.__toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(() => toast.remove(), 250);
+    }, 2200);
 }
 
 function closeRating() { document.getElementById('modal-rating').classList.add('hidden'); }

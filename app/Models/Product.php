@@ -37,6 +37,7 @@ class Product extends Model
         'is_discount_active' => 'boolean',
         'hpp_settings' => 'array',
         'is_best_seller' => 'boolean',
+        'is_sold_out' => 'boolean',
     ];
 
     protected $appends = [

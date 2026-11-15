@@ -49,7 +49,6 @@ class PosController extends Controller
             ->pluck('total_sold', 'product_id');
 
         $products = Product::where('shop_id', $shop->id)
-            ->where('is_sold_out', false)
             ->with(['category', 'variants', 'modifierGroups.modifiers'])
             ->orderBy('category_id')
             ->get()
@@ -491,7 +490,6 @@ class PosController extends Controller
             ->pluck('total_sold', 'product_id');
 
         $query = Product::where('shop_id', $shopId)
-            ->where('is_sold_out', false)
             ->with(['category', 'variants', 'modifierGroups.modifiers'])
             ->orderBy('category_id')
             ->orderBy('name');

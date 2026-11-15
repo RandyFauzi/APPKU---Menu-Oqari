@@ -218,8 +218,8 @@
 
     <!-- Menu List -->
     <div class="px-4 mt-5 flex justify-between items-center mb-1 relative z-10">
-        <h2 class="font-extrabold text-xl text-gray-800">Popular Picks</h2>
-        <span class="text-xs font-bold text-primary cursor-pointer hover:underline">View All &rarr;</span>
+        <h2 class="font-extrabold text-xl text-gray-800" id="menu-list-title">Semua Menu</h2>
+        <span class="text-xs font-bold text-primary cursor-pointer hover:underline hidden" id="menu-view-all-btn" onclick="handleCategoryClick('all')">Lihat Semua &rarr;</span>
     </div>
     <main class="p-4 grid grid-cols-2 gap-4 relative z-10" id="menu-container">
         <!-- Injected by JS -->
