@@ -42,6 +42,8 @@
         .dashed-box { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23CFCFCF' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"); border-radius: 16px; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('vendor/xlsx/xlsx.full.min.js') }}"></script>
+    <script>if (typeof XLSX === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\/script>'); }</script>
     <x-theme-head :shop="$shop ?? null" />
 </head>
 <body class="font-sans text-textdark h-screen flex overflow-hidden bg-white" x-data="dashboardApp()" @new-order-received.window="handleNewOrderFromSocket($event.detail)" @refresh-live-orders.window="fetchLiveOrders(false)">
@@ -1293,133 +1295,289 @@
                     reader.onload = (e) => { this.draftMenus[index].imagePreview = e.target.result; };
                     reader.readAsDataURL(file);
                 },
-                downloadCsvTemplate() {
-                    const csvContent = "\ufeff"
-                        + "Nama Menu,Kategori,Harga,Deskripsi\n"
-                        + "Americano,Coffee,22000,Espresso dengan air panas\n"
-                        + "Caffe Latte,Coffee,28000,Espresso dengan steamed milk lembut\n"
-                        + "Matcha Latte,Drinks,30000,Matcha Jepang murni dengan susu segar\n"
-                        + "Butter Croissant,Pastry,24000,Pastry renyah dengan butter premium\n"
-                        + "Beef Burger,Main Course,45000,Patty daging sapi gurih dengan saus spesial\n";
-                    
-                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement("a");
-                    link.setAttribute("href", url);
-                    link.setAttribute("download", "template_menu_sparta.csv");
+                downloadExcelTemplate() {
+                    if (typeof XLSX !== 'undefined') {
+                        try {
+                            const wb = XLSX.utils.book_new();
+
+                            // Sheet 1: Template Menu
+                            const menuData = [
+                                ['Nama Menu', 'Kategori', 'Harga', 'Deskripsi'],
+                                ['Americano', 'Coffee', 22000, 'Espresso dengan air panas'],
+                                ['Caffe Latte', 'Coffee', 28000, 'Espresso dengan steamed milk lembut'],
+                                ['Matcha Latte', 'Drinks', 30000, 'Matcha Jepang murni dengan susu segar'],
+                                ['Butter Croissant', 'Pastry', 24000, 'Pastry renyah dengan butter premium'],
+                                ['Beef Burger', 'Main Course', 45000, 'Patty daging sapi gurih dengan saus spesial'],
+                                ['Nasi Goreng Spesial', 'Main Course', 45000, 'Nasi goreng lezat dengan rempah pilihan dan telur']
+                            ];
+
+                            const wsMenu = XLSX.utils.aoa_to_sheet(menuData);
+                            wsMenu['!cols'] = [
+                                { wch: 28 }, // Nama Menu
+                                { wch: 20 }, // Kategori
+                                { wch: 16 }, // Harga
+                                { wch: 50 }  // Deskripsi
+                            ];
+
+                            XLSX.utils.book_append_sheet(wb, wsMenu, 'Template Menu');
+
+                            // Sheet 2: Petunjuk
+                            const guideData = [
+                                ['PANDUAN FORMAT BULK UPLOAD MENU'],
+                                [''],
+                                ['Kolom', 'Status', 'Tipe Data', 'Penjelasan & Contoh'],
+                                ['Nama Menu', 'Wajib', 'Teks', 'Nama menu makanan atau minuman. Contoh: Americano, Beef Burger'],
+                                ['Kategori', 'Wajib', 'Teks', 'Kategori menu (Coffee, Drinks, Pastry, Main Course). Jika belum ada di sistem, otomatis dibuatkan.'],
+                                ['Harga', 'Wajib', 'Angka', 'Harga jual dalam rupiah tanpa tanda titik/koma/simbol Rp. Contoh: 25000'],
+                                ['Deskripsi', 'Opsional', 'Teks', 'Deskripsi singkat menu. Contoh: Espresso dengan air panas'],
+                                [''],
+                                ['CATATAN:'],
+                                ['1. Jangan mengubah nama kolom pada baris 1 Sheet "Template Menu".'],
+                                ['2. Tambahkan data menu baru mulai dari baris berikutnya.'],
+                                ['3. Simpan file sebagai file Excel (.xlsx) dan upload kembali pada menu Bulk Upload Excel.']
+                            ];
+
+                            const wsGuide = XLSX.utils.aoa_to_sheet(guideData);
+                            wsGuide['!cols'] = [
+                                { wch: 18 },
+                                { wch: 12 },
+                                { wch: 14 },
+                                { wch: 80 }
+                            ];
+
+                            XLSX.utils.book_append_sheet(wb, wsGuide, 'Petunjuk');
+
+                            XLSX.writeFile(wb, 'template_menu_oqari.xlsx');
+                            this.addToast('Template Excel berhasil diunduh. Silakan isi dan upload kembali.', 'info');
+                            return;
+                        } catch (err) {
+                            console.error('Error generating Excel in browser:', err);
+                        }
+                    }
+
+                    // Fallback ke download route Laravel
+                    const link = document.createElement('a');
+                    link.href = '{{ route("admin.menu.template.excel") }}';
+                    link.setAttribute('download', 'template_menu_oqari.xlsx');
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    this.addToast('Template CSV berhasil diunduh. Silakan isi dan upload kembali.', 'info');
+                    this.addToast('Template Excel berhasil diunduh. Silakan isi dan upload kembali.', 'info');
                 },
-                handleCSVUpload(event) {
+                downloadCsvTemplate() {
+                    this.downloadExcelTemplate();
+                },
+                handleFileUpload(event) {
                     const file = event.target.files[0];
                     if (!file) return;
-                    
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        try {
-                            const text = e.target.result;
-                            if (!text || text.trim() === '') {
-                                this.addToast('File CSV kosong', 'error');
-                                return;
-                            }
-                            
-                            const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
-                            if (lines.length < 2) {
-                                this.addToast('File CSV harus memiliki baris judul dan minimal 1 baris data', 'error');
-                                return;
-                            }
-                            
-                            const headerLine = lines[0];
-                            const commaCount = (headerLine.match(/,/g) || []).length;
-                            const semiCount = (headerLine.match(/;/g) || []).length;
-                            const delimiter = semiCount > commaCount ? ';' : ',';
-                            
-                            const parseLine = (lineStr) => {
-                                const row = [];
-                                let current = '';
-                                let inQuotes = false;
-                                for (let i = 0; i < lineStr.length; i++) {
-                                    const c = lineStr[i];
-                                    if (c === '"') {
-                                        if (inQuotes && lineStr[i + 1] === '"') {
-                                            current += '"';
-                                            i++;
-                                        } else {
-                                            inQuotes = !inQuotes;
-                                        }
-                                    } else if (c === delimiter && !inQuotes) {
-                                        row.push(current.trim());
-                                        current = '';
-                                    } else {
-                                        current += c;
+
+                    const fileName = (file.name || '').toLowerCase();
+                    const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+
+                    if (isExcel && typeof XLSX !== 'undefined') {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                const data = new Uint8Array(e.target.result);
+                                const workbook = XLSX.read(data, { type: 'array' });
+                                if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+                                    this.addToast('File Excel tidak memiliki lembar kerja (sheet).', 'error');
+                                    return;
+                                }
+
+                                const sheetName = workbook.SheetNames.includes('Template Menu') ? 'Template Menu' : workbook.SheetNames[0];
+                                const worksheet = workbook.Sheets[sheetName];
+                                const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+                                if (!rawRows || rawRows.length === 0) {
+                                    this.addToast('File Excel kosong.', 'error');
+                                    return;
+                                }
+
+                                let headerIdx = -1;
+                                for (let r = 0; r < Math.min(rawRows.length, 10); r++) {
+                                    const rowTexts = (rawRows[r] || []).map(c => String(c).toLowerCase().replace(/[^a-z0-9]/g, ''));
+                                    const hasName = rowTexts.some(h => h.includes('nama') || h.includes('name') || h.includes('menu') || h.includes('item'));
+                                    const hasPrice = rowTexts.some(h => h.includes('harga') || h.includes('price') || h.includes('nominal'));
+                                    if (hasName || hasPrice) {
+                                        headerIdx = r;
+                                        break;
                                     }
                                 }
-                                row.push(current.trim());
-                                return row;
-                            };
-                            
-                            const headers = parseLine(headerLine).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
-                            
-                            let nameIdx = headers.findIndex(h => h.includes('nama') || h.includes('name') || h.includes('menu') || h.includes('item'));
-                            let catIdx = headers.findIndex(h => h.includes('kategori') || h.includes('category') || h.includes('cat'));
-                            let priceIdx = headers.findIndex(h => h.includes('harga') || h.includes('price') || h.includes('nominal'));
-                            let descIdx = headers.findIndex(h => h.includes('deskripsi') || h.includes('desc') || h.includes('description') || h.includes('ket'));
-                            
-                            if (nameIdx === -1) nameIdx = 0;
-                            if (catIdx === -1) catIdx = 1;
-                            if (priceIdx === -1) priceIdx = 2;
-                            if (descIdx === -1) descIdx = 3;
-                            
-                            const newDrafts = [];
-                            for (let i = 1; i < lines.length; i++) {
-                                const cols = parseLine(lines[i]);
-                                const name = cols[nameIdx] ? cols[nameIdx].replace(/^["']|["']$/g, '').trim() : '';
-                                if (!name) continue;
-                                
-                                const catRaw = (cols[catIdx] ? cols[catIdx].replace(/^["']|["']$/g, '').trim() : '') || 'Coffee';
-                                const priceRaw = cols[priceIdx] ? String(cols[priceIdx]).replace(/[^0-9]/g, '') : '0';
-                                const price = parseInt(priceRaw) || 0;
-                                const desc = (descIdx !== -1 && cols[descIdx]) ? cols[descIdx].replace(/^["']|["']$/g, '').trim() : '';
-                                
-                                let matchedCatId = '';
-                                const foundCat = this.categories.find(c => c.name && c.name.toLowerCase() === catRaw.toLowerCase());
-                                if (foundCat) {
-                                    matchedCatId = foundCat.id;
+
+                                if (headerIdx === -1) headerIdx = 0;
+
+                                const headers = (rawRows[headerIdx] || []).map(h => String(h).toLowerCase().replace(/[^a-z0-9]/g, ''));
+                                let nameIdx = headers.findIndex(h => h.includes('nama') || h.includes('name') || h.includes('menu') || h.includes('item'));
+                                let catIdx = headers.findIndex(h => h.includes('kategori') || h.includes('category') || h.includes('cat'));
+                                let priceIdx = headers.findIndex(h => h.includes('harga') || h.includes('price') || h.includes('nominal'));
+                                let descIdx = headers.findIndex(h => h.includes('deskripsi') || h.includes('desc') || h.includes('description') || h.includes('ket'));
+
+                                if (nameIdx === -1) nameIdx = 0;
+                                if (catIdx === -1) catIdx = 1;
+                                if (priceIdx === -1) priceIdx = 2;
+                                if (descIdx === -1) descIdx = 3;
+
+                                const newDrafts = [];
+                                for (let i = headerIdx + 1; i < rawRows.length; i++) {
+                                    const cols = rawRows[i];
+                                    if (!cols || cols.length === 0) continue;
+
+                                    const name = cols[nameIdx] !== undefined ? String(cols[nameIdx]).trim() : '';
+                                    if (!name) continue;
+
+                                    if (name.toLowerCase().startsWith('catatan') || name.toLowerCase().startsWith('panduan')) continue;
+
+                                    const catRaw = (cols[catIdx] !== undefined ? String(cols[catIdx]).trim() : '') || 'Coffee';
+                                    const priceRaw = cols[priceIdx] !== undefined ? String(cols[priceIdx]).replace(/[^0-9]/g, '') : '0';
+                                    const price = parseInt(priceRaw, 10) || 0;
+                                    const desc = (descIdx !== -1 && cols[descIdx] !== undefined) ? String(cols[descIdx]).trim() : '';
+
+                                    let matchedCatId = '';
+                                    const foundCat = this.categories.find(c => c.name && c.name.toLowerCase() === catRaw.toLowerCase());
+                                    if (foundCat) {
+                                        matchedCatId = foundCat.id;
+                                    } else {
+                                        matchedCatId = catRaw;
+                                    }
+
+                                    newDrafts.push({
+                                        id: null,
+                                        name: name,
+                                        categoryId: matchedCatId,
+                                        price: price,
+                                        desc: desc,
+                                        imagePreview: null,
+                                        imageFile: null
+                                    });
+                                }
+
+                                if (newDrafts.length > 0) {
+                                    if (this.draftMenus.length === 1 && !this.draftMenus[0].name && !this.draftMenus[0].price) {
+                                        this.draftMenus = [];
+                                    }
+                                    this.draftMenus.push(...newDrafts);
+                                    this.addToast(`Berhasil memuat ${newDrafts.length} menu dari file Excel! Periksa data dan klik Publish Menu.`, 'success');
                                 } else {
-                                    matchedCatId = catRaw;
+                                    this.addToast('Tidak ada data menu yang valid ditemukan di dalam file Excel.', 'error');
                                 }
-                                
-                                newDrafts.push({
-                                    id: null,
-                                    name: name,
-                                    categoryId: matchedCatId,
-                                    price: price,
-                                    desc: desc,
-                                    imagePreview: null,
-                                    imageFile: null
-                                });
+                            } catch (err) {
+                                console.error('Excel parse error:', err);
+                                this.addToast('Gagal memproses file Excel: ' + (err.message || 'Format tidak didukung'), 'error');
+                            } finally {
+                                event.target.value = '';
                             }
-                            
-                            if (newDrafts.length > 0) {
-                                if (this.draftMenus.length === 1 && !this.draftMenus[0].name && !this.draftMenus[0].price) {
-                                    this.draftMenus = [];
+                        };
+                        reader.readAsArrayBuffer(file);
+                    } else {
+                        // Fallback CSV parsing
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                const text = e.target.result;
+                                if (!text || text.trim() === '') {
+                                    this.addToast('File CSV/Excel kosong', 'error');
+                                    return;
                                 }
-                                this.draftMenus.push(...newDrafts);
-                                this.addToast(`Berhasil memuat ${newDrafts.length} menu dari CSV! Periksa data dan klik Publish Menu.`, 'success');
-                            } else {
-                                this.addToast('Tidak ada data menu yang valid ditemukan di dalam file CSV.', 'error');
+
+                                const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+                                if (lines.length < 2) {
+                                    this.addToast('File harus memiliki baris judul dan minimal 1 baris data', 'error');
+                                    return;
+                                }
+
+                                const headerLine = lines[0];
+                                const commaCount = (headerLine.match(/,/g) || []).length;
+                                const semiCount = (headerLine.match(/;/g) || []).length;
+                                const delimiter = semiCount > commaCount ? ';' : ',';
+
+                                const parseLine = (lineStr) => {
+                                    const row = [];
+                                    let current = '';
+                                    let inQuotes = false;
+                                    for (let i = 0; i < lineStr.length; i++) {
+                                        const c = lineStr[i];
+                                        if (c === '"') {
+                                            if (inQuotes && lineStr[i + 1] === '"') {
+                                                current += '"';
+                                                i++;
+                                            } else {
+                                                inQuotes = !inQuotes;
+                                            }
+                                        } else if (c === delimiter && !inQuotes) {
+                                            row.push(current.trim());
+                                            current = '';
+                                        } else {
+                                            current += c;
+                                        }
+                                    }
+                                    row.push(current.trim());
+                                    return row;
+                                };
+
+                                const headers = parseLine(headerLine).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
+
+                                let nameIdx = headers.findIndex(h => h.includes('nama') || h.includes('name') || h.includes('menu') || h.includes('item'));
+                                let catIdx = headers.findIndex(h => h.includes('kategori') || h.includes('category') || h.includes('cat'));
+                                let priceIdx = headers.findIndex(h => h.includes('harga') || h.includes('price') || h.includes('nominal'));
+                                let descIdx = headers.findIndex(h => h.includes('deskripsi') || h.includes('desc') || h.includes('description') || h.includes('ket'));
+
+                                if (nameIdx === -1) nameIdx = 0;
+                                if (catIdx === -1) catIdx = 1;
+                                if (priceIdx === -1) priceIdx = 2;
+                                if (descIdx === -1) descIdx = 3;
+
+                                const newDrafts = [];
+                                for (let i = 1; i < lines.length; i++) {
+                                    const cols = parseLine(lines[i]);
+                                    const name = cols[nameIdx] ? cols[nameIdx].replace(/^["']|["']$/g, '').trim() : '';
+                                    if (!name) continue;
+
+                                    const catRaw = (cols[catIdx] ? cols[catIdx].replace(/^["']|["']$/g, '').trim() : '') || 'Coffee';
+                                    const priceRaw = cols[priceIdx] ? String(cols[priceIdx]).replace(/[^0-9]/g, '') : '0';
+                                    const price = parseInt(priceRaw, 10) || 0;
+                                    const desc = (descIdx !== -1 && cols[descIdx]) ? cols[descIdx].replace(/^["']|["']$/g, '').trim() : '';
+
+                                    let matchedCatId = '';
+                                    const foundCat = this.categories.find(c => c.name && c.name.toLowerCase() === catRaw.toLowerCase());
+                                    if (foundCat) {
+                                        matchedCatId = foundCat.id;
+                                    } else {
+                                        matchedCatId = catRaw;
+                                    }
+
+                                    newDrafts.push({
+                                        id: null,
+                                        name: name,
+                                        categoryId: matchedCatId,
+                                        price: price,
+                                        desc: desc,
+                                        imagePreview: null,
+                                        imageFile: null
+                                    });
+                                }
+
+                                if (newDrafts.length > 0) {
+                                    if (this.draftMenus.length === 1 && !this.draftMenus[0].name && !this.draftMenus[0].price) {
+                                        this.draftMenus = [];
+                                    }
+                                    this.draftMenus.push(...newDrafts);
+                                    this.addToast(`Berhasil memuat ${newDrafts.length} menu dari file! Periksa data dan klik Publish Menu.`, 'success');
+                                } else {
+                                    this.addToast('Tidak ada data menu yang valid ditemukan di dalam file.', 'error');
+                                }
+                            } catch (err) {
+                                console.error('CSV parse error:', err);
+                                this.addToast('Gagal memproses file: Format tidak didukung', 'error');
+                            } finally {
+                                event.target.value = '';
                             }
-                        } catch (err) {
-                            console.error('CSV parse error:', err);
-                            this.addToast('Gagal memproses file CSV: Format tidak didukung', 'error');
-                        } finally {
-                            event.target.value = '';
-                        }
-                    };
-                    reader.readAsText(file);
+                        };
+                        reader.readAsText(file);
+                    }
+                },
+                handleCSVUpload(event) {
+                    this.handleFileUpload(event);
                 },
                 saveBulkMenu() {
                     const validItems = this.draftMenus.filter(m => m.name && m.name.trim() !== '' && m.price !== '' && !isNaN(Number(m.price)));

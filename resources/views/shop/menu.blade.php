@@ -187,9 +187,9 @@
         }, { passive: true });
     </script>
 
-    @if(!empty($shop->banners) && ($shop->is_banner_active ?? true))
+    @if(!empty($shop->banners) && count($shop->banners) > 0 && ($shop->is_banner_active ?? true))
     <!-- Promo Carousel Section -->
-    <div class="px-4 mb-5 relative z-10">
+    <div id="promo-carousel-section" class="px-4 mb-5 relative z-10">
         <div class="relative bg-primary rounded-[20px] overflow-hidden shadow-lg h-52 group">
             <!-- Carousel Images Container -->
             <div id="carousel-container" class="w-full h-full flex overflow-x-auto snap-x snap-mandatory hide-scroll relative z-0">

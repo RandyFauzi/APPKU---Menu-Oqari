@@ -66,6 +66,7 @@ class Shop extends Model
         'gobiz_refresh_token',
         'gobiz_token_expires_at',
         'operating_hours',
+        'custom_units',
         'status',
         'trial_ends_at',
         'last_active_at',
@@ -91,6 +92,7 @@ class Shop extends Model
         'banner_paths' => 'array',
         'social_settings' => 'array',
         'operating_hours' => 'array',
+        'custom_units' => 'array',
         'sales_modes' => 'array',
         'receipt_settings' => 'array',
         'printer_settings' => 'array',
@@ -154,9 +156,9 @@ class Shop extends Model
             return [];
         }
 
-        return array_map(function ($banner) {
-            return app(MediaService::class)->url($banner);
-        }, $banners);
+        return array_values(array_filter(array_map(function ($banner) {
+            return ! empty($banner) ? app(MediaService::class)->url($banner) : null;
+        }, $banners)));
     }
 
     public function getBackgroundImageUrlAttribute()

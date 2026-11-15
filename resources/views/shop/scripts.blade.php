@@ -182,6 +182,12 @@
                 });
             }
         };
+        window.DB = DB;
+        try {
+            window.apiData.menu = DB.get((window.SHOP_SLUG || 'default') + '_menu');
+        } catch (e) {
+            console.error('Failed to pre-populate apiData.menu:', e);
+        }
     </script>
     <script src="{{ asset('js/store.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('js/main.js') }}?v={{ time() }}"></script>

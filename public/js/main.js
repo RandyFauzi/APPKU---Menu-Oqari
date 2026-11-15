@@ -15,35 +15,52 @@ function safeImageUrl(value) {
 
 // C:\laragon\www\Menu Apps\Bitten Coffee\js\main.js
 
-const formatRp = (angka) => 'Rp ' + angka.toLocaleString('id-ID');
+const formatRp = (angka) => 'Rp ' + Number(angka || 0).toLocaleString('id-ID');
 
-function initApp() {
-    // 1. Deteksi Meja dari URL (QR Code)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('table')) {
-        localStorage.setItem((window.SHOP_SLUG || 'default') + '_table_qr', urlParams.get('table'));
+// Safe helpers to retrieve API data
+function getApiCategories() {
+    if (typeof window !== 'undefined' && window.apiData && Array.isArray(window.apiData.categories)) {
+        return window.apiData.categories;
     }
-
-    const page = document.body ? document.body.dataset.page : null;
-    if (page === 'home') initHomePage();
-    if (page === 'cart') initCartPage();
-    if (page === 'tracking') initTrackingPage();
+    if (typeof apiData !== 'undefined' && Array.isArray(apiData.categories)) {
+        return apiData.categories;
+    }
+    return [];
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-} else {
-    initApp();
+function getApiHighlights() {
+    if (typeof window !== 'undefined' && window.apiData && Array.isArray(window.apiData.highlights)) {
+        return window.apiData.highlights;
+    }
+    if (typeof apiData !== 'undefined' && Array.isArray(apiData.highlights)) {
+        return apiData.highlights;
+    }
+    return [];
 }
 
-// ==========================================
-// LOGIKA: HALAMAN HOME (index.html)
-// ==========================================
+function getApiMenu() {
+    const slug = (typeof window !== 'undefined' && window.SHOP_SLUG) ? window.SHOP_SLUG : 'default';
+    if (typeof DB !== 'undefined' && typeof DB.get === 'function') {
+        const items = DB.get(slug + '_menu');
+        if (Array.isArray(items)) return items;
+    }
+    if (typeof window !== 'undefined' && window.apiData && Array.isArray(window.apiData.menu)) {
+        return window.apiData.menu;
+    }
+    if (typeof apiData !== 'undefined' && Array.isArray(apiData.menu)) {
+        return apiData.menu;
+    }
+    return [];
+}
+
+// Global state variables
 let activeCategory = 'all';
 let currentSelectedItem = null; 
 let searchQuery = '';
 let currentSlide = 0;
-let slideInterval;
+let slideInterval = null;
+let isProgrammaticScroll = false;
+let scrollTimeout = null;
 
 function initHomePage() {
     const splash = document.getElementById('splash-screen');
@@ -88,7 +105,7 @@ function renderBestSellers() {
         return;
     }
 
-    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : (apiData.menu || []);
+    const menuData = getApiMenu();
     const bestSellers = menuData.filter(item => item.isBestSeller && !item.soldOut);
 
     if (bestSellers.length === 0) {
@@ -130,13 +147,20 @@ function renderBestSellers() {
 function renderCarousel() {
     const track = document.getElementById('carousel-container');
     const dotsContainer = document.getElementById('carousel-dots');
+    const carouselSection = document.getElementById('promo-carousel-section') || (track ? track.closest('.px-4.mb-5') : null);
     if (!track || !dotsContainer) return;
     
-    const highlights = (typeof apiData !== 'undefined' && apiData.highlights) ? apiData.highlights : [];
+    const highlights = getApiHighlights();
     if (highlights.length === 0) {
         track.innerHTML = '';
         dotsContainer.innerHTML = '';
+        if (carouselSection) {
+            carouselSection.classList.add('hidden');
+        }
         return;
+    }
+    if (carouselSection) {
+        carouselSection.classList.remove('hidden');
     }
     
     track.innerHTML = highlights.map(h => `
@@ -196,8 +220,9 @@ function isItemInCategory(item, categoryTarget) {
     }
     let targetName = typeof categoryTarget === 'object' ? categoryTarget.name : null;
 
-    if (!targetName && typeof apiData !== 'undefined' && apiData.categories) {
-        const found = apiData.categories.find(c => String(c.id).toLowerCase() === String(targetId).toLowerCase());
+    if (!targetName) {
+        const categories = getApiCategories();
+        const found = categories.find(c => String(c.id).toLowerCase() === String(targetId).toLowerCase());
         if (found) targetName = found.name;
     }
 
@@ -215,12 +240,8 @@ function isItemInCategory(item, categoryTarget) {
         }
     }
 
-
     return false;
 }
-
-let isProgrammaticScroll = false;
-let scrollTimeout = null;
 
 function renderCategories() {
     const container = document.getElementById('category-container');
@@ -228,10 +249,10 @@ function renderCategories() {
 
     const discountSettings = window.SHOP_DISCOUNT_SETTINGS || {};
     const showPromoTab = discountSettings.show_discount_section !== false;
-    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : (apiData.menu || []);
+    const menuData = getApiMenu();
     const hasDiscountedItems = menuData.some(item => item.has_active_discount || (item.is_discount_active && item.discount_price > 0 && item.discount_price < item.price));
 
-    let displayCategories = [...(apiData.categories || [])];
+    let displayCategories = [...getApiCategories()];
     if (showPromoTab && hasDiscountedItems && !displayCategories.some(c => c.id === 'promo-diskon')) {
         const allIdx = displayCategories.findIndex(c => c.id === 'all');
         const promoCat = { id: 'promo-diskon', name: 'Promo', icon: 'fa-percentage' };
@@ -429,10 +450,10 @@ function renderMenu() {
         container.className = 'p-4 grid grid-cols-2 gap-3.5 relative z-10';
     }
     
-    let filteredMenu = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : apiData.menu;
+    let filteredMenu = getApiMenu();
     
-    const activeCatObj = (typeof apiData !== 'undefined' && apiData.categories) ? 
-        apiData.categories.find(c => String(c.id).toLowerCase() === String(activeCategory).toLowerCase()) : null;
+    const categories = getApiCategories();
+    const activeCatObj = categories.find(c => String(c.id).toLowerCase() === String(activeCategory).toLowerCase()) || null;
 
     if (activeCategory !== 'all') {
         filteredMenu = filteredMenu.filter(m => isItemInCategory(m, activeCatObj || activeCategory));
@@ -446,7 +467,7 @@ function renderMenu() {
     if (activeCategory === 'all' && !searchQuery) {
         // Group by category
         const categorizedItemIds = new Set();
-        apiData.categories.forEach(cat => {
+        categories.forEach(cat => {
             if (cat.id === 'all') return;
             const itemsInCat = filteredMenu.filter(m => isItemInCategory(m, cat));
             if (itemsInCat.length > 0) {
@@ -594,7 +615,7 @@ function renderMenuItem(item) {
 
 function quickAddToCart(itemId, event) {
     event.stopPropagation();
-    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : apiData.menu;
+    const menuData = getApiMenu();
     currentSelectedItem = menuData.find(m => m.id == itemId);
     if(currentSelectedItem) {
         confirmAddToCart(); // Adds defaults
@@ -635,7 +656,7 @@ function updateDetailPrice() {
 
 // Fitur Detail Produk & Customization (Pop-up Add-ons)
 function openItemDetail(itemId) {
-    const menuData = typeof DB !== 'undefined' ? DB.get((window.SHOP_SLUG || 'default') + '_menu') : apiData.menu;
+    const menuData = getApiMenu();
     currentSelectedItem = menuData.find(m => m.id == itemId);
     if (!currentSelectedItem) return;
 
@@ -1037,3 +1058,23 @@ function goBackHome(event) {
     }
 }
 function setRating(stars) { /* Same implementation as previous */ }
+
+function initApp() {
+    // 1. Deteksi Meja dari URL (QR Code)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('table')) {
+        localStorage.setItem((window.SHOP_SLUG || 'default') + '_table_qr', urlParams.get('table'));
+    }
+
+    const page = document.body ? document.body.dataset.page : null;
+    if (page === 'home') initHomePage();
+    if (page === 'cart') initCartPage();
+    if (page === 'tracking') initTrackingPage();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
+

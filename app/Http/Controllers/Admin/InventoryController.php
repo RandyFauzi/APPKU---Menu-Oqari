@@ -54,7 +54,7 @@ class InventoryController extends Controller
 
         return response()->json([
             'materials' => $materials,
-            'units' => config('inventory.units'),
+            'units' => array_merge(config('inventory.units'), $request->user()->shop->custom_units ?? []),
             'metrics' => [
                 'total_materials' => $materials->count(),
                 'low_stock_count' => $lowStockCount,
@@ -72,6 +72,37 @@ class InventoryController extends Controller
         $material = $saveMaterial->execute($request->user(), $request->validated());
 
         return response()->json(['success' => true, 'message' => 'Bahan baku berhasil disimpan.', 'material' => $material]);
+    }
+
+    /**
+     * Tambahkan satuan stok kustom baru untuk toko.
+     */
+    public function addCustomUnit(Request $request): JsonResponse
+    {
+        $this->authorize('manage-inventory');
+        $shop = $request->user()->shop;
+        abort_unless($shop, 403);
+
+        $validated = $request->validate([
+            'unit' => ['required', 'string', 'max:30'],
+            'label' => ['required', 'string', 'max:80'],
+        ]);
+
+        $key = strtolower(trim($validated['unit']));
+        $label = trim($validated['label']);
+
+        $customUnits = $shop->custom_units ?? [];
+        $customUnits[$key] = $label;
+        $shop->custom_units = $customUnits;
+        $shop->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Satuan {$label} berhasil ditambahkan.",
+            'unit' => $key,
+            'label' => $label,
+            'units' => array_merge(config('inventory.units'), $customUnits),
+        ]);
     }
 
     /**

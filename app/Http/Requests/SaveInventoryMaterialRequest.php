@@ -28,6 +28,9 @@ class SaveInventoryMaterialRequest extends FormRequest
             $unit = trim($this->input('unit'));
             $canonical = strtolower($unit);
             $configUnits = config('inventory.units');
+            if ($this->user()?->shop) {
+                $configUnits = array_merge($configUnits, $this->user()->shop->custom_units ?? []);
+            }
 
             if (array_key_exists($canonical, $configUnits)) {
                 $this->merge(['unit' => $canonical]);
@@ -48,12 +51,17 @@ class SaveInventoryMaterialRequest extends FormRequest
     public function rules(): array
     {
         $units = array_keys(config('inventory.units'));
+        if ($this->user()?->shop) {
+            $customUnits = $this->user()->shop->custom_units ?? [];
+            $units = array_merge($units, array_keys($customUnits));
+        }
         if (is_numeric($this->input('id'))) {
             $existing = RawMaterial::where('shop_id', $this->user()->shop_id)->find($this->input('id'));
             if ($existing) {
                 $units[] = $existing->unit;
             }
         }
+        $units = array_unique($units);
 
         return [
             'id' => ['nullable', 'integer'],

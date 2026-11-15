@@ -377,17 +377,17 @@
                 <div class="flex items-center gap-2">
                     <template x-if="!(draftMenus.length === 1 && draftMenus[0].id)">
                         <div class="flex items-center gap-2">
-                            <button type="button" @click="downloadCsvTemplate()" class="bg-white border border-[#e9ebf0] text-[#53565a] hover:text-[#df5826] hover:border-[#df5826] px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-gray-50 transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Unduh format template CSV">
-                                <i class="fas fa-file-download text-[#df5826]"></i>
-                                <span>Template CSV</span>
+                            <button type="button" @click="downloadExcelTemplate()" class="bg-white border border-[#e9ebf0] text-[#53565a] hover:text-[#df5826] hover:border-[#df5826] px-3.5 py-2 rounded-xl text-xs font-semibold hover:bg-gray-50 transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Unduh format template Excel (.xlsx)">
+                                <i class="fas fa-file-excel text-[#107c41]"></i>
+                                <span>Template Excel</span>
                             </button>
-                            <button type="button" @click="$refs.csvInput.click()" class="bg-white border border-[#e9ebf0] text-[#111827] px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-50 transition flex items-center gap-2 cursor-pointer shadow-xs">
-                                <i class="fas fa-file-csv text-green-600"></i>
-                                <span>Bulk upload CSV</span>
+                            <button type="button" @click="$refs.csvInput.click()" class="bg-white border border-[#e9ebf0] text-[#111827] px-4 py-2 rounded-xl text-xs font-semibold hover:bg-gray-50 transition flex items-center gap-2 cursor-pointer shadow-xs" title="Upload file Excel (.xlsx, .xls) atau CSV">
+                                <i class="fas fa-file-excel text-[#107c41]"></i>
+                                <span>Bulk upload Excel</span>
                             </button>
                         </div>
                     </template>
-                    <input type="file" x-ref="csvInput" @change="handleCSVUpload" accept=".csv" class="hidden">
+                    <input type="file" x-ref="csvInput" @change="handleFileUpload" accept=".xlsx,.xls,.csv" class="hidden">
                     <button type="button" @click="closeBulkUpload()" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition cursor-pointer ml-1">
                         <i class="fas fa-times"></i>
                     </button>

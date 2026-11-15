@@ -110,6 +110,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Menu Management
     Route::middleware(['can:manage-menu', 'schema:catalog,inventory,audit'])->group(function () {
+        Route::get('/admin/menu/template/excel', [DashboardController::class, 'downloadMenuExcelTemplate'])->name('admin.menu.template.excel');
+        Route::get('/admin/menu/template/csv', [DashboardController::class, 'downloadMenuCsvTemplate'])->name('admin.menu.template.csv');
         Route::post('/admin/api/menu/{menu}/toggle', [DashboardController::class, 'toggleMenuStatus']);
         Route::post('/admin/api/menu/{menu}/toggle-discount', [DashboardController::class, 'toggleMenuDiscount']);
         Route::post('/admin/api/menu/bulk', [DashboardController::class, 'saveMenuBulk']);
@@ -131,6 +133,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['can:manage-inventory', 'schema:inventory'])->group(function () {
         // Inventory & Recipes Management
         Route::get('/admin/api/inventory', [InventoryController::class, 'index']);
+        Route::post('/admin/api/inventory/units', [InventoryController::class, 'addCustomUnit']);
         Route::post('/admin/api/inventory/material', [InventoryController::class, 'saveMaterial']);
         Route::delete('/admin/api/inventory/material/{id}', [InventoryController::class, 'deleteMaterial']);
         Route::post('/admin/api/inventory/materials/bulk-delete', [InventoryController::class, 'bulkDeleteMaterials']);

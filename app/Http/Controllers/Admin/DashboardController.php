@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\ActivityLogs\ListActivityLogs;
+use App\Actions\Products\ExportMenuTemplateAction;
+use App\Actions\Products\SaveBulkMenuAction;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Category;
@@ -21,11 +23,11 @@ use App\Services\Receipt\ReceiptService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class DashboardController extends Controller
 {
@@ -687,7 +689,33 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function saveMenuBulk(Request $request)
+    public function downloadMenuExcelTemplate(ExportMenuTemplateAction $action): BinaryFileResponse
+    {
+        $user = Auth::user();
+        $shopId = (int) ($user->shop_id ?? 0);
+        $path = $action->execute($shopId, 'xlsx');
+
+        return response()->download(
+            $path,
+            'template_menu_oqari.xlsx',
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+        );
+    }
+
+    public function downloadMenuCsvTemplate(ExportMenuTemplateAction $action): BinaryFileResponse
+    {
+        $user = Auth::user();
+        $shopId = (int) ($user->shop_id ?? 0);
+        $path = $action->execute($shopId, 'csv');
+
+        return response()->download(
+            $path,
+            'template_menu_oqari.csv',
+            ['Content-Type' => 'text/csv; charset=UTF-8']
+        );
+    }
+
+    public function saveMenuBulk(Request $request, SaveBulkMenuAction $saveBulkMenuAction)
     {
         $user = Auth::user();
         $shopId = $user->shop_id;
@@ -709,131 +737,17 @@ class DashboardController extends Controller
             return response()->json(['success' => false, 'message' => 'Tidak ada item menu yang dikirim.'], 422);
         }
 
-        $savedMenus = DB::transaction(function () use ($items, $shopId, $request) {
-            $saved = [];
+        $result = $saveBulkMenuAction->execute($shopId, $items, $request->allFiles());
+        $savedCount = count($result['saved']);
 
-            foreach ($items as $index => $itemData) {
-                if (empty($itemData['name']) || ! isset($itemData['price'])) {
-                    continue; // Lewati item yang kosong
-                }
-
-                $catId = null;
-                $catName = null;
-                $rawCat = $itemData['category_id'] ?? $itemData['category_name'] ?? null;
-                if ($rawCat) {
-                    if (is_numeric($rawCat)) {
-                        $cat = Category::where('shop_id', $shopId)->find((int) $rawCat);
-                        if ($cat) {
-                            $catId = $cat->id;
-                            $catName = $cat->name;
-                        }
-                    } else {
-                        $trimmed = trim($rawCat);
-                        if ($trimmed !== '') {
-                            $cat = Category::firstOrCreate(
-                                ['shop_id' => $shopId, 'name' => $trimmed],
-                                ['shop_id' => $shopId, 'name' => $trimmed]
-                            );
-                            $catId = $cat->id;
-                            $catName = $cat->name;
-                        }
-                    }
-                }
-
-                if (! $catName) {
-                    $defaultCat = Category::where('shop_id', $shopId)->first();
-                    if ($defaultCat) {
-                        $catId = $defaultCat->id;
-                        $catName = $defaultCat->name;
-                    } else {
-                        $cat = Category::firstOrCreate(
-                            ['shop_id' => $shopId, 'name' => 'Coffee'],
-                            ['shop_id' => $shopId, 'name' => 'Coffee']
-                        );
-                        $catId = $cat->id;
-                        $catName = $cat->name;
-                    }
-                }
-
-                $productData = [
-                    'name' => $itemData['name'],
-                    'price' => (int) $itemData['price'],
-                    'category_id' => $catId,
-                    'category_name' => $catName,
-                    'description' => $itemData['description'] ?? ($itemData['desc'] ?? null),
-                ];
-
-                if (array_key_exists('discount_price', $itemData)) {
-                    $discPrice = $itemData['discount_price'];
-                    $productData['discount_price'] = ($discPrice !== null && $discPrice !== '') ? (float) $discPrice : null;
-                }
-
-                if (isset($itemData['is_discount_active'])) {
-                    $productData['is_discount_active'] = filter_var($itemData['is_discount_active'], FILTER_VALIDATE_BOOLEAN);
-                }
-
-                $menu = null;
-                if (! empty($itemData['id']) && is_numeric($itemData['id']) && (int) $itemData['id'] > 0) {
-                    $menu = Product::where('id', (int) $itemData['id'])->where('shop_id', $shopId)->first();
-                }
-
-                if ($request->hasFile("images.{$index}")) {
-                    $file = $request->file("images.{$index}");
-
-                    // If update, clean up old file
-                    if ($menu && $menu->image_path) {
-                        Storage::disk('public')->delete($menu->image_path);
-                    }
-
-                    $productIdDir = $menu ? $menu->id : Str::uuid()->toString();
-
-                    $path = app(MediaService::class)
-                        ->storeProductImage($file, $shopId, $productIdDir);
-
-                    $productData['image_path'] = $path;
-                }
-
-                if ($menu) {
-                    $menu->update($productData);
-                    $saved[] = $menu;
-                } else {
-                    $productData['shop_id'] = $shopId;
-                    $menu = Product::create($productData);
-                    $saved[] = $menu;
-                }
-
-                if (isset($itemData['modifier_group_ids'])) {
-                    $groupIds = $itemData['modifier_group_ids'];
-                    if (is_string($groupIds)) {
-                        $groupIds = json_decode($groupIds, true);
-                    }
-                    if (is_array($groupIds)) {
-                        $validGroupIds = ModifierGroup::where('shop_id', $shopId)->whereIn('id', $groupIds)->pluck('id')->all();
-                        $menu->modifierGroups()->sync($validGroupIds);
-                    } else {
-                        $menu->modifierGroups()->detach();
-                    }
-                }
-            }
-
-            return $saved;
-        });
-
-        if (count($savedMenus) > 0) {
-            $this->logActivity('menu_bulk_saved', 'Menyimpan '.count($savedMenus).' item menu.');
+        if ($savedCount > 0) {
+            $this->logActivity('menu_bulk_saved', 'Menyimpan '.$savedCount.' item menu.');
         }
-
-        $savedIds = collect($savedMenus)->pluck('id');
-        $freshMenus = Product::whereIn('id', $savedIds)
-            ->with(['recipes.rawMaterial', 'category', 'modifierGroups.modifiers'])
-            ->get();
-
-        $allCategories = Category::where('shop_id', $shopId)->get();
 
         return response()->json([
             'success' => true,
-            'menus' => $freshMenus,
-            'categories' => $allCategories,
+            'menus' => $result['saved'],
+            'categories' => $result['categories'],
         ]);
     }
 
