@@ -864,7 +864,7 @@
                 isLoadingInventory: false,
                 showMaterialModal: false,
                 isSavingMaterial: false,
-                stockUnits: {{ Illuminate\Support\Js::from(config('inventory.units')) }},
+                stockUnits: {{ Illuminate\Support\Js::from(array_merge(config('inventory.units'), $shop->custom_units ?? [])) }},
                 editingUnitLocked: false,
                 formatStock(value) { return Number(value || 0).toLocaleString('id-ID', {maximumFractionDigits: 6}); },
                 stockUnitLabel(unit) { return this.stockUnits[unit] || unit || '—'; },
@@ -876,6 +876,44 @@
                     if (lower === 'cup') return 'Cup';
                     const label = this.stockUnits[lower] || unit;
                     return String(label).split(' ')[0] || label;
+                },
+                async createQuickUnit(nameOrKey) {
+                    const raw = String(nameOrKey || '').trim();
+                    if (!raw) return null;
+                    const key = raw.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+                    const label = raw;
+                    try {
+                        const res = await fetch('/admin/api/inventory/units', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ unit: key, label: label })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            if (data.units) {
+                                this.stockUnits = data.units;
+                            } else {
+                                this.stockUnits[key] = label;
+                            }
+                            if (typeof this.addToast === 'function') {
+                                this.addToast(data.message || 'Satuan berhasil ditambahkan', 'success');
+                            }
+                            return key;
+                        } else {
+                            if (typeof this.addToast === 'function') {
+                                this.addToast(data.message || 'Gagal menambahkan satuan', 'error');
+                            }
+                            return null;
+                        }
+                    } catch (e) {
+                        console.error('Error creating custom unit:', e);
+                        this.stockUnits[key] = label;
+                        return key;
+                    }
                 },
                 materialForm: { id: null, name: '', sku: '', unit: 'pcs', current_stock: 0, minimum_stock: 0, cost_per_unit: 0 },
                 showAdjustModal: false,
