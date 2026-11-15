@@ -38,6 +38,7 @@ class ThemeRenderingTest extends TestCase
 
     #[TestWith(['#1E5A7A', '#1e5a7a'])]
     #[TestWith(['#276749', '#276749'])]
+    #[TestWith(['#AF4928', '#af4928'])]
     public function test_customer_pages_use_palette_without_overwriting_saved_branding(string $stored, string $effective): void
     {
         $shop = Shop::factory()->create(['status' => 'active', 'primary_color' => $stored]);

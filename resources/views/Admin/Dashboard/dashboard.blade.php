@@ -2684,7 +2684,7 @@
                     if (window.INITIAL_DATA.shop) {
                         this.settings.name = window.INITIAL_DATA.shop.name || '';
                         this.settings.slug = window.INITIAL_DATA.shop.slug || '';
-                        this.settings.primary_color = window.OQARI_THEME.primary;
+                        this.settings.primary_color = window.INITIAL_DATA.shop.primary_color || window.OQARI_THEME.primary;
                         if (window.INITIAL_DATA.shop.logo_url) {
                             this.settings.logoPreview = window.INITIAL_DATA.shop.logo_url + '?v=' + new Date(window.INITIAL_DATA.shop.updated_at).getTime();
                         }
