@@ -143,14 +143,139 @@
 
                 <!-- State: Ada Antrean Aktif -->
                 <template x-if="getLiveKitchenQueue().length > 0">
-                    <div class="mt-3 flex gap-3">
-                        <!-- Progress track bar -->
-                        <div class="w-1 bg-[#f1f3f5] rounded-full overflow-hidden shrink-0 self-stretch relative my-1">
-                            <div class="w-full bg-[#f9731f] rounded-full h-10 transition-all duration-300"></div>
+                    <div class="mt-3 flex gap-3 relative"
+                         x-data="{
+                             canScroll: false,
+                             thumbHeight: 40,
+                             thumbTop: 0,
+                             isDragging: false,
+                             startY: 0,
+                             startTop: 0,
+                             updateScrollMetrics() {
+                                 this.$nextTick(() => {
+                                     const list = this.$refs.queueList;
+                                     const track = this.$refs.scrollTrack;
+                                     if (!list) return;
+                                     const clientH = list.clientHeight;
+                                     const scrollH = list.scrollHeight;
+                                     
+                                     if (scrollH <= clientH + 4) {
+                                         this.canScroll = false;
+                                         this.thumbTop = 0;
+                                         return;
+                                     }
+                                     
+                                     this.canScroll = true;
+                                     const trackH = track ? track.clientHeight : clientH;
+                                     this.thumbHeight = Math.max(30, Math.round((clientH / scrollH) * trackH));
+                                     const maxScroll = scrollH - clientH;
+                                     const maxTop = trackH - this.thumbHeight;
+                                     this.thumbTop = maxScroll > 0 ? Math.round((list.scrollTop / maxScroll) * maxTop) : 0;
+                                 });
+                             },
+                             onScroll() {
+                                 if (this.isDragging) return;
+                                 const list = this.$refs.queueList;
+                                 const track = this.$refs.scrollTrack;
+                                 if (!list || !track || !this.canScroll) return;
+                                 const clientH = list.clientHeight;
+                                 const scrollH = list.scrollHeight;
+                                 const trackH = track.clientHeight;
+                                 const maxScroll = scrollH - clientH;
+                                 const maxTop = trackH - this.thumbHeight;
+                                 this.thumbTop = maxScroll > 0 ? Math.round((list.scrollTop / maxScroll) * maxTop) : 0;
+                             },
+                             startDrag(e) {
+                                 this.isDragging = true;
+                                 this.startY = e.clientY;
+                                 this.startTop = this.thumbTop;
+                                 
+                                 const moveHandler = (ev) => {
+                                     if (!this.isDragging) return;
+                                     const list = this.$refs.queueList;
+                                     const track = this.$refs.scrollTrack;
+                                     if (!list || !track) return;
+                                     
+                                     const deltaY = ev.clientY - this.startY;
+                                     const trackH = track.clientHeight;
+                                     const maxTop = trackH - this.thumbHeight;
+                                     const maxScroll = list.scrollHeight - list.clientHeight;
+                                     
+                                     let newTop = Math.max(0, Math.min(maxTop, this.startTop + deltaY));
+                                     this.thumbTop = newTop;
+                                     if (maxTop > 0) {
+                                         list.scrollTop = (newTop / maxTop) * maxScroll;
+                                     }
+                                 };
+                                 
+                                 const stopHandler = () => {
+                                     this.isDragging = false;
+                                     window.removeEventListener('mousemove', moveHandler);
+                                     window.removeEventListener('mouseup', stopHandler);
+                                 };
+                                 
+                                 window.addEventListener('mousemove', moveHandler);
+                                 window.addEventListener('mouseup', stopHandler);
+                             },
+                             handleTrackClick(e) {
+                                 if (e.target === this.$refs.thumb) return;
+                                 const track = this.$refs.scrollTrack;
+                                 const list = this.$refs.queueList;
+                                 if (!track || !list) return;
+                                 
+                                 const rect = track.getBoundingClientRect();
+                                 const clickY = e.clientY - rect.top;
+                                 const trackH = track.clientHeight;
+                                 const maxTop = trackH - this.thumbHeight;
+                                 const maxScroll = list.scrollHeight - list.clientHeight;
+                                 
+                                 let targetTop = Math.max(0, Math.min(maxTop, clickY - (this.thumbHeight / 2)));
+                                 this.thumbTop = targetTop;
+                                 if (maxTop > 0) {
+                                     list.scrollTop = (targetTop / maxTop) * maxScroll;
+                                 }
+                             },
+                             handleWheel(e) {
+                                 const list = this.$refs.queueList;
+                                 if (list) {
+                                     list.scrollTop += e.deltaY;
+                                     this.onScroll();
+                                 }
+                             }
+                         }"
+                         x-init="
+                             updateScrollMetrics();
+                             $watch('getLiveKitchenQueue().length', () => updateScrollMetrics());
+                         "
+                         @resize.window="updateScrollMetrics()">
+
+                        <!-- Custom Interactive Scroll Track (Visible & interactive when overflowing) -->
+                        <div x-show="canScroll"
+                             x-ref="scrollTrack"
+                             @click="handleTrackClick($event)"
+                             @wheel.prevent="handleWheel($event)"
+                             class="w-1.5 bg-[#f1f3f5] hover:bg-[#e4e7eb] rounded-full shrink-0 relative my-1 cursor-pointer transition-colors"
+                             title="Geser antrean">
+                            <div x-ref="thumb"
+                                 @mousedown.stop.prevent="startDrag($event)"
+                                 class="w-full bg-gradient-to-b from-[#f9731f] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] rounded-full absolute left-0 cursor-grab active:cursor-grabbing transition-colors duration-150 shadow-[0_1px_3px_rgba(234,88,12,0.3)]"
+                                 :style="{
+                                     height: thumbHeight + 'px',
+                                     top: thumbTop + 'px'
+                                 }"></div>
+                        </div>
+
+                        <!-- Brand Accent Track (When all orders fit, e.g. 1-2 orders: no fake stuck thumb) -->
+                        <div x-show="!canScroll"
+                             class="w-1 bg-[#f1f3f5] rounded-full shrink-0 self-stretch my-1 relative overflow-hidden"
+                             title="Semua antrean sedang ditampilkan">
+                            <div class="w-full h-full bg-[#f9731f]/20 rounded-full"></div>
                         </div>
 
                         <!-- Order Cards List (Scrollable) -->
-                        <div class="flex-1 flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:#ffd6bd_transparent]">
+                        <div x-ref="queueList"
+                             @scroll="onScroll()"
+                             class="flex-1 flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1 overscroll-contain [scrollbar-width:thin] [scrollbar-color:#ffd6bd_transparent]">
                             <template x-for="(item, idx) in getLiveKitchenQueue()" :key="item.id || idx">
                                 <div class="bg-white border border-[#e9ebf0] rounded-[12px] p-3 shadow-[0px_4px_7.5px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow">
                                     <!-- Order Header -->
