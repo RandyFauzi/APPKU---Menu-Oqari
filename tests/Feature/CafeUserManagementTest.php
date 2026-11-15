@@ -38,8 +38,8 @@ class CafeUserManagementTest extends TestCase
         $member = $this->member($shop);
         $foreign = $this->member(Shop::factory()->create());
         $this->actingAs($owner)->get(route('admin.users.index'))->assertOk()->assertSee($member->email)->assertDontSee($foreign->email);
-        $this->get(route('admin.users.create'))->assertOk()->assertSee('Hak Akses');
-        $this->get(route('admin.users.edit', $member))->assertOk()->assertSee($member->email);
+        $this->get(route('admin.users.create'))->assertOk()->assertSee('Hak Akses')->assertDontSee('Status akun');
+        $this->get(route('admin.users.edit', $member))->assertOk()->assertSee($member->email)->assertSee('Status akun');
     }
 
     public function test_creation_hashes_password_scopes_shop_and_records_safe_audit(): void

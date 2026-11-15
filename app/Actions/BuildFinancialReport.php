@@ -64,12 +64,24 @@ class BuildFinancialReport
 
         $totalCashOut = 0.0;
         if (Schema::hasTable('cash_drawer_transactions')) {
-            $totalCashOut = (float) DB::table('cash_drawer_transactions')
-                ->where('shop_id', $user->shop_id)
+            $cashOutQuery = DB::table('cash_drawer_transactions')
                 ->where('type', 'CASH_OUT')
                 ->whereNull('cancelled_at')
-                ->when($period !== 'all', fn ($q) => $q->whereBetween('created_at', [$start, $end]))
-                ->sum('amount');
+                ->when($period !== 'all', fn ($q) => $q->whereBetween('created_at', [$start, $end]));
+
+            if (Schema::hasColumn('cash_drawer_transactions', 'shop_id')) {
+                $cashOutQuery->where('shop_id', $user->shop_id);
+            } else {
+                $cashOutQuery->whereExists(function ($sub) use ($user) {
+                    $sub->select(DB::raw(1))
+                        ->from('cash_register_sessions')
+                        ->join('cash_registers', 'cash_registers.id', '=', 'cash_register_sessions.cash_register_id')
+                        ->whereColumn('cash_register_sessions.id', 'cash_drawer_transactions.cash_register_session_id')
+                        ->where('cash_registers.shop_id', $user->shop_id);
+                });
+            }
+
+            $totalCashOut = (float) $cashOutQuery->sum('amount');
         }
 
         return compact('date', 'period', 'transactionsCount', 'grossSales', 'netSales', 'totalCogs', 'grossProfit', 'grandTotal', 'aov', 'margin', 'payments', 'transactions', 'bestSellers', 'timezone', 'totalCashOut');

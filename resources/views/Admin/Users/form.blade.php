@@ -47,7 +47,7 @@
         <section aria-labelledby="staff-access-title" class="overflow-hidden rounded-xl border border-[#e9ebf0] bg-white shadow-sm">
             <div class="flex items-center gap-3 border-b border-[#e9ebf0] px-5 py-4 md:px-6">
                 <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#fff6f0] text-[#ea580c]"><i class="fas fa-shield-halved text-sm" aria-hidden="true"></i></span>
-                <div><h2 id="staff-access-title" class="text-sm font-semibold">Role &amp; Hak Akses</h2><p class="mt-1 text-xs text-[#7f837e]">Tentukan peran dan status akun staf.</p></div>
+                <div><h2 id="staff-access-title" class="text-sm font-semibold">Role &amp; Hak Akses</h2><p class="mt-1 text-xs text-[#7f837e]">{{ $target ? 'Tentukan peran dan status akun staf.' : 'Tentukan peran dan hak akses staf.' }}</p></div>
             </div>
             <div class="space-y-5 p-5 md:p-6">
                 <div class="grid gap-5 md:grid-cols-2">
@@ -58,6 +58,7 @@
                         </select>
                         @error('role')<p class="mt-1.5 text-xs text-red-700">{{ $message }}</p>@enderror
                     </div>
+                    @if($target)
                     <div>
                         <label for="is_active" class="mb-2 block text-xs font-medium text-[#53565a]">Status akun <span class="text-[#ea580c]">*</span></label>
                         <select id="is_active" name="is_active" class="h-11 w-full rounded-lg border-[#e9ebf0] text-[13px] focus:border-orange-500 focus:ring-orange-500">
@@ -66,6 +67,7 @@
                         </select>
                         @error('is_active')<p class="mt-1.5 text-xs text-red-700">{{ $message }}</p>@enderror
                     </div>
+                    @endif
                 </div>
 
                 <fieldset class="flex flex-col gap-2 sm:flex-row sm:gap-5">

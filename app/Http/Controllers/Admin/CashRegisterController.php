@@ -16,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class CashRegisterController extends Controller
@@ -170,13 +171,18 @@ class CashRegisterController extends Controller
         $notes = ! empty($validated['notes']) ? trim($validated['notes']) : null;
         $description = $notes ? "{$item} - {$notes}" : $item;
 
-        $transaction = $session->transactions()->create([
-            'shop_id' => $user->shop_id,
+        $transactionData = [
             'user_id' => $user->id,
             'type' => 'CASH_OUT',
             'amount' => (float) $validated['amount'],
             'description' => $description,
-        ]);
+        ];
+
+        if (Schema::hasColumn('cash_drawer_transactions', 'shop_id')) {
+            $transactionData['shop_id'] = $user->shop_id;
+        }
+
+        $transaction = $session->transactions()->create($transactionData);
 
         if (class_exists(ActivityLog::class)) {
             ActivityLog::create([
