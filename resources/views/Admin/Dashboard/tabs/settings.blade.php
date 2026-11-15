@@ -54,7 +54,7 @@
                                 <div class="grid grid-cols-3 gap-2" :class="!settings.is_banner_active ? 'opacity-50 pointer-events-none' : ''">
                                     <template x-for="(banner, idx) in 3" :key="idx">
                                         <div class="w-full aspect-[21/9] rounded-xl border-2 border-dashed border-line flex items-center justify-center bg-ivory overflow-hidden relative group cursor-pointer" @click="document.getElementById('bannerInput' + idx).click()">
-                                            <img x-show="settings.banners[idx]" :src="settings.banners[idx]" class="w-full h-full object-cover">
+                                            <img x-show="settings.banners[idx]" :src="settings.banners[idx]" @error="settings.banners[idx] = null" class="w-full h-full object-cover">
                                             <div x-show="!settings.banners[idx]" class="flex flex-col items-center text-muted">
                                                 <i class="fas fa-image text-xl mb-1 text-line"></i>
                                                 <span class="text-[9px] font-semibold" x-text="'Banner ' + (idx+1)"></span>
@@ -911,7 +911,7 @@
                             <div x-show="settings.is_banner_active" class="relative rounded-[12px] overflow-hidden shadow-2xs h-[88px] shrink-0 flex items-center justify-center border border-black/5" 
                                  :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                 <template x-if="settings.banners.filter(b => b !== null).length > 0">
-                                    <img :src="settings.banners.find(b => b !== null)" class="w-full h-full object-cover">
+                                    <img :src="settings.banners.find(b => b !== null)" @error="$el.style.display='none'" class="w-full h-full object-cover">
                                 </template>
                                 <template x-if="settings.banners.filter(b => b !== null).length === 0">
                                     <div class="text-white/80 font-bold text-[9px] tracking-widest uppercase flex items-center gap-1.5">

@@ -243,4 +243,5 @@ Route::get('/receipt/{order}/pdf', [ReceiptController::class, 'downloadPdf'])->m
 Route::get('/{slug}', [ShopController::class, 'show'])->middleware('schema:catalog')->name('shop.menu');
 Route::get('/{slug}/cart', [ShopController::class, 'cart'])->name('shop.cart');
 Route::get('/{slug}/tracking', [ShopController::class, 'tracking'])->name('shop.tracking');
+Route::post('/{slug}/voucher/validate', [ShopController::class, 'validateVoucher'])->middleware('schema:checkout')->name('shop.voucher.validate');
 Route::post('/{slug}/order', [ShopController::class, 'submitOrder'])->middleware('schema:checkout')->name('shop.order.submit');

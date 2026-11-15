@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Shop;
 use App\Models\Table;
+use App\Models\Voucher;
 use App\Services\InventoryService;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -116,7 +117,26 @@ class CreateOrderAction
                 throw new Exception('Keranjang pesanan tidak valid.');
             }
 
-            // 3. Create the Order Parent
+            // 3. Resolve optional voucher / promo code
+            $voucherCode = ! empty($data['voucher_code']) ? trim(strtoupper($data['voucher_code'])) : null;
+            $discountAmount = 0;
+            $voucher = null;
+
+            if ($voucherCode) {
+                $voucher = Voucher::where('shop_id', $shop->id)
+                    ->where('code', $voucherCode)
+                    ->first();
+
+                if ($voucher) {
+                    $check = $voucher->validateForSubtotal($total);
+                    if ($check['valid']) {
+                        $discountAmount = $voucher->calculateDiscount($total);
+                        $voucher->increment('used_count');
+                    }
+                }
+            }
+
+            // 4. Create the Order Parent
             $order = Order::create([
                 'shop_id' => $shop->id,
                 'table_id' => $tableModel?->id,
@@ -125,7 +145,10 @@ class CreateOrderAction
                 'customer_phone' => $data['customer_phone'] ?? null,
                 'payment_method' => $data['payment_method'],
                 'subtotal' => $total,
-                'grand_total' => $total,
+                'discount_amount' => $discountAmount,
+                'voucher_code' => $voucher?->code,
+                'discount_reason' => $voucher?->name,
+                'grand_total' => max(0, $total - $discountAmount),
                 'total_cogs' => $totalCogs,
                 'order_status' => 'CONFIRMED',
                 'payment_status' => 'UNPAID',

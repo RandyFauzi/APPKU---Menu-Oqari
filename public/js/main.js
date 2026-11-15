@@ -165,7 +165,7 @@ function renderCarousel() {
     
     track.innerHTML = highlights.map(h => `
         <div class="min-w-full h-full snap-center bg-gray-900 relative">
-            <img src="${safeImageUrl(h.img)}" class="w-full h-full object-cover">
+            <img src="${safeImageUrl(h.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" class="w-full h-full object-cover">
             <!-- Dynamic primary color gradient overlay -->
             <div class="absolute inset-x-0 bottom-0 h-2/3" style="background: linear-gradient(to top, var(--color-primary, #1e5a7a) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);"></div>
             <div class="absolute inset-0 p-5 flex flex-col justify-end w-full text-white z-10 pb-8">
@@ -817,6 +817,8 @@ function initCartPage() {
     });
 }
 
+let appliedVoucher = null;
+
 function renderCartDetail() {
     const container = document.getElementById('cart-items-container');
     const btnPay = document.getElementById('btn-trigger-pay');
@@ -877,10 +879,25 @@ function renderCartDetail() {
 
     const subtotal = CartStore.getSubtotal();
     const tax = 0;
-    const grandTotal = subtotal + tax;
+    const discount = appliedVoucher ? (appliedVoucher.discount_amount || 0) : 0;
+    const grandTotal = Math.max(0, subtotal - discount + tax);
 
     document.getElementById('summary-subtotal').innerText = formatRp(subtotal);
     document.getElementById('summary-tax').innerText = formatRp(tax);
+
+    const discountRow = document.getElementById('summary-discount-row');
+    if (discountRow) {
+        if (discount > 0 && appliedVoucher) {
+            discountRow.classList.remove('hidden');
+            const labelEl = document.getElementById('summary-discount-label');
+            if (labelEl) labelEl.innerText = `Diskon (${appliedVoucher.code})`;
+            const discValEl = document.getElementById('summary-discount');
+            if (discValEl) discValEl.innerText = '-' + formatRp(discount);
+        } else {
+            discountRow.classList.add('hidden');
+        }
+    }
+
     document.getElementById('cart-detail-total').innerText = formatRp(grandTotal);
     document.getElementById('btn-pay-text').innerText = 'Lanjut Pembayaran - ' + formatRp(grandTotal);
     
@@ -888,6 +905,80 @@ function renderCartDetail() {
 }
 
 function handleUpdateQty(index, change) { CartStore.updateQty(index, change); renderCartDetail(); }
+
+async function applyPromoCode() {
+    const promoInput = document.getElementById('customer-promo');
+    const msgEl = document.getElementById('promo-message');
+    const btn = document.getElementById('btn-apply-promo');
+    const code = promoInput?.value.trim().toUpperCase();
+
+    if (!code) {
+        appliedVoucher = null;
+        localStorage.removeItem((window.SHOP_SLUG || 'default') + '_customer_promo');
+        if (msgEl) {
+            msgEl.className = 'text-xs mt-1.5 text-gray-500';
+            msgEl.innerText = 'Kode promo dihapus.';
+            msgEl.classList.remove('hidden');
+        }
+        renderCartDetail();
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+
+    try {
+        const subtotal = CartStore.getSubtotal();
+        const res = await fetch(`/${window.SHOP_SLUG}/voucher/validate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            },
+            body: JSON.stringify({ code: code, subtotal: subtotal })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            appliedVoucher = null;
+            localStorage.removeItem((window.SHOP_SLUG || 'default') + '_customer_promo');
+            if (msgEl) {
+                msgEl.className = 'text-xs mt-1.5 text-red-600 font-semibold';
+                msgEl.innerText = data.message || 'Kode promo tidak valid.';
+                msgEl.classList.remove('hidden');
+            }
+            showToast(data.message || '⚠️ Kode promo tidak valid.');
+        } else {
+            appliedVoucher = {
+                code: data.voucher.code,
+                name: data.voucher.name,
+                discount_amount: Number(data.discount_amount || 0)
+            };
+            localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_promo', data.voucher.code);
+            if (msgEl) {
+                msgEl.className = 'text-xs mt-1.5 text-emerald-600 font-bold';
+                msgEl.innerText = `✅ Diskon Rp ${Number(data.discount_amount).toLocaleString('id-ID')} berhasil diterapkan!`;
+                msgEl.classList.remove('hidden');
+            }
+            showToast('✅ Kode promo berhasil diterapkan!');
+        }
+    } catch (e) {
+        console.error('applyPromoCode error:', e);
+        if (msgEl) {
+            msgEl.className = 'text-xs mt-1.5 text-red-600';
+            msgEl.innerText = 'Gagal memeriksa kode promo. Periksa koneksi internet Anda.';
+            msgEl.classList.remove('hidden');
+        }
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = 'Terapkan';
+        }
+        renderCartDetail();
+    }
+}
 
 function openCustomerInfoModal() {
     if (CartStore.get().length === 0) return;
@@ -901,6 +992,12 @@ function openCustomerInfoModal() {
         tableInput.readOnly = true;
         tableInput.classList.add('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
         tableInput.classList.remove('bg-white');
+    }
+
+    const savedPromo = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_promo');
+    const promoInput = document.getElementById('customer-promo');
+    if (promoInput && savedPromo && !promoInput.value) {
+        promoInput.value = savedPromo;
     }
 
     document.getElementById('modal-customer-info').classList.remove('hidden');
@@ -992,6 +1089,14 @@ function triggerPaymentGateway() {
     localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_email', email);
     localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_phone', phone);
     localStorage.setItem((window.SHOP_SLUG || 'default') + '_fulfillment_type', fulfillmentType);
+
+    const promo = document.getElementById('customer-promo')?.value.trim().toUpperCase() || '';
+    if (promo) {
+        localStorage.setItem((window.SHOP_SLUG || 'default') + '_customer_promo', promo);
+    } else {
+        localStorage.removeItem((window.SHOP_SLUG || 'default') + '_customer_promo');
+        appliedVoucher = null;
+    }
     
     // Tutup modal customer info dan buka payment modal
     closeCustomerInfoModal();
@@ -1012,11 +1117,12 @@ function processSimulatedPayment() {
     const phone = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_phone') || '';
     const table = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_table') || '';
     const fulfillmentType = localStorage.getItem((window.SHOP_SLUG || 'default') + '_fulfillment_type') || 'DINE_IN';
+    const promo = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_promo') || '';
     const items = CartStore.get();
     const total = window.currentGrandTotal;
     
     // Create order using database.js engine
-    DB.createOrder(table, name, email, phone, paymentMethod, items, total, fulfillmentType)
+    DB.createOrder(table, name, email, phone, paymentMethod, items, total, fulfillmentType, promo)
         .then(data => {
             localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_type', fulfillmentType === 'TAKEAWAY' ? 'Take Away' : 'Dine In');
             localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_total', data.order.grand_total);

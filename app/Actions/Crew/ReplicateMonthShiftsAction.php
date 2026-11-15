@@ -203,12 +203,22 @@ class ReplicateMonthShiftsAction
                 'user_agent' => request()->userAgent(),
             ]);
 
+            $monthCount = count($targetMonths);
+            if ($totalCreated > 0 && $totalSkipped === 0) {
+                $message = "Berhasil menerapkan {$totalCreated} shift ke {$monthCount} bulan target.";
+            } elseif ($totalCreated > 0 && $totalSkipped > 0) {
+                $message = "Berhasil menerapkan {$totalCreated} shift ke {$monthCount} bulan target ({$totalSkipped} shift dilewati karena jadwal sudah terisi).";
+            } else {
+                $message = "Tidak ada shift baru yang diterapkan ({$totalSkipped} shift dilewati karena jadwal pada bulan target sudah ada). Aktifkan opsi 'Gantikan / Timpa jadwal yang sudah ada (Overwrite)' jika ingin memperbarui jadwal lama.";
+            }
+
             return [
                 'success' => true,
-                'message' => "Berhasil menerapkan {$totalCreated} shift ke ".count($targetMonths).' bulan.'.($totalSkipped > 0 ? " ({$totalSkipped} dilewati karena konflik atau tanggal tidak valid)" : ''),
+                'message' => $message,
                 'created_count' => $totalCreated,
                 'skipped_count' => $totalSkipped,
                 'target_months' => $targetMonths,
+                'all_skipped' => $totalCreated === 0 && $totalSkipped > 0,
             ];
         }, 3);
     }

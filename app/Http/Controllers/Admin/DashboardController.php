@@ -941,25 +941,18 @@ class DashboardController extends Controller
                     ->storeShopBranding($request->file("banner_{$i}"), $shopId, "banner_{$i}");
                 $banners[] = $path;
             } elseif ($request->filled("existing_banner_{$i}")) {
-                $existingUrl = $request->input("existing_banner_{$i}");
-                $storageUrl = rtrim(Storage::disk(env('MEDIA_DISK', 'public'))->url(''), '/');
-                if ($storageUrl) {
-                    while (Str::startsWith($existingUrl, $storageUrl)) {
-                        $existingUrl = substr($existingUrl, strlen($storageUrl));
-                    }
+                $cleanPath = $this->normalizeMediaPath($request->input("existing_banner_{$i}"));
+                if ($cleanPath) {
+                    $banners[] = $cleanPath;
                 }
-                $existingUrl = ltrim($existingUrl, '/');
-                if (Str::startsWith($existingUrl, 'storage/')) {
-                    $existingUrl = substr($existingUrl, strlen('storage/'));
-                }
-                $banners[] = $existingUrl;
             }
         }
 
-        // Clean up orphan banners
+        // Clean up orphan banners safely
         foreach ($existingBanners as $oldBanner) {
-            if (! in_array($oldBanner, $banners)) {
-                Storage::disk('public')->delete($oldBanner);
+            $cleanOld = $this->normalizeMediaPath($oldBanner);
+            if ($cleanOld && ! in_array($cleanOld, $banners, true)) {
+                Storage::disk('public')->delete($cleanOld);
             }
         }
 
@@ -1060,5 +1053,31 @@ class DashboardController extends Controller
         ]);
 
         return response()->json($listLogs->execute($request->user(), $filters));
+    }
+
+    /**
+     * Normalize media input (URL, full path, or relative storage path) into clean relative storage path.
+     */
+    protected function normalizeMediaPath(?string $input): ?string
+    {
+        if (! $input) {
+            return null;
+        }
+
+        $input = trim($input);
+        if ($input === '' || $input === 'null' || $input === 'undefined') {
+            return null;
+        }
+
+        $path = parse_url($input, PHP_URL_PATH) ?? $input;
+        $path = ltrim($path, '/');
+
+        if (Str::startsWith($path, 'uploads/')) {
+            $path = substr($path, strlen('uploads/'));
+        } elseif (Str::startsWith($path, 'storage/')) {
+            $path = substr($path, strlen('storage/'));
+        }
+
+        return ltrim($path, '/');
     }
 }

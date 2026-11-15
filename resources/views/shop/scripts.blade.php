@@ -127,7 +127,7 @@
                 }
                 return localStorage.getItem(tableName) ? JSON.parse(localStorage.getItem(tableName)) : [];
             },
-            createOrder: function(table, name, email, phone, paymentMethod, items, total, fulfillmentType = 'DINE_IN') {
+            createOrder: function(table, name, email, phone, paymentMethod, items, total, fulfillmentType = 'DINE_IN', voucherCode = null) {
                 let orders = this.get(window.SHOP_SLUG + '_orders') || [];
                 const newOrder = {
                     id: 'ORD-' + Date.now(),
@@ -137,6 +137,7 @@
                     phone: phone,
                     payment_method: paymentMethod,
                     fulfillment_type: fulfillmentType,
+                    voucher_code: voucherCode || null,
                     items: items,
                     total: total,
                     status: 'process',
@@ -157,7 +158,8 @@
                         customer_email: email,
                         customer_phone: phone,
                         payment_method: paymentMethod,
-                    fulfillment_type: fulfillmentType,
+                        fulfillment_type: fulfillmentType,
+                        voucher_code: voucherCode || null,
                         items: items.map(item => ({
                             id: item.id,
                             qty: item.qty,

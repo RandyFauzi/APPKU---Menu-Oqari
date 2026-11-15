@@ -183,7 +183,9 @@ class ReplicateShiftsTest extends TestCase
 
         $resSkip->assertOk()
             ->assertJsonPath('created_count', 0)
-            ->assertJsonPath('skipped_count', 1);
+            ->assertJsonPath('skipped_count', 1)
+            ->assertJsonPath('all_skipped', true)
+            ->assertJsonPath('message', 'Tidak ada shift baru yang diterapkan (1 shift dilewati karena jadwal pada bulan target sudah ada). Aktifkan opsi \'Gantikan / Timpa jadwal yang sudah ada (Overwrite)\' jika ingin memperbarui jadwal lama.');
 
         // Original shift preserved
         $this->assertDatabaseHas('crew_shifts', [

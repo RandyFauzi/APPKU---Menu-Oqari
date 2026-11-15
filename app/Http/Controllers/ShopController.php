@@ -10,7 +10,9 @@ use App\Models\Product;
 use App\Models\Shop;
 use App\Models\ShopSlugHistory;
 use App\Models\Table;
+use App\Models\Voucher;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ShopController extends Controller
@@ -112,6 +114,7 @@ class ShopController extends Controller
             'customer_email' => 'nullable|email|max:255',
             'customer_phone' => 'nullable|string|max:20',
             'fulfillment_type' => 'nullable|string|in:DINE_IN,TAKEAWAY,DELIVERY',
+            'voucher_code' => 'nullable|string|max:50',
             // TODO: Revert validation to 'required|string|exists:payment_methods,code' when Payment Gateway is active
             'payment_method' => 'required|string|max:50',
             'items' => 'required|array|min:1|max:50',
@@ -150,5 +153,55 @@ class ShopController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
+    }
+
+    public function validateVoucher(Request $request, $slug): JsonResponse
+    {
+        $shop = $this->resolveShop($slug);
+
+        $validated = $request->validate([
+            'code' => ['required', 'string', 'max:50'],
+            'subtotal' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $code = trim(strtoupper($validated['code']));
+        $subtotal = (float) $validated['subtotal'];
+
+        $voucher = Voucher::where('shop_id', $shop->id)
+            ->where('code', $code)
+            ->first();
+
+        if (! $voucher) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode promo "'.$code.'" tidak ditemukan.',
+            ], 422);
+        }
+
+        $check = $voucher->validateForSubtotal($subtotal);
+        if (! $check['valid']) {
+            return response()->json([
+                'success' => false,
+                'message' => $check['message'],
+            ], 422);
+        }
+
+        $discount = $voucher->calculateDiscount($subtotal);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kode promo "'.$voucher->name.'" berhasil diterapkan!',
+            'voucher' => [
+                'id' => $voucher->id,
+                'code' => $voucher->code,
+                'name' => $voucher->name,
+                'discount_type' => $voucher->discount_type,
+                'discount_value' => $voucher->discount_value,
+                'min_spend' => $voucher->min_spend,
+                'max_discount' => $voucher->max_discount,
+            ],
+            'discount_amount' => $discount,
+            'net_total' => max(0, $subtotal - $discount),
+        ]);
     }
 }

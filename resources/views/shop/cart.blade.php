@@ -43,6 +43,10 @@
                 <span>Pajak</span>
                 <span id="summary-tax" class="font-semibold text-gray-800">Rp 0</span>
             </div>
+            <div id="summary-discount-row" class="flex justify-between text-sm text-emerald-600 mb-2 hidden">
+                <span id="summary-discount-label">Diskon Promo</span>
+                <span id="summary-discount" class="font-semibold">-Rp 0</span>
+            </div>
             <div class="flex justify-between items-center mt-3 pt-3 border-t border-dashed border-gray-200">
                 <span class="font-bold text-gray-800">Total Tagihan</span>
                 <span class="text-2xl font-extrabold text-primary" id="cart-detail-total">Rp 0</span>
@@ -110,6 +114,16 @@
                 <div>
                     <label for="customer-phone" class="block text-xs font-bold text-gray-600 mb-1">No. WhatsApp <span class="text-gray-400 font-normal">(Opsional)</span></label>
                     <input type="tel" id="customer-phone" name="customer-phone" autocomplete="tel" placeholder="08123456789" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
+                </div>
+                <div>
+                    <label for="customer-promo" class="block text-xs font-bold text-gray-600 mb-1">Kode Promo <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                    <div class="relative">
+                        <input type="text" id="customer-promo" name="customer-promo" autocomplete="off" placeholder="Masukkan kode promo (opsional)" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm uppercase font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors pr-24">
+                        <button type="button" id="btn-apply-promo" onclick="applyPromoCode()" class="absolute right-1.5 top-1.5 bottom-1.5 px-3 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg text-xs font-bold transition-all flex items-center justify-center">
+                            Terapkan
+                        </button>
+                    </div>
+                    <p id="promo-message" class="text-xs mt-1.5 hidden"></p>
                 </div>
             </div>
 

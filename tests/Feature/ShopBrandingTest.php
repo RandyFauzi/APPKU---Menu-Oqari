@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Models\Product;
 use App\Models\Shop;
 use App\Models\User;
+use App\Services\MediaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ShopBrandingTest extends TestCase
@@ -117,5 +119,64 @@ class ShopBrandingTest extends TestCase
         $response->assertOk();
         $response->assertSee('bestseller-shelf-container', false);
         $response->assertSee('https://www.tiktok.com/@coffeelovers', false);
+    }
+
+    public function test_existing_banner_is_preserved_when_sent_as_full_url_or_path(): void
+    {
+        Storage::fake('public');
+
+        $shop = Shop::factory()->create([
+            'onboarding_status' => 'completed',
+            'banner_paths' => ['media/shops/1/branding/banner_0_test.webp'],
+        ]);
+        $owner = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
+
+        Storage::disk('public')->put('media/shops/1/branding/banner_0_test.webp', 'fake-image-bytes');
+
+        // Simulate Alpine.js sending full URL for existing banner
+        $payload = [
+            'name' => $shop->name,
+            'slug' => $shop->slug,
+            'existing_banner_0' => 'https://appku.site/uploads/media/shops/1/branding/banner_0_test.webp',
+        ];
+
+        $response = $this->actingAs($owner)->postJson('/admin/api/settings', $payload);
+
+        $response->assertOk()->assertJson(['success' => true]);
+
+        // Verify the file was NOT deleted by orphan cleanup
+        Storage::disk('public')->assertExists('media/shops/1/branding/banner_0_test.webp');
+
+        // Verify the stored banner path is clean relative path
+        $shop->refresh();
+        $this->assertSame(['media/shops/1/branding/banner_0_test.webp'], $shop->banner_paths);
+
+        // Test with /uploads/ prefix
+        $payload2 = [
+            'name' => $shop->name,
+            'slug' => $shop->slug,
+            'existing_banner_0' => '/uploads/media/shops/1/branding/banner_0_test.webp',
+        ];
+        $this->actingAs($owner)->postJson('/admin/api/settings', $payload2)->assertOk();
+        Storage::disk('public')->assertExists('media/shops/1/branding/banner_0_test.webp');
+        $this->assertSame(['media/shops/1/branding/banner_0_test.webp'], $shop->fresh()->banner_paths);
+    }
+
+    public function test_media_service_resolves_and_auto_heals_internal_urls(): void
+    {
+        $service = app(MediaService::class);
+
+        // Standard relative path
+        $this->assertStringEndsWith('/uploads/media/shops/1/test.webp', $service->url('media/shops/1/test.webp'));
+
+        // Path with leading slash
+        $this->assertStringEndsWith('/uploads/media/shops/1/test.webp', $service->url('/uploads/media/shops/1/test.webp'));
+
+        // Auto-heal dirty absolute URL from previous environment/host
+        $this->assertStringEndsWith('/uploads/media/shops/1/test.webp', $service->url('http://localhost:8000/uploads/media/shops/1/test.webp'));
+        $this->assertStringEndsWith('/uploads/media/shops/1/test.webp', $service->url('https://appku.site/uploads/media/shops/1/test.webp'));
+
+        // External URL should remain intact
+        $this->assertSame('https://images.unsplash.com/photo-123', $service->url('https://images.unsplash.com/photo-123'));
     }
 }

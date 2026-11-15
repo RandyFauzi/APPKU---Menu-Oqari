@@ -898,13 +898,21 @@
             </div>
 
             <!-- Conflict Handling Options -->
-            <div class="rounded-xl border border-[#e9ebf0] bg-white p-3.5 space-y-2">
-                <div class="text-xs font-bold text-[#111827]">Pengaturan Penanganan Jadwal:</div>
+            <div class="rounded-xl border p-4 space-y-2.5 transition-colors"
+                 :class="replicateOverwrite ? 'border-orange-300 bg-orange-50/50' : 'border-[#e9ebf0] bg-white'">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-[#111827]">Pengaturan Penanganan Jadwal:</span>
+                    <span x-show="replicateOverwrite" class="inline-flex items-center gap-1 rounded-md bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-[#c94d00]">
+                        <i class="fas fa-rotate"></i> Mode Timpa Aktif
+                    </span>
+                </div>
                 <label class="flex items-start gap-2.5 cursor-pointer select-none">
-                    <input type="checkbox" x-model="replicateOverwrite" class="mt-0.5 rounded text-orange-600 focus:ring-orange-500">
-                    <div class="text-xs">
-                        <span class="font-semibold text-[#111827]">Gantikan / Timpa jadwal yang sudah ada (Overwrite)</span>
-                        <p class="text-[11px] text-[#7f837e]">Jika dicentang, shift kru yang ada pada bulan target akan dibersihkan terlebih dahulu sebelum jadwal baru dibuat. Jika tidak dicentang, sistem hanya mengisi tanggal dan jam yang kosong (jadwal lama tidak dihapus).</p>
+                    <input type="checkbox" id="replicate-overwrite" x-model="replicateOverwrite" class="mt-0.5 h-4 w-4 rounded text-orange-600 focus:ring-orange-500">
+                    <div class="text-xs flex-1">
+                        <span class="font-bold text-[#111827]">Gantikan / Timpa jadwal yang sudah ada (Overwrite)</span>
+                        <p class="mt-0.5 text-[11px] text-[#7f837e] leading-relaxed">
+                            <strong>Wajib dicentang</strong> jika bulan target sudah memiliki jadwal sebelumnya dan Anda ingin menggantinya dengan pola jadwal bulan ini. Jika tidak dicentang, sistem hanya mengisi tanggal dan jam yang kosong tanpa menghapus jadwal lama.
+                        </p>
                     </div>
                 </label>
             </div>

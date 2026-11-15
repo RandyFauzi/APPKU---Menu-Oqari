@@ -34,14 +34,32 @@ class MediaService
             return null;
         }
 
+        // If path is a full URL pointing to internal uploads or storage, extract relative path
         if (Str::startsWith($path, ['http://', 'https://'])) {
-            return $path;
+            $parsedPath = parse_url($path, PHP_URL_PATH);
+            if ($parsedPath && (Str::contains($parsedPath, '/uploads/') || Str::contains($parsedPath, '/storage/'))) {
+                if (Str::contains($parsedPath, '/uploads/')) {
+                    $path = Str::after($parsedPath, '/uploads/');
+                } elseif (Str::contains($parsedPath, '/storage/')) {
+                    $path = Str::after($parsedPath, '/storage/');
+                }
+            } else {
+                return $path;
+            }
         }
 
-        $url = Storage::disk($this->disk)->url($path);
+        $cleanPath = ltrim((string) $path, '/');
+        if (Str::startsWith($cleanPath, 'uploads/')) {
+            $cleanPath = substr($cleanPath, strlen('uploads/'));
+        } elseif (Str::startsWith($cleanPath, 'storage/')) {
+            $cleanPath = substr($cleanPath, strlen('storage/'));
+        }
+
+        $url = Storage::disk($this->disk)->url($cleanPath);
 
         if (Str::startsWith($url, '/')) {
-            $url = rtrim(config('app.url'), '/').$url;
+            $base = app()->runningInConsole() ? config('app.url') : request()->root();
+            $url = rtrim($base ?: config('app.url'), '/').$url;
         }
 
         return $url;

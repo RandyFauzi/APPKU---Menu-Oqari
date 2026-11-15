@@ -1751,7 +1751,7 @@
                         effective_price: effectivePrice,
                         discount_percentage: discountPct,
                         has_active_discount: hasDiscount,
-                        image_url: p.image_url || (p.image_path ? (p.image_path.startsWith('http') || p.image_path.startsWith('/') ? p.image_path : '/storage/' + p.image_path) : null),
+                        image_url: p.image_url || (p.image_path ? (p.image_path.startsWith('http') || p.image_path.startsWith('/') ? p.image_path : (p.image_path.startsWith('uploads/') ? '/' + p.image_path : '/uploads/' + p.image_path)) : null),
                         is_best_seller: Boolean(p.is_best_seller)
                     };
                 }),
@@ -1871,7 +1871,7 @@
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
                     maps_link: window.INITIAL_DATA.shop?.maps_link || '',
                     is_banner_active: window.INITIAL_DATA.shop?.is_banner_active ?? true,
-                    banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : '/storage/' + b) : null).concat([null, null, null]).slice(0, 3),
+                    banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : (b.startsWith('uploads/') ? '/' + b : '/uploads/' + b)) : null).concat([null, null, null]).slice(0, 3),
                     bannerFiles: [null, null, null],
                     bannerPaths: (window.INITIAL_DATA.shop?.banners || []).concat([null, null, null]).slice(0, 3),
                     background_type: window.INITIAL_DATA.shop?.background_type || 'pattern',
@@ -3962,15 +3962,64 @@ if (res.ok) {
                         }
 
                         this.closeReplicateShiftModal();
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil Diterapkan!',
-                                text: data.message || `Jadwal shift berhasil diterapkan ke ${this.replicateTargetMonths.length} bulan target.`,
-                                confirmButtonColor: '#ea580c'
-                            });
+
+                        if (data.created_count === 0 && (data.skipped_count > 0 || data.all_skipped)) {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Tidak Ada Shift yang Diterapkan',
+                                    html: `<div class="text-left text-xs space-y-3">
+                                        <p class="text-gray-700 leading-relaxed font-medium">${data.message}</p>
+                                        <div class="rounded-xl bg-orange-50/80 border border-orange-200 p-3 text-orange-900 text-[11px] leading-relaxed">
+                                            <strong class="font-bold">💡 Kenapa semua shift dilewati?</strong><br>
+                                            Bulan target yang dipilih sudah memiliki jadwal shift sebelumnya. Karena opsi <em>"Gantikan / Timpa jadwal yang sudah ada (Overwrite)"</em> tidak dicentang, sistem melindungi jadwal lama agar tidak terhapus.
+                                        </div>
+                                    </div>`,
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Centang Timpa & Buka Kembali',
+                                    cancelButtonText: 'Tutup',
+                                    confirmButtonColor: '#ea580c'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        this.replicateOverwrite = true;
+                                        if (this.$refs.replicateShiftDialog) {
+                                            this.$refs.replicateShiftDialog.showModal();
+                                        }
+                                    }
+                                });
+                            } else {
+                                this.addToast(data.message, 'warning');
+                            }
                         } else {
-                            this.addToast(data.message || 'Jadwal shift berhasil diterapkan.', 'success');
+                            const firstTarget = this.replicateTargetMonths[0];
+                            const formatTargetLabel = (mStr) => {
+                                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                const parts = (mStr || '').split('-');
+                                if (parts.length === 2) {
+                                    const m = parseInt(parts[1], 10) - 1;
+                                    return `${months[m] || ''} ${parts[0]}`;
+                                }
+                                return mStr;
+                            };
+
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil Diterapkan!',
+                                    text: data.message || `Jadwal shift berhasil diterapkan ke ${this.replicateTargetMonths.length} bulan target.`,
+                                    showCancelButton: true,
+                                    confirmButtonText: firstTarget ? `Lihat Bulan Target (${formatTargetLabel(firstTarget)})` : 'OK',
+                                    cancelButtonText: 'Tetap di Bulan Ini',
+                                    confirmButtonColor: '#ea580c'
+                                }).then((result) => {
+                                    if (result.isConfirmed && firstTarget) {
+                                        this.currentMatrixMonth = firstTarget;
+                                        this.fetchShifts();
+                                    }
+                                });
+                            } else {
+                                this.addToast(data.message || 'Jadwal shift berhasil diterapkan.', 'success');
+                            }
                         }
 
                         await this.fetchShifts();
@@ -5095,7 +5144,7 @@ if (res.ok) {
                             
                             if (data.shop && data.shop.banners) {
                                 this.settings.bannerPaths = data.shop.banners.concat([null, null, null]).slice(0, 3);
-                                this.settings.banners = data.shop.banners.map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : '/storage/' + b) : null).concat([null, null, null]).slice(0, 3);
+                                this.settings.banners = data.shop.banners.map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : (b.startsWith('uploads/') ? '/' + b : '/uploads/' + b)) : null).concat([null, null, null]).slice(0, 3);
                                 this.settings.bannerFiles = [null, null, null];
                             }
 
