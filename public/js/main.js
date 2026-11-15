@@ -972,12 +972,12 @@ function triggerPaymentGateway() {
         }
     }
     
-    if(!name || !email) { 
-        showToast("⚠️ Mohon isi Nama & Email Anda!"); 
+    if(!name) { 
+        showToast("⚠️ Mohon isi Nama Anda!"); 
         return; 
     }
     
-    if(email.length < 5 || !email.includes('@')) {
+    if(email && (email.length < 5 || !email.includes('@'))) {
         showToast("⚠️ Format email tidak valid!");
         return;
     }

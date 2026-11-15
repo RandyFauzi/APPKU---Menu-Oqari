@@ -44,7 +44,6 @@
   "103": "login_admin.blade.php",
   "104": "register_admin.blade.php",
   "105": "reports/index.blade.php",
-  "106": "cart.blade.php",
   "108": "tracking.blade.php",
   "109": "SuperAdmin/dashboard.blade.php",
   "110": "shops/edit.blade.php",

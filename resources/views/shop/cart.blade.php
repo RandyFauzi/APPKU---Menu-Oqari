@@ -104,8 +104,8 @@
                     <input type="text" id="customer-name" name="customer-name" autocomplete="name" placeholder="Masukkan nama Anda" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
                 </div>
                 <div>
-                    <label for="customer-email" class="block text-xs font-bold text-gray-600 mb-1">Alamat Email <span class="text-red-500">*</span></label>
-                    <input type="email" id="customer-email" name="customer-email" autocomplete="email" placeholder="contoh@email.com" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required>
+                    <label for="customer-email" class="block text-xs font-bold text-gray-600 mb-1">Alamat Email <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                    <input type="email" id="customer-email" name="customer-email" autocomplete="email" placeholder="contoh@email.com" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors">
                 </div>
                 <div>
                     <label for="customer-phone" class="block text-xs font-bold text-gray-600 mb-1">No. WhatsApp <span class="text-gray-400 font-normal">(Opsional)</span></label>

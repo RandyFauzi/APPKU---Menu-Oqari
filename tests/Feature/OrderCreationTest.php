@@ -188,4 +188,42 @@ class OrderCreationTest extends TestCase
         $response->assertStatus(422)
             ->assertJson(['success' => false, 'message' => 'Nomor meja wajib diisi untuk pesanan Dine In.']);
     }
+
+    public function test_can_create_order_without_email_and_view_marks_it_as_optional(): void
+    {
+        $product = Product::factory()->create([
+            'shop_id' => $this->shop->id,
+            'price' => 20000,
+            'is_sold_out' => false,
+        ]);
+
+        $payload = [
+            'fulfillment_type' => 'TAKEAWAY',
+            'customer_name' => 'Customer Without Email',
+            'customer_email' => '',
+            'customer_phone' => '08123456789',
+            'payment_method' => 'QRIS',
+            'items' => [
+                ['id' => $product->id, 'qty' => 1],
+            ],
+        ];
+
+        $response = $this->postJson(route('shop.order.submit', ['slug' => $this->shop->slug]), $payload);
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('orders', [
+            'shop_id' => $this->shop->id,
+            'customer_name' => 'Customer Without Email',
+            'customer_email' => null,
+            'grand_total' => 20000,
+        ]);
+
+        $cartResponse = $this->get(route('shop.cart', ['slug' => $this->shop->slug]));
+        $cartResponse->assertOk()
+            ->assertSee('Alamat Email')
+            ->assertSee('(Opsional)')
+            ->assertDontSee('id="customer-email" name="customer-email" autocomplete="email" placeholder="contoh@email.com" class="w-full bg-transparent border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" required', false);
+    }
 }
