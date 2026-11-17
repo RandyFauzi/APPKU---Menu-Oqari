@@ -16,7 +16,6 @@ class SaveBulkMenuAction
     /**
      * Menyimpan banyak item menu sekaligus (Bulk Save / Import) untuk sebuah toko.
      *
-     * @param  int  $shopId
      * @param  array<int, array<string, mixed>>  $items
      * @param  array<string, mixed>  $uploadedFiles
      * @return array{saved: Collection<int, Product>, categories: Collection<int, Category>}

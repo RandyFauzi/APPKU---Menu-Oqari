@@ -38,6 +38,12 @@
     <style>
         body { background-color: #ffffff; color: var(--oq-ink); }
         .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f8f9fa; border-radius: 9999px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 #f8f9fa; }
         [x-cloak] { display: none !important; }
         .dashed-box { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23CFCFCF' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"); border-radius: 16px; }
     </style>
@@ -55,7 +61,7 @@
     <x-cafe-sidebar :dashboard="true" />
 
     <!-- Main Content -->
-    <main class="flex-grow min-w-0 flex flex-col h-full bg-white overflow-hidden">
+    <main class="flex-grow min-w-0 min-h-0 flex flex-col h-full bg-white overflow-hidden">
         
         <!-- Top Header for Main Area -->
         <!-- Top Header for Main Area -->
@@ -866,6 +872,60 @@
                 isSavingMaterial: false,
                 stockUnits: {{ Illuminate\Support\Js::from(array_merge(config('inventory.units'), $shop->custom_units ?? [])) }},
                 editingUnitLocked: false,
+                get outOfStockCount() {
+                    return this.rawMaterials.filter(m => Number(m.current_stock || 0) <= 0).length;
+                },
+                get lowStockCount() {
+                    return this.rawMaterials.filter(m => {
+                        const cur = Number(m.current_stock || 0);
+                        const min = Number(m.minimum_stock || 0);
+                        return cur > 0 && cur <= min;
+                    }).length;
+                },
+                get safeStockCount() {
+                    return this.rawMaterials.filter(m => {
+                        const cur = Number(m.current_stock || 0);
+                        const min = Number(m.minimum_stock || 0);
+                        return cur > min;
+                    }).length;
+                },
+                get selectedAdjustMaterial() {
+                    if (!this.adjustForm.raw_material_id) return null;
+                    return this.rawMaterials.find(m => m.id == this.adjustForm.raw_material_id) || null;
+                },
+                get adjustCurrentStock() {
+                    return this.selectedAdjustMaterial ? Number(this.selectedAdjustMaterial.current_stock || 0) : 0;
+                },
+                get adjustUnitShort() {
+                    return this.selectedAdjustMaterial ? this.stockUnitShort(this.selectedAdjustMaterial.unit) : '';
+                },
+                get adjustUnitLabel() {
+                    return this.selectedAdjustMaterial ? (this.selectedAdjustMaterial.unit_label || this.stockUnitLabel(this.selectedAdjustMaterial.unit)) : '';
+                },
+                get adjustCalculatedStockAfter() {
+                    const current = this.adjustCurrentStock;
+                    const amt = Number(this.adjustForm.amount || 0);
+                    if (!this.adjustForm.amount && this.adjustForm.amount !== 0) return current;
+                    if (this.adjustForm.type === 'in') return current + amt;
+                    if (this.adjustForm.type === 'out' || this.adjustForm.type === 'waste') return Math.max(0, current - amt);
+                    if (this.adjustForm.type === 'adjustment') return amt;
+                    return current;
+                },
+                get adjustOldCost() {
+                    return this.selectedAdjustMaterial ? Number(this.selectedAdjustMaterial.cost_per_unit || 0) : 0;
+                },
+                get adjustNewCost() {
+                    if (this.adjustForm.type === 'in' && Number(this.adjustForm.new_cost_per_unit) > 0) {
+                        return Number(this.adjustForm.new_cost_per_unit);
+                    }
+                    return this.adjustOldCost;
+                },
+                get adjustCostDiff() {
+                    if (this.adjustForm.type !== 'in' || !Number(this.adjustForm.new_cost_per_unit)) {
+                        return 0;
+                    }
+                    return this.adjustNewCost - this.adjustOldCost;
+                },
                 formatStock(value) { return Number(value || 0).toLocaleString('id-ID', {maximumFractionDigits: 6}); },
                 stockUnitLabel(unit) { return this.stockUnits[unit] || unit || '—'; },
                 stockUnitShort(unit) {
@@ -1191,10 +1251,10 @@
                     });
                 },
 
-                openStockAdjustModal(materialId = null) {
+                openStockAdjustModal(materialId = null, defaultType = 'in') {
                     this.adjustForm = {
                         raw_material_id: materialId || (this.rawMaterials.length > 0 ? this.rawMaterials[0].id : ''),
-                        type: 'in',
+                        type: defaultType || 'in',
                         amount: '',
                         notes: '',
                         new_cost_per_unit: ''
@@ -1203,7 +1263,11 @@
                 },
 
                 quickRestock(item) {
-                    this.openStockAdjustModal(item.id);
+                    this.openStockAdjustModal(item.id, 'in');
+                },
+
+                openManageStock(item) {
+                    this.openStockAdjustModal(item.id, 'in');
                 },
 
                 submitStockAdjustment() {

@@ -230,6 +230,37 @@ class InventoryUnitsTest extends TestCase
         ]);
     }
 
+    public function test_stock_out_movement_and_view_render(): void
+    {
+        $user = $this->owner();
+        $id = $this->actingAs($user)->postJson('/admin/api/inventory/material', $this->materialData('gram'))->json('material.id');
+
+        // Stock out movement
+        $this->postJson('/admin/api/inventory/adjust', [
+            'raw_material_id' => $id,
+            'type' => 'out',
+            'amount' => 3,
+            'notes' => 'Pemakaian operasional harian',
+        ])->assertOk()->assertJsonPath('material.current_stock', '7.000000');
+
+        $this->assertDatabaseHas('stock_mutations', [
+            'raw_material_id' => $id,
+            'type' => 'waste',
+            'amount' => -3,
+            'balance_after' => 7,
+            'notes' => 'Pemakaian operasional harian',
+        ]);
+
+        $viewRes = $this->get(route('admin.inventory.index'))->assertOk();
+        $viewRes->assertSee('Catat Pergerakan Stok');
+        $viewRes->assertSee('Tambah Bahan Baku');
+        $viewRes->assertSee('Stok Menipis');
+        $viewRes->assertSee('Total Stok Bahan');
+        $viewRes->assertSee('Stok Habis');
+        $viewRes->assertSee('Daftar Bahan Baku');
+        $viewRes->assertSee('Riwayat Mutasi Stok');
+    }
+
     private function owner(): User
     {
         return User::factory()->create(['shop_id' => Shop::factory()->create(['onboarding_status' => 'completed'])->id, 'role' => 'owner']);

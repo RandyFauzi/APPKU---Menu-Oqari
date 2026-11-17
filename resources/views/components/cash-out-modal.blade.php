@@ -78,7 +78,7 @@
 
                     <div class="relative">
                         <span class="absolute left-3.5 top-2.5 text-xs font-bold text-gray-400">Rp</span>
-                        <input id="cash-out-amount" type="number" inputmode="numeric" min="100" step="any" x-model="form.amount" required
+                        <input id="cash-out-amount" type="text" inputmode="numeric" :value="form.amount ? Number(form.amount).toLocaleString('id-ID') : ''" @input="formatAmount($event)" required
                                placeholder="0"
                                class="w-full pl-10 pr-3.5 py-2.5 rounded-[12px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] text-sm font-black text-[#111827] outline-none transition placeholder:text-gray-400">
                     </div>
@@ -182,6 +182,24 @@ function cashOutModalHandler() {
         addAmount(val) {
             const current = Number(this.form.amount) || 0;
             this.form.amount = current + val;
+        },
+
+        formatAmount(e) {
+            const input = e.target;
+            const oldVal = input.value;
+            const oldCursor = input.selectionStart || 0;
+            const digitsBefore = oldVal.slice(0, oldCursor).replace(/\D/g, '').length;
+            const clean = oldVal.replace(/\D/g, '');
+            this.form.amount = clean ? parseInt(clean, 10) : '';
+            const formatted = this.form.amount ? Number(this.form.amount).toLocaleString('id-ID') : '';
+            input.value = formatted;
+            let newCursor = 0, count = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) count++;
+                if (count === digitsBefore) { newCursor = i + 1; break; }
+            }
+            if (count < digitsBefore) newCursor = formatted.length;
+            input.setSelectionRange(newCursor, newCursor);
         },
 
         async submitForm() {

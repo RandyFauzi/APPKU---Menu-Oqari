@@ -273,9 +273,12 @@
 
                             <div class="relative">
                                 <span class="absolute left-3.5 top-3 text-sm font-bold text-gray-400">Rp</span>
-                                <input id="actual-cash" name="actual_cash" type="number" inputmode="decimal" min="0" max="999999999.99" step="any" required
-                                    x-model="actual" value="{{ old('actual_cash') }}" aria-describedby="actual-help"
-                                    placeholder="Contoh: {{ (int)$breakdown['expected_cash'] }}"
+                                <input type="hidden" name="actual_cash" :value="actual">
+                                <input id="actual-cash" type="text" inputmode="numeric" required
+                                    :value="actual !== '' && actual !== null && !isNaN(actual) ? Number(actual).toLocaleString('id-ID') : ''"
+                                    @input="formatActualInput($event)"
+                                    aria-describedby="actual-help"
+                                    placeholder="Contoh: {{ number_format($breakdown['expected_cash'], 0, ',', '.') }}"
                                     class="w-full pl-11 pr-4 py-3 rounded-[12px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] text-[16px] font-black text-[#111827] outline-none transition">
                             </div>
                             <p id="actual-help" class="text-[11px] text-[#7f837e] mt-1.5">
@@ -446,15 +449,36 @@
                 </div>
 
                 {{-- Direct Quick Open Shift Form --}}
-                <form action="{{ route('shift.open') }}" method="POST" class="max-w-sm mx-auto space-y-3 pt-2">
+                <form action="{{ route('shift.open') }}" method="POST" class="max-w-sm mx-auto space-y-3 pt-2"
+                    x-data="{
+                        rawCash: 100000,
+                        formattedCash: '100.000',
+                        formatOpenCash(e) {
+                            const oldVal = e.target.value;
+                            const oldCursor = e.target.selectionStart || 0;
+                            const digitsBefore = oldVal.slice(0, oldCursor).replace(/\D/g, '').length;
+                            const clean = oldVal.replace(/\D/g, '');
+                            this.rawCash = clean ? parseInt(clean, 10) : 0;
+                            this.formattedCash = this.rawCash ? Number(this.rawCash).toLocaleString('id-ID') : '';
+                            e.target.value = this.formattedCash;
+                            let newCursor = 0, count = 0;
+                            for (let i = 0; i < this.formattedCash.length; i++) {
+                                if (/\d/.test(this.formattedCash[i])) count++;
+                                if (count === digitsBefore) { newCursor = i + 1; break; }
+                            }
+                            if (count < digitsBefore) newCursor = this.formattedCash.length;
+                            e.target.setSelectionRange(newCursor, newCursor);
+                        }
+                    }">
                     @csrf
+                    <input type="hidden" name="opening_cash" :value="rawCash">
                     <div class="text-left">
                         <label for="opening-cash-input" class="block text-xs font-semibold text-[#111827] mb-1">
                             Modal Awal Kas di Laci (Rp)
                         </label>
                         <div class="relative">
                             <span class="absolute left-3.5 top-2.5 text-xs font-bold text-gray-400">Rp</span>
-                            <input id="opening-cash-input" name="opening_cash" type="number" min="0" step="any" required value="100000"
+                            <input id="opening-cash-input" type="text" inputmode="numeric" required :value="formattedCash" @input="formatOpenCash($event)"
                                 class="w-full pl-9 pr-3 py-2.5 rounded-[12px] border border-[#d8dce2] bg-[#f8f9fa] text-xs font-bold text-[#111827] focus:bg-white focus:border-[#df5826] outline-none">
                         </div>
                     </div>
@@ -775,10 +799,28 @@ function cashReconciliation(expected, initialActual = '') {
         },
 
         get label() {
-            if (this.difference === null) return 'Belum Dihitung';
-            if (this.difference < 0) return 'Kas Kurang';
-            if (this.difference > 0) return 'Kas Lebih';
-            return 'Kas Sesuai (Cocok)';
+            if (this.difference === null) return 'Belum dihitung';
+            if (this.difference < 0) return 'Kas kurang';
+            if (this.difference > 0) return 'Kas lebih';
+            return 'Kas sesuai';
+        },
+
+        formatActualInput(e) {
+            const input = e.target;
+            const oldVal = input.value;
+            const oldCursor = input.selectionStart || 0;
+            const digitsBefore = oldVal.slice(0, oldCursor).replace(/\D/g, '').length;
+            const clean = oldVal.replace(/\D/g, '');
+            this.actual = clean ? parseInt(clean, 10) : '';
+            const formatted = this.actual !== '' ? Number(this.actual).toLocaleString('id-ID') : '';
+            input.value = formatted;
+            let newCursor = 0, count = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) count++;
+                if (count === digitsBefore) { newCursor = i + 1; break; }
+            }
+            if (count < digitsBefore) newCursor = formatted.length;
+            input.setSelectionRange(newCursor, newCursor);
         },
 
         get isNotesRequired() {

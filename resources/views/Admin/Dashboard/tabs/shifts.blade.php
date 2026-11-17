@@ -1,4 +1,4 @@
-<div x-show="currentTab === 'shifts'" x-cloak class="flex-grow overflow-y-auto hide-scroll bg-white p-4 md:p-6 lg:p-7 font-['DM_Sans',sans-serif]">
+<div x-show="currentTab === 'shifts'" x-cloak class="flex-1 min-h-0 h-full overflow-y-auto bg-white p-4 md:p-6 lg:p-7 font-['DM_Sans',sans-serif] custom-scroll">
     <!-- Top Header Bar -->
     <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -192,12 +192,12 @@
 
             <!-- Matrix Grid Container (Left Worker Sticky, Right Calendar Scroll) -->
             <div class="relative overflow-hidden rounded-xl border border-[#e9ebf0] bg-white shadow-xs">
-                <div class="overflow-x-auto select-none" style="max-height: 650px;">
+                <div class="overflow-auto select-none custom-scroll" style="max-height: calc(100vh - 290px); min-height: 380px;">
                     <table class="w-full border-collapse text-left text-xs">
                         <thead>
                             <tr class="bg-[#f8f9fa] border-b border-[#e9ebf0]">
                                 <!-- Left Sticky Header: Worker Column -->
-                                <th scope="col" class="sticky left-0 top-0 z-30 bg-[#f8f9fa] border-r border-[#e9ebf0] px-4 py-3 min-w-[210px] max-w-[210px] shadow-[2px_0_5px_rgba(0,0,0,0.03)]">
+                                <th scope="col" class="sticky left-0 top-0 z-40 bg-[#f8f9fa] border-r border-[#e9ebf0] px-4 py-3 min-w-[210px] max-w-[210px] shadow-[2px_0_5px_rgba(0,0,0,0.03)]">
                                     <div class="flex items-center justify-between">
                                         <span class="text-[11px] font-bold uppercase tracking-wider text-[#53565a]">Daftar Karyawan</span>
                                         <span class="rounded bg-gray-200 px-1.5 py-0.5 text-[10px] font-semibold text-[#53565a]" x-text="shiftEmployees.length + ' staf'"></span>
@@ -206,7 +206,7 @@
 
                                 <!-- Dynamic Calendar Days Columns (1 to 28/30/31) -->
                                 <template x-for="day in matrixDays" :key="day.day">
-                                    <th scope="col" class="sticky top-0 z-10 border-r border-[#f1f3f5] p-1.5 w-[42px] min-w-[42px] text-center"
+                                    <th scope="col" class="sticky top-0 z-20 border-r border-[#f1f3f5] p-1.5 w-[42px] min-w-[42px] text-center"
                                         :class="day.isToday ? 'bg-[#fff5ee] text-[#ea580c] ring-1 ring-orange-300' : (day.isWeekend ? 'bg-red-50/40 text-red-600' : 'bg-[#f8f9fa] text-[#53565a]')">
                                         <div class="flex flex-col items-center">
                                             <span class="text-[10px] font-medium" x-text="day.dayName"></span>
@@ -217,7 +217,7 @@
                                 </template>
 
                                 <!-- Summary Column (Right) -->
-                                <th scope="col" class="sticky top-0 z-10 bg-[#f8f9fa] border-l border-[#e9ebf0] px-3 py-3 min-w-[90px] text-center text-[10px] font-bold uppercase tracking-wider text-[#53565a]">
+                                <th scope="col" class="sticky top-0 z-20 bg-[#f8f9fa] border-l border-[#e9ebf0] px-3 py-3 min-w-[90px] text-center text-[10px] font-bold uppercase tracking-wider text-[#53565a]">
                                     Total Shift
                                 </th>
                             </tr>
@@ -293,18 +293,18 @@
                                 </tr>
                             </template>
                         </tbody>
-                        <tfoot>
-                            <tr class="bg-[#f8f9fa] border-t-2 border-[#e9ebf0]">
-                                <th scope="row" class="sticky left-0 z-20 bg-[#f8f9fa] border-r border-[#e9ebf0] px-4 py-2.5 text-[11px] font-bold text-[#53565a] uppercase">
+                        <tfoot class="sticky bottom-0 z-30 bg-[#f8f9fa] shadow-[0_-2px_6px_rgba(0,0,0,0.05)]">
+                            <tr class="border-t-2 border-[#e9ebf0]">
+                                <th scope="row" class="sticky left-0 bottom-0 z-40 bg-[#f8f9fa] border-r border-[#e9ebf0] px-4 py-2.5 text-[11px] font-bold text-[#53565a] uppercase shadow-[2px_0_5px_rgba(0,0,0,0.03)]">
                                     Total Kru Masuk
                                 </th>
                                 <template x-for="day in matrixDays" :key="day.day">
-                                    <td class="border-r border-[#f1f3f5] p-1.5 text-center font-bold text-xs"
+                                    <td class="sticky bottom-0 z-20 bg-[#f8f9fa] border-r border-[#f1f3f5] p-1.5 text-center font-bold text-xs"
                                         :class="countWorkersForDate(day.dateStr) > 0 ? (day.isToday ? 'text-orange-600 bg-orange-100/50' : 'text-[#111827]') : 'text-gray-300'">
                                         <span x-text="countWorkersForDate(day.dateStr) > 0 ? countWorkersForDate(day.dateStr) : '-'"></span>
                                     </td>
                                 </template>
-                                <td class="border-l border-[#e9ebf0] px-3 py-2.5 text-center font-bold text-xs text-orange-600">
+                                <td class="sticky bottom-0 z-20 bg-[#f8f9fa] border-l border-[#e9ebf0] px-3 py-2.5 text-center font-bold text-xs text-orange-600">
                                     <span x-text="shifts.length"></span>
                                 </td>
                             </tr>

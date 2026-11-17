@@ -28,7 +28,7 @@ class AdjustInventoryStockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'raw_material_id' => ['required', 'integer'], 'type' => ['required', 'in:in,adjustment,waste'],
+            'raw_material_id' => ['required', 'integer'], 'type' => ['required', 'in:in,out,adjustment,waste'],
             'amount' => ['required', 'numeric', 'decimal:0,6', $this->input('type') === 'adjustment' ? 'min:0' : 'min:0.000001', 'max:999999999.999999'],
             'notes' => ['nullable', 'string', 'max:255'],
             'new_cost_per_unit' => ['nullable', 'numeric', 'decimal:0,6', 'min:0', 'max:999999999.999999'],

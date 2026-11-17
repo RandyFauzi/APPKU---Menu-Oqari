@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('shops', function (Blueprint $table) {
-            $table->json('custom_units')->nullable()->after('operating_hours');
-        });
+        if (Schema::hasTable('shops') && ! Schema::hasColumn('shops', 'custom_units')) {
+            Schema::table('shops', function (Blueprint $table) {
+                $table->json('custom_units')->nullable()->after('operating_hours');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('shops', function (Blueprint $table) {
-            $table->dropColumn('custom_units');
-        });
+        if (Schema::hasTable('shops') && Schema::hasColumn('shops', 'custom_units')) {
+            Schema::table('shops', function (Blueprint $table) {
+                $table->dropColumn('custom_units');
+            });
+        }
     }
 };

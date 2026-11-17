@@ -23,6 +23,17 @@ class CashRegisterController extends Controller
 {
     public function openShift(Request $request)
     {
+        if ($request->has('opening_cash') && is_string($request->opening_cash)) {
+            $val = trim($request->opening_cash);
+            if (preg_match('/^\d{1,3}(\.\d{3})+(,\d+)?$/', $val)) {
+                $val = str_replace('.', '', $val);
+                $val = str_replace(',', '.', $val);
+            } elseif (preg_match('/^\d+,\d+$/', $val)) {
+                $val = str_replace(',', '.', $val);
+            }
+            $request->merge(['opening_cash' => $val]);
+        }
+
         $request->validate([
             'opening_cash' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:999999999.99'],
         ]);
@@ -133,6 +144,17 @@ class CashRegisterController extends Controller
 
     public function recordCashOut(Request $request, CalculateExpectedCash $calculateExpectedCash): JsonResponse|RedirectResponse
     {
+        if ($request->has('amount') && is_string($request->amount)) {
+            $val = trim($request->amount);
+            if (preg_match('/^\d{1,3}(\.\d{3})+(,\d+)?$/', $val)) {
+                $val = str_replace('.', '', $val);
+                $val = str_replace(',', '.', $val);
+            } elseif (preg_match('/^\d+,\d+$/', $val)) {
+                $val = str_replace(',', '.', $val);
+            }
+            $request->merge(['amount' => $val]);
+        }
+
         $validated = $request->validate([
             'item' => ['required', 'string', 'max:150'],
             'amount' => ['required', 'numeric', 'min:100', 'max:999999999.99'],

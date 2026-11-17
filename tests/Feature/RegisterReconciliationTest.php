@@ -64,6 +64,17 @@ class RegisterReconciliationTest extends TestCase
         $this->assertSame('0.00', $session->fresh()->difference);
     }
 
+    public function test_thousand_separator_dots_and_commas_are_normalized_on_shift_close(): void
+    {
+        [$cashier, $session] = $this->scenario();
+        $response = $this->actingAs($cashier)->postJson(route('shift.close'), [
+            'session_id' => $session->id,
+            'actual_cash' => '150.000',
+        ]);
+        $response->assertOk()->assertJsonPath('session.reconciliation_status', 'BALANCED');
+        $this->assertEquals(150000, $session->fresh()->actual_cash);
+    }
+
     #[TestWith([140000, null])]
     #[TestWith([160000, '   '])]
     public function test_discrepancy_requires_explanation_and_rolls_back(int $actual, ?string $notes): void

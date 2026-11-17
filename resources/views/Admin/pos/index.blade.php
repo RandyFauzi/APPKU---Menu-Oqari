@@ -40,11 +40,32 @@
         </div>
         <h2 class="text-[20px] font-bold text-[#1e211f] mb-1">Buka Shift Kasir</h2>
         <p class="text-[#8b8e93] text-[12px] mb-5">Masukkan modal kas awal sebelum mulai menerima pesanan</p>
-        <form action="{{ route('shift.open') }}" method="POST">
+        <form action="{{ route('shift.open') }}" method="POST" x-data="{
+            rawCash: 100000,
+            formattedCash: '100.000',
+            formatOpenCash(e) {
+                const oldVal = e.target.value;
+                const oldCursor = e.target.selectionStart || 0;
+                const digitsBefore = oldVal.slice(0, oldCursor).replace(/\D/g, '').length;
+                const clean = oldVal.replace(/\D/g, '');
+                this.rawCash = clean ? parseInt(clean, 10) : 0;
+                this.formattedCash = this.rawCash ? Number(this.rawCash).toLocaleString('id-ID') : '';
+                e.target.value = this.formattedCash;
+                let newCursor = 0, count = 0;
+                for (let i = 0; i < this.formattedCash.length; i++) {
+                    if (/\d/.test(this.formattedCash[i])) count++;
+                    if (count === digitsBefore) { newCursor = i + 1; break; }
+                }
+                if (count < digitsBefore) newCursor = this.formattedCash.length;
+                e.target.setSelectionRange(newCursor, newCursor);
+            }
+        }">
             @csrf
+            <input type="hidden" name="opening_cash" :value="rawCash">
             <div class="relative mb-4">
                 <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8b8e93] font-semibold text-sm">Rp</span>
-                <input type="number" name="opening_cash" placeholder="0" min="0" step="1000"
+                <input type="text" inputmode="numeric" placeholder="0" :value="formattedCash"
+                    @input="formatOpenCash($event)"
                     class="w-full pl-10 pr-4 py-3 rounded-[10px] border border-[#d8dce2] bg-[#f8f9fa] focus:border-[#df5826] focus:bg-white outline-none text-[16px] font-bold text-[#111827] text-right transition" required>
             </div>
             <button type="submit" class="w-full py-3 px-4 rounded-[10px] bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white font-semibold text-[13px] shadow-sm hover:opacity-95 transition">
@@ -956,7 +977,9 @@
                 <p class="text-[11px] font-bold text-[#53565a] uppercase tracking-wider mb-1.5">Uang Diterima (F5)</p>
                 <div class="relative">
                     <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8b8e93] font-semibold text-sm">Rp</span>
-                    <input x-ref="cashInput" x-model.number="paymentModal.amountPaid" type="number" step="1000" min="0"
+                    <input x-ref="cashInput" type="text" inputmode="numeric"
+                        :value="paymentModal.amountPaid ? Number(paymentModal.amountPaid).toLocaleString('id-ID') : ''"
+                        @input="formatCashInput($event)"
                         class="w-full pl-10 pr-4 py-2.5 rounded-[10px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] outline-none text-right font-bold text-[16px] text-[#111827]">
                 </div>
                 <div class="flex gap-1.5 mt-2 flex-wrap">
@@ -1372,9 +1395,11 @@
                     <div class="relative">
                         <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm"
                               x-text="discountModal.manualType === 'percentage' ? '%' : 'Rp'"></span>
-                        <input type="number" x-model.number="discountModal.manualValue" :min="0" :max="discountModal.manualType === 'percentage' ? 100 : subtotal"
+                        <input type="text" inputmode="numeric"
+                            :value="discountModal.manualType === 'fixed' ? (discountModal.manualValue ? Number(discountModal.manualValue).toLocaleString('id-ID') : '') : (discountModal.manualValue || '')"
+                            @input="formatDiscountInput($event)"
                             class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] outline-none font-bold text-[15px] text-[#111827]"
-                            :placeholder="discountModal.manualType === 'percentage' ? 'Contoh: 10' : 'Contoh: 15000'">
+                            :placeholder="discountModal.manualType === 'percentage' ? 'Contoh: 10' : 'Contoh: 15.000'">
                     </div>
                 </div>
 
@@ -2260,6 +2285,50 @@ function posApp() {
         },
 
         // ── Payment ───────────────────────────
+        formatCashInput(e) {
+            const input = e.target;
+            const oldVal = input.value;
+            const oldCursor = input.selectionStart || 0;
+            const digitsBefore = oldVal.slice(0, oldCursor).replace(/\D/g, '').length;
+            const clean = oldVal.replace(/\D/g, '');
+            const num = clean ? parseInt(clean, 10) : 0;
+            this.paymentModal.amountPaid = clean ? num : '';
+            const formatted = num > 0 ? num.toLocaleString('id-ID') : '';
+            input.value = formatted;
+            let newCursor = 0, count = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) count++;
+                if (count === digitsBefore) { newCursor = i + 1; break; }
+            }
+            if (count < digitsBefore) newCursor = formatted.length;
+            input.setSelectionRange(newCursor, newCursor);
+        },
+        formatDiscountInput(e) {
+            const input = e.target;
+            if (this.discountModal.manualType === 'percentage') {
+                const clean = input.value.replace(/[^\d.]/g, '');
+                let num = clean ? parseFloat(clean) : 0;
+                if (num > 100) num = 100;
+                this.discountModal.manualValue = clean ? num : '';
+                input.value = this.discountModal.manualValue;
+            } else {
+                const oldVal = input.value;
+                const oldCursor = input.selectionStart || 0;
+                const digitsBefore = oldVal.slice(0, oldCursor).replace(/\D/g, '').length;
+                const clean = oldVal.replace(/\D/g, '');
+                const num = clean ? parseInt(clean, 10) : 0;
+                this.discountModal.manualValue = clean ? Math.min(num, this.subtotal) : '';
+                const formatted = this.discountModal.manualValue ? Number(this.discountModal.manualValue).toLocaleString('id-ID') : '';
+                input.value = formatted;
+                let newCursor = 0, count = 0;
+                for (let i = 0; i < formatted.length; i++) {
+                    if (/\d/.test(formatted[i])) count++;
+                    if (count === digitsBefore) { newCursor = i + 1; break; }
+                }
+                if (count < digitsBefore) newCursor = formatted.length;
+                input.setSelectionRange(newCursor, newCursor);
+            }
+        },
         openPayment() {
             if (this.cart.length === 0) return;
             this.paymentModal = {

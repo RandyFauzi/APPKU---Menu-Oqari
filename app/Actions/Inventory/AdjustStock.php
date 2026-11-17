@@ -21,8 +21,8 @@ class AdjustStock
             $material = RawMaterial::where('shop_id', $user->shop_id)->whereKey($data['raw_material_id'])->lockForUpdate()->firstOrFail();
             $amount = (int) round((float) $data['amount'] * 1000000);
             $current = (int) round((float) $material->current_stock * 1000000);
-            if ($data['type'] === 'waste' && $amount > $current) {
-                throw ValidationException::withMessages(['amount' => 'Jumlah barang rusak tidak boleh melebihi stok saat ini.']);
+            if (in_array($data['type'], ['waste', 'out']) && $amount > $current) {
+                throw ValidationException::withMessages(['amount' => 'Jumlah barang keluar/rusak tidak boleh melebihi stok saat ini.']);
             }
             $newStock = match ($data['type']) {
                 'in' => $current + $amount, 'adjustment' => $amount, default => $current - $amount
@@ -36,9 +36,9 @@ class AdjustStock
             $material->current_stock = $newStock / 1000000;
             $material->save();
             StockMutation::create(['shop_id' => $user->shop_id, 'raw_material_id' => $material->id, 'unit' => $material->unit,
-                'type' => $data['type'], 'amount' => ($newStock - $current) / 1000000, 'balance_after' => $material->current_stock,
+                'type' => in_array($data['type'], ['waste', 'out']) ? 'waste' : $data['type'], 'amount' => ($newStock - $current) / 1000000, 'balance_after' => $material->current_stock,
                 'reference_type' => 'ManualAdjustment', 'notes' => $data['notes'] ?? match ($data['type']) {
-                    'in' => 'Restok Bahan', 'waste' => 'Barang Rusak/Basi', default => 'Stok Opname'
+                    'in' => 'Restok Bahan', 'out' => 'Stok Keluar', 'waste' => 'Barang Rusak/Basi', default => 'Stok Opname'
                 },
                 'user_id' => $user->id]);
             $products = Product::where('shop_id', $user->shop_id)->whereHas('recipes', fn ($query) => $query->where('raw_material_id', $material->id))
