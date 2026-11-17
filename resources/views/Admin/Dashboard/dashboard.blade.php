@@ -800,6 +800,13 @@
                 users: [],
                 categories: [],
                 tables: (window.INITIAL_DATA.tables || []).map(t => typeof t === 'string' ? { id: t, name: t } : { id: t.name || t.id, name: t.name || t.id }),
+                shopProducts: (window.INITIAL_DATA.shopProducts || []).map(p => ({
+                    id: Number(p.id),
+                    name: p.name,
+                    price: Number(p.price || 0),
+                    category_id: p.category_id || (p.category ? p.category.id : null),
+                    category_name: p.category ? p.category.name : (p.category_name || '')
+                })),
                 menuItems: [],
                 openBillModal: {
                     show: false,
@@ -4982,7 +4989,31 @@ if (res.ok) {
                         this.isLoadingAddons = false;
                     }
                 },
+                async ensureShopProductsLoaded() {
+                    if (this.shopProducts && this.shopProducts.length > 0) return;
+                    try {
+                        const res = await fetch('/admin/api/dashboard/products?per_page=150', {
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            const list = data.data || data || [];
+                            if (Array.isArray(list) && list.length > 0) {
+                                this.shopProducts = list.map(p => ({
+                                    id: Number(p.id),
+                                    name: p.name,
+                                    price: Number(p.price || 0),
+                                    category_id: p.category_id || (p.category ? p.category.id : null),
+                                    category_name: p.category ? p.category.name : (p.category_name || '')
+                                }));
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Failed to load shop products', e);
+                    }
+                },
                 openCreateAddonModal() {
+                    this.ensureShopProductsLoaded();
                     this.addonModal = {
                         show: true,
                         id: null,
@@ -5000,6 +5031,7 @@ if (res.ok) {
                     };
                 },
                 editAddonGroup(group) {
+                    this.ensureShopProductsLoaded();
                     this.addonModal = {
                         show: true,
                         id: group.id,
@@ -5015,7 +5047,7 @@ if (res.ok) {
                             cogs_adjustment: Number(m.cogs_adjustment) || 0,
                             is_active: Boolean(m.is_active)
                         })),
-                        product_ids: (group.products || []).map(p => p.id)
+                        product_ids: (group.products || []).map(p => Number(p.id))
                     };
                     if (this.addonModal.items.length === 0) {
                         this.addAddonItemRow();

@@ -2,11 +2,13 @@
 
 namespace App\Actions;
 
+use App\Models\CashDrawerTransaction;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\LazyCollection;
@@ -63,28 +65,27 @@ class BuildFinancialReport
         $timezone = config('attendance.timezone');
 
         $totalCashOut = 0.0;
+        $cashOutTransactions = new LengthAwarePaginator([], 0, 25, 1, ['pageName' => 'cash_out_page']);
         if (Schema::hasTable('cash_drawer_transactions')) {
-            $cashOutQuery = DB::table('cash_drawer_transactions')
-                ->where('type', 'CASH_OUT')
+            $cashOutBuilder = CashDrawerTransaction::where('type', 'CASH_OUT')
                 ->whereNull('cancelled_at')
                 ->when($period !== 'all', fn ($q) => $q->whereBetween('created_at', [$start, $end]));
 
             if (Schema::hasColumn('cash_drawer_transactions', 'shop_id')) {
-                $cashOutQuery->where('shop_id', $user->shop_id);
+                $cashOutBuilder->where('shop_id', $user->shop_id);
             } else {
-                $cashOutQuery->whereExists(function ($sub) use ($user) {
-                    $sub->select(DB::raw(1))
-                        ->from('cash_register_sessions')
-                        ->join('cash_registers', 'cash_registers.id', '=', 'cash_register_sessions.cash_register_id')
-                        ->whereColumn('cash_register_sessions.id', 'cash_drawer_transactions.cash_register_session_id')
-                        ->where('cash_registers.shop_id', $user->shop_id);
-                });
+                $cashOutBuilder->whereHas('session.register', fn ($q) => $q->where('shop_id', $user->shop_id));
             }
 
-            $totalCashOut = (float) $cashOutQuery->sum('amount');
+            $totalCashOut = (float) (clone $cashOutBuilder)->sum('amount');
+            $cashOutTransactions = $cashOutBuilder->with(['user:id,name', 'session.register:id,name'])
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->paginate(25, ['*'], 'cash_out_page')
+                ->withQueryString();
         }
 
-        return compact('date', 'period', 'transactionsCount', 'grossSales', 'netSales', 'totalCogs', 'grossProfit', 'grandTotal', 'aov', 'margin', 'payments', 'transactions', 'bestSellers', 'timezone', 'totalCashOut');
+        return compact('date', 'period', 'transactionsCount', 'grossSales', 'netSales', 'totalCogs', 'grossProfit', 'grandTotal', 'aov', 'margin', 'payments', 'transactions', 'bestSellers', 'timezone', 'totalCashOut', 'cashOutTransactions');
     }
 
     /** @param array<string, mixed> $filters */
@@ -98,6 +99,38 @@ class BuildFinancialReport
             $net = (float) $order->subtotal - (float) $order->discount_amount;
 
             return [$order->id, $order->created_at->timezone(config('attendance.timezone'))->format('Y-m-d H:i:s'), $name, $order->payment_method, $net, $order->total_cogs, $net - (float) $order->total_cogs, $order->grand_total];
+        });
+    }
+
+    /** @param array<string, mixed> $filters */
+    public function cashOutRows(User $user, array $filters): LazyCollection
+    {
+        [, $period, $start, $end] = $this->range($filters);
+
+        if (! Schema::hasTable('cash_drawer_transactions')) {
+            return LazyCollection::empty();
+        }
+
+        $query = CashDrawerTransaction::where('type', 'CASH_OUT')
+            ->whereNull('cancelled_at')
+            ->when($period !== 'all', fn ($q) => $q->whereBetween('created_at', [$start, $end]));
+
+        if (Schema::hasColumn('cash_drawer_transactions', 'shop_id')) {
+            $query->where('shop_id', $user->shop_id);
+        } else {
+            $query->whereHas('session.register', fn ($q) => $q->where('shop_id', $user->shop_id));
+        }
+
+        return $query->with(['user:id,name'])->orderBy('id')->cursor()->map(function (CashDrawerTransaction $tx): array {
+            $time = $tx->created_at ? $tx->created_at->timezone(config('attendance.timezone'))->format('Y-m-d H:i:s') : '';
+            $desc = (string) $tx->description;
+            if (preg_match('/^[=+@\-\t\r\n]/', $desc)) {
+                $desc = "'".$desc;
+            }
+            $userName = $tx->user?->name ?? 'Kasir';
+            $session = 'Shift #'.$tx->cash_register_session_id;
+
+            return [$tx->id, $time, $desc, $userName, $session, (float) $tx->amount];
         });
     }
 }

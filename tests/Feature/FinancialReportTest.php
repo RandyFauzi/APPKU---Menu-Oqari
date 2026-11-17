@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\CashDrawerTransaction;
+use App\Models\CashRegister;
+use App\Models\CashRegisterSession;
 use App\Models\Shop;
 use App\Models\User;
 use Database\Factories\OrderFactory;
@@ -47,5 +50,43 @@ class FinancialReportTest extends TestCase
 
         $this->actingAs($owner)->getJson(route('admin.reports.index', ['date' => 'invalid', 'period' => 'invalid']))
             ->assertUnprocessable()->assertJsonValidationErrors(['date', 'period']);
+    }
+
+    public function test_financial_report_displays_recorded_cash_out_in_table_and_exports_csv(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $owner = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+        $register = CashRegister::create(['shop_id' => $shop->id, 'name' => 'Main Register', 'is_active' => true]);
+        $session = CashRegisterSession::create([
+            'cash_register_id' => $register->id,
+            'user_id' => $owner->id,
+            'opened_at' => now(),
+            'opening_cash' => 100000,
+            'status' => 'OPEN',
+        ]);
+
+        CashDrawerTransaction::create([
+            'shop_id' => $shop->id,
+            'user_id' => $owner->id,
+            'cash_register_session_id' => $session->id,
+            'type' => 'CASH_OUT',
+            'amount' => 65000,
+            'description' => 'Beli Es Batu',
+        ]);
+
+        $response = $this->actingAs($owner)->get(route('admin.reports.index', ['period' => 'all']));
+
+        $response->assertOk()
+            ->assertViewHas('totalCashOut', 65000.0)
+            ->assertViewHas('cashOutTransactions', fn ($rows) => $rows->total() === 1 && $rows->first()->description === 'Beli Es Batu')
+            ->assertSee('Beli Es Batu')
+            ->assertSee('65.000')
+            ->assertSee('Rincian Kas Keluar');
+
+        $csv = $this->actingAs($owner)->get(route('admin.reports.index', ['period' => 'all', 'format' => 'csv', 'type' => 'cash_out']))
+            ->assertOk()->assertDownload('laporan-kas-keluar.csv');
+
+        $this->assertStringContainsString('Beli Es Batu', $csv->streamedContent());
+        $this->assertStringContainsString('65000', $csv->streamedContent());
     }
 }

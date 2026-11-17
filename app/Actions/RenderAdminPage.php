@@ -27,7 +27,7 @@ class RenderAdminPage
             : null;
         $categories = in_array($page, ['menu', 'receipt', 'settings', 'orders'], true) ? Category::where('shop_id', $shop->id)->orderBy('sort_order')->get() : collect();
         $tables = in_array($page, ['orders', 'settings', 'tables'], true) ? Table::where('shop_id', $shop->id)->orderBy('name')->get() : collect();
-        $shopProducts = ($user->can('manage-settings') || in_array($page, ['settings', 'addons', 'menu'], true))
+        $shopProducts = ($user->can('manage-settings') || $user->can('manage-menu') || in_array($page, ['settings', 'addons', 'menu', 'dashboard'], true))
             ? Product::where('shop_id', $shop->id)->with('category:id,name')->select('id', 'shop_id', 'category_id', 'name', 'price', 'discount_price', 'is_discount_active', 'description', 'is_best_seller', 'image_path')->orderBy('name')->get()
             : collect();
         $modifierGroups = in_array($page, ['addons', 'menu', 'dashboard'], true)

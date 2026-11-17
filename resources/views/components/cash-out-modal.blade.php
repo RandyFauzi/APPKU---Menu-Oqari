@@ -13,7 +13,7 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
         
-        <div class="relative w-full max-w-lg rounded-[24px] bg-white p-5 md:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] border border-[#e9ebf0] space-y-4"
+        <div class="relative w-full max-w-lg rounded-[24px] bg-white p-5 md:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.22)] border border-[#e6e5e0] space-y-4"
              @click.away="closeModal()"
              x-transition:enter="transition ease-out duration-200"
              x-transition:enter-start="opacity-0 scale-95 translate-y-2"
@@ -22,15 +22,15 @@
              x-transition:leave-start="opacity-100 scale-100 translate-y-0"
              x-transition:leave-end="opacity-0 scale-95 translate-y-2">
             
-            {{-- MODAL HEADER --}}
+            {{-- MODAL HEADER (Sparta Style) --}}
             <div class="flex items-center justify-between border-b pb-3.5 border-[#f0f0ee]">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-[12px] bg-red-50 border border-red-200 text-red-600 flex items-center justify-center text-sm shadow-2xs shrink-0">
-                        <i class="fas fa-arrow-up-from-bracket"></i>
+                    <div class="w-10 h-10 rounded-[12px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] flex items-center justify-center text-sm shadow-2xs shrink-0">
+                        <i class="fas fa-file-invoice-dollar"></i>
                     </div>
                     <div>
-                        <h3 class="text-[16px] font-bold text-[#111827]">Catat Kas Keluar</h3>
-                        <p class="text-[11.5px] text-[#7f837e]">Pengeluaran uang tunai operasional dari laci kasir</p>
+                        <h3 class="text-[16px] font-bold text-[#18181b]">Catat Kas Keluar</h3>
+                        <p class="text-[11.5px] text-[#71717a]">Pengeluaran uang tunai operasional dari laci kasir</p>
                     </div>
                 </div>
                 <button type="button" @click="closeModal()" class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 flex items-center justify-center transition cursor-pointer">
@@ -42,26 +42,45 @@
             <form @submit.prevent="submitForm()" class="space-y-4">
                 {{-- ITEM / KEPERLUAN --}}
                 <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label for="cash-out-item" class="block text-xs font-bold text-[#111827]">
-                            Item / Keperluan Pengeluaran <span class="text-red-500">*</span>
-                        </label>
-                        <span class="text-[10px] text-gray-400">Pilih cepat atau ketik sendiri</span>
-                    </div>
+                    <label for="cash-out-item" class="block text-xs font-bold text-[#18181b] mb-1.5">
+                        Item / Keperluan Pengeluaran <span class="text-red-500">*</span>
+                    </label>
 
                     <div class="relative">
                         <input id="cash-out-item" type="text" x-model="form.item" required maxlength="150"
-                               placeholder="Contoh: Beli Es Batu, Gas LPG, Plastik..."
-                               class="w-full px-3.5 py-2.5 rounded-[12px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] text-xs font-semibold text-[#111827] outline-none transition placeholder:text-gray-400">
+                               placeholder="Contoh: beli es batu, gas lpg, plastik"
+                               class="w-full px-3.5 py-2.5 rounded-[12px] border border-[#e6e5e0] bg-white focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] text-xs font-semibold text-[#18181b] outline-none transition placeholder:text-gray-400">
                     </div>
 
                     {{-- QUICK CHIPS SUGGESTIONS --}}
-                    <div class="flex flex-wrap gap-1.5 mt-2">
-                        <template x-for="suggestion in suggestions" :key="suggestion">
-                            <button type="button" @click="selectChip(suggestion)"
-                                    class="px-2.5 py-1 rounded-full text-[10.5px] font-medium border transition cursor-pointer"
-                                    :class="form.item === suggestion ? 'bg-[#df5826] text-white border-[#df5826]' : 'bg-[#f4f4f2] text-[#53565a] border-[#e6e5e0] hover:bg-gray-200'">
-                                <span x-text="suggestion"></span>
+                    <div class="flex items-center justify-between gap-1.5 mt-2 flex-wrap">
+                        <div class="flex flex-wrap gap-1.5">
+                            <template x-for="suggestion in suggestions" :key="suggestion">
+                                <button type="button" @click="selectChip(suggestion)"
+                                        class="px-2.5 py-1 rounded-full text-[11px] font-medium border transition cursor-pointer"
+                                        :class="form.item === suggestion ? 'bg-[#df5826] text-white border-[#df5826]' : 'bg-[#fafaf9] text-[#71717a] border-[#e6e5e0] hover:bg-gray-100'">
+                                    <span x-text="suggestion"></span>
+                                </button>
+                            </template>
+                        </div>
+                        <button type="button" @click="form.item = ''" class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#df5826] hover:underline cursor-pointer">
+                            <i class="fas fa-rotate text-[10px]"></i>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </div>
+
+                {{-- JENIS PERGERAKAN STOK / KATEGORI --}}
+                <div>
+                    <label class="block text-xs font-bold text-[#18181b] mb-1.5">
+                        Jenis Pergerakan Stok
+                    </label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <template x-for="cat in categories" :key="cat">
+                            <button type="button" @click="form.category = cat"
+                                    class="py-2 px-3 rounded-[10px] text-xs font-semibold border transition text-center cursor-pointer"
+                                    :class="form.category === cat ? 'bg-[#fff8f5] border-[#df5826] text-[#df5826]' : 'bg-white border-[#e6e5e0] text-[#71717a] hover:bg-gray-50'">
+                                <span x-text="cat"></span>
                             </button>
                         </template>
                     </div>
@@ -69,59 +88,53 @@
 
                 {{-- NOMINAL (RP) --}}
                 <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label for="cash-out-amount" class="block text-xs font-bold text-[#111827]">
-                            Nominal Kas Keluar (Rp) <span class="text-red-500">*</span>
-                        </label>
-                        <span class="text-xs font-bold text-red-600" x-text="formattedAmount"></span>
-                    </div>
+                    <label for="cash-out-amount" class="block text-xs font-bold text-[#18181b] mb-1.5">
+                        Nominal Kas Keluar <span class="text-red-500">*</span>
+                    </label>
 
                     <div class="relative">
-                        <span class="absolute left-3.5 top-2.5 text-xs font-bold text-gray-400">Rp</span>
+                        <span class="absolute left-3.5 top-2.5 text-xs font-bold text-gray-400">Rp.</span>
                         <input id="cash-out-amount" type="text" inputmode="numeric" :value="form.amount ? Number(form.amount).toLocaleString('id-ID') : ''" @input="formatAmount($event)" required
                                placeholder="0"
-                               class="w-full pl-10 pr-3.5 py-2.5 rounded-[12px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] text-sm font-black text-[#111827] outline-none transition placeholder:text-gray-400">
+                               class="w-full pl-10 pr-3.5 py-2.5 rounded-[12px] border border-[#e6e5e0] bg-white focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] text-sm font-bold text-[#18181b] outline-none transition placeholder:text-gray-400">
                     </div>
 
                     {{-- QUICK AMOUNT CHIPS --}}
-                    <div class="flex flex-wrap gap-1.5 mt-2">
-                        <button type="button" @click="addAmount(5000)" class="px-2 py-0.5 rounded-[7px] text-[10.5px] font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 cursor-pointer">+5rb</button>
-                        <button type="button" @click="addAmount(10000)" class="px-2 py-0.5 rounded-[7px] text-[10.5px] font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 cursor-pointer">+10rb</button>
-                        <button type="button" @click="addAmount(20000)" class="px-2 py-0.5 rounded-[7px] text-[10.5px] font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 cursor-pointer">+20rb</button>
-                        <button type="button" @click="addAmount(50000)" class="px-2 py-0.5 rounded-[7px] text-[10.5px] font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 cursor-pointer">+50rb</button>
-                        <button type="button" @click="addAmount(100000)" class="px-2 py-0.5 rounded-[7px] text-[10.5px] font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 cursor-pointer">+100rb</button>
-                        <button type="button" @click="form.amount = ''" class="px-2 py-0.5 rounded-[7px] text-[10.5px] font-semibold text-red-600 hover:bg-red-50 border border-red-200 cursor-pointer">Reset</button>
+                    <div class="flex items-center justify-between gap-1.5 mt-2 flex-wrap">
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" @click="addAmount(5000)" class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-[#fafaf9] text-[#71717a] hover:bg-gray-100 border border-[#e6e5e0] cursor-pointer">+5rb</button>
+                            <button type="button" @click="addAmount(10000)" class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-[#fafaf9] text-[#71717a] hover:bg-gray-100 border border-[#e6e5e0] cursor-pointer">+10rb</button>
+                            <button type="button" @click="addAmount(20000)" class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-[#fafaf9] text-[#71717a] hover:bg-gray-100 border border-[#e6e5e0] cursor-pointer">+20rb</button>
+                            <button type="button" @click="addAmount(50000)" class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-[#fafaf9] text-[#71717a] hover:bg-gray-100 border border-[#e6e5e0] cursor-pointer">+50rb</button>
+                            <button type="button" @click="addAmount(100000)" class="px-2.5 py-1 rounded-[8px] text-[11px] font-semibold bg-[#fafaf9] text-[#71717a] hover:bg-gray-100 border border-[#e6e5e0] cursor-pointer">+100rb</button>
+                        </div>
+                        <button type="button" @click="form.amount = ''" class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#df5826] hover:underline cursor-pointer">
+                            <i class="fas fa-rotate text-[10px]"></i>
+                            <span>Reset</span>
+                        </button>
                     </div>
                 </div>
 
                 {{-- CATATAN (OPSIONAL) --}}
                 <div>
-                    <label for="cash-out-notes" class="block text-xs font-bold text-[#111827] mb-1.5">
-                        Catatan / Keterangan Tambahan <span class="text-[10px] text-gray-400 font-normal">(Opsional)</span>
+                    <label for="cash-out-notes" class="block text-xs font-bold text-[#18181b] mb-1.5">
+                        Catatan <span class="text-[11px] text-gray-400 font-normal">(Opsional)</span>
                     </label>
                     <textarea id="cash-out-notes" x-model="form.notes" rows="2" maxlength="255"
-                              placeholder="Keterangan lebih lanjut (misal: warung sebelah, ada struk nota, dll)..."
-                              class="w-full px-3.5 py-2 rounded-[12px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:border-[#df5826] text-xs text-[#111827] outline-none transition placeholder:text-gray-400"></textarea>
-                </div>
-
-                {{-- NOTICE / HELPER INFO --}}
-                <div class="p-3 rounded-[12px] bg-amber-50 border border-amber-200 flex items-start gap-2.5">
-                    <i class="fas fa-info-circle text-amber-600 text-xs mt-0.5 shrink-0"></i>
-                    <p class="text-[11px] text-amber-900 leading-relaxed">
-                        Pengeluaran ini akan langsung tercatat di <strong>Rekonsiliasi Kas</strong> dan mengurangi target <strong>Kas Seharusnya</strong> pada shift aktif kasir.
-                    </p>
+                              placeholder="Contoh: beli di warung sebeleh"
+                              class="w-full px-3.5 py-2 rounded-[12px] border border-[#e6e5e0] bg-white focus:border-[#df5826] focus:ring-1 focus:ring-[#df5826] text-xs text-[#18181b] outline-none transition placeholder:text-gray-400 resize-none"></textarea>
                 </div>
 
                 {{-- ACTIONS --}}
-                <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-[#f0f0ee]">
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#f0f0ee]">
                     <button type="button" @click="closeModal()" 
-                            class="px-4 py-2.5 rounded-[10px] bg-white border border-[#d8dce2] text-xs font-semibold text-[#53565a] hover:bg-gray-50 transition cursor-pointer">
-                        Batal
+                            class="px-5 py-2.5 rounded-[12px] bg-white border border-[#e6e5e0] text-xs font-semibold text-[#71717a] hover:bg-gray-50 transition cursor-pointer">
+                        Batalkan
                     </button>
                     <button type="submit" :disabled="isSubmitting || !isFormValid"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-[10px] bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-bold text-white transition shadow-sm cursor-pointer">
+                            class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-[12px] bg-[#df5826] hover:bg-[#c84a1d] disabled:opacity-50 disabled:cursor-not-allowed text-xs font-bold text-white transition shadow-sm cursor-pointer">
                         <i class="fas" :class="isSubmitting ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                        <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Kas Keluar'"></span>
+                        <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Kas Keluar'">Simpan Kas Keluar</span>
                     </button>
                 </div>
             </form>
@@ -134,23 +147,23 @@ function cashOutModalHandler() {
     return {
         isOpen: false,
         isSubmitting: false,
+        categories: ['Operasional', 'Belanja Bahan', 'Lainnya'],
         suggestions: [
             'Beli Es Batu',
             'Gas LPG',
-            'Bahan Baku Tambahan',
-            'Operasional & Kebersihan',
-            'Parkir / Transport',
-            'Kasbon Karyawan',
-            'Lainnya'
+            'Kebersihan',
+            'Kasbon',
+            'Parkir'
         ],
         form: {
             item: '',
+            category: 'Operasional',
             amount: '',
             notes: ''
         },
 
         get isFormValid() {
-            return this.form.item.trim().length > 0 && Number(this.form.amount) >= 100;
+            return this.form.item && this.form.item.trim().length > 0 && Number(this.form.amount) >= 100;
         },
 
         get formattedAmount() {
@@ -161,6 +174,7 @@ function cashOutModalHandler() {
 
         openModal() {
             this.form.item = '';
+            this.form.category = 'Operasional';
             this.form.amount = '';
             this.form.notes = '';
             this.isOpen = true;
@@ -220,6 +234,7 @@ function cashOutModalHandler() {
                     },
                     body: JSON.stringify({
                         item: this.form.item,
+                        category: this.form.category,
                         amount: this.form.amount,
                         notes: this.form.notes
                     })

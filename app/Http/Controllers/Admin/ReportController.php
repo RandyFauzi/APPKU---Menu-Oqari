@@ -18,8 +18,22 @@ class ReportController extends Controller
         $filters = $request->validate([
             'date' => ['nullable', 'date_format:Y-m-d'], 'period' => ['nullable', 'in:daily,weekly,monthly,all'],
             'format' => ['nullable', 'in:csv'], 'page' => ['sometimes', 'integer', 'min:1'],
+            'cash_out_page' => ['sometimes', 'integer', 'min:1'], 'type' => ['nullable', 'in:orders,cash_out'],
         ]);
         if (($filters['format'] ?? null) === 'csv') {
+            $exportType = $filters['type'] ?? 'orders';
+            if ($exportType === 'cash_out') {
+                return response()->streamDownload(function () use ($request, $report, $filters): void {
+                    $stream = fopen('php://output', 'w');
+                    fwrite($stream, "\xEF\xBB\xBF");
+                    fputcsv($stream, ['ID', 'Waktu', 'Keperluan / Keterangan', 'Dicatat Oleh', 'Sesi Shift', 'Nominal Kas Keluar'], ',', '"', '');
+                    foreach ($report->cashOutRows($request->user(), $filters) as $row) {
+                        fputcsv($stream, $row, ',', '"', '');
+                    }
+                    fclose($stream);
+                }, 'laporan-kas-keluar.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+            }
+
             return response()->streamDownload(function () use ($request, $report, $filters): void {
                 $stream = fopen('php://output', 'w');
                 fwrite($stream, "\xEF\xBB\xBF");

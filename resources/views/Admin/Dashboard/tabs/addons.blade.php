@@ -146,7 +146,7 @@
                                 <span class="font-medium" x-text="item.name"></span>
                                 <span class="font-bold text-[11px] px-1.5 py-0.5 rounded-[6px]"
                                       :class="Number(item.price_adjustment) > 0 ? 'bg-[#fff0e6] text-[#df5826]' : 'bg-gray-200/60 text-gray-600'"
-                                      x-text="Number(item.price_adjustment) > 0 ? '+Rp' + formatRp(item.price_adjustment) : 'Gratis (Rp 0)'"></span>
+                                      x-text="Number(item.price_adjustment) > 0 ? '+' + formatRp(item.price_adjustment) : 'Gratis (Rp 0)'"></span>
                             </div>
                         </template>
                     </div>
@@ -316,25 +316,30 @@
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                             <input type="text" x-model="searchProd" placeholder="Cari menu..." class="w-full bg-[#f8f9fa] border border-[#e9ebf0] rounded-[8px] pl-8 pr-3 py-1.5 text-xs text-[#111827] outline-none focus:bg-white focus:border-[#df5826]">
                         </div>
-                        <button type="button" @click="addonModal.product_ids = shopProducts.map(p => p.id)" class="px-2.5 py-1.5 rounded-[8px] bg-gray-100 text-[11px] font-semibold text-gray-700 hover:bg-gray-200 shrink-0">
+                        <button type="button" @click="addonModal.product_ids = (shopProducts || []).map(p => Number(p.id))" class="px-2.5 py-1.5 rounded-[8px] bg-gray-100 text-[11px] font-semibold text-gray-700 hover:bg-gray-200 shrink-0 transition cursor-pointer">
                             Pilih Semua
                         </button>
-                        <button type="button" @click="addonModal.product_ids = []" class="px-2.5 py-1.5 rounded-[8px] bg-gray-100 text-[11px] font-semibold text-gray-700 hover:bg-gray-200 shrink-0">
+                        <button type="button" @click="addonModal.product_ids = []" class="px-2.5 py-1.5 rounded-[8px] bg-gray-100 text-[11px] font-semibold text-gray-700 hover:bg-gray-200 shrink-0 transition cursor-pointer">
                             Reset
                         </button>
                     </div>
 
                     <!-- Product Checklist Scroll Area -->
-                    <div class="max-h-40 overflow-y-auto space-y-1 p-2 bg-[#f8f9fa] rounded-[12px] border border-[#e9ebf0] custom-scroll">
-                        <template x-for="prod in shopProducts.filter(p => !searchProd || p.name.toLowerCase().includes(searchProd.toLowerCase()))" :key="prod.id">
-                            <label class="flex items-center justify-between p-2 rounded-[8px] bg-white border border-[#f1f3f5] hover:border-gray-300 cursor-pointer transition text-xs">
+                    <div class="max-h-48 overflow-y-auto space-y-1 p-2 bg-[#f8f9fa] rounded-[12px] border border-[#e9ebf0] custom-scroll">
+                        <template x-for="prod in (shopProducts || []).filter(p => !searchProd || (p.name && p.name.toLowerCase().includes(searchProd.toLowerCase().trim())))" :key="prod.id">
+                            <label class="flex items-center justify-between p-2 rounded-[8px] bg-white border border-[#f1f3f5] hover:border-[#df5826]/40 cursor-pointer transition text-xs select-none">
                                 <div class="flex items-center gap-2.5 truncate">
-                                    <input type="checkbox" :value="prod.id" x-model.number="addonModal.product_ids" class="rounded text-[#df5826] focus:ring-[#df5826] w-3.5 h-3.5">
+                                    <input type="checkbox" :value="prod.id" x-model.number="addonModal.product_ids" class="rounded text-[#df5826] focus:ring-[#df5826] w-3.5 h-3.5 cursor-pointer">
                                     <span class="font-medium text-[#111827] truncate" x-text="prod.name"></span>
+                                    <span x-show="prod.category_name" class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-normal shrink-0" x-text="prod.category_name"></span>
                                 </div>
-                                <span class="text-[11px] text-[#7f837e] font-mono shrink-0" x-text="'Rp ' + formatRp(prod.price)"></span>
+                                <span class="text-[11px] text-[#7f837e] font-mono shrink-0 pl-2" x-text="formatRp(prod.price)"></span>
                             </label>
                         </template>
+                        <div x-show="(shopProducts || []).filter(p => !searchProd || (p.name && p.name.toLowerCase().includes(searchProd.toLowerCase().trim()))).length === 0" class="py-6 text-center text-xs text-gray-400">
+                            <i class="fas fa-search mb-1.5 block text-gray-300 text-base"></i>
+                            <span x-text="searchProd ? 'Tidak ada menu yang cocok dengan kata kunci &quot;' + searchProd + '&quot;' : 'Belum ada menu di toko ini.'"></span>
+                        </div>
                     </div>
                 </div>
             </div>

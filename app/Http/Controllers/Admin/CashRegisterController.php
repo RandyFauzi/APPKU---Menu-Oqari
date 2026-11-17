@@ -122,10 +122,39 @@ class CashRegisterController extends Controller
                 $history->where('difference', $operator, 0);
             }
         }
+        if (! empty($filters['q'])) {
+            $searchTerm = '%'.$filters['q'].'%';
+            $history->where(function ($query) use ($searchTerm) {
+                $query->where('id', 'like', $searchTerm)
+                    ->orWhere('notes', 'like', $searchTerm)
+                    ->orWhereHas('user', fn ($u) => $u->where('name', 'like', $searchTerm))
+                    ->orWhereHas('register', fn ($r) => $r->where('name', 'like', $searchTerm));
+            });
+        }
+
+        $countsScope = (clone $scope);
+        if (! $user->can('view-reports')) {
+            $countsScope->where('user_id', $user->id);
+        }
+        if (! empty($filters['from'])) {
+            $countsScope->whereDate('opened_at', '>=', $filters['from']);
+        }
+        if (! empty($filters['to'])) {
+            $countsScope->whereDate('opened_at', '<=', $filters['to']);
+        }
+        $countItems = (clone $countsScope)->select('id', 'status', 'actual_cash', 'difference')->get();
+        $statusCounts = [
+            'ALL' => $countItems->count(),
+            'BALANCED' => $countItems->where('status', 'CLOSED')->whereNotNull('actual_cash')->where('difference', '==', 0)->count(),
+            'OVER' => $countItems->where('status', 'CLOSED')->whereNotNull('actual_cash')->where('difference', '>', 0)->count(),
+            'SHORT' => $countItems->where('status', 'CLOSED')->whereNotNull('actual_cash')->where('difference', '<', 0)->count(),
+            'UNCOUNTED' => $countItems->filter(fn ($s) => $s->status !== 'CLOSED' || is_null($s->actual_cash) || is_null($s->difference))->count(),
+        ];
+
         $shop = $user->shop;
         $sessions = $history->latest('id')->paginate(20)->withQueryString();
 
-        return view('Admin.Register.index', compact('activeSession', 'breakdown', 'sessions', 'filters', 'shop'));
+        return view('Admin.Register.index', compact('activeSession', 'breakdown', 'sessions', 'filters', 'shop', 'statusCounts'));
     }
 
     public function closeShift(CloseRegisterRequest $request, CloseRegister $closeRegister): JsonResponse|RedirectResponse
@@ -159,6 +188,7 @@ class CashRegisterController extends Controller
             'item' => ['required', 'string', 'max:150'],
             'amount' => ['required', 'numeric', 'min:100', 'max:999999999.99'],
             'notes' => ['nullable', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:50'],
         ], [
             'item.required' => 'Nama item atau keperluan pengeluaran wajib diisi.',
             'amount.required' => 'Nominal kas keluar wajib diisi.',
@@ -191,7 +221,8 @@ class CashRegisterController extends Controller
 
         $item = trim($validated['item']);
         $notes = ! empty($validated['notes']) ? trim($validated['notes']) : null;
-        $description = $notes ? "{$item} - {$notes}" : $item;
+        $categoryPrefix = ! empty($validated['category']) && $validated['category'] !== 'Operasional' ? '['.trim($validated['category']).'] ' : '';
+        $description = $notes ? "{$categoryPrefix}{$item} - {$notes}" : "{$categoryPrefix}{$item}";
 
         $transactionData = [
             'type' => 'CASH_OUT',
