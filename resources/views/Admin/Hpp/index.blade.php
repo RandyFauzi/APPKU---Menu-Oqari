@@ -287,11 +287,21 @@
                                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                             <span class="text-xs font-bold text-gray-400 font-mono select-none">Rp</span>
                                         </div>
-                                        <input id="selling-price" x-model="form.selling_price" type="number" min="0" max="99999999.99" step="0.01" required 
-                                            class="hpp-input hpp-input-prefix-rp !pl-12 text-base font-bold text-gray-900" placeholder="Contoh: 25000">
+                                        <input id="selling-price" type="text" inputmode="numeric" required 
+                                            :value="form.selling_price ? Number(form.selling_price).toLocaleString('id-ID') : ''"
+                                            @input="formatCurrencyField('selling_price', $event)"
+                                            class="hpp-input hpp-input-prefix-rp !pl-12 text-base font-bold text-gray-900" placeholder="Contoh: 25.000">
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-1">Harga jual yang Anda targetkan untuk melihat estimasi laba kotor &amp; margin.</p>
                                 </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
+                                <span class="text-xs text-gray-400">Pastikan target produksi dan harga jual sudah sesuai sebelum mengisi resep bahan.</span>
+                                <button type="button" @click="next()" :disabled="busy" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f06428] to-[#df5826] text-white font-bold text-xs shadow-sm hover:opacity-95 transition-all flex items-center gap-2 cursor-pointer shrink-0">
+                                    <span>Lanjut ke Bahan Baku</span>
+                                    <i class="fas fa-arrow-right text-xs"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -427,7 +437,9 @@
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                         <span class="text-xs font-bold text-gray-400 font-mono select-none">Rp</span>
                                     </div>
-                                    <input id="labor-cost" x-model="form.labor_cost" type="number" min="0" max="99999999.99" step="0.01" required 
+                                    <input id="labor-cost" type="text" inputmode="numeric" required 
+                                        :value="form.labor_cost ? Number(form.labor_cost).toLocaleString('id-ID') : (form.labor_cost === 0 ? '0' : '')"
+                                        @input="formatCurrencyField('labor_cost', $event)"
                                         class="hpp-input hpp-input-prefix-rp !pl-12 text-base font-bold text-gray-900" placeholder="0">
                                 </div>
                                 <p class="text-[11px] text-gray-400 mt-1">Isi 0 jika tidak mengalokasikan upah per siklus.</p>
@@ -478,8 +490,10 @@
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                                         <span class="text-xs font-bold text-gray-400 font-mono select-none">Rp</span>
                                     </div>
-                                    <input id="overhead-cost" x-model="form.overhead_cost" type="number" min="0" max="99999999.99" step="0.01" :required="form.overhead_mode === 'fixed'" 
-                                        class="hpp-input hpp-input-prefix-rp !pl-12 text-base font-bold text-gray-900" placeholder="Contoh: 5000">
+                                    <input id="overhead-cost" type="text" inputmode="numeric" :required="form.overhead_mode === 'fixed'" 
+                                        :value="form.overhead_cost ? Number(form.overhead_cost).toLocaleString('id-ID') : (form.overhead_cost === 0 ? '0' : '')"
+                                        @input="formatCurrencyField('overhead_cost', $event)"
+                                        class="hpp-input hpp-input-prefix-rp !pl-12 text-base font-bold text-gray-900" placeholder="Contoh: 5.000">
                                 </div>
                             </div>
 
@@ -691,22 +705,23 @@
                         </div>
 
                         {{-- WIZARD NAVIGATION CONTROLS (Sticky Bottom Bar) --}}
-                        <div class="mt-6 pt-4 border-t border-gray-200/80 flex items-center justify-between gap-3">
+                        <div class="sticky bottom-3 z-30 bg-white/95 backdrop-blur-md border border-[#e6e5e0] rounded-2xl p-4 shadow-[0_4px_24px_rgba(0,0,0,0.08)] flex items-center justify-between gap-3 mt-6">
                             <button type="button" 
                                     @click="goTo(step - 1)" 
                                     :disabled="busy || step === 1" 
-                                    class="px-5 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 text-[#111827] font-bold text-xs transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm">
+                                    class="px-5 py-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 text-[#111827] font-bold text-xs transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer">
                                 <i class="fas fa-arrow-left text-xs"></i>
                                 <span>Kembali</span>
                             </button>
 
-                            <div class="hidden sm:block text-xs font-semibold text-gray-400">
-                                Langkah <span x-text="step" class="text-[#df5826] font-bold"></span> dari 6
+                            <div class="text-xs font-semibold text-gray-400">
+                                Langkah <span x-text="step" class="text-[#df5826] font-bold"></span> dari 6:
+                                <span class="text-[#111827] font-bold ml-1" x-text="steps[step - 1]"></span>
                             </div>
 
                             <button type="submit" 
                                     :disabled="busy || step === 6" 
-                                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#f06428] to-[#df5826] text-white font-bold text-xs shadow-md shadow-orange-500/20 hover:opacity-95 transition-all flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                                    class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#f06428] to-[#df5826] text-white font-bold text-xs shadow-md shadow-orange-500/20 hover:opacity-95 transition-all flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
                                 <i class="fas fa-spinner fa-spin text-xs" x-show="busy"></i>
                                 <span x-text="busy ? 'Memproses…' : 'Lanjut ke: ' + (steps[step] || 'Selesai')"></span>
                                 <i class="fas fa-arrow-right text-xs" x-show="!busy && step < 6"></i>
@@ -858,7 +873,10 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label for="purchase-total" class="block text-xs font-bold text-gray-700 mb-1.5">Harga Beli Total (Rp) <span class="text-red-500">*</span></label>
-                            <input id="purchase-total" x-model="newMaterial.purchase_total" type="number" min="0.01" max="99999999.99" step="0.01" class="hpp-input" placeholder="Contoh: 28000">
+                            <input id="purchase-total" type="text" inputmode="numeric"
+                                :value="newMaterial.purchase_total ? Number(newMaterial.purchase_total).toLocaleString('id-ID') : ''"
+                                @input="formatNewMaterialPurchaseTotal($event)"
+                                class="hpp-input" placeholder="Contoh: 28.000">
                         </div>
 
                         <div>
@@ -947,6 +965,7 @@ function hppCalculator() {
 
         invalidate() {
             this.saved = '';
+            this.result = null;
         },
 
         materialFor(row) {
@@ -964,7 +983,6 @@ function hppCalculator() {
             const unit = (this.materialFor(row)?.unit || '').toLowerCase();
             return ['g', 'gram', 'kg'].includes(unit) ? ['gram', 'kg'] : 
                    ['ml', 'l', 'liter'].includes(unit) ? ['ml', 'liter'] : 
-                   ['pcs', 'cup'].includes(unit) ? ['pcs', 'cup'] :
                    unit ? [unit] : [];
         },
 
@@ -1046,6 +1064,45 @@ function hppCalculator() {
                    new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(value) + '%';
         },
 
+        formatCurrencyField(field, e) {
+            const input = e.target;
+            const oldVal = input.value;
+            const oldCursor = input.selectionStart || 0;
+            const digitsBefore = oldVal.slice(0, oldCursor).replace(/\D/g, '').length;
+            const clean = oldVal.replace(/\D/g, '');
+            const num = clean ? parseInt(clean, 10) : 0;
+            this.form[field] = clean ? num : '';
+            this.invalidate();
+            const formatted = num > 0 ? num.toLocaleString('id-ID') : '';
+            input.value = formatted;
+            let newCursor = 0, count = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) count++;
+                if (count === digitsBefore) { newCursor = i + 1; break; }
+            }
+            if (count < digitsBefore) newCursor = formatted.length;
+            input.setSelectionRange(newCursor, newCursor);
+        },
+
+        formatNewMaterialPurchaseTotal(e) {
+            const input = e.target;
+            const oldVal = input.value;
+            const oldCursor = input.selectionStart || 0;
+            const digitsBefore = oldVal.slice(0, oldCursor).replace(/\D/g, '').length;
+            const clean = oldVal.replace(/\D/g, '');
+            const num = clean ? parseInt(clean, 10) : 0;
+            this.newMaterial.purchase_total = clean ? num : '';
+            const formatted = num > 0 ? num.toLocaleString('id-ID') : '';
+            input.value = formatted;
+            let newCursor = 0, count = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) count++;
+                if (count === digitsBefore) { newCursor = i + 1; break; }
+            }
+            if (count < digitsBefore) newCursor = formatted.length;
+            input.setSelectionRange(newCursor, newCursor);
+        },
+
         addRow() {
             this.form.recipes.push({
                 key: this.nextKey++,
@@ -1108,10 +1165,7 @@ function hppCalculator() {
             
             if (!this.validateStep()) return;
             
-            // Jika berada di step 4 ke atas dan bahan valid, sinkronkan via API
-            if (this.step >= 4 && this.hasValidRecipes()) {
-                if (!(await this.calculate())) return;
-            }
+            if (this.step >= 4 && !(await this.calculate())) return;
             
             if (this.step < 6) {
                 this.step++;
@@ -1124,18 +1178,17 @@ function hppCalculator() {
         },
 
         payload() {
-            const validRecipes = this.form.recipes
-                .filter(r => Boolean(r.raw_material_id) && Number(r.amount) > 0)
-                .map(({raw_material_id, amount, unit, notes}) => ({
-                    raw_material_id: Number(raw_material_id),
-                    amount: Number(amount),
-                    unit: unit || '',
-                    notes: notes || ''
-                }));
+            const mappedRecipes = this.form.recipes.map(({raw_material_id, amount, unit, notes}) => ({
+                raw_material_id: raw_material_id ? Number(raw_material_id) : raw_material_id,
+                amount: amount !== '' && amount !== null ? Number(amount) : amount,
+                unit: unit || '',
+                notes: notes || ''
+            }));
+            const validRecipes = mappedRecipes.filter(r => Boolean(r.raw_material_id) && Number(r.amount) > 0);
                 
             return {
                 ...this.form,
-                recipes: validRecipes.length > 0 ? validRecipes : this.form.recipes,
+                recipes: validRecipes.length > 0 ? validRecipes : mappedRecipes,
                 target_margin: this.form.target_margin === '' ? null : this.form.target_margin,
                 target_markup: this.form.target_markup === '' ? null : this.form.target_markup
             };

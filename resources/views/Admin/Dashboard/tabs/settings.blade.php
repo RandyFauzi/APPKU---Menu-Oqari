@@ -43,7 +43,7 @@
                             <!-- Banner -->
                             <div class="w-full md:w-2/3">
                                 <div class="flex items-center justify-between mb-3">
-                                    <label class="block text-sm font-bold text-ink">Banner Promo (Max 3)</label>
+                                    <label class="block text-sm font-bold text-ink">Banner Promo (Max 5)</label>
                                     <div @click="settings.is_banner_active = !settings.is_banner_active" class="relative inline-flex items-center cursor-pointer group p-1 -mr-1">
                                         <div class="w-10 h-[22px] rounded-full transition-colors duration-300 ease-in-out relative shadow-inner" :class="settings.is_banner_active ? 'bg-primary' : 'bg-gray-300'">
                                             <div class="w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ease-in-out absolute top-[3px] left-[3px]" :class="settings.is_banner_active ? 'translate-x-[18px]' : 'translate-x-0'"></div>
@@ -51,17 +51,17 @@
                                         <span class="ml-2 text-xs font-bold transition-colors" :class="settings.is_banner_active ? 'text-primary' : 'text-gray-400'">Aktif</span>
                                     </div>
                                 </div>
-                                <div class="grid grid-cols-3 gap-2" :class="!settings.is_banner_active ? 'opacity-50 pointer-events-none' : ''">
-                                    <template x-for="(banner, idx) in 3" :key="idx">
+                                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2" :class="!settings.is_banner_active ? 'opacity-50 pointer-events-none' : ''">
+                                    <template x-for="(banner, idx) in 5" :key="idx">
                                         <div class="w-full aspect-[21/9] rounded-xl border-2 border-dashed border-line flex items-center justify-center bg-ivory overflow-hidden relative group cursor-pointer" @click="document.getElementById('bannerInput' + idx).click()">
                                             <img x-show="settings.banners[idx]" :src="settings.banners[idx]" x-on:error="settings.banners[idx] = null" class="w-full h-full object-cover">
-                                            <div x-show="!settings.banners[idx]" class="flex flex-col items-center text-muted">
-                                                <i class="fas fa-image text-xl mb-1 text-line"></i>
-                                                <span class="text-[9px] font-semibold" x-text="'Banner ' + (idx+1)"></span>
+                                            <div x-show="!settings.banners[idx]" class="flex flex-col items-center text-muted p-1 text-center">
+                                                <i class="fas fa-image text-lg mb-0.5 text-line"></i>
+                                                <span class="text-[9px] font-semibold leading-none" x-text="'Banner ' + (idx+1)"></span>
                                             </div>
-                                            <div class="absolute inset-0 bg-ink/60 backdrop-blur-sm flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <i class="fas fa-camera text-white mb-1"></i>
-                                                <button x-show="settings.banners[idx]" @click.stop="settings.banners[idx] = null; settings.bannerFiles[idx] = null; settings.bannerPaths[idx] = null" class="text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-full hover:bg-red-600">Hapus</button>
+                                            <div class="absolute inset-0 bg-ink/60 backdrop-blur-xs flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                                                <i class="fas fa-camera text-white mb-1 text-xs"></i>
+                                                <button x-show="settings.banners[idx]" @click.stop="settings.banners[idx] = null; settings.bannerFiles[idx] = null; settings.bannerPaths[idx] = null" class="text-[8px] bg-red-500 text-white px-2 py-0.5 rounded-full hover:bg-red-600 transition">Hapus</button>
                                             </div>
                                             <input type="file" :id="'bannerInput' + idx" @change="(e) => { 
                                                 const file = e.target.files[0]; 

@@ -779,6 +779,8 @@ class DashboardController extends Controller
             'banner_0' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
             'banner_1' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
             'banner_2' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
+            'banner_3' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
+            'banner_4' => 'nullable|mimes:jpeg,png,jpg,webp|max:5120',
             'background_type' => 'nullable|string|in:solid,pattern,image',
             'background_pattern' => 'nullable|string|max:50',
             'background_color' => 'nullable|string|max:20',
@@ -935,7 +937,7 @@ class DashboardController extends Controller
         $banners = [];
         $existingBanners = $shop->banner_paths ?? [];
 
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             if ($request->hasFile("banner_{$i}")) {
                 $path = app(MediaService::class)
                     ->storeShopBranding($request->file("banner_{$i}"), $shopId, "banner_{$i}");

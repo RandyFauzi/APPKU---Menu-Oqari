@@ -12,6 +12,41 @@ class CalculateHppRequest extends FormRequest
         return $this->user()?->shop_id && $this->user()->can('manage-hpp');
     }
 
+    protected function prepareForValidation(): void
+    {
+        foreach (['selling_price', 'labor_cost', 'overhead_cost', 'production_quantity', 'target_margin', 'target_markup', 'tax_rate'] as $field) {
+            if ($this->has($field) && is_string($this->input($field))) {
+                $val = trim($this->input($field));
+                if (preg_match('/^\d{1,3}(\.\d{3})+(,\d+)?$/', $val)) {
+                    $val = str_replace('.', '', $val);
+                    $val = str_replace(',', '.', $val);
+                    $this->merge([$field => $val]);
+                } elseif (preg_match('/^\d+,\d+$/', $val)) {
+                    $val = str_replace(',', '.', $val);
+                    $this->merge([$field => $val]);
+                }
+            }
+        }
+
+        if ($this->has('recipes') && is_array($this->recipes)) {
+            $recipes = $this->recipes;
+            foreach ($recipes as $idx => $recipe) {
+                if (isset($recipe['amount']) && is_string($recipe['amount'])) {
+                    $amount = trim($recipe['amount']);
+                    if (preg_match('/^\d{1,3}(\.\d{3})+(,\d+)?$/', $amount)) {
+                        $amount = str_replace('.', '', $amount);
+                        $amount = str_replace(',', '.', $amount);
+                        $recipes[$idx]['amount'] = $amount;
+                    } elseif (preg_match('/^\d+,\d+$/', $amount)) {
+                        $amount = str_replace(',', '.', $amount);
+                        $recipes[$idx]['amount'] = $amount;
+                    }
+                }
+            }
+            $this->merge(['recipes' => $recipes]);
+        }
+    }
+
     /** @return array<string, array<int, mixed>> */
     public function rules(): array
     {

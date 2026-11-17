@@ -7,6 +7,7 @@ use App\Models\Shop;
 use App\Models\User;
 use App\Services\MediaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -178,5 +179,35 @@ class ShopBrandingTest extends TestCase
 
         // External URL should remain intact
         $this->assertSame('https://images.unsplash.com/photo-123', $service->url('https://images.unsplash.com/photo-123'));
+    }
+
+    public function test_can_save_up_to_five_banners(): void
+    {
+        Storage::fake('public');
+
+        $shop = Shop::factory()->create([
+            'onboarding_status' => 'completed',
+            'banner_paths' => [],
+        ]);
+        $owner = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
+
+        $payload = [
+            'name' => $shop->name,
+            'slug' => $shop->slug,
+            'is_banner_active' => true,
+            'banner_0' => UploadedFile::fake()->image('banner0.jpg'),
+            'banner_1' => UploadedFile::fake()->image('banner1.jpg'),
+            'banner_2' => UploadedFile::fake()->image('banner2.jpg'),
+            'banner_3' => UploadedFile::fake()->image('banner3.jpg'),
+            'banner_4' => UploadedFile::fake()->image('banner4.jpg'),
+        ];
+
+        $response = $this->actingAs($owner)->post('/admin/api/settings', $payload, ['Accept' => 'application/json']);
+
+        $response->assertOk()->assertJson(['success' => true]);
+
+        $shop->refresh();
+        $this->assertCount(5, $shop->banner_paths);
+        $this->assertCount(5, $shop->banners);
     }
 }

@@ -1935,9 +1935,9 @@
                     whatsapp_number: window.INITIAL_DATA.shop?.whatsapp_number || '',
                     maps_link: window.INITIAL_DATA.shop?.maps_link || '',
                     is_banner_active: window.INITIAL_DATA.shop?.is_banner_active ?? true,
-                    banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : (b.startsWith('uploads/') ? '/' + b : '/uploads/' + b)) : null).concat([null, null, null]).slice(0, 3),
-                    bannerFiles: [null, null, null],
-                    bannerPaths: (window.INITIAL_DATA.shop?.banners || []).concat([null, null, null]).slice(0, 3),
+                    banners: (window.INITIAL_DATA.shop?.banners || []).map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : (b.startsWith('uploads/') ? '/' + b : '/uploads/' + b)) : null).concat([null, null, null, null, null]).slice(0, 5),
+                    bannerFiles: [null, null, null, null, null],
+                    bannerPaths: (window.INITIAL_DATA.shop?.banners || []).concat([null, null, null, null, null]).slice(0, 5),
                     background_type: window.INITIAL_DATA.shop?.background_type || 'pattern',
                     background_pattern: window.INITIAL_DATA.shop?.background_pattern || 'dots',
                     background_color: window.INITIAL_DATA.shop?.background_color || '#fdfbf7',
@@ -5169,7 +5169,7 @@ if (res.ok) {
                         formData.append('logo', this.$refs.logoInput.files[0]);
                     }
                     formData.append('is_banner_active', this.settings.is_banner_active ? 1 : 0);
-                    for (let i = 0; i < 3; i++) {
+                    for (let i = 0; i < 5; i++) {
                         const bInput = document.getElementById('bannerInput' + i);
                         if (this.settings.bannerFiles[i] && bInput && bInput.files.length > 0) {
                             formData.append(`banner_${i}`, bInput.files[0]);
@@ -5207,9 +5207,9 @@ if (res.ok) {
                             }
                             
                             if (data.shop && data.shop.banners) {
-                                this.settings.bannerPaths = data.shop.banners.concat([null, null, null]).slice(0, 3);
-                                this.settings.banners = data.shop.banners.map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : (b.startsWith('uploads/') ? '/' + b : '/uploads/' + b)) : null).concat([null, null, null]).slice(0, 3);
-                                this.settings.bannerFiles = [null, null, null];
+                                this.settings.bannerPaths = data.shop.banners.concat([null, null, null, null, null]).slice(0, 5);
+                                this.settings.banners = data.shop.banners.map(b => b ? (b.startsWith('http') || b.startsWith('/') ? b : (b.startsWith('uploads/') ? '/' + b : '/uploads/' + b)) : null).concat([null, null, null, null, null]).slice(0, 5);
+                                this.settings.bannerFiles = [null, null, null, null, null];
                             }
 
                             if (data.shop) {

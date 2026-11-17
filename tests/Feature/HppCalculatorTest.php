@@ -29,6 +29,16 @@ class HppCalculatorTest extends TestCase
         $this->assertDatabaseCount('activity_logs', 0);
     }
 
+    public function test_thousand_separator_dots_and_commas_are_normalized_in_hpp_calculate(): void
+    {
+        [$user, $material, $product, $data] = $this->scenario();
+        $data['selling_price'] = '25.000';
+        $data['labor_cost'] = '5.000';
+        $data['overhead_cost'] = '1.000';
+        $this->actingAs($user)->postJson(route('admin.hpp.calculate'), $data)->assertOk()
+            ->assertJsonPath('result.selling_price', 25000);
+    }
+
     public function test_save_updates_recipe_and_cost_without_changing_price_or_stock(): void
     {
         [$user, $material, $product, $data] = $this->scenario();

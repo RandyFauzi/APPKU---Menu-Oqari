@@ -32,6 +32,20 @@ class StoreHppMaterialRequest extends FormRequest
                 $this->merge(['unit' => $resolved]);
             }
         }
+
+        foreach (['purchase_total', 'purchase_quantity'] as $field) {
+            if ($this->has($field) && is_string($this->input($field))) {
+                $val = trim($this->input($field));
+                if (preg_match('/^\d{1,3}(\.\d{3})+(,\d+)?$/', $val)) {
+                    $val = str_replace('.', '', $val);
+                    $val = str_replace(',', '.', $val);
+                    $this->merge([$field => $val]);
+                } elseif (preg_match('/^\d+,\d+$/', $val)) {
+                    $val = str_replace(',', '.', $val);
+                    $this->merge([$field => $val]);
+                }
+            }
+        }
     }
 
     /** @return array<string, array<int, mixed>> */
