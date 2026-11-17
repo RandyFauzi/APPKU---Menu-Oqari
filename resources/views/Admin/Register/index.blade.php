@@ -676,9 +676,7 @@
                         @endphp
 
                         <a href="{{ $buildStatusUrl('') }}"
-                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition"
-                           class="{{ empty($currentStatus) ? 'bg-[#18181b] text-white border-[#18181b]' : 'bg-white text-[#71717a] border-[#e6e5e0] hover:bg-gray-50' }}"
-                           style="{{ empty($currentStatus) ? 'background-color: #18181b; color: white;' : '' }}">
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition {{ empty($currentStatus) ? 'bg-[#18181b] text-white border-[#18181b]' : 'bg-white text-[#71717a] border-[#e6e5e0] hover:bg-gray-50' }}">
                             <span>Semua Status</span>
                             <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ empty($currentStatus) ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700' }}">
                                 {{ $statusCounts['ALL'] ?? $sessions->total() }}
@@ -686,8 +684,7 @@
                         </a>
 
                         <a href="{{ $buildStatusUrl('BALANCED') }}"
-                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition"
-                           style="{{ $currentStatus === 'BALANCED' ? 'background-color: #ecfdf5; border-color: #10b981; color: #047857;' : 'background-color: white; border-color: #e6e5e0; color: #71717a;' }}">
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition {{ $currentStatus === 'BALANCED' ? 'bg-[#ecfdf5] border-[#10b981] text-[#047857]' : 'bg-white text-[#71717a] border-[#e6e5e0] hover:bg-gray-50' }}">
                             <span>Kas Sesuai</span>
                             <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100/60 text-emerald-800">
                                 {{ $statusCounts['BALANCED'] ?? 0 }}
@@ -695,8 +692,7 @@
                         </a>
 
                         <a href="{{ $buildStatusUrl('OVER') }}"
-                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition"
-                           style="{{ $currentStatus === 'OVER' ? 'background-color: #fff7ed; border-color: #f97316; color: #c2410c;' : 'background-color: white; border-color: #e6e5e0; color: #71717a;' }}">
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition {{ $currentStatus === 'OVER' ? 'bg-[#fff7ed] border-[#f97316] text-[#c2410c]' : 'bg-white text-[#71717a] border-[#e6e5e0] hover:bg-gray-50' }}">
                             <span>Kas Lebih</span>
                             <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100/60 text-amber-800">
                                 {{ $statusCounts['OVER'] ?? 0 }}
@@ -704,8 +700,7 @@
                         </a>
 
                         <a href="{{ $buildStatusUrl('SHORT') }}"
-                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition"
-                           style="{{ $currentStatus === 'SHORT' ? 'background-color: #fef2f2; border-color: #ef4444; color: #b91c1c;' : 'background-color: white; border-color: #e6e5e0; color: #71717a;' }}">
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition {{ $currentStatus === 'SHORT' ? 'bg-[#fef2f2] border-[#ef4444] text-[#b91c1c]' : 'bg-white text-[#71717a] border-[#e6e5e0] hover:bg-gray-50' }}">
                             <span>Kas Kurang</span>
                             <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-red-100/60 text-red-800">
                                 {{ $statusCounts['SHORT'] ?? 0 }}
@@ -713,8 +708,7 @@
                         </a>
 
                         <a href="{{ $buildStatusUrl('UNCOUNTED') }}"
-                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition"
-                           style="{{ $currentStatus === 'UNCOUNTED' ? 'background-color: #f4f4f5; border-color: #71717a; color: #18181b;' : 'background-color: white; border-color: #e6e5e0; color: #71717a;' }}">
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition {{ $currentStatus === 'UNCOUNTED' ? 'bg-[#f4f4f5] border-[#71717a] text-[#18181b]' : 'bg-white text-[#71717a] border-[#e6e5e0] hover:bg-gray-50' }}">
                             <span>Belum dihitung</span>
                             <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-gray-200 text-gray-700">
                                 {{ $statusCounts['UNCOUNTED'] ?? 0 }}
