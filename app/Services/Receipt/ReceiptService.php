@@ -34,7 +34,8 @@ class ReceiptService
 
         $itemsData = $order->items->map(function ($item) use ($order) {
             $rawServingType = $item->serving_type ?? (str_contains((string) $item->notes, '[TAKEAWAY]') ? 'TAKEAWAY' : ($order->fulfillment_type ?? 'DINE_IN'));
-            $servingType = strtoupper((string) $rawServingType) === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN';
+            $upper = strtoupper((string) $rawServingType);
+            $servingType = in_array($upper, ['TAKEAWAY', 'DELIVERY'], true) ? $upper : 'DINE_IN';
 
             return [
                 'id' => $item->id,

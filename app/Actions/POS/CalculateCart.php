@@ -86,7 +86,7 @@ class CalculateCart
             $totalCogs += $lineCogs;
 
             $rawServingType = strtoupper((string) ($item['serving_type'] ?? 'DINE_IN'));
-            $servingType = in_array($rawServingType, ['DINE_IN', 'TAKEAWAY'], true) ? $rawServingType : 'DINE_IN';
+            $servingType = in_array($rawServingType, ['DINE_IN', 'TAKEAWAY', 'DELIVERY'], true) ? $rawServingType : 'DINE_IN';
 
             $resolved[] = [
                 'product_id' => $product->id,

@@ -44,6 +44,11 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .custom-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 #f8f9fa; }
+        .queue-scroll::-webkit-scrollbar { width: 5px; }
+        .queue-scroll::-webkit-scrollbar-track { background: transparent; }
+        .queue-scroll::-webkit-scrollbar-thumb { background: #ffd6bd; border-radius: 9999px; }
+        .queue-scroll::-webkit-scrollbar-thumb:hover { background: #f9731f; }
+        .queue-scroll { scrollbar-width: thin; scrollbar-color: #ffd6bd transparent; }
         [x-cloak] { display: none !important; }
         .dashed-box { background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23CFCFCF' stroke-width='2' stroke-dasharray='8%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e"); border-radius: 16px; }
     </style>

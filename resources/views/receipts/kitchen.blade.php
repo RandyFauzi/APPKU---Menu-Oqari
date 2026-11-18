@@ -225,8 +225,9 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 
     {{-- Kitchen Prep Items Table with Dine In / Takeaway Separation Check --}}
     @php
-        $hasDineIn = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') !== 'TAKEAWAY');
-        $hasTakeaway = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY');
+        $isDelivery = strtoupper($receiptData->fulfillmentType ?? '') === 'DELIVERY';
+        $hasDineIn = !$isDelivery && collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'DINE_IN');
+        $hasTakeaway = !$isDelivery && collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY');
         $isMixed = $hasDineIn && $hasTakeaway;
     @endphp
 
@@ -323,7 +324,11 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
             </table>
         @endif
     @else
-        @if($hasTakeaway)
+        @if(strtoupper($receiptData->fulfillmentType ?? '') === 'DELIVERY')
+            <div style="font-weight: 900; font-size: 11px; padding: 2px 0; border-bottom: 2px solid #000; margin-bottom: 4px;">
+                === 🛵 PESANAN DELIVERY ===
+            </div>
+        @elseif($hasTakeaway)
             <div style="font-weight: 900; font-size: 11px; padding: 2px 0; border-bottom: 2px solid #000; margin-bottom: 4px;">
                 === 🛍️ SEMUA TAKEAWAY (BUNGKUS) ===
             </div>

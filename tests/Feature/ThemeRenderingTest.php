@@ -64,7 +64,7 @@ class ThemeRenderingTest extends TestCase
         $this->actingAs($cashier);
         foreach (['admin.pos.index', 'admin.register.index', 'admin.attendance.index', 'profile.edit'] as $route) {
             $response = $this->get(route($route))->assertOk()->assertSee('data-cafe-sidebar', false)
-                ->assertSee('aria-label="POS (Kasir)"', false)->assertSee('aria-label="Rekonsiliasi Kas"', false)
+                ->assertSee('aria-label="POS (Kasir)"', false)->assertSee('aria-label="Hitung Uang Kas"', false)
                 ->assertDontSee('aria-label="User &amp; Hak Akses"', false)->assertDontSee('aria-label="Kalkulator HPP"', false);
             $this->assertSame(1, substr_count($response->getContent(), 'data-cafe-sidebar'));
         }

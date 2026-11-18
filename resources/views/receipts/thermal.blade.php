@@ -223,14 +223,15 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 
     {{-- Items Table with Dine In / Takeaway Separation Check --}}
     @php
-        $hasDineIn = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') !== 'TAKEAWAY');
-        $hasTakeaway = collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY');
+        $isDelivery = strtoupper($receiptData->fulfillmentType ?? '') === 'DELIVERY';
+        $hasDineIn = !$isDelivery && collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'DINE_IN');
+        $hasTakeaway = !$isDelivery && collect($receiptData->items)->contains(fn($i) => strtoupper($i['serving_type'] ?? '') === 'TAKEAWAY');
         $isMixed = $hasDineIn && $hasTakeaway;
     @endphp
 
     <div class="flex-between text-[11px] mb-1">
-        <span>Tipe: {{ $isMixed ? 'Dine In / Takeaway' : (strtoupper($receiptData->fulfillmentType ?? '') === 'TAKEAWAY' ? 'Takeaway (Bungkus)' : (strtoupper($receiptData->fulfillmentType ?? '') === 'DELIVERY' ? 'Delivery' : 'Dine-in')) }}</span>
-        @if($receiptData->tableName && strtoupper($receiptData->fulfillmentType ?? '') !== 'TAKEAWAY')
+        <span>Tipe: {{ $isMixed ? 'Dine In / Takeaway' : (strtoupper($receiptData->fulfillmentType ?? '') === 'TAKEAWAY' ? 'Takeaway (Bungkus)' : ($isDelivery ? 'Delivery' : 'Dine-in')) }}</span>
+        @if($receiptData->tableName && strtoupper($receiptData->fulfillmentType ?? '') !== 'TAKEAWAY' && !$isDelivery)
             <span class="font-bold">Meja: {{ $receiptData->tableName }}</span>
         @endif
     </div>

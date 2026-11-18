@@ -9,7 +9,7 @@ $groups = [
         ['view-orders', 'Pesanan Aktif', 'fa-receipt', 'admin.orders.index', 'images/sparta/nav-pesanan.svg'],
         ['record-attendance', 'Absensi', 'fa-user-clock', 'admin.attendance.index', 'images/sparta/nav-absensi.svg'],
         ['view-kitchen', 'Layar Dapur', 'fa-fire-burner', 'admin.kitchen.index', 'images/sparta/nav-dapur.svg'],
-        ['manage-register', 'Rekonsiliasi Kas', 'fa-wallet', 'admin.register.index', 'images/sparta/nav-rekonsiliasi.svg'],
+        ['manage-register', 'Hitung Uang Kas', 'fa-wallet', 'admin.register.index', 'images/sparta/nav-rekonsiliasi.svg'],
     ],
     'Menu & Stok' => [
         ['manage-menu', 'Kelola Menu', 'fa-burger', 'admin.menu.index', 'images/sparta/nav-menu.svg'],

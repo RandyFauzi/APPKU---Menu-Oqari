@@ -400,4 +400,84 @@ class OpenBillTest extends TestCase
         $order = Order::with('items')->findOrFail($orderId);
         $this->assertEquals(60000, (float) $order->grand_total);
     }
+
+    public function test_cashier_can_submit_delivery_order_with_delivery_serving_type(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $cashier = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
+        $register = \App\Models\CashRegister::create(['shop_id' => $shop->id, 'name' => 'Main Register', 'is_active' => true]);
+        \App\Models\CashRegisterSession::create([
+            'cash_register_id' => $register->id,
+            'user_id' => $cashier->id,
+            'opened_at' => now(),
+            'opening_cash' => 100000,
+            'status' => 'OPEN',
+        ]);
+        $product = Product::factory()->create(['shop_id' => $shop->id, 'price' => 35000]);
+
+        $payload = [
+            'request_id' => (string) \Illuminate\Support\Str::uuid(),
+            'customer_name' => 'Budi Delivery',
+            'fulfillment_type' => 'DELIVERY',
+            'payment_method' => 'CASH',
+            'amount_paid' => 35000,
+            'items' => [
+                [
+                    'id' => $product->id,
+                    'qty' => 1,
+                    'serving_type' => 'DELIVERY',
+                    'notes' => 'Tolong antar cepat ya',
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($cashier)->postJson(route('admin.pos.orders.submit'), $payload);
+
+        $response->assertOk()
+            ->assertJson([
+                'success' => true,
+                'total' => 35000,
+            ]);
+
+        $order = Order::findOrFail($response->json('order_id'));
+        $this->assertSame('CONFIRMED', $order->order_status);
+        $this->assertSame('PAID', $order->payment_status);
+        $this->assertSame('DELIVERY', $order->fulfillment_type);
+        $this->assertSame('Budi Delivery', $order->customer_name);
+        $this->assertNull($order->table_id);
+        $this->assertSame('DELIVERY', $order->items->first()->serving_type);
+    }
+
+    public function test_cashier_can_hold_and_recall_delivery_order_with_delivery_serving_type(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $cashier = User::factory()->create(['shop_id' => $shop->id, 'role' => 'cashier']);
+        $product = Product::factory()->create(['shop_id' => $shop->id, 'price' => 35000]);
+
+        $holdPayload = [
+            'customer_name' => 'Siti Delivery',
+            'fulfillment_type' => 'DELIVERY',
+            'items' => [
+                [
+                    'id' => $product->id,
+                    'qty' => 1,
+                    'serving_type' => 'DELIVERY',
+                ],
+            ],
+        ];
+
+        $holdRes = $this->actingAs($cashier)->postJson(route('admin.pos.orders.hold'), $holdPayload);
+        $holdRes->assertOk()->assertJson(['success' => true]);
+        $orderId = $holdRes->json('order_id');
+
+        $order = Order::findOrFail($orderId);
+        $this->assertSame('HOLD', $order->order_status);
+        $this->assertSame('DELIVERY', $order->fulfillment_type);
+        $this->assertSame('DELIVERY', $order->items->first()->serving_type);
+
+        $recallRes = $this->actingAs($cashier)->postJson("/admin/pos/orders/{$orderId}/recall");
+        $recallRes->assertOk()
+            ->assertJsonPath('order.fulfillment_type', 'DELIVERY')
+            ->assertJsonPath('order.items.0.serving_type', 'DELIVERY');
+    }
 }

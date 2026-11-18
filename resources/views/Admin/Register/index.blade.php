@@ -16,9 +16,9 @@
     </style>
     <x-theme-head :shop="$shop ?? null" />
 </head>
-<body class="sparta-register min-h-screen bg-[#fafaf9] text-[#18181b] antialiased" 
+<body class="sparta-register min-h-screen bg-white text-[#18181b] antialiased" 
       x-data="reconciliationRoot('{{ request('tab', (request()->hasAny(['from', 'to', 'status', 'q', 'page'])) ? 'riwayat' : 'hitung') }}')">
-<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content flex flex-col min-h-screen bg-[#fafaf9]">
+<div class="cafe-page-shell"><x-cafe-sidebar /><div class="cafe-page-content flex flex-col min-h-screen bg-white">
     <a href="#register-content" class="sr-only focus:not-sr-only">Lewati navigasi</a>
 
     {{-- TOPBAR (Sparta Standard Header) --}}

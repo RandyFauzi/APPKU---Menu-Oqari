@@ -41,8 +41,9 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 </div>
 
 @php
-    $hasDineIn = collect($order->items)->contains(fn($i) => strtoupper($i->serving_type ?? '') !== 'TAKEAWAY');
-    $hasTakeaway = collect($order->items)->contains(fn($i) => strtoupper($i->serving_type ?? '') === 'TAKEAWAY');
+    $isDelivery = strtoupper($order->fulfillment_type ?? '') === 'DELIVERY';
+    $hasDineIn = !$isDelivery && collect($order->items)->contains(fn($i) => strtoupper($i->serving_type ?? '') === 'DINE_IN');
+    $hasTakeaway = !$isDelivery && collect($order->items)->contains(fn($i) => strtoupper($i->serving_type ?? '') === 'TAKEAWAY');
     $isMixed = $hasDineIn && $hasTakeaway;
 @endphp
 
@@ -62,7 +63,7 @@ h1, h2, h3, h4, p { margin: 0; padding: 0; }
 
 <div class="mb-1">Customer: {{ $order->customer_name ?: 'Guest' }}</div>
 <div class="mb-1">Tipe: {{ $isMixed ? 'Dine In / Take Away' : (strtoupper($order->fulfillment_type ?? '') === 'TAKEAWAY' ? 'Take Away (Bungkus)' : (strtoupper($order->fulfillment_type ?? '') === 'DELIVERY' ? 'Delivery' : 'Dine In')) }}</div>
-<div class="mb-1">Meja: {{ $order->table ? $order->table->name : 'Takeaway' }}</div>
+<div class="mb-1">Meja: {{ $order->table ? $order->table->name : ($isDelivery ? 'Delivery' : 'Takeaway') }}</div>
 <div class="divider"></div>
 
 <table class="items mb-2">
