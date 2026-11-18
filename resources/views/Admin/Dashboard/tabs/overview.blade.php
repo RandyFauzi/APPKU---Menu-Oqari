@@ -152,8 +152,8 @@
                                         <div class="w-[30px] h-[30px] rounded-[8px] bg-[#fff6f0] border border-[#ffd6bd] flex items-center justify-center shrink-0">
                                             <span class="text-[11px] font-bold text-[#c94d00]" x-text="item.badgeText">01</span>
                                         </div>
-                                        <div>
-                                            <p class="text-[12px] font-bold text-[#111827] leading-tight" x-text="item.titleText">Meja 01</p>
+                                        <div class="min-w-0">
+                                            <p class="text-[12px] font-bold text-[#111827] leading-tight truncate" x-text="item.titleText">Meja 01</p>
                                             <div class="flex items-center gap-1 text-[11px] text-[#7f837e] mt-0.5">
                                                 <img src="{{ asset('images/sparta/bill-check.svg') }}" class="w-3 h-3" alt="">
                                                 <span x-text="item.totalQty + ' item'">1 item</span>

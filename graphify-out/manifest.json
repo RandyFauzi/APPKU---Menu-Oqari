@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
-    "mtime": 1794728406.9528773,
-    "seen": 1794728485.8110528,
-    "ast_hash": "5a5d8bee97a0d45f8811a9af5fd0b56f",
+    "mtime": 1794974448.3878982,
+    "seen": 1794974566.5909111,
+    "ast_hash": "1a3aaf6211daf2e2901856a6d295538f",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/qr.blade.php": {
@@ -2208,9 +2208,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Register/index.blade.php": {
-    "mtime": 1794969373.128525,
-    "seen": 1794969554.7402759,
-    "ast_hash": "cb78b63d533f6a3e60f25556462c6361",
+    "mtime": 1794973232.5390966,
+    "seen": 1794973365.8073604,
+    "ast_hash": "2ba8e35933a5d792c041262a2a026080",
     "semantic_hash": ""
   },
   "tests/Feature/RegisterReconciliationTest.php": {
@@ -2412,9 +2412,9 @@
     "semantic_hash": ""
   },
   "resources/views/components/cafe-sidebar.blade.php": {
-    "mtime": 1794969367.085913,
-    "seen": 1794969554.740336,
-    "ast_hash": "318bd66570ae3383616e5c5472ffd6d9",
+    "mtime": 1794970009.795194,
+    "seen": 1794970127.2843654,
+    "ast_hash": "429d267afe8431e2d4d8e16c4699b29b",
     "semantic_hash": ""
   },
   "app/Console/Commands/CheckDatabaseSchema.php": {
@@ -3267,6 +3267,12 @@
     "mtime": 1794734604.5648131,
     "seen": 1794734655.4805307,
     "ast_hash": "dd6faa3e50d4a40397f83a47fb3af160",
+    "semantic_hash": ""
+  },
+  "public/images/sparta/nav-addons.svg": {
+    "mtime": 1794969998.6138823,
+    "seen": 1794970127.284992,
+    "ast_hash": "fe1ba052b4f70d42e30330ba250506f2",
     "semantic_hash": ""
   },
   "package-lock.json": {

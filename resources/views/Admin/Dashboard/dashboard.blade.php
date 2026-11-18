@@ -2304,11 +2304,15 @@
                                 status: item.status || 'new',
                                 items: [],
                                 total_qty: 0,
+                                created_at: item.created_at || order.time || null,
                             });
                         }
                         const b = map.get(bNo);
                         b.items.push(item);
                         b.total_qty += parseInt(item.qty || item.quantity || 1);
+                        if (!b.created_at && item.created_at) {
+                            b.created_at = item.created_at;
+                        }
                     });
 
                     const batches = Array.from(map.values()).map(b => {
@@ -2536,72 +2540,182 @@
                     return prefix + Math.abs(num).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + '%';
                 },
                 getLiveKitchenQueue() {
-                    const live = (this.orders || []).filter(o => {
-                        const s = (o.status || o.order_status || '').toLowerCase();
-                        return ['masuk', 'pending', 'confirmed', 'in progress', 'preparing', 'memasak'].includes(s);
-                    });
+                    const queue = [];
 
-                    return live.map((o) => {
-                        const items = Array.isArray(o.items) ? o.items : [];
-                        const totalQty = items.reduce((acc, i) => acc + (Number(i.qty || i.quantity) || 1), 0);
-                        const itemNames = items.slice(0, 2).map(i => `${i.name || 'Menu'} ×${i.qty || i.quantity || 1}`).join(', ');
-                        const extraCount = items.length > 2 ? items.length - 2 : 0;
-                        const rawStatus = (o.status || o.order_status || 'Masuk').toLowerCase();
-                        let statusLabel = 'Memasak';
-                        let progressPct = 70;
-                        if (['masuk', 'pending'].includes(rawStatus)) {
-                            statusLabel = 'Pesanan Baru';
-                            progressPct = 30;
-                        } else if (rawStatus === 'confirmed') {
-                            statusLabel = 'Dikonfirmasi';
-                            progressPct = 55;
+                    (this.orders || []).forEach(o => {
+                        const orderStatus = (o.status || o.order_status || '').toLowerCase();
+                        if (['completed', 'selesai', 'cancelled', 'dibatalkan'].includes(orderStatus)) {
+                            return;
                         }
 
-                        const rawTable = String(o.table || '').trim();
-                        const isTakeaway = !rawTable || rawTable.toUpperCase() === 'TA' || rawTable.toLowerCase().includes('takeaway');
-                        const badgeText = isTakeaway ? 'TA' : rawTable.replace(/^meja\s*/i, '').padStart(2, '0');
-                        const titleText = isTakeaway
-                            ? (o.customer && !o.customer.toLowerCase().includes('meja') ? `${o.customer} (Takeaway)` : 'Takeaway')
-                            : (rawTable.toLowerCase().includes('meja') ? rawTable : `Meja ${rawTable}`);
+                        // Determine table/type badge and base title
+                        const rawTable = String(o.table || o.raw_table || '').trim();
+                        const fType = (o.fulfillment_type || (o.type === 'Takeaway' ? 'TAKEAWAY' : (o.type === 'Delivery' ? 'DELIVERY' : 'DINE_IN'))).toUpperCase();
+                        const isDelivery = fType === 'DELIVERY' || o.type === 'Delivery';
+                        const isTakeaway = fType === 'TAKEAWAY' || o.type === 'Takeaway' || !rawTable || rawTable.toUpperCase() === 'TA' || rawTable.toLowerCase().includes('takeaway');
 
-                        let displayTime = '—';
-                        if (o.time) {
-                            const parsed = new Date(String(o.time).replace(' ', 'T'));
-                            if (!isNaN(parsed.getTime())) {
-                                displayTime = parsed.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                        let badgeText = '01';
+                        let baseTitle = 'Meja 01';
+
+                        if (isDelivery) {
+                            badgeText = 'DL';
+                            baseTitle = (o.customer && !o.customer.toLowerCase().includes('meja')) ? `${o.customer} (Delivery)` : 'Delivery';
+                        } else if (isTakeaway) {
+                            badgeText = 'TA';
+                            baseTitle = (o.customer && !o.customer.toLowerCase().includes('meja')) ? `${o.customer} (Takeaway)` : 'Takeaway';
+                        } else {
+                            badgeText = rawTable.replace(/^meja\s*/i, '').padStart(2, '0');
+                            baseTitle = rawTable.toLowerCase().includes('meja') ? rawTable : `Meja ${rawTable}`;
+                        }
+
+                        // Get order batches
+                        const allBatches = this.getOrderBatches(o);
+
+                        if (allBatches.length > 0) {
+                            // Filter active batches that need cooking/kitchen attention
+                            const activeBatches = allBatches.filter(b => ['new', 'cooking'].includes(b.status));
+
+                            activeBatches.forEach(b => {
+                                const bItems = Array.isArray(b.items) ? b.items : [];
+                                const totalQty = b.total_qty || bItems.reduce((acc, i) => acc + (Number(i.qty || i.quantity) || 1), 0);
+                                const itemNames = bItems.slice(0, 2).map(i => `${i.name || 'Menu'} ×${i.qty || i.quantity || 1}`).join(', ');
+                                const extraCount = bItems.length > 2 ? bItems.length - 2 : 0;
+
+                                const bStatus = (b.status || 'new').toLowerCase();
+                                let statusLabel = 'Memasak';
+                                let progressPct = 70;
+                                if (bStatus === 'new') {
+                                    if (orderStatus === 'confirmed') {
+                                        statusLabel = 'Dikonfirmasi';
+                                        progressPct = 55;
+                                    } else {
+                                        statusLabel = 'Pesanan Baru';
+                                        progressPct = 30;
+                                    }
+                                } else if (orderStatus === 'confirmed' && bStatus !== 'cooking') {
+                                    statusLabel = 'Dikonfirmasi';
+                                    progressPct = 55;
+                                }
+
+                                const hasMultipleBatches = allBatches.length > 1 || o.is_open_bill;
+                                const titleText = hasMultipleBatches ? `${baseTitle} · #${b.batch_no} Order` : baseTitle;
+
+                                const batchTotal = bItems.reduce((sum, i) => {
+                                    const p = Number(i.price ?? i.unit_price ?? 0);
+                                    const q = Number(i.qty ?? i.quantity ?? 1);
+                                    return sum + (p * q);
+                                }, 0);
+                                const totalAmount = batchTotal > 0 ? batchTotal : Number(o.total || 0);
+
+                                const timeSource = (bItems[0] && bItems[0].created_at) || b.created_at || o.time;
+                                let displayTime = '—';
+                                let timestamp = 0;
+                                if (timeSource) {
+                                    const parsed = new Date(String(timeSource).replace(' ', 'T'));
+                                    if (!isNaN(parsed.getTime())) {
+                                        timestamp = parsed.getTime();
+                                        displayTime = parsed.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
+                                    }
+                                }
+
+                                queue.push({
+                                    id: `${o.id}-b${b.batch_no}`,
+                                    orderId: o.id,
+                                    batchNo: b.batch_no,
+                                    rawOrder: o,
+                                    batch: b,
+                                    badgeText: badgeText,
+                                    titleText: titleText,
+                                    hasMultipleBatches: hasMultipleBatches,
+                                    status: statusLabel,
+                                    progressPct: progressPct,
+                                    total: totalAmount,
+                                    items: bItems,
+                                    totalQty: totalQty,
+                                    itemsText: itemNames ? (itemNames + (extraCount > 0 ? ', ' : '')) : 'Tidak ada rincian item',
+                                    extraItemText: extraCount > 0 ? `+${extraCount} menu lainnya` : '',
+                                    displayTime: displayTime,
+                                    timestamp: timestamp
+                                });
+                            });
+                        } else {
+                            // Fallback for orders without item batches
+                            if (['masuk', 'pending', 'confirmed', 'in progress', 'preparing', 'memasak'].includes(orderStatus)) {
+                                let statusLabel = 'Memasak';
+                                let progressPct = 70;
+                                if (['masuk', 'pending'].includes(orderStatus)) {
+                                    statusLabel = 'Pesanan Baru';
+                                    progressPct = 30;
+                                } else if (orderStatus === 'confirmed') {
+                                    statusLabel = 'Dikonfirmasi';
+                                    progressPct = 55;
+                                }
+
+                                let displayTime = '—';
+                                let timestamp = 0;
+                                if (o.time) {
+                                    const parsed = new Date(String(o.time).replace(' ', 'T'));
+                                    if (!isNaN(parsed.getTime())) {
+                                        timestamp = parsed.getTime();
+                                        displayTime = parsed.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace(':', '.');
+                                    }
+                                }
+
+                                queue.push({
+                                    id: o.id,
+                                    orderId: o.id,
+                                    batchNo: null,
+                                    rawOrder: o,
+                                    badgeText: badgeText,
+                                    titleText: baseTitle,
+                                    hasMultipleBatches: false,
+                                    status: statusLabel,
+                                    progressPct: progressPct,
+                                    total: Number(o.total || 0),
+                                    items: [],
+                                    totalQty: 0,
+                                    itemsText: 'Tidak ada rincian item',
+                                    extraItemText: '',
+                                    displayTime: displayTime,
+                                    timestamp: timestamp
+                                });
                             }
                         }
+                    });
 
-                        return {
-                            id: o.id,
-                            rawOrder: o,
-                            badgeText: badgeText,
-                            titleText: titleText,
-                            status: statusLabel,
-                            progressPct: progressPct,
-                            total: Number(o.total || 0),
-                            items: items,
-                            totalQty: totalQty,
-                            itemsText: itemNames ? (itemNames + (extraCount > 0 ? ', ' : '')) : 'Tidak ada rincian item',
-                            extraItemText: extraCount > 0 ? `+${extraCount} menu lainnya` : '',
-                            displayTime: displayTime
-                        };
+                    // FIFO: Oldest orders/batches first
+                    return queue.sort((a, b) => {
+                        if (a.timestamp && b.timestamp && a.timestamp !== b.timestamp) {
+                            return a.timestamp - b.timestamp;
+                        }
+                        if (a.orderId !== b.orderId) {
+                            return Number(a.orderId) - Number(b.orderId);
+                        }
+                        return (Number(a.batchNo) || 0) - (Number(b.batchNo) || 0);
                     });
                 },
                 openOrderDetail(item) {
                     if (!item) return;
-                    const target = item.rawOrder || (this.orders || []).find(o => o.id === item.id) || item;
+                    const target = item.rawOrder || (this.orders || []).find(o => o.id === item.orderId || o.id === item.id) || item;
                     this.viewOrderDetails(target);
                 },
-                async markOrderReady(order) {
-                    if (!order || !order.id) return;
-                    await this.updateStatus(order.id, 'Ready');
+                async markOrderReady(item) {
+                    if (!item) return;
+                    const orderId = item.orderId || item.id || (item.rawOrder && item.rawOrder.id);
+                    if (!orderId) return;
+
+                    if (item.batchNo) {
+                        await this.updateBatchStatus(orderId, item.batchNo, 'ready');
+                    } else {
+                        await this.updateStatus(orderId, 'Ready');
+                    }
                     this.initAnalytics();
                     if (typeof Swal !== 'undefined') {
+                        const targetName = item.titleText || 'Pesanan';
                         Swal.fire({
                             icon: 'success',
                             title: 'Pesanan Siap Disajikan!',
-                            text: `Pesanan ${order.titleText || ''} telah siap disajikan kepada pelanggan.`,
+                            text: `Pesanan ${targetName} telah siap disajikan kepada pelanggan.`,
                             timer: 2000,
                             showConfirmButton: false,
                             toast: true,
@@ -3740,6 +3854,7 @@ if (res.ok) {
                                 notes: i.notes || '',
                                 batch_no: parseInt(i.batch_no || 1),
                                 status: i.status || 'new',
+                                created_at: i.created_at || o.created_at,
                                 variant_id: i.variant_id || null,
                                 variant_name: i.variant_name || (i.variant ? i.variant.name : null),
                                 serving_type: i.serving_type || (o.fulfillment_type === 'TAKEAWAY' ? 'TAKEAWAY' : 'DINE_IN'),
