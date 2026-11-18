@@ -285,7 +285,7 @@
                                                    :value="actual !== '' && actual !== null && !isNaN(actual) ? Number(actual).toLocaleString('id-ID') : ''"
                                                    @input="formatActualInput($event)"
                                                    placeholder="Contoh: {{ number_format($breakdown['expected_cash'], 0, '', '') }}"
-                                                   class="w-full text-lg font-bold text-[#18181b] placeholder:text-[#a1a1aa] outline-none bg-transparent">
+                                                   class="w-full text-lg font-bold text-[#18181b] placeholder:text-[#a1a1aa] border-0 border-none p-0 focus:ring-0 focus:outline-none outline-none bg-transparent">
                                         </div>
                                     </div>
 
@@ -573,7 +573,7 @@
                             <div class="relative flex items-center rounded-xl border border-[#e6e5e0] bg-[#fafaf9] focus-within:bg-white focus-within:border-[#df5826] transition px-3.5 py-2.5">
                                 <span class="text-xs font-bold text-gray-400 mr-2">Rp</span>
                                 <input id="opening-cash-input" type="text" inputmode="numeric" required :value="formattedCash" @input="formatOpenCash($event)"
-                                       class="w-full text-xs font-bold text-[#18181b] outline-none bg-transparent">
+                                       class="w-full text-xs font-bold text-[#18181b] border-0 border-none p-0 focus:ring-0 focus:outline-none outline-none bg-transparent">
                             </div>
                         </div>
                         <button type="submit" 
