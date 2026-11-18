@@ -18,10 +18,24 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
         
         <!-- Card 1: Omzet Hari Ini -->
-        <div class="relative bg-gradient-to-br from-[#f9731f] to-[#ea580c] border border-[#e9ebf0] rounded-[12px] p-4 text-white overflow-hidden shadow-[0px_4px_16px_rgba(249,115,31,0.25)] flex flex-col justify-between h-[116px]">
-            <!-- Watermark illustrations -->
-            <img src="{{ asset('images/sparta/cart-watermark.svg') }}" class="absolute -right-3 -top-2 w-36 h-36 opacity-15 pointer-events-none rotate-12" alt="">
-            <img src="{{ asset('images/sparta/omzet-cup-bag.png') }}" class="absolute right-0 bottom-0 h-28 object-contain opacity-25 pointer-events-none" alt="">
+        <div class="relative bg-gradient-to-r from-[#f9731f] to-[#ea580c] border border-[#e9ebf0] rounded-[12px] p-4 text-white overflow-hidden shadow-[0px_4px_16px_rgba(249,115,31,0.25)] flex flex-col justify-between h-[116px]">
+            <!-- Smooth Diagonal Stripes Pattern (Fades from middle to right edge, matching Figma) -->
+            <div class="absolute inset-0 pointer-events-none overflow-hidden select-none" aria-hidden="true">
+                <div class="w-full h-full" style="
+                    background: repeating-linear-gradient(
+                        45deg,
+                        rgba(255, 255, 255, 0.14),
+                        rgba(255, 255, 255, 0.14) 2.5px,
+                        transparent 2.5px,
+                        transparent 8.5px
+                    );
+                    mask-image: linear-gradient(to right, transparent 0%, transparent 20%, rgba(0, 0, 0, 0.5) 45%, black 75%);
+                    -webkit-mask-image: linear-gradient(to right, transparent 0%, transparent 20%, rgba(0, 0, 0, 0.5) 45%, black 75%);
+                "></div>
+            </div>
+
+            <!-- Watermark shopping bag illustration on the right -->
+            <img src="{{ asset('images/sparta/cart-watermark.svg') }}" class="absolute -right-1 bottom-0 h-[106px] w-auto pointer-events-none select-none object-contain" alt="">
             
             <div class="relative z-10">
                 <p class="text-[12px] font-normal text-white/90 leading-[15px]">Omzet Hari Ini</p>
