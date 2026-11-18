@@ -88,5 +88,29 @@ class FinancialReportTest extends TestCase
 
         $this->assertStringContainsString('Beli Es Batu', $csv->streamedContent());
         $this->assertStringContainsString('65000', $csv->streamedContent());
+
+        $xls = $this->actingAs($owner)->get(route('admin.reports.index', ['period' => 'all', 'format' => 'xls', 'type' => 'cash_out']))
+            ->assertOk()->assertDownload('laporan-kas-keluar.xls');
+
+        $this->assertStringContainsString('Beli Es Batu', $xls->streamedContent());
+        $this->assertStringContainsString('65000', $xls->streamedContent());
+    }
+
+    public function test_financial_report_displays_catat_pengeluaran_and_ekspor_xls(): void
+    {
+        $shop = Shop::factory()->create(['onboarding_status' => 'completed']);
+        $owner = User::factory()->create(['role' => 'owner', 'shop_id' => $shop->id]);
+
+        $response = $this->actingAs($owner)->get(route('admin.reports.index'));
+
+        $response->assertOk()
+            ->assertSee('Catat Pengeluaran')
+            ->assertSee('Ekspor XLS')
+            ->assertDontSee('Ekspor CSV Penjualan');
+
+        $xls = $this->actingAs($owner)->get(route('admin.reports.index', ['period' => 'all', 'format' => 'xls']))
+            ->assertOk()->assertDownload('laporan-keuangan.xls');
+
+        $this->assertStringContainsString('Laporan Keuangan Penjualan', $xls->streamedContent());
     }
 }

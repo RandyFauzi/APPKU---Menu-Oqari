@@ -4,13 +4,11 @@
             <h1 class="text-[25px] font-semibold tracking-tight">Laporan Keuangan</h1>
             <p class="mt-1.5 text-[13px] text-[#7f837e]">Penjualan yang sudah dibayar dan HPP tersimpan · {{ $timezone }}</p>
         </div>
-        <div class="flex items-center gap-2.5">
-            <button type="button" @click="$dispatch('open-cash-out-modal')" class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-red-600 px-4 text-xs font-semibold text-white hover:bg-red-700 shadow-2xs transition cursor-pointer">
-                <i class="fas fa-arrow-up-from-bracket" aria-hidden="true"></i>Catat Kas Keluar
+        <div>
+            <button type="button" @click="$dispatch('open-cash-out-modal')" class="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-[#df5826] hover:bg-[#c94d00] px-4 py-2.5 text-xs font-bold text-white shadow-xs transition cursor-pointer">
+                <i class="fas fa-arrow-up-from-bracket text-xs" aria-hidden="true"></i>
+                <span>Catat Pengeluaran</span>
             </button>
-            <a :href="'{{ route('admin.reports.index', ['date' => $date, 'period' => $period, 'format' => 'csv']) }}' + (reportTab === 'cash_out' ? '&type=cash_out' : '&type=orders')" class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-[#f9731f] px-4 text-xs font-semibold text-white hover:bg-[#ea580c] shadow-2xs transition">
-                <i class="fas fa-download" aria-hidden="true"></i><span x-text="reportTab === 'cash_out' ? 'Ekspor CSV Kas Keluar' : 'Ekspor CSV Penjualan'"></span>
-            </a>
         </div>
     </div>
     <form method="GET" action="{{ route('admin.reports.index') }}" class="mb-5 flex flex-wrap items-end gap-3 rounded-xl border border-[#e9ebf0] bg-white p-5">
@@ -35,12 +33,12 @@
                     <dt class="text-[#7f837e] flex items-center gap-1.5">
                         <span>Kas keluar tercatat</span>
                         @if(($totalCashOut ?? 0) > 0)
-                            <button type="button" @click="reportTab = 'cash_out'; document.getElementById('report-tables-container')?.scrollIntoView({ behavior: 'smooth' })" class="text-[10.5px] text-red-600 hover:text-red-700 underline font-semibold cursor-pointer">
+                            <button type="button" @click="reportTab = 'cash_out'; document.getElementById('report-tables-container')?.scrollIntoView({ behavior: 'smooth' })" class="text-[10.5px] text-[#df5826] hover:text-[#c94d00] underline font-semibold cursor-pointer">
                                 (Lihat Rincian)
                             </button>
                         @endif
                     </dt>
-                    <dd class="font-bold text-red-600">Rp {{ number_format($totalCashOut ?? 0, 0, ',', '.') }}</dd>
+                    <dd class="font-bold text-[#df5826]">Rp {{ number_format($totalCashOut ?? 0, 0, ',', '.') }}</dd>
                 </div>
             </dl>
         </section>
@@ -54,26 +52,39 @@
             <div class="flex items-center gap-2">
                 <button type="button" @click="reportTab = 'orders'" 
                         class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer"
-                        :class="reportTab === 'orders' ? 'bg-[#f8f9fa] text-[#111827] border border-[#e9ebf0] shadow-2xs font-bold' : 'text-[#7f837e] hover:text-[#111827] hover:bg-gray-50'">
-                    <i class="fas fa-receipt text-orange-500"></i>
+                        :class="reportTab === 'orders' ? 'bg-[#fff0e6] text-[#df5826] border border-[#ffd2b8] shadow-2xs font-bold' : 'text-[#7f837e] hover:text-[#111827] hover:bg-gray-50 border border-transparent'">
+                    <i class="fas fa-receipt" :class="reportTab === 'orders' ? 'text-[#df5826]' : 'text-gray-400'"></i>
                     <span>Transaksi Penjualan</span>
-                    <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-[#53565a]">{{ $transactionsCount }}</span>
+                    <span class="rounded-full px-2 py-0.5 text-[10px] font-bold transition"
+                          :class="reportTab === 'orders' ? 'bg-[#df5826] text-white' : 'bg-gray-100 text-[#53565a]'">
+                        {{ $transactionsCount }}
+                    </span>
                 </button>
                 <button type="button" @click="reportTab = 'cash_out'" 
                         class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer"
-                        :class="reportTab === 'cash_out' ? 'bg-red-50 text-red-700 border border-red-200 shadow-2xs font-bold' : 'text-[#7f837e] hover:text-red-600 hover:bg-red-50/50'">
-                    <i class="fas fa-arrow-up-from-bracket text-red-600"></i>
+                        :class="reportTab === 'cash_out' ? 'bg-[#fff0e6] text-[#df5826] border border-[#ffd2b8] shadow-2xs font-bold' : 'text-[#7f837e] hover:text-[#df5826] hover:bg-orange-50/50 border border-transparent'">
+                    <i class="fas fa-arrow-up-from-bracket" :class="reportTab === 'cash_out' ? 'text-[#df5826]' : 'text-gray-400'"></i>
                     <span>Rincian Kas Keluar</span>
-                    <span class="rounded-full px-2 py-0.5 text-[10px] font-bold"
-                          :class="reportTab === 'cash_out' ? 'bg-red-200 text-red-800' : 'bg-gray-100 text-[#53565a]'">
+                    <span class="rounded-full px-2 py-0.5 text-[10px] font-bold transition"
+                          :class="reportTab === 'cash_out' ? 'bg-[#df5826] text-white' : 'bg-gray-100 text-[#53565a]'">
                         {{ $cashOutTransactions->total() }}
                     </span>
                 </button>
             </div>
             
-            <div class="text-xs text-[#7f837e]">
-                <span x-show="reportTab === 'orders'">Total Penjualan Bersih: <strong class="text-[#111827]">Rp {{ number_format($netSales, 0, ',', '.') }}</strong></span>
-                <span x-show="reportTab === 'cash_out'">Total Kas Keluar: <strong class="text-red-600 font-bold">Rp {{ number_format($totalCashOut ?? 0, 0, ',', '.') }}</strong></span>
+            <div class="flex items-center gap-3.5 flex-wrap">
+                <div class="text-xs text-[#7f837e]">
+                    <span x-show="reportTab === 'orders'">Total Penjualan Bersih: <strong class="text-[#111827]">Rp {{ number_format($netSales, 0, ',', '.') }}</strong></span>
+                    <span x-show="reportTab === 'cash_out'">Total Kas Keluar: <strong class="text-[#df5826] font-bold">Rp {{ number_format($totalCashOut ?? 0, 0, ',', '.') }}</strong></span>
+                </div>
+
+                {{-- Secondary Action Button: Ekspor XLS --}}
+                <a :href="'{{ route('admin.reports.index', ['date' => $date, 'period' => $period, 'format' => 'xls']) }}' + (reportTab === 'cash_out' ? '&type=cash_out' : '&type=orders')" 
+                   class="inline-flex items-center gap-1.5 rounded-lg border border-[#e9ebf0] bg-white px-3 py-1.5 text-xs font-semibold text-[#53565a] hover:bg-gray-50 hover:text-[#111827] hover:border-gray-300 shadow-2xs transition cursor-pointer"
+                   title="Unduh laporan dalam format file spreadsheet Excel (XLS)">
+                    <i class="fas fa-file-excel text-emerald-600" aria-hidden="true"></i>
+                    <span>Ekspor XLS</span>
+                </a>
             </div>
         </div>
 
@@ -158,12 +169,12 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-4">
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#fff0e6] text-[#df5826] border border-[#ffd2b8]">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#df5826]"></span>
                                         KAS KELUAR
                                     </span>
                                 </td>
-                                <td class="px-5 py-4 text-right font-bold text-red-600 text-sm">
+                                <td class="px-5 py-4 text-right font-bold text-[#df5826] text-sm">
                                     - Rp {{ number_format($tx->amount, 0, ',', '.') }}
                                 </td>
                             </tr>
@@ -171,11 +182,11 @@
                             <tr>
                                 <td colspan="6" class="px-5 py-12 text-center text-[#7f837e]">
                                     <div class="flex flex-col items-center justify-center gap-2">
-                                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                        <div class="w-10 h-10 rounded-full bg-[#fff0e6] text-[#df5826] flex items-center justify-center">
                                             <i class="fas fa-arrow-up-from-bracket"></i>
                                         </div>
                                         <p class="font-semibold text-xs text-[#111827]">Belum ada kas keluar tercatat pada periode ini.</p>
-                                        <p class="text-[11px] text-[#7f837e]">Gunakan tombol "Catat Kas Keluar" di atas untuk mencatat pengeluaran operasional.</p>
+                                        <p class="text-[11px] text-[#7f837e]">Gunakan tombol "Catat Pengeluaran" di atas untuk mencatat pengeluaran operasional.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -185,7 +196,7 @@
                         <tfoot class="bg-[#f8f9fa] border-t-2 border-[#e9ebf0]">
                             <tr>
                                 <th colspan="5" class="px-5 py-3 text-xs font-bold text-[#53565a] uppercase">Total Kas Keluar Periode Ini</th>
-                                <th class="px-5 py-3 text-right text-xs font-black text-red-600">
+                                <th class="px-5 py-3 text-right text-xs font-black text-[#df5826]">
                                     - Rp {{ number_format($totalCashOut ?? 0, 0, ',', '.') }}
                                 </th>
                             </tr>

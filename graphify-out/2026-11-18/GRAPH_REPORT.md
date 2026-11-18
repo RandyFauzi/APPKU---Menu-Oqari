@@ -1,7 +1,7 @@
 # Graph Report - coffee-saas  (2026-11-18)
 
 ## Corpus Check
-- 458 files · ~256,309 words
+- 458 files · ~256,338 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 24 file(s) not represented in the graph (top: (none) 18, .css 3, .example 1)
 
@@ -704,7 +704,7 @@ Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `User` connect `User` to `Shop`, `Illuminate\Database\Eloquent\Factories\Factory`, `App\Http\Controllers\Admin\CafeUserController`, `Illuminate\Database\Schema\Blueprint`, `NewPasswordController.php`, `Illuminate\Database\Seeder`, `SchemaCompatibility`, `Illuminate\Database\Eloquent\Model`, `App\Http\Controllers\Admin\HppCalculatorController`, `Product`, `Illuminate\View\View`, `ActivityLog`, `Controller`, `ActivityLog`, `TestCase`, `App\Providers\AppServiceProvider`, `Convention and Style Best Practices`, `DashboardController.php`, `FaviconTest`, `Illuminate\Support\Facades\DB`, `Illuminate\Foundation\Http\FormRequest`, `DatabaseCompatibilityTest`, `Illuminate\Foundation\Testing\RefreshDatabase`, `PasswordResetTest.php`, `OpenRegister.php`, `Illuminate\Support\Facades\DB`?**
-  _High betweenness centrality (0.147) - this node is a cross-community bridge._
+  _High betweenness centrality (0.160) - this node is a cross-community bridge._
 - **Are the 167 inferred relationships involving `make_xlsx_lib()` (e.g. with `ao()` and `au()`) actually correct?**
   _`make_xlsx_lib()` has 167 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `layouts.sidebar`, `Admin.Layouts.admin-auth-master`, `Admin.Layouts.admin-auth-master` to the rest of the system?**
@@ -712,7 +712,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Shop` be split into smaller, more focused modules?**
   _Cohesion score 0.05061224489795919 - nodes in this community are weakly interconnected._
 - **Why does `Follow Project Naming Conventions` connect `Convention and Style Best Practices` to `User`?**
-  _High betweenness centrality (0.101) - this node is a cross-community bridge._
+  _High betweenness centrality (0.112) - this node is a cross-community bridge._
 - **Should `Illuminate\Database\Eloquent\Factories\Factory` be split into smaller, more focused modules?**
   _Cohesion score 0.10869565217391304 - nodes in this community are weakly interconnected._
 - **Should `package.json` be split into smaller, more focused modules?**
