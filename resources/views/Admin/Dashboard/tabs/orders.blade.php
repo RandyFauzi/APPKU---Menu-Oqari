@@ -225,44 +225,57 @@
                 <!-- TOP HEADER -->
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-2.5 min-w-0">
-                        <!-- Table Badge with Neutral Background -->
-                        <div class="w-[38px] h-[38px] rounded-[10px] border border-[#e4e4e7] bg-[#f4f4f5] flex items-center justify-center shrink-0 font-bold text-[12px] text-[#18181b] shadow-2xs gap-1">
+                        <!-- Channel / Order Type Indicator (DO vs DL) -->
+                        <div class="flex flex-col items-center justify-center shrink-0 w-8 select-none pt-0.5">
                             <template x-if="order.fulfillment_type === 'DELIVERY' || order.type === 'Delivery'">
-                                <span class="flex items-center gap-1">
-                                    <i class="fas fa-motorcycle text-[10px] text-[#71717a]"></i>
-                                    <span class="text-[10px] font-bold">DLV</span>
-                                </span>
+                                <div class="flex flex-col items-center justify-center leading-none">
+                                    <i class="fas fa-motorcycle text-[14px] text-[#18181b]"></i>
+                                    <span class="text-[10px] font-bold text-[#18181b] tracking-wider mt-1">DL</span>
+                                </div>
                             </template>
-                            <template x-if="order.fulfillment_type !== 'DELIVERY' && order.type !== 'Delivery' && (!order.table || order.table === 'TA' || order.table === '-')">
-                                <span class="flex items-center gap-1">
-                                    <i class="fas fa-shopping-bag text-[10px] text-[#71717a]"></i>
-                                    <span class="text-[10px] font-bold">TA</span>
-                                </span>
-                            </template>
-                            <template x-if="order.fulfillment_type !== 'DELIVERY' && order.type !== 'Delivery' && order.table && order.table !== 'TA' && order.table !== '-'">
-                                <span class="flex items-center gap-1">
-                                    <i class="fas fa-chair text-[10px] text-[#71717a]"></i>
-                                    <span x-text="formatTableBadge(order.table)"></span>
-                                </span>
+                            <template x-if="order.fulfillment_type !== 'DELIVERY' && order.type !== 'Delivery'">
+                                <div class="flex flex-col items-center justify-center leading-none">
+                                    <i class="fas fa-store text-[13px] text-[#18181b]"></i>
+                                    <span class="text-[10px] font-bold text-[#18181b] tracking-wider mt-1">DO</span>
+                                </div>
                             </template>
                         </div>
 
                         <div class="min-w-0">
                             <!-- Customer Name -->
                             <h3 class="text-[14.5px] font-bold text-[#18181b] leading-tight truncate"
-                                x-text="order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') ? order.customer : (order.table && order.table !== 'TA' ? formatTableDisplay(order.table) : 'Pelanggan Walk-in'))"></h3>
+                                x-text="order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') ? order.customer : 'Walk-in Customer')"></h3>
                             
-                            <!-- Subtitle: Neutral text Open Bill · #42 or Paid · #41 -->
+                            <!-- Subtitle: Location / Channel · Status · #ID -->
                             <div class="flex items-center gap-1.5 text-[11px] text-[#71717a] mt-0.5 truncate font-normal">
+                                <template x-if="order.fulfillment_type === 'DELIVERY' || order.type === 'Delivery'">
+                                    <span class="inline-flex items-center gap-1">
+                                        <i class="fas fa-location-dot text-[10px] text-[#71717a]"></i>
+                                        <span>Delivery</span>
+                                    </span>
+                                </template>
+                                <template x-if="order.fulfillment_type !== 'DELIVERY' && order.type !== 'Delivery' && order.table && order.table !== 'TA' && order.table !== '-'">
+                                    <span class="inline-flex items-center gap-1">
+                                        <i class="fas fa-chair text-[10px] text-[#71717a]"></i>
+                                        <span x-text="formatTableDisplay(order.table)"></span>
+                                    </span>
+                                </template>
+                                <template x-if="order.fulfillment_type !== 'DELIVERY' && order.type !== 'Delivery' && (!order.table || order.table === 'TA' || order.table === '-')">
+                                    <span class="inline-flex items-center gap-1">
+                                        <i class="fas fa-shopping-bag text-[10px] text-[#71717a]"></i>
+                                        <span>Takeaway</span>
+                                    </span>
+                                </template>
+
+                                <span class="text-[#d4d4d8]">•</span>
+
                                 <template x-if="isOpenBillOrder(order)">
                                     <span class="inline-flex items-center gap-1">
-                                        <i class="fas fa-receipt text-[10px] text-[#71717a]"></i>
                                         <span>Open Bill</span>
                                     </span>
                                 </template>
                                 <template x-if="!isOpenBillOrder(order)">
                                     <span class="inline-flex items-center gap-1">
-                                        <i class="fas fa-money-bill-wave text-[10px] text-[#71717a]"></i>
                                         <span>Paid</span>
                                     </span>
                                 </template>
