@@ -1050,9 +1050,9 @@
     "semantic_hash": "2155055847fe16d5f2ffb8129ee18fb8"
   },
   "public/js/main.js": {
-    "mtime": 1795059029.8374102,
-    "seen": 1795059110.5758405,
-    "ast_hash": "8494ca1c7a75b9b2a532189978e4e52d",
+    "mtime": 1795065110.348221,
+    "seen": 1795065363.0007255,
+    "ast_hash": "5e52da174aa38454aadc1d116bc9441c",
     "semantic_hash": ""
   },
   "public/js/menu_gen.json": {
@@ -1110,9 +1110,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/dashboard.blade.php": {
-    "mtime": 1795058802.837173,
-    "seen": 1795059110.5758693,
-    "ast_hash": "da617ad67bcc9420954db3058922651f",
+    "mtime": 1795064704.901423,
+    "seen": 1795065363.000757,
+    "ast_hash": "60ca63e1a5db70409e6917b01c70cf31",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/inventory.blade.php": {
@@ -1134,9 +1134,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/orders.blade.php": {
-    "mtime": 1794974448.3878982,
-    "seen": 1794974566.5909111,
-    "ast_hash": "1a3aaf6211daf2e2901856a6d295538f",
+    "mtime": 1795059693.141493,
+    "seen": 1795060105.6309576,
+    "ast_hash": "fbbcb332913181ec1851a64be0663c86",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/qr.blade.php": {
@@ -1152,9 +1152,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/settings.blade.php": {
-    "mtime": 1795058922.7380352,
-    "seen": 1795059110.575891,
-    "ast_hash": "e40ad786cd42d2eae69b7c6eb367ef04",
+    "mtime": 1795065311.0443902,
+    "seen": 1795065363.0007803,
+    "ast_hash": "a760a093e9968fc53e66b8e846575633",
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/shifts.blade.php": {
@@ -1200,9 +1200,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/pos/index.blade.php": {
-    "mtime": 1794890032.950466,
-    "seen": 1794890275.501514,
-    "ast_hash": "8989f7db97c12d7dfc81133988a7bb86",
+    "mtime": 1795061602.68489,
+    "seen": 1795061682.4434068,
+    "ast_hash": "96818f605cf88f09306d0141f9fa98a7",
     "semantic_hash": ""
   },
   "resources/views/Admin/reports/index.blade.php": {
@@ -2478,9 +2478,9 @@
     "semantic_hash": ""
   },
   "resources/views/Admin/Dashboard/tabs/overview.blade.php": {
-    "mtime": 1795058442.9901712,
-    "seen": 1795059110.5758848,
-    "ast_hash": "5c1bebecb0443af6727251e910679a40",
+    "mtime": 1795060016.8024127,
+    "seen": 1795060105.6309602,
+    "ast_hash": "0fe37284c79e13f7472d959333b8309d",
     "semantic_hash": ""
   },
   "public/images/sparta/bill-check.svg": {

@@ -577,7 +577,7 @@ function renderMenuItem(item) {
                         <h3 class="font-bold text-gray-900 text-xs sm:text-sm leading-snug line-clamp-2">${escapeHtml(item.name)}</h3>
                         ${isSoldOut ? '<span class="text-[7.5px] font-black text-red-600 bg-red-50 border border-red-200 px-1 py-0.2 rounded shrink-0">Habis</span>' : ''}
                     </div>
-                    <p class="text-[10.5px] text-gray-500 line-clamp-2 mt-0.5 leading-snug">${escapeHtml(item.desc || '')}</p>
+                    ${item.desc ? `<p class="text-[10.5px] text-gray-500 line-clamp-2 mt-0.5 leading-snug">${escapeHtml(item.desc)}</p>` : ''}
                 </div>
                 
                 <div class="relative my-2.5 mx-auto w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
@@ -620,7 +620,7 @@ function renderMenuItem(item) {
                             <h3 class="font-bold text-gray-900 text-sm sm:text-base leading-tight truncate">${escapeHtml(item.name)}</h3>
                             ${isSoldOut ? '<span class="text-[8px] font-black text-red-600 bg-red-50 border border-red-200 px-1 py-0.2 rounded shrink-0">Sold Out</span>' : (item.isBestSeller ? '<span class="text-[8px] font-black text-amber-600 bg-amber-50 border border-amber-200 px-1 py-0.2 rounded shrink-0">Best</span>' : '')}
                         </div>
-                        <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-snug">${escapeHtml(item.desc || '')}</p>
+                        ${item.desc ? `<p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-snug">${escapeHtml(item.desc)}</p>` : ''}
                     </div>
                     <div class="mt-2 flex items-center justify-between">
                         <div>

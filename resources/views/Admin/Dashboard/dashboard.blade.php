@@ -2203,34 +2203,76 @@
                 },
                 get previewProducts() {
                     if (this.allShopProducts && this.allShopProducts.length > 0) {
-                        return this.allShopProducts.slice(0, 2);
+                        return this.allShopProducts.slice(0, 4);
                     }
                     return [
                         {
                             id: 'mock-1',
-                            name: 'Kopi Susu Gula Aren',
-                            price: 22000,
-                            discount_price: 18000,
-                            effective_price: 18000,
+                            name: 'Americano',
+                            price: 25000,
+                            discount_price: 20000,
+                            effective_price: 20000,
                             has_active_discount: true,
-                            discount_percentage: 18,
-                            description: 'Espresso dengan susu segar dan gula aren khas.',
-                            image_url: null,
+                            discount_percentage: 20,
+                            description: 'Espresso dengan air panas segar mantap.',
+                            image_url: '/images/sparta/iced-americano.png',
                             is_best_seller: true,
                         },
                         {
                             id: 'mock-2',
-                            name: 'Butter Croissant',
-                            price: 25000,
+                            name: 'Mont Blanc',
+                            price: 35000,
                             discount_price: null,
-                            effective_price: 25000,
+                            effective_price: 35000,
                             has_active_discount: false,
                             discount_percentage: null,
-                            description: 'Pastry mentega renyah dan lembut di dalam.',
+                            description: 'Kopi creamy dengan busa lembut dan saus spesial.',
+                            image_url: '/images/sparta/mont-blanc.png',
+                            is_best_seller: false,
+                        },
+                        {
+                            id: 'mock-3',
+                            name: 'Blue Ocean',
+                            price: 45000,
+                            discount_price: null,
+                            effective_price: 45000,
+                            has_active_discount: false,
+                            discount_percentage: null,
+                            description: 'Minuman soda segar bersoda sirup curacao.',
+                            image_url: null,
+                            is_best_seller: false,
+                        },
+                        {
+                            id: 'mock-4',
+                            name: 'Red Velvet',
+                            price: 35000,
+                            discount_price: null,
+                            effective_price: 35000,
+                            has_active_discount: false,
+                            discount_percentage: null,
+                            description: 'Minuman manis gurih red velvet dengan susu.',
                             image_url: null,
                             is_best_seller: false,
                         }
                     ];
+                },
+                get previewGridProducts() {
+                    return this.previewProducts.slice(0, 4);
+                },
+                get previewListProducts() {
+                    return this.previewProducts.slice(0, 2);
+                },
+                formatStickerPrice(amount) {
+                    const num = Number(amount);
+                    if (isNaN(num)) return amount;
+                    if (num >= 1000 && num % 1000 === 0) {
+                        return (num / 1000) + 'k';
+                    }
+                    if (num >= 1000) {
+                        const k = (num / 1000).toFixed(1).replace('.0', '');
+                        return k + 'k';
+                    }
+                    return 'Rp' + num.toLocaleString('id-ID');
                 },
                 get previewCategories() {
                     let list = [];

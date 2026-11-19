@@ -173,7 +173,7 @@
                                     </div>
                                     <div>
                                         <span class="block text-xs font-bold text-ink">Sticker Grid</span>
-                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Bulat & Sticker</span>
+                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Bulat & Kotak (2 Kolom)</span>
                                     </div>
                                 </button>
                                 <!-- Bistro List -->
@@ -186,7 +186,7 @@
                                     </div>
                                     <div>
                                         <span class="block text-xs font-bold text-ink">Bistro List</span>
-                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Minimalist Bulat</span>
+                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Bulat & List Besar</span>
                                     </div>
                                 </button>
                             </div>
@@ -981,7 +981,7 @@
                             
                             <!-- 1. Grid Theme (2 Columns) -->
                             <div x-show="settings.theme_style === 'grid'" class="grid grid-cols-2 gap-1.5">
-                                <template x-for="item in previewProducts" :key="item.id">
+                                <template x-for="item in previewListProducts" :key="item.id">
                                     <div class="bg-white p-1.5 rounded-[12px] shadow-2xs border border-gray-100 flex flex-col justify-between relative overflow-hidden">
                                         <div class="w-full aspect-[4/3] bg-gray-100 rounded-[8px] mb-1 flex items-center justify-center text-gray-300 overflow-hidden relative">
                                             <template x-if="item.image_url">
@@ -1015,7 +1015,7 @@
 
                             <!-- 2. List Theme (GoFood Style Horizontal) -->
                             <div x-show="settings.theme_style === 'list'" class="flex flex-col gap-1.5">
-                                <template x-for="item in previewProducts" :key="item.id">
+                                <template x-for="item in previewListProducts" :key="item.id">
                                     <div class="bg-white p-1.5 rounded-[12px] shadow-2xs border border-gray-100 flex gap-2 items-center relative overflow-hidden">
                                         <div class="w-12 h-12 bg-gray-100 rounded-[8px] shrink-0 flex items-center justify-center text-gray-300 overflow-hidden relative">
                                             <template x-if="item.image_url">
@@ -1112,27 +1112,36 @@
 
                             <!-- 5. Sticker Grid Theme (Circle Image + Slanted Sticker Badge) -->
                             <div x-show="settings.theme_style === 'sticker'" class="grid grid-cols-2 gap-1.5">
-                                <template x-for="item in previewProducts" :key="item.id">
-                                    <div class="bg-white p-1.5 rounded-[12px] shadow-2xs border border-gray-200 flex flex-col justify-between relative overflow-hidden">
+                                <template x-for="item in previewGridProducts" :key="item.id">
+                                    <div class="bg-white p-1.5 rounded-[12px] shadow-2xs border border-gray-200/90 flex flex-col justify-between relative overflow-hidden">
                                         <div>
-                                            <h4 class="font-bold text-[9.5px] text-gray-800 leading-tight truncate" x-text="item.name"></h4>
-                                            <p class="text-[7.5px] text-gray-400 truncate mt-0.5" x-text="item.description || 'Menu pilihan'"></p>
+                                            <h4 class="font-bold text-[9px] text-gray-900 leading-tight truncate" x-text="item.name"></h4>
+                                            <p x-show="item.description" class="text-[7px] text-gray-400 line-clamp-1 mt-0.5" x-text="item.description"></p>
                                         </div>
                                         <div class="relative my-1 flex items-center justify-center">
-                                            <div class="w-13 h-13 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center relative shadow-xs">
-                                                <template x-if="item.image_url">
-                                                    <img :src="item.image_url" :alt="item.name" class="w-full h-full object-cover">
-                                                </template>
-                                                <template x-if="!item.image_url">
-                                                    <i class="fas fa-coffee text-xs text-gray-300"></i>
-                                                </template>
+                                            <div class="w-11 h-11 rounded-full bg-gray-100 border border-black/10 overflow-hidden flex items-center justify-center relative shadow-2xs">
+                                                <img :src="item.image_url || '/Assests/null%20image.webp'" 
+                                                     x-on:error="$event.target.src = '/Assests/null%20image.webp'" 
+                                                     :alt="item.name" 
+                                                     class="w-full h-full object-cover">
                                             </div>
                                             <!-- Slanted Yellow Sticker Price Badge -->
-                                            <span class="absolute -top-0.5 right-0.5 bg-yellow-300 text-gray-900 text-[7px] font-black px-1.5 py-0.5 rounded -rotate-6 shadow-2xs border border-black/10 z-10" x-text="formatRp(item.effective_price || item.price)"></span>
+                                            <span class="absolute -top-0.5 -right-0.5 bg-[#fde047] text-gray-950 text-[7px] font-black px-1.5 py-0.2 rounded -rotate-6 shadow-2xs border border-black/15 z-10" x-text="formatStickerPrice(item.effective_price || item.price)"></span>
+                                            <template x-if="item.is_best_seller">
+                                                <span class="absolute bottom-0 left-0 bg-amber-500 text-white text-[6px] font-black px-1 py-0.2 rounded-full shadow-2xs">⭐</span>
+                                            </template>
                                         </div>
-                                        <div class="flex items-center justify-between mt-0.5 pt-0.5 border-t border-gray-50">
-                                            <span class="font-bold text-[8px] text-gray-600 truncate" x-text="item.category_name || 'Menu'"></span>
-                                            <div class="w-4.5 h-4.5 rounded-full border border-gray-800 flex items-center justify-center text-gray-800 text-[7.5px] shadow-2xs">
+                                        <div class="mt-auto pt-0.5 flex items-center justify-between">
+                                            <div class="flex items-center gap-1 flex-wrap leading-none">
+                                                <span class="font-black text-[8.5px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
+                                                <template x-if="item.has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
+                                                    <span class="text-[6.5px] text-gray-400 line-through" x-text="formatRp(item.price)"></span>
+                                                </template>
+                                                <template x-if="item.has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
+                                                    <span class="bg-red-500 text-white text-[6px] font-black px-0.5 rounded" x-text="'-' + item.discount_percentage + '%'"></span>
+                                                </template>
+                                            </div>
+                                            <div class="w-4.5 h-4.5 rounded-full border border-gray-800 flex items-center justify-center text-gray-800 text-[7px] shadow-2xs shrink-0">
                                                 <i class="fas fa-plus"></i>
                                             </div>
                                         </div>
@@ -1142,23 +1151,27 @@
 
                             <!-- 6. Bistro List Theme (Minimalist Circular Dish Row) -->
                             <div x-show="settings.theme_style === 'bistro'" class="flex flex-col gap-1.5">
-                                <template x-for="item in previewProducts" :key="item.id">
-                                    <div class="bg-white p-1.5 rounded-[12px] shadow-2xs border border-gray-200 flex gap-2 items-center relative overflow-hidden">
-                                        <div class="w-11 h-11 rounded-full bg-gray-100 border border-gray-200 shrink-0 flex items-center justify-center text-gray-300 overflow-hidden relative shadow-xs">
-                                            <template x-if="item.image_url">
-                                                <img :src="item.image_url" :alt="item.name" class="w-full h-full object-cover">
-                                            </template>
-                                            <template x-if="!item.image_url">
-                                                <i class="fas fa-utensils text-xs text-gray-300"></i>
+                                <template x-for="item in previewListProducts" :key="item.id">
+                                    <div class="bg-white p-2 rounded-[12px] shadow-2xs border border-gray-200/90 flex gap-2 items-center relative overflow-hidden">
+                                        <div class="w-11 h-11 rounded-full bg-gray-100 border border-black/10 shrink-0 flex items-center justify-center text-gray-300 overflow-hidden relative shadow-2xs">
+                                            <img :src="item.image_url || '/Assests/null%20image.webp'" 
+                                                 x-on:error="$event.target.src = '/Assests/null%20image.webp'" 
+                                                 :alt="item.name" 
+                                                 class="w-full h-full object-cover">
+                                            <template x-if="item.is_best_seller">
+                                                <span class="absolute top-0.5 left-0.5 bg-amber-500 text-white text-[6px] font-black px-1 rounded-full shadow-2xs">⭐</span>
                                             </template>
                                         </div>
                                         <div class="flex-1 min-w-0 pr-6">
-                                            <h4 class="font-bold text-[10px] text-gray-800 leading-tight truncate" x-text="item.name"></h4>
+                                            <h4 class="font-bold text-[10px] text-gray-900 leading-tight truncate" x-text="item.name"></h4>
                                             <p class="text-[7.5px] text-gray-400 mt-0.5 line-clamp-1" x-text="item.description || 'Menu pilihan lezat'"></p>
                                             <div class="flex items-center gap-1 mt-0.5">
                                                 <span class="font-black text-[9.5px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
                                                 <template x-if="item.has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
                                                     <span class="text-[7px] text-gray-400 line-through" x-text="formatRp(item.price)"></span>
+                                                </template>
+                                                <template x-if="item.has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
+                                                    <span class="bg-red-500 text-white text-[6.5px] font-black px-0.5 rounded" x-text="'-' + item.discount_percentage + '%'"></span>
                                                 </template>
                                             </div>
                                         </div>
@@ -1177,12 +1190,12 @@
                                  :style="'background-color: ' + (settings.primary_color || '#1e5a7a')">
                                 <div class="flex flex-col justify-center leading-none">
                                     <span class="text-[6.5px] text-white/75 font-semibold">Total Pesanan</span>
-                                    <span class="font-bold text-[10px] mt-0.5">Rp 0</span>
+                                    <span class="font-bold text-[10px] mt-0.5">Rp 100.000</span>
                                 </div>
                                 <div class="bg-white px-2 py-0.5 rounded-full font-bold shadow-xs flex items-center gap-1" 
                                      :style="'color: ' + (settings.primary_color || '#1e5a7a')">
                                     <i class="fas fa-shopping-cart text-[8px]"></i>
-                                    <span class="bg-gray-800 text-white text-[7.5px] px-1 py-0.2 rounded-full">0</span>
+                                    <span class="bg-gray-800 text-white text-[7.5px] px-1 py-0.2 rounded-full">5</span>
                                 </div>
                             </div>
 
