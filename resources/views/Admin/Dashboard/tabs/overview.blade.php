@@ -162,21 +162,67 @@
                             <div class="bg-white border border-[#e9ebf0] rounded-[12px] p-3 shadow-[0px_4px_7.5px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow">
                                 <!-- Order Header -->
                                 <div class="flex items-center justify-between gap-2">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-[30px] h-[30px] rounded-[8px] bg-[#fff6f0] border border-[#ffd6bd] flex items-center justify-center shrink-0">
-                                            <span class="text-[11px] font-bold text-[#c94d00]" x-text="item.badgeText">01</span>
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <!-- Channel / Order Type Indicator (DO vs DL) matching Pesanan Aktif -->
+                                        <div class="flex flex-col items-center justify-center shrink-0 w-8 select-none">
+                                            <template x-if="item.isDelivery">
+                                                <div class="flex flex-col items-center justify-center leading-none">
+                                                    <i class="fas fa-motorcycle text-[14px] text-[#18181b]"></i>
+                                                    <span class="text-[10px] font-bold text-[#18181b] tracking-wider mt-1">DL</span>
+                                                </div>
+                                            </template>
+                                            <template x-if="!item.isDelivery">
+                                                <div class="flex flex-col items-center justify-center leading-none">
+                                                    <i class="fas fa-store text-[13px] text-[#18181b]"></i>
+                                                    <span class="text-[10px] font-bold text-[#18181b] tracking-wider mt-1">DO</span>
+                                                </div>
+                                            </template>
                                         </div>
+
                                         <div class="min-w-0">
-                                            <p class="text-[12px] font-bold text-[#111827] leading-tight truncate" x-text="item.titleText">Meja 01</p>
-                                            <div class="flex items-center gap-1 text-[11px] text-[#7f837e] mt-0.5">
-                                                <img src="{{ asset('images/sparta/bill-check.svg') }}" class="w-3 h-3" alt="">
-                                                <span x-text="item.totalQty + ' item'">1 item</span>
-                                                <span class="text-[8px]">•</span>
+                                            <!-- Customer Name & Batch No (e.g. Nadya • #1 Order (2 item)) -->
+                                            <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+                                                <p class="text-[13px] font-bold text-[#111827] leading-tight truncate" 
+                                                   x-text="item.customerName || item.titleText"></p>
+                                                <template x-if="item.batchSummary">
+                                                    <span class="text-[#d4d4d8] text-[11px]">•</span>
+                                                </template>
+                                                <template x-if="item.batchSummary">
+                                                    <span class="text-[11.5px] font-semibold text-[#71717a] shrink-0" 
+                                                          x-text="item.batchSummary"></span>
+                                                </template>
+                                            </div>
+
+                                            <!-- Subtitle: Location / Type · Total Rp -->
+                                            <div class="flex items-center gap-1.5 text-[11px] text-[#7f837e] mt-0.5 truncate font-normal">
+                                                <template x-if="item.isDelivery">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <i class="fas fa-location-dot text-[9px] text-[#7f837e]"></i>
+                                                        <span>Delivery</span>
+                                                    </span>
+                                                </template>
+                                                <template x-if="!item.isDelivery">
+                                                    <span class="inline-flex items-center gap-1">
+                                                        <template x-if="item.isTakeaway">
+                                                            <span class="inline-flex items-center gap-1">
+                                                                <i class="fas fa-shopping-bag text-[9px] text-[#7f837e]"></i>
+                                                                <span>Takeaway</span>
+                                                            </span>
+                                                        </template>
+                                                        <template x-if="!item.isTakeaway">
+                                                            <span class="inline-flex items-center gap-1">
+                                                                <i class="fas fa-chair text-[9px] text-[#7f837e]"></i>
+                                                                <span x-text="item.tableText">Meja 01</span>
+                                                            </span>
+                                                        </template>
+                                                    </span>
+                                                </template>
+                                                <span class="text-[#d4d4d8] text-[9px]">•</span>
                                                 <span x-text="formatRp(item.total)">Rp0</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <span class="px-2 py-0.5 rounded-[8px] bg-[#fff6f0] text-[#c94d00] text-[10px] font-medium" x-text="item.status">Memasak</span>
+                                    <span class="px-2 py-0.5 rounded-[8px] bg-[#fff6f0] text-[#c94d00] text-[10px] font-medium shrink-0" x-text="item.status">Memasak</span>
                                 </div>
 
                                 <!-- Items Preview -->

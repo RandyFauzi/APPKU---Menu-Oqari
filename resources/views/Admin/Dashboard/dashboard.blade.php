@@ -2340,6 +2340,22 @@
                 isCompletedBatchesExpanded(orderId) {
                     return Boolean(this.expandedCompletedBatches[orderId]);
                 },
+                getOrderBatchSummary(order) {
+                    if (!order) return '';
+                    const activeBatches = this.getActiveBatches(order);
+                    if (activeBatches.length > 0) {
+                        const b = activeBatches[0];
+                        return `#${b.batch_no} Order (${b.total_qty || (b.items ? b.items.length : 1)} item)`;
+                    }
+                    const allBatches = this.getOrderBatches(order);
+                    if (allBatches.length > 0) {
+                        const b = allBatches[0];
+                        return `#${b.batch_no} Order (${b.total_qty || (b.items ? b.items.length : 1)} item)`;
+                    }
+                    const items = Array.isArray(order.items) ? order.items : [];
+                    const totalQty = items.reduce((acc, i) => acc + (Number(i.qty || i.quantity) || 1), 0);
+                    return `#1 Order (${totalQty || 1} item)`;
+                },
                 getItemsByFulfillment(items, type) {
                     if (!Array.isArray(items)) return [];
                     const target = (type || 'DINE_IN').toUpperCase();
@@ -2554,19 +2570,15 @@
                         const isDelivery = fType === 'DELIVERY' || o.type === 'Delivery';
                         const isTakeaway = fType === 'TAKEAWAY' || o.type === 'Takeaway' || !rawTable || rawTable.toUpperCase() === 'TA' || rawTable.toLowerCase().includes('takeaway');
 
-                        let badgeText = '01';
-                        let baseTitle = 'Meja 01';
-
+                        let tableText = 'Takeaway';
                         if (isDelivery) {
-                            badgeText = 'DL';
-                            baseTitle = (o.customer && !o.customer.toLowerCase().includes('meja')) ? `${o.customer} (Delivery)` : 'Delivery';
-                        } else if (isTakeaway) {
-                            badgeText = 'TA';
-                            baseTitle = (o.customer && !o.customer.toLowerCase().includes('meja')) ? `${o.customer} (Takeaway)` : 'Takeaway';
-                        } else {
-                            badgeText = rawTable.replace(/^meja\s*/i, '').padStart(2, '0');
-                            baseTitle = rawTable.toLowerCase().includes('meja') ? rawTable : `Meja ${rawTable}`;
+                            tableText = 'Delivery';
+                        } else if (!isTakeaway) {
+                            tableText = rawTable.toLowerCase().includes('meja') ? rawTable : `Meja ${rawTable}`;
                         }
+
+                        const customerName = o.raw_customer_name || (o.customer && !o.customer.toLowerCase().startsWith('meja') ? o.customer : '');
+                        const displayCustomer = customerName || (isDelivery ? 'Delivery' : (isTakeaway ? 'Takeaway' : tableText));
 
                         // Get order batches
                         const allBatches = this.getOrderBatches(o);
@@ -2598,7 +2610,7 @@
                                 }
 
                                 const hasMultipleBatches = allBatches.length > 1 || o.is_open_bill;
-                                const titleText = hasMultipleBatches ? `${baseTitle} · #${b.batch_no} Order` : baseTitle;
+                                const batchSummary = `#${b.batch_no} Order (${totalQty} item)`;
 
                                 const batchTotal = bItems.reduce((sum, i) => {
                                     const p = Number(i.price ?? i.unit_price ?? 0);
@@ -2624,8 +2636,13 @@
                                     batchNo: b.batch_no,
                                     rawOrder: o,
                                     batch: b,
-                                    badgeText: badgeText,
-                                    titleText: titleText,
+                                    isDelivery: isDelivery,
+                                    isTakeaway: isTakeaway,
+                                    badgeText: isDelivery ? 'DL' : 'DO',
+                                    customerName: displayCustomer,
+                                    tableText: tableText,
+                                    batchSummary: batchSummary,
+                                    titleText: `${displayCustomer} • ${batchSummary}`,
                                     hasMultipleBatches: hasMultipleBatches,
                                     status: statusLabel,
                                     progressPct: progressPct,
@@ -2661,13 +2678,20 @@
                                     }
                                 }
 
+                                const batchSummary = `#1 Order (1 item)`;
+
                                 queue.push({
                                     id: o.id,
                                     orderId: o.id,
-                                    batchNo: null,
+                                    batchNo: 1,
                                     rawOrder: o,
-                                    badgeText: badgeText,
-                                    titleText: baseTitle,
+                                    isDelivery: isDelivery,
+                                    isTakeaway: isTakeaway,
+                                    badgeText: isDelivery ? 'DL' : 'DO',
+                                    customerName: displayCustomer,
+                                    tableText: tableText,
+                                    batchSummary: batchSummary,
+                                    titleText: `${displayCustomer} • ${batchSummary}`,
                                     hasMultipleBatches: false,
                                     status: statusLabel,
                                     progressPct: progressPct,

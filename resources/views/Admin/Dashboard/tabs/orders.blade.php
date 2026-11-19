@@ -242,9 +242,18 @@
                         </div>
 
                         <div class="min-w-0">
-                            <!-- Customer Name -->
-                            <h3 class="text-[14.5px] font-bold text-[#18181b] leading-tight truncate"
-                                x-text="order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') ? order.customer : 'Walk-in Customer')"></h3>
+                            <!-- Customer Name & Batch Order (e.g. Nadya • #1 Order (2 item)) -->
+                            <div class="flex items-center gap-1.5 min-w-0 flex-wrap">
+                                <h3 class="text-[14.5px] font-bold text-[#18181b] leading-tight truncate"
+                                    x-text="order.raw_customer_name || (order.customer && !order.customer.startsWith('Meja ') ? order.customer : 'Walk-in Customer')"></h3>
+                                <template x-if="getOrderBatchSummary(order)">
+                                    <span class="text-[#d4d4d8] text-[12px]">•</span>
+                                </template>
+                                <template x-if="getOrderBatchSummary(order)">
+                                    <span class="text-[12px] font-semibold text-[#71717a] shrink-0"
+                                          x-text="getOrderBatchSummary(order)"></span>
+                                </template>
+                            </div>
                             
                             <!-- Subtitle: Location / Channel · Status · #ID -->
                             <div class="flex items-center gap-1.5 text-[11px] text-[#71717a] mt-0.5 truncate font-normal">
