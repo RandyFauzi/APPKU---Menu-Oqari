@@ -2276,6 +2276,25 @@
                     if (match) return match[0].padStart(2, '0');
                     return s.replace(/^meja\s*/i, '').substring(0, 3).toUpperCase() || 'TA';
                 },
+                getKitchenQueueBadgeClass(status) {
+                    const s = String(status || '').toLowerCase().trim();
+                    if (s.includes('baru') || s === 'new') {
+                        return 'bg-[#e0f2fe] border border-[#bae6fd] text-[#0284c7]';
+                    }
+                    if (s.includes('konfirmasi') || s === 'confirmed') {
+                        return 'bg-[#e0f2fe] border border-[#bae6fd] text-[#0284c7]';
+                    }
+                    if (s.includes('proses') || s.includes('masak') || s === 'cooking') {
+                        return 'bg-[#f3e8ff] border border-[#e9d5ff] text-[#7e22ce]';
+                    }
+                    if (s.includes('siap') || s.includes('saji') || s === 'ready') {
+                        return 'bg-[#dcfce7] border border-[#bbf7d0] text-[#15803d]';
+                    }
+                    if (s.includes('selesai') || s === 'completed') {
+                        return 'bg-[#f4f4f5] border border-[#e4e4e7] text-[#71717a]';
+                    }
+                    return 'bg-[#fff6f0] border border-[#fed7aa] text-[#c94d00]';
+                },
                 getOrderSubStatus(o) {
                     if (!o) return 'new';
                     if (Array.isArray(o.items) && o.items.length > 0) {
@@ -2594,7 +2613,7 @@
                                 const extraCount = bItems.length > 2 ? bItems.length - 2 : 0;
 
                                 const bStatus = (b.status || 'new').toLowerCase();
-                                let statusLabel = 'Memasak';
+                                let statusLabel = 'Sedang Diproses';
                                 let progressPct = 70;
                                 if (bStatus === 'new') {
                                     if (orderStatus === 'confirmed') {
@@ -2658,7 +2677,7 @@
                         } else {
                             // Fallback for orders without item batches
                             if (['masuk', 'pending', 'confirmed', 'in progress', 'preparing', 'memasak'].includes(orderStatus)) {
-                                let statusLabel = 'Memasak';
+                                let statusLabel = 'Sedang Diproses';
                                 let progressPct = 70;
                                 if (['masuk', 'pending'].includes(orderStatus)) {
                                     statusLabel = 'Pesanan Baru';

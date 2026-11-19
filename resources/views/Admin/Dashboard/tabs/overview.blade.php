@@ -222,7 +222,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <span class="px-2 py-0.5 rounded-[8px] bg-[#fff6f0] text-[#c94d00] text-[10px] font-medium shrink-0" x-text="item.status">Memasak</span>
+                                    <span class="px-2 py-0.5 rounded-[6px] text-[10.5px] font-bold shrink-0"
+                                          :class="getKitchenQueueBadgeClass(item.status)"
+                                          x-text="item.status">Sedang Diproses</span>
                                 </div>
 
                                 <!-- Items Preview -->
