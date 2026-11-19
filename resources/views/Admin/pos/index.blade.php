@@ -160,18 +160,49 @@
                         <div @click="goToActiveOrder(order)"
                              class="min-w-[270px] sm:min-w-[290px] max-w-[340px] bg-white border border-[#e5e7eb] hover:border-[#df5826]/60 rounded-[14px] p-2.5 sm:p-3 flex items-center justify-between gap-3 shadow-[0px_2px_8px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer group shrink-0 select-none">
                             
-                            {{-- Left: Consistent Icon + Badge Box (Figma Frame 1597884462) --}}
+                            {{-- Left: Channel / Order Type Indicator (DO vs DL) matching Pesanan Aktif & Overview --}}
                             <div class="flex items-center gap-2.5 min-w-0">
-                                <div class="w-[42px] h-[42px] rounded-[10px] bg-[#f4f4f5] border border-[#e4e4e7] flex items-center justify-center gap-1.5 shrink-0 text-[#18181b]">
-                                    <i :class="getOrderQueueBadge(order, oIdx).icon" class="text-[11px] text-[#71717a]"></i>
-                                    <span class="text-[12px] font-bold text-[#18181b]" x-text="getOrderQueueBadge(order, oIdx).text"></span>
+                                <div class="flex flex-col items-center justify-center shrink-0 w-8 select-none">
+                                    <template x-if="isOrderDelivery(order)">
+                                        <div class="flex flex-col items-center justify-center leading-none">
+                                            <i class="fas fa-motorcycle text-[14px] text-[#18181b]"></i>
+                                            <span class="text-[10px] font-bold text-[#18181b] tracking-wider mt-1">DL</span>
+                                        </div>
+                                    </template>
+                                    <template x-if="!isOrderDelivery(order)">
+                                        <div class="flex flex-col items-center justify-center leading-none">
+                                            <i class="fas fa-store text-[13px] text-[#18181b]"></i>
+                                            <span class="text-[10px] font-bold text-[#18181b] tracking-wider mt-1">DO</span>
+                                        </div>
+                                    </template>
                                 </div>
 
                                 {{-- Center: Customer/Table Name + Type & ID --}}
                                 <div class="min-w-0">
                                     <h4 class="text-[13px] sm:text-[13.5px] font-bold text-[#111827] truncate group-hover:text-[#df5826] transition-colors leading-tight" 
                                         x-text="getOrderQueueTitle(order)"></h4>
-                                    <div class="flex items-center gap-1.5 text-[11px] text-[#71717a] mt-0.5 leading-tight">
+                                    <div class="flex items-center gap-1.5 text-[11px] text-[#71717a] mt-0.5 leading-tight truncate font-normal">
+                                        <template x-if="isOrderDelivery(order)">
+                                            <span class="inline-flex items-center gap-1">
+                                                <i class="fas fa-location-dot text-[9.5px] text-[#71717a]"></i>
+                                                <span>Delivery</span>
+                                            </span>
+                                        </template>
+                                        <template x-if="!isOrderDelivery(order) && getOrderTableLabel(order) && getOrderQueueTitle(order) !== getOrderTableLabel(order)">
+                                            <span class="inline-flex items-center gap-1">
+                                                <i class="fas fa-chair text-[9.5px] text-[#71717a]"></i>
+                                                <span x-text="getOrderTableLabel(order)"></span>
+                                            </span>
+                                        </template>
+                                        <template x-if="!isOrderDelivery(order) && isOrderTakeaway(order) && getOrderQueueTitle(order) !== 'Takeaway'">
+                                            <span class="inline-flex items-center gap-1">
+                                                <i class="fas fa-shopping-bag text-[9.5px] text-[#71717a]"></i>
+                                                <span>Takeaway</span>
+                                            </span>
+                                        </template>
+
+                                        <span class="text-[#d4d4d8]">•</span>
+
                                         <template x-if="!order.is_open_bill">
                                             <span class="inline-flex items-center gap-1 font-medium text-[#71717a]">
                                                 <i class="fas fa-money-bill-wave text-[10px] text-[#10b981]"></i>
@@ -184,7 +215,7 @@
                                                 <span>Open Bill</span>
                                             </span>
                                         </template>
-                                        <span>•</span>
+                                        <span class="text-[#d4d4d8]">•</span>
                                         <span x-text="'#' + order.id"></span>
                                     </div>
                                 </div>
@@ -1629,32 +1660,38 @@ function posApp() {
             if (!order || !order.id) return;
             window.location.href = '{{ route('admin.orders.index') }}?order=' + order.id;
         },
+        isOrderDelivery(order) {
+            if (!order) return false;
+            const rawTable = order.table && typeof order.table === 'object' ? (order.table.name || '') : String(order.table || '');
+            const fType = String(order.fulfillment_type || order.type || '').toUpperCase();
+            return fType === 'DELIVERY' || rawTable.toLowerCase() === 'delivery' || order.type === 'Delivery';
+        },
+        isOrderTakeaway(order) {
+            if (!order) return false;
+            const rawTable = order.table && typeof order.table === 'object' ? (order.table.name || '') : String(order.table || '');
+            const fType = String(order.fulfillment_type || order.type || '').toUpperCase();
+            return fType === 'TAKEAWAY' || rawTable.toLowerCase() === 'takeaway' || rawTable.toUpperCase() === 'TA' || order.type === 'Takeaway';
+        },
+        getOrderTableLabel(order) {
+            if (!order) return '';
+            const rawTable = order.table && typeof order.table === 'object' ? (order.table.name || '') : String(order.table || '');
+            const digits = String(order.table_number || rawTable).replace(/\D/g, '');
+            if (digits) {
+                return `Meja ${digits.padStart(2, '0')}`;
+            }
+            if (rawTable && !['tanpa meja', 'delivery', 'takeaway', '-', 'ta'].includes(rawTable.toLowerCase())) {
+                return rawTable.toLowerCase().startsWith('meja') ? rawTable : `Meja ${rawTable}`;
+            }
+            return '';
+        },
         formatTableBadge(order, idx) {
             return this.getOrderQueueBadge(order, idx).text;
         },
         getOrderQueueBadge(order, idx) {
-            if (!order) return { icon: 'fas fa-chair', text: String((idx ?? 0) + 1).padStart(2, '0') };
-
-            const rawTable = order.table && typeof order.table === 'object' ? (order.table.name || '') : String(order.table || '');
-            const fType = String(order.fulfillment_type || '').toUpperCase();
-            const isDelivery = fType === 'DELIVERY' || rawTable.toLowerCase() === 'delivery';
-            const isTakeaway = fType === 'TAKEAWAY' || rawTable.toLowerCase() === 'takeaway';
-            const isTanpaMeja = !rawTable || rawTable.toLowerCase() === 'tanpa meja';
-
-            if (isDelivery) {
+            if (this.isOrderDelivery(order)) {
                 return { icon: 'fas fa-motorcycle', text: 'DL' };
             }
-            if (isTakeaway) {
-                return { icon: 'fas fa-shopping-bag', text: 'TA' };
-            }
-            if (order.table_number || (!isTanpaMeja && rawTable)) {
-                const digits = String(order.table_number || rawTable).replace(/\D/g, '');
-                return {
-                    icon: 'fas fa-chair',
-                    text: digits ? digits.padStart(2, '0').slice(-2) : '01'
-                };
-            }
-            return { icon: 'fas fa-user', text: 'WI' };
+            return { icon: 'fas fa-store', text: 'DO' };
         },
         getOrderQueueTitle(order) {
             if (!order) return 'Pelanggan';
