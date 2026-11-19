@@ -210,4 +210,39 @@ class ShopBrandingTest extends TestCase
         $this->assertCount(5, $shop->banner_paths);
         $this->assertCount(5, $shop->banners);
     }
+
+    public function test_shop_branding_can_save_sticker_and_bistro_theme_styles(): void
+    {
+        $shop = Shop::factory()->create([
+            'onboarding_status' => 'completed',
+            'theme_style' => 'list',
+        ]);
+        $owner = User::factory()->create(['shop_id' => $shop->id, 'role' => 'owner']);
+
+        // Test saving 'sticker'
+        $response = $this->actingAs($owner)->postJson('/admin/api/settings', [
+            'name' => $shop->name,
+            'slug' => $shop->slug,
+            'theme_style' => 'sticker',
+        ]);
+        $response->assertOk()->assertJson(['success' => true]);
+        $this->assertSame('sticker', $shop->fresh()->theme_style);
+
+        // Test saving 'bistro'
+        $response = $this->actingAs($owner)->postJson('/admin/api/settings', [
+            'name' => $shop->name,
+            'slug' => $shop->slug,
+            'theme_style' => 'bistro',
+        ]);
+        $response->assertOk()->assertJson(['success' => true]);
+        $this->assertSame('bistro', $shop->fresh()->theme_style);
+
+        // Test invalid theme_style is rejected
+        $response = $this->actingAs($owner)->postJson('/admin/api/settings', [
+            'name' => $shop->name,
+            'slug' => $shop->slug,
+            'theme_style' => 'invalid_theme',
+        ]);
+        $response->assertStatus(422)->assertJsonValidationErrors(['theme_style']);
+    }
 }

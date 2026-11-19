@@ -451,6 +451,10 @@ function renderMenu() {
         container.className = 'p-4 grid grid-cols-1 gap-2.5 relative z-10';
     } else if (theme === 'cards') {
         container.className = 'p-4 grid grid-cols-1 gap-5 relative z-10';
+    } else if (theme === 'sticker') {
+        container.className = 'p-3.5 grid grid-cols-2 gap-3 relative z-10';
+    } else if (theme === 'bistro') {
+        container.className = 'p-4 grid grid-cols-1 gap-3 relative z-10';
     } else {
         container.className = 'p-4 grid grid-cols-2 gap-3.5 relative z-10';
     }
@@ -497,7 +501,7 @@ function renderMenu() {
             const itemsInCat = filteredMenu.filter(m => isItemInCategory(m, cat));
             if (itemsInCat.length > 0) {
                 itemsInCat.forEach(m => categorizedItemIds.add(m.id));
-                const colSpan = (theme === 'grid') ? 'col-span-2' : 'col-span-1';
+                const colSpan = (theme === 'grid' || theme === 'sticker') ? 'col-span-2' : 'col-span-1';
                 htmlOutput += `<div id="cat-section-${escapeHtml(cat.id)}" class="${colSpan} category-section mt-5 mb-2 border-b-2 border-primary/10 pb-1.5 scroll-mt-40" data-category-id="${escapeHtml(cat.id)}"><h3 class="font-heading font-bold text-lg text-primary flex items-center gap-2"><i class="fas ${cat.icon} text-sm opacity-70"></i><span>${escapeHtml(cat.name)}</span></h3></div>`;
                 htmlOutput += itemsInCat.map(item => renderMenuItem(item)).join('');
             }
@@ -506,7 +510,7 @@ function renderMenu() {
         // Any uncategorized items (e.g. whose category was deleted or unassigned)
         const uncategorizedItems = filteredMenu.filter(m => !categorizedItemIds.has(m.id));
         if (uncategorizedItems.length > 0) {
-            const colSpan = (theme === 'grid') ? 'col-span-2' : 'col-span-1';
+            const colSpan = (theme === 'grid' || theme === 'sticker') ? 'col-span-2' : 'col-span-1';
             htmlOutput += `<div id="cat-section-uncategorized" class="${colSpan} category-section mt-5 mb-2 border-b-2 border-primary/10 pb-1.5 scroll-mt-40" data-category-id="uncategorized"><h3 class="font-heading font-bold text-lg text-primary flex items-center gap-2"><i class="fas fa-layer-group text-sm opacity-70"></i><span>Menu Lainnya</span></h3></div>`;
             htmlOutput += uncategorizedItems.map(item => renderMenuItem(item)).join('');
         }
@@ -544,9 +548,96 @@ function formatItemPriceHtml(item, textSize = 'text-sm') {
     return `<span class="font-bold text-primary ${textSize}">${formatRp(item.price)}</span>`;
 }
 
+function formatStickerPrice(amount) {
+    const num = Number(amount);
+    if (isNaN(num)) return amount;
+    if (num >= 1000 && num % 1000 === 0) {
+        return (num / 1000) + 'k';
+    }
+    if (num >= 1000) {
+        const k = (num / 1000).toFixed(1).replace('.0', '');
+        return k + 'k';
+    }
+    return formatRp(num);
+}
+
 function renderMenuItem(item) {
     const theme = typeof SHOP_THEME !== 'undefined' ? SHOP_THEME : 'list';
     const isSoldOut = Boolean(item.soldOut);
+    
+    if (theme === 'sticker') {
+        const isPromo = item.has_active_discount || (Boolean(item.is_discount_active) && item.discount_price > 0 && item.discount_price < item.price);
+        const effPrice = isPromo ? Number(item.effective_price || item.discount_price) : Number(item.price);
+        const stickerLabel = formatStickerPrice(effPrice);
+
+        return `
+            <div class="bg-white rounded-2xl p-3 border border-gray-200/90 shadow-xs flex flex-col justify-between hover:shadow-md transition duration-200 relative ${isSoldOut ? 'opacity-65 bg-gray-50/70' : 'cursor-pointer'}" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="${isSoldOut ? `showToast('Menu ini sedang habis (Sold Out)')` : `openItemDetail('${Number(item.id)}')`}">
+                <div>
+                    <div class="flex items-start justify-between gap-1">
+                        <h3 class="font-bold text-gray-900 text-xs sm:text-sm leading-snug line-clamp-2">${escapeHtml(item.name)}</h3>
+                        ${isSoldOut ? '<span class="text-[7.5px] font-black text-red-600 bg-red-50 border border-red-200 px-1 py-0.2 rounded shrink-0">Habis</span>' : ''}
+                    </div>
+                    <p class="text-[10.5px] text-gray-500 line-clamp-2 mt-0.5 leading-snug">${escapeHtml(item.desc || '')}</p>
+                </div>
+                
+                <div class="relative my-2.5 mx-auto w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+                    <div class="w-full h-full rounded-full overflow-hidden border border-black/10 bg-gray-100 shadow-xs flex items-center justify-center">
+                        <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="w-full h-full object-cover ${isSoldOut ? 'grayscale-[50%]' : ''}">
+                    </div>
+                    <!-- Slanted Yellow Sticker Price Badge -->
+                    <div class="absolute -top-1 -right-1 sm:right-0 bg-[#fde047] text-gray-950 font-black text-[11px] sm:text-xs px-2 py-0.5 rounded-md shadow-xs -rotate-6 border border-black/15 z-10 flex items-center gap-1 select-none pointer-events-none">
+                        <span>${escapeHtml(stickerLabel)}</span>
+                    </div>
+                    ${isSoldOut ? '<span class="absolute inset-0 m-auto w-14 h-6 rounded-full bg-red-600/90 text-white text-[9px] font-black flex items-center justify-center shadow-xs uppercase">Habis</span>' : (item.isBestSeller ? '<span class="absolute bottom-0 left-0 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-xs">⭐</span>' : '')}
+                </div>
+
+                <div class="mt-auto pt-1 flex items-center justify-between">
+                    <div class="leading-none">
+                        ${formatItemPriceHtml(item, 'text-xs sm:text-sm')}
+                    </div>
+                    ${isSoldOut ? `
+                        <span class="text-[9px] font-bold text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded-full">Habis</span>
+                    ` : `
+                        <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="w-7 h-7 rounded-full border border-gray-800 text-gray-800 hover:bg-gray-900 hover:text-white flex items-center justify-center shadow-2xs active:scale-95 transition-all">
+                            <i class="fas fa-plus text-[10px]"></i>
+                        </button>
+                    `}
+                </div>
+            </div>
+        `;
+    }
+
+    if (theme === 'bistro') {
+        return `
+            <div class="bg-white rounded-2xl p-3 border border-gray-200/90 shadow-xs flex items-center gap-3 sm:gap-4 hover:shadow-md transition duration-200 relative ${isSoldOut ? 'opacity-65 bg-gray-50/70' : 'cursor-pointer'}" role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();this.click();}" onclick="${isSoldOut ? `showToast('Menu ini sedang habis (Sold Out)')` : `openItemDetail('${Number(item.id)}')`}">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden shrink-0 border border-black/10 bg-gray-100 shadow-xs flex items-center justify-center relative">
+                    <img src="${safeImageUrl(item.image || item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" alt="${escapeHtml(item.name)}" loading="lazy" class="w-full h-full object-cover ${isSoldOut ? 'grayscale-[50%]' : ''}">
+                    ${isSoldOut ? '<span class="absolute inset-0 m-auto w-14 h-5 rounded-full bg-red-600/90 text-white text-[8px] font-black flex items-center justify-center shadow-xs uppercase">Habis</span>' : (item.isBestSeller ? '<span class="absolute top-1 left-1 bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full shadow-xs">⭐</span>' : '')}
+                </div>
+                <div class="flex-1 min-w-0 flex flex-col justify-between self-stretch py-0.5">
+                    <div>
+                        <div class="flex items-center gap-1.5 pr-6">
+                            <h3 class="font-bold text-gray-900 text-sm sm:text-base leading-tight truncate">${escapeHtml(item.name)}</h3>
+                            ${isSoldOut ? '<span class="text-[8px] font-black text-red-600 bg-red-50 border border-red-200 px-1 py-0.2 rounded shrink-0">Sold Out</span>' : (item.isBestSeller ? '<span class="text-[8px] font-black text-amber-600 bg-amber-50 border border-amber-200 px-1 py-0.2 rounded shrink-0">Best</span>' : '')}
+                        </div>
+                        <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-snug">${escapeHtml(item.desc || '')}</p>
+                    </div>
+                    <div class="mt-2 flex items-center justify-between">
+                        <div>
+                            ${formatItemPriceHtml(item, 'text-sm sm:text-base')}
+                        </div>
+                        ${isSoldOut ? `
+                            <span class="text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-1 rounded-full">Habis</span>
+                        ` : `
+                            <button aria-label="Tambah ${escapeHtml(item.name)} ke keranjang" onclick="quickAddToCart('${Number(item.id)}', event)" class="h-8 w-8 rounded-full border border-gray-800 text-gray-800 hover:bg-gray-900 hover:text-white flex items-center justify-center shadow-xs active:scale-95 transition-all">
+                                <i class="fas fa-plus text-xs"></i>
+                            </button>
+                        `}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
     
     if (theme === 'compact') {
         return `

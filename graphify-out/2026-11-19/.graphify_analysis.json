@@ -1,0 +1,1876 @@
+{
+  "communities": {
+    "0": [
+      "app_actions_orders_createorderaction_createorderaction",
+      "app_actions_orders_createorderaction_createorderaction_execute",
+      "app_actions_pos_calculatecart",
+      "app_actions_pos_calculatecart_calculatecart",
+      "app_actions_pos_calculatecart_calculatecart_execute",
+      "app_actions_pos_calculatecart_closure_1",
+      "app_actions_products_saveproductaction",
+      "app_actions_products_saveproductaction_closure_1",
+      "app_actions_products_saveproductaction_saveproductaction",
+      "app_actions_products_saveproductaction_saveproductaction_execute",
+      "app_actions_products_saveproductaction_saveproductaction_syncmodifiergroups",
+      "app_actions_products_saveproductaction_saveproductaction_syncvariants",
+      "app_http_controllers_admin_onboardingcontroller",
+      "app_http_controllers_admin_onboardingcontroller_closure_1",
+      "app_http_controllers_admin_onboardingcontroller_closure_2",
+      "app_http_controllers_admin_onboardingcontroller_onboardingcontroller",
+      "app_http_controllers_admin_onboardingcontroller_onboardingcontroller_complete",
+      "app_http_controllers_admin_onboardingcontroller_onboardingcontroller_ensureonboardingcolumnsexist",
+      "app_http_controllers_admin_onboardingcontroller_onboardingcontroller_fixdb",
+      "app_http_controllers_admin_onboardingcontroller_onboardingcontroller_index",
+      "app_http_controllers_admin_onboardingcontroller_onboardingcontroller_updatestep",
+      "app_http_controllers_shopcontroller",
+      "app_http_controllers_shopcontroller_shopcontroller",
+      "app_http_controllers_shopcontroller_shopcontroller_cart",
+      "app_http_controllers_shopcontroller_shopcontroller_resolveshop",
+      "app_http_controllers_shopcontroller_shopcontroller_show",
+      "app_http_controllers_shopcontroller_shopcontroller_submitorder",
+      "app_http_controllers_shopcontroller_shopcontroller_tracking",
+      "app_models_category_category",
+      "app_models_category_category_products",
+      "app_models_category_category_shop",
+      "app_models_product_product",
+      "app_models_product_product_boot",
+      "app_models_product_product_calculatehppfromrecipes",
+      "app_models_product_product_category",
+      "app_models_product_product_getimageurlattribute",
+      "app_models_product_product_modifiergroups",
+      "app_models_product_product_recipes",
+      "app_models_product_product_shop",
+      "app_models_product_product_variants",
+      "app_models_shopslughistory",
+      "app_models_shopslughistory_shopslughistory",
+      "app_models_shopslughistory_shopslughistory_shop",
+      "check_goodwill",
+      "check_products",
+      "illuminate_http_exceptions_httpresponseexception",
+      "tests_feature_ordercreationtest",
+      "tests_feature_ordercreationtest_ordercreationtest",
+      "tests_feature_ordercreationtest_ordercreationtest_setup",
+      "tests_feature_ordercreationtest_ordercreationtest_test_can_create_order_successfully",
+      "tests_feature_ordercreationtest_ordercreationtest_test_cannot_order_invalid_product",
+      "tests_feature_ordercreationtest_ordercreationtest_test_cannot_order_negative_quantity",
+      "tests_feature_ordercreationtest_ordercreationtest_test_cannot_order_sold_out_product"
+    ],
+    "1": [
+      "app_http_controllers_admin_auth_loginadmincontroller_loginadmincontroller_store",
+      "app_http_controllers_admin_dashboardcontroller",
+      "app_http_controllers_admin_dashboardcontroller_closure_1",
+      "app_http_controllers_admin_dashboardcontroller_closure_2",
+      "app_http_controllers_admin_dashboardcontroller_closure_3",
+      "app_http_controllers_profilecontroller_profilecontroller_update",
+      "app_http_requests_auth_loginrequest",
+      "app_http_requests_auth_loginrequest_loginrequest",
+      "app_http_requests_auth_loginrequest_loginrequest_authenticate",
+      "app_http_requests_auth_loginrequest_loginrequest_authorize",
+      "app_http_requests_auth_loginrequest_loginrequest_ensureisnotratelimited",
+      "app_http_requests_auth_loginrequest_loginrequest_rules",
+      "app_http_requests_auth_loginrequest_loginrequest_throttlekey",
+      "app_http_requests_profileupdaterequest",
+      "app_http_requests_profileupdaterequest_profileupdaterequest",
+      "app_http_requests_profileupdaterequest_profileupdaterequest_rules",
+      "app_models_shop",
+      "app_models_shop_closure_1",
+      "app_models_shop_closure_2",
+      "app_models_shop_closure_3",
+      "app_models_table_table_getqrcodeurlattribute",
+      "app_services_mediaservice",
+      "app_services_mediaservice_mediaservice",
+      "app_services_mediaservice_mediaservice_construct",
+      "app_services_mediaservice_mediaservice_emailsafelogopath",
+      "app_services_mediaservice_mediaservice_processandstore",
+      "app_services_mediaservice_mediaservice_storeproductimage",
+      "app_services_mediaservice_mediaservice_storeshopbranding",
+      "app_services_mediaservice_mediaservice_url",
+      "app_services_receipt_receiptservice",
+      "app_services_receipt_receiptservice_closure_1",
+      "config_cache",
+      "config_database",
+      "config_session",
+      "illuminate_auth_events_lockout",
+      "illuminate_contracts_validation_validationrule",
+      "illuminate_foundation_http_formrequest",
+      "illuminate_http_uploadedfile",
+      "illuminate_support_facades_ratelimiter",
+      "illuminate_support_facades_storage",
+      "illuminate_support_facades_url",
+      "illuminate_support_str",
+      "illuminate_validation_rule",
+      "intervention_image_drivers_gd_driver",
+      "intervention_image_imagemanager",
+      "pdo_mysql"
+    ],
+    "2": [
+      "package",
+      "package_devdependencies",
+      "package_devdependencies_alpinejs",
+      "package_devdependencies_autoprefixer",
+      "package_devdependencies_concurrently",
+      "package_devdependencies_laravel_echo",
+      "package_devdependencies_laravel_vite_plugin",
+      "package_devdependencies_postcss",
+      "package_devdependencies_pusher_js",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_tailwindcss_forms",
+      "package_devdependencies_tailwindcss_vite",
+      "package_devdependencies_vite",
+      "package_optionaldependencies",
+      "package_optionaldependencies_laravel_multiplex",
+      "package_private",
+      "package_schema",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_scripts_dev_all",
+      "package_type",
+      "ref_alpinejs",
+      "ref_autoprefixer",
+      "ref_concurrently",
+      "ref_laravel_echo",
+      "ref_laravel_multiplex",
+      "ref_laravel_vite_plugin",
+      "ref_postcss",
+      "ref_pusher_js",
+      "ref_tailwindcss",
+      "ref_tailwindcss_forms",
+      "ref_tailwindcss_vite",
+      "ref_vite",
+      "resources_js_app",
+      "resources_js_echo",
+      "resources_js_realtime_orders",
+      "resources_js_realtime_orders_initordernotificationengine",
+      "tailwind_config",
+      "tailwindcss",
+      "vite_config"
+    ],
+    "3": [
+      "app_http_controllers_receiptcontroller",
+      "app_jobs_sendorderreceiptemail",
+      "app_jobs_sendorderreceiptemail_sendorderreceiptemail",
+      "app_jobs_sendorderreceiptemail_sendorderreceiptemail_construct",
+      "app_jobs_sendorderreceiptemail_sendorderreceiptemail_handle",
+      "app_mail_orderreceiptmail",
+      "app_mail_orderreceiptmail_orderreceiptmail",
+      "app_mail_orderreceiptmail_orderreceiptmail_construct",
+      "app_mail_orderreceiptmail_orderreceiptmail_content",
+      "app_mail_orderreceiptmail_orderreceiptmail_envelope",
+      "app_models_receiptdelivery",
+      "app_models_receiptdelivery_receiptdelivery",
+      "app_models_receiptdelivery_receiptdelivery_order",
+      "app_models_receiptdelivery_receiptdelivery_shop",
+      "app_services_receipt_receiptdata",
+      "app_services_receipt_receiptdata_receiptdata",
+      "app_services_receipt_receiptdata_receiptdata_construct",
+      "app_services_receipt_receiptdata_receiptdata_toarray",
+      "app_services_receipt_receiptpdfservice",
+      "app_services_receipt_receiptpdfservice_receiptpdfservice",
+      "app_services_receipt_receiptpdfservice_receiptpdfservice_download",
+      "app_services_receipt_receiptservice_receiptservice",
+      "app_services_receipt_receiptservice_receiptservice_build",
+      "barryvdh_dompdf_facade_pdf",
+      "illuminate_bus_queueable",
+      "illuminate_contracts_queue_shouldqueue",
+      "illuminate_foundation_bus_dispatchable",
+      "illuminate_mail_mailable",
+      "illuminate_mail_mailables_address",
+      "illuminate_mail_mailables_content",
+      "illuminate_mail_mailables_envelope",
+      "illuminate_queue_interactswithqueue",
+      "illuminate_queue_serializesmodels",
+      "illuminate_support_facades_mail",
+      "throwable"
+    ],
+    "4": [
+      "app_models_cashdrawertransaction",
+      "app_models_cashdrawertransaction_cashdrawertransaction",
+      "app_models_cashdrawertransaction_cashdrawertransaction_payment",
+      "app_models_cashregister",
+      "app_models_cashregister_cashregister",
+      "app_models_cashregister_cashregister_sessions",
+      "app_models_cashregistersession",
+      "app_models_category",
+      "app_models_crewshift",
+      "app_models_crewshift_crewshift",
+      "app_models_crewshift_crewshift_user",
+      "app_models_modifier",
+      "app_models_modifier_modifier",
+      "app_models_modifier_modifier_group",
+      "app_models_modifiergroup",
+      "app_models_modifiergroup_modifiergroup",
+      "app_models_modifiergroup_modifiergroup_modifiers",
+      "app_models_modifiergroup_modifiergroup_product",
+      "app_models_order",
+      "app_models_payment",
+      "app_models_paymentmethod",
+      "app_models_paymentmethod_paymentmethod",
+      "app_models_productvariant",
+      "app_models_shifttemplate",
+      "app_models_shifttemplate_shifttemplate",
+      "app_models_table",
+      "app_traits_belongstoshop_belongstoshop",
+      "app_traits_belongstoshop_belongstoshop_bootbelongstoshop",
+      "illuminate_database_eloquent_factories_hasfactory",
+      "illuminate_database_eloquent_model"
+    ],
+    "5": [
+      "database_migrations_2026_09_02_005912_restructure_media_columns",
+      "database_migrations_2026_09_02_005912_restructure_media_columns_closure_1",
+      "database_migrations_2026_09_02_005912_restructure_media_columns_closure_2",
+      "database_migrations_2026_09_02_005912_restructure_media_columns_closure_3",
+      "database_migrations_2026_09_02_005912_restructure_media_columns_closure_4",
+      "database_migrations_2026_09_02_005912_restructure_media_columns_down",
+      "database_migrations_2026_09_02_005912_restructure_media_columns_up",
+      "database_migrations_2026_09_03_045028_add_public_token_to_tables",
+      "database_migrations_2026_09_03_045028_add_public_token_to_tables_closure_1",
+      "database_migrations_2026_09_03_045028_add_public_token_to_tables_closure_2",
+      "database_migrations_2026_09_03_045028_add_public_token_to_tables_closure_3",
+      "database_migrations_2026_09_03_045028_add_public_token_to_tables_closure_4",
+      "database_migrations_2026_09_03_045028_add_public_token_to_tables_down",
+      "database_migrations_2026_09_03_045028_add_public_token_to_tables_up",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_1",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_10",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_11",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_12",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_2",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_3",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_4",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_5",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_6",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_7",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_8",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_closure_9",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_down",
+      "database_migrations_2026_09_03_045755_add_performance_indexes_to_core_tables_up",
+      "illuminate_database_schema_blueprint"
+    ],
+    "6": [
+      "public_js_main",
+      "public_js_main_cancelpayment",
+      "public_js_main_closecustomerinfomodal",
+      "public_js_main_closeitemdetail",
+      "public_js_main_closerating",
+      "public_js_main_confirmaddtocart",
+      "public_js_main_filtercategory",
+      "public_js_main_formatrp",
+      "public_js_main_gobackhome",
+      "public_js_main_handleupdateqty",
+      "public_js_main_initapp",
+      "public_js_main_initcartpage",
+      "public_js_main_inithomepage",
+      "public_js_main_inittrackingpage",
+      "public_js_main_isitemincategory",
+      "public_js_main_opencustomerinfomodal",
+      "public_js_main_openitemdetail",
+      "public_js_main_processsimulatedpayment",
+      "public_js_main_quickaddtocart",
+      "public_js_main_rendercarousel",
+      "public_js_main_rendercartdetail",
+      "public_js_main_rendercategories",
+      "public_js_main_rendermenu",
+      "public_js_main_rendermenuitem",
+      "public_js_main_setrating",
+      "public_js_main_showtoast",
+      "public_js_main_triggerpaymentgateway",
+      "public_js_main_updatecarousel",
+      "public_js_main_updatefloatingcart"
+    ],
+    "7": [
+      "app_http_controllers_admin_auth_loginadmincontroller",
+      "app_http_controllers_admin_auth_registeradmincontroller",
+      "app_http_controllers_auth_confirmablepasswordcontroller",
+      "app_http_controllers_auth_confirmablepasswordcontroller_confirmablepasswordcontroller",
+      "app_http_controllers_auth_confirmablepasswordcontroller_confirmablepasswordcontroller_show",
+      "app_http_controllers_auth_confirmablepasswordcontroller_confirmablepasswordcontroller_store",
+      "app_http_controllers_auth_emailverificationnotificationcontroller",
+      "app_http_controllers_auth_emailverificationnotificationcontroller_emailverificationnotificationcontroller",
+      "app_http_controllers_auth_emailverificationnotificationcontroller_emailverificationnotificationcontroller_store",
+      "app_http_controllers_auth_newpasswordcontroller",
+      "app_http_controllers_auth_newpasswordcontroller_closure_1",
+      "app_http_controllers_auth_newpasswordcontroller_newpasswordcontroller",
+      "app_http_controllers_auth_newpasswordcontroller_newpasswordcontroller_create",
+      "app_http_controllers_auth_newpasswordcontroller_newpasswordcontroller_store",
+      "app_http_controllers_auth_passwordresetlinkcontroller",
+      "illuminate_auth_events_passwordreset",
+      "illuminate_auth_events_registered",
+      "illuminate_http_redirectresponse",
+      "illuminate_support_facades_auth",
+      "illuminate_support_facades_password",
+      "illuminate_validation_rules",
+      "illuminate_validation_validationexception"
+    ],
+    "8": [
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_deletecrew",
+      "app_models_cashdrawertransaction_cashdrawertransaction_session",
+      "app_models_user",
+      "app_models_user_user",
+      "app_models_user_user_casts",
+      "app_models_user_user_shop",
+      "config_auth",
+      "illuminate_database_eloquent_attributes_hidden",
+      "illuminate_foundation_auth_user",
+      "illuminate_notifications_notifiable",
+      "tests_feature_admindashboardtest",
+      "tests_feature_admindashboardtest_admindashboardtest",
+      "tests_feature_admindashboardtest_admindashboardtest_test_admin_can_access_dashboard",
+      "tests_feature_admindashboardtest_admindashboardtest_test_admin_can_create_menu",
+      "tests_feature_admindashboardtest_admindashboardtest_test_user_can_register",
+      "tests_feature_profiletest",
+      "tests_feature_profiletest_profiletest",
+      "tests_feature_profiletest_profiletest_test_correct_password_must_be_provided_to_delete_account",
+      "tests_feature_profiletest_profiletest_test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged",
+      "tests_feature_profiletest_profiletest_test_profile_information_can_be_updated",
+      "tests_feature_profiletest_profiletest_test_profile_page_is_displayed",
+      "tests_feature_profiletest_profiletest_test_user_can_delete_their_account"
+    ],
+    "9": [
+      "database_factories_categoryfactory",
+      "database_factories_categoryfactory_categoryfactory",
+      "database_factories_categoryfactory_categoryfactory_definition",
+      "database_factories_orderfactory",
+      "database_factories_orderfactory_orderfactory",
+      "database_factories_orderfactory_orderfactory_definition",
+      "database_factories_paymentmethodfactory",
+      "database_factories_paymentmethodfactory_paymentmethodfactory",
+      "database_factories_paymentmethodfactory_paymentmethodfactory_definition",
+      "database_factories_productfactory",
+      "database_factories_productfactory_productfactory",
+      "database_factories_productfactory_productfactory_definition",
+      "database_factories_shopfactory",
+      "database_factories_shopfactory_shopfactory",
+      "database_factories_shopfactory_shopfactory_definition",
+      "database_factories_userfactory",
+      "database_factories_userfactory_closure_1",
+      "database_factories_userfactory_userfactory",
+      "database_factories_userfactory_userfactory_definition",
+      "database_factories_userfactory_userfactory_unverified",
+      "illuminate_database_eloquent_factories_factory",
+      "static"
+    ],
+    "10": [
+      "app_http_controllers_admin_activitylogcontroller",
+      "app_http_controllers_admin_activitylogcontroller_activitylogcontroller",
+      "app_http_controllers_admin_api_productapicontroller",
+      "app_http_controllers_admin_api_productapicontroller_productapicontroller",
+      "app_http_controllers_admin_api_productapicontroller_productapicontroller_index",
+      "app_http_controllers_admin_categorycontroller",
+      "app_http_controllers_admin_categorycontroller_categorycontroller",
+      "app_http_controllers_admin_crewcontroller",
+      "app_http_controllers_admin_crewcontroller_crewcontroller",
+      "app_http_controllers_admin_liveordercontroller",
+      "app_http_controllers_admin_liveordercontroller_liveordercontroller",
+      "app_http_controllers_admin_modifiercontroller",
+      "app_http_controllers_admin_modifiercontroller_modifiercontroller",
+      "app_http_controllers_admin_ordercontroller",
+      "app_http_controllers_admin_ordercontroller_ordercontroller",
+      "app_http_controllers_admin_paymentcontroller",
+      "app_http_controllers_admin_paymentcontroller_paymentcontroller",
+      "app_http_controllers_admin_productcontroller",
+      "app_http_controllers_admin_productcontroller_productcontroller",
+      "app_http_controllers_controller",
+      "app_http_controllers_controller_controller"
+    ],
+    "11": [
+      "app_http_controllers_admin_cashregistercontroller_cashregistercontroller",
+      "app_http_controllers_admin_cashregistercontroller_cashregistercontroller_closeshift",
+      "app_http_controllers_admin_cashregistercontroller_cashregistercontroller_openshift",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_getshifts",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_index",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_savecategory",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_savecrew",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_savemenu",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_savemenubulk",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_savesettings",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_saveshift",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_savetable",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_togglemenustatus",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_updatecrew",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_updateorderstatus",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_updateprofile",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_updatetableqr",
+      "illuminate_contracts_http_kernel",
+      "illuminate_http_request",
+      "render"
+    ],
+    "12": [
+      "app_http_controllers_admin_auth_loginadmincontroller_loginadmincontroller",
+      "app_http_controllers_admin_auth_loginadmincontroller_loginadmincontroller_create",
+      "app_http_controllers_admin_auth_loginadmincontroller_loginadmincontroller_destroy",
+      "app_http_controllers_admin_auth_registeradmincontroller_registeradmincontroller",
+      "app_http_controllers_admin_auth_registeradmincontroller_registeradmincontroller_create",
+      "app_http_controllers_admin_auth_registeradmincontroller_registeradmincontroller_store",
+      "app_http_controllers_auth_passwordresetlinkcontroller_passwordresetlinkcontroller",
+      "app_http_controllers_auth_passwordresetlinkcontroller_passwordresetlinkcontroller_create",
+      "app_http_controllers_auth_passwordresetlinkcontroller_passwordresetlinkcontroller_store",
+      "illuminate_support_facades_route",
+      "routes_api",
+      "routes_api_closure_1",
+      "routes_api_closure_2",
+      "routes_api_closure_3",
+      "routes_api_closure_4",
+      "routes_api_closure_5",
+      "routes_api_get_user",
+      "routes_auth",
+      "routes_auth_closure_1",
+      "routes_auth_closure_2"
+    ],
+    "13": [
+      "app_http_controllers_admin_inventorycontroller",
+      "app_http_controllers_admin_inventorycontroller_closure_1",
+      "app_http_controllers_admin_inventorycontroller_closure_2",
+      "app_http_controllers_admin_inventorycontroller_closure_3",
+      "app_http_controllers_admin_inventorycontroller_closure_4",
+      "app_http_controllers_admin_inventorycontroller_closure_5",
+      "app_models_productrecipe",
+      "app_models_productrecipe_productrecipe",
+      "app_models_productrecipe_productrecipe_getcostattribute",
+      "app_models_productrecipe_productrecipe_product",
+      "app_models_productrecipe_productrecipe_rawmaterial",
+      "app_models_stockmutation",
+      "app_models_stockmutation_stockmutation",
+      "app_models_stockmutation_stockmutation_rawmaterial",
+      "app_models_stockmutation_stockmutation_shop",
+      "app_models_stockmutation_stockmutation_user",
+      "app_services_inventoryservice",
+      "app_services_inventoryservice_closure_1",
+      "illuminate_database_eloquent_relations_belongsto"
+    ],
+    "14": [
+      "app_models_shop_shop",
+      "app_models_shop_shop_booted",
+      "app_models_shop_shop_getbannersattribute",
+      "app_models_shop_shop_getinstagramurlattribute",
+      "app_models_shop_shop_getlogourlattribute",
+      "app_models_shop_shop_getwhatsappurlattribute",
+      "app_models_shop_shop_isactive",
+      "app_models_shop_shop_isdormant",
+      "app_models_shop_shop_issuspended",
+      "app_models_shop_shop_orders",
+      "app_models_shop_shop_payments",
+      "app_models_shop_shop_products",
+      "app_models_shop_shop_rawmaterials",
+      "app_models_shop_shop_scopeactive",
+      "app_models_shop_shop_scopesearch",
+      "app_models_shop_shop_scopesuspended",
+      "app_models_shop_shop_stockmutations",
+      "app_models_shop_shop_suspendedby",
+      "app_models_shop_shop_users"
+    ],
+    "15": [
+      "app_actions_order_createorder_createorder",
+      "app_actions_order_createorder_createorder_execute",
+      "app_actions_payment_processpayment_processpayment",
+      "app_actions_payment_processpayment_processpayment_execute",
+      "app_http_controllers_admin_poscontroller",
+      "app_http_controllers_admin_poscontroller_closure_1",
+      "app_http_controllers_admin_poscontroller_closure_2",
+      "app_http_controllers_admin_poscontroller_closure_3",
+      "app_http_controllers_admin_poscontroller_closure_4",
+      "app_http_controllers_admin_poscontroller_closure_5",
+      "app_http_controllers_admin_poscontroller_closure_6",
+      "app_http_controllers_admin_poscontroller_poscontroller",
+      "app_http_controllers_admin_poscontroller_poscontroller_heldorders",
+      "app_http_controllers_admin_poscontroller_poscontroller_holdorder",
+      "app_http_controllers_admin_poscontroller_poscontroller_index",
+      "app_http_controllers_admin_poscontroller_poscontroller_products",
+      "app_http_controllers_admin_poscontroller_poscontroller_recallorder",
+      "app_http_controllers_admin_poscontroller_poscontroller_submitorder"
+    ],
+    "16": [
+      "app_actions_order_createorder",
+      "app_actions_order_createorder_closure_1",
+      "app_actions_order_createorder_closure_2",
+      "app_actions_orders_createorderaction",
+      "app_actions_orders_createorderaction_closure_1",
+      "app_actions_orders_createorderaction_closure_2",
+      "app_http_controllers_admin_api_dashboardapicontroller",
+      "app_http_controllers_admin_api_dashboardapicontroller_dashboardapicontroller",
+      "app_http_controllers_admin_api_dashboardapicontroller_dashboardapicontroller_getsummary",
+      "app_models_orderitem",
+      "app_models_orderitem_orderitem",
+      "app_models_orderitem_orderitem_order",
+      "app_models_orderitem_orderitem_product",
+      "app_models_productvariant_productvariant",
+      "app_models_productvariant_productvariant_product",
+      "app_models_table_table",
+      "app_models_table_table_shop"
+    ],
+    "17": [
+      "app_actions_register_closeregister",
+      "app_actions_register_closeregister_closeregister",
+      "app_actions_register_closeregister_closeregister_execute",
+      "app_actions_register_closeregister_closure_1",
+      "app_actions_register_closeregister_closure_2",
+      "app_actions_register_openregister",
+      "app_actions_register_openregister_closure_1",
+      "app_actions_register_openregister_closure_2",
+      "app_actions_register_openregister_openregister",
+      "app_actions_register_openregister_openregister_execute",
+      "app_http_controllers_admin_cashregistercontroller",
+      "app_http_controllers_admin_cashregistercontroller_closure_1",
+      "app_http_controllers_admin_cashregistercontroller_closure_2",
+      "app_models_cashregistersession_cashregistersession",
+      "app_models_cashregistersession_cashregistersession_register",
+      "app_models_cashregistersession_cashregistersession_transactions",
+      "app_models_cashregistersession_cashregistersession_user"
+    ],
+    "18": [
+      "app_http_controllers_admin_api_orderapicontroller",
+      "app_http_controllers_admin_api_orderapicontroller_orderapicontroller",
+      "app_http_controllers_admin_api_orderapicontroller_orderapicontroller_index",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_getliveorders",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_printorder",
+      "app_http_controllers_admin_kitchencontroller",
+      "app_http_controllers_admin_kitchencontroller_kitchencontroller",
+      "app_http_controllers_admin_kitchencontroller_kitchencontroller_index",
+      "app_http_controllers_admin_kitchencontroller_kitchencontroller_updatestatus",
+      "app_http_controllers_receiptcontroller_receiptcontroller",
+      "app_http_controllers_receiptcontroller_receiptcontroller_downloadpdf",
+      "app_http_controllers_receiptcontroller_receiptcontroller_show",
+      "app_models_order_order",
+      "app_models_order_order_items",
+      "app_models_order_order_payments",
+      "app_models_order_order_shop",
+      "app_models_order_order_table"
+    ],
+    "19": [
+      "app_actions_superadmin_activateshopaction_activateshopaction",
+      "app_actions_superadmin_activateshopaction_activateshopaction_execute",
+      "app_actions_superadmin_deleteshopaction_deleteshopaction",
+      "app_actions_superadmin_deleteshopaction_deleteshopaction_execute",
+      "app_actions_superadmin_suspendshopaction_suspendshopaction",
+      "app_actions_superadmin_suspendshopaction_suspendshopaction_execute",
+      "app_http_controllers_superadmin_shopcontroller",
+      "app_http_controllers_superadmin_shopcontroller_closure_1",
+      "app_http_controllers_superadmin_shopcontroller_shopcontroller",
+      "app_http_controllers_superadmin_shopcontroller_shopcontroller_activate",
+      "app_http_controllers_superadmin_shopcontroller_shopcontroller_destroy",
+      "app_http_controllers_superadmin_shopcontroller_shopcontroller_edit",
+      "app_http_controllers_superadmin_shopcontroller_shopcontroller_index",
+      "app_http_controllers_superadmin_shopcontroller_shopcontroller_show",
+      "app_http_controllers_superadmin_shopcontroller_shopcontroller_suspend",
+      "app_http_controllers_superadmin_shopcontroller_shopcontroller_update"
+    ],
+    "20": [
+      "app_http_controllers_auth_emailverificationpromptcontroller",
+      "app_http_controllers_auth_emailverificationpromptcontroller_emailverificationpromptcontroller",
+      "app_http_controllers_auth_emailverificationpromptcontroller_emailverificationpromptcontroller_invoke",
+      "app_http_controllers_profilecontroller",
+      "app_http_controllers_profilecontroller_profilecontroller",
+      "app_http_controllers_profilecontroller_profilecontroller_destroy",
+      "app_http_controllers_profilecontroller_profilecontroller_edit",
+      "app_view_components_applayout",
+      "app_view_components_applayout_applayout",
+      "app_view_components_applayout_applayout_render",
+      "app_view_components_guestlayout",
+      "app_view_components_guestlayout_guestlayout",
+      "app_view_components_guestlayout_guestlayout_render",
+      "illuminate_support_facades_redirect",
+      "illuminate_view_component",
+      "illuminate_view_view"
+    ],
+    "21": [
+      "database_migrations_2026_08_28_014638_create_products_table",
+      "database_migrations_2026_08_28_014638_create_products_table_closure_1",
+      "database_migrations_2026_08_28_014638_create_products_table_down",
+      "database_migrations_2026_08_28_014638_create_products_table_up",
+      "database_migrations_2026_09_02_033730_update_admin_role_to_owner_in_users_table",
+      "database_migrations_2026_09_02_033730_update_admin_role_to_owner_in_users_table_down",
+      "database_migrations_2026_09_02_033730_update_admin_role_to_owner_in_users_table_up",
+      "database_migrations_2026_09_02_034958_create_modifier_groups_table",
+      "database_migrations_2026_09_02_034958_create_modifier_groups_table_closure_1",
+      "database_migrations_2026_09_02_034958_create_modifier_groups_table_down",
+      "database_migrations_2026_09_02_034958_create_modifier_groups_table_up",
+      "database_migrations_2026_09_02_035814_create_cash_registers_table",
+      "database_migrations_2026_09_02_035814_create_cash_registers_table_closure_1",
+      "database_migrations_2026_09_02_035814_create_cash_registers_table_down",
+      "database_migrations_2026_09_02_035814_create_cash_registers_table_up",
+      "illuminate_database_migrations_migration"
+    ],
+    "22": [
+      "illuminate_foundation_testing_refreshdatabase",
+      "tests_feature_auth_authenticationtest",
+      "tests_feature_auth_authenticationtest_authenticationtest",
+      "tests_feature_auth_authenticationtest_authenticationtest_test_login_screen_can_be_rendered",
+      "tests_feature_auth_authenticationtest_authenticationtest_test_users_can_authenticate_using_the_login_screen",
+      "tests_feature_auth_authenticationtest_authenticationtest_test_users_can_logout",
+      "tests_feature_auth_authenticationtest_authenticationtest_test_users_can_not_authenticate_with_invalid_password",
+      "tests_feature_auth_passwordconfirmationtest",
+      "tests_feature_auth_passwordconfirmationtest_passwordconfirmationtest",
+      "tests_feature_auth_passwordconfirmationtest_passwordconfirmationtest_test_confirm_password_screen_can_be_rendered",
+      "tests_feature_auth_passwordconfirmationtest_passwordconfirmationtest_test_password_can_be_confirmed",
+      "tests_feature_auth_passwordconfirmationtest_passwordconfirmationtest_test_password_is_not_confirmed_with_invalid_password",
+      "tests_feature_auth_registrationtest",
+      "tests_feature_auth_registrationtest_registrationtest",
+      "tests_feature_auth_registrationtest_registrationtest_test_new_users_can_register",
+      "tests_feature_auth_registrationtest_registrationtest_test_registration_screen_can_be_rendered"
+    ],
+    "23": [
+      "app_actions_superadmin_activateshopaction",
+      "app_actions_superadmin_activateshopaction_closure_1",
+      "app_actions_superadmin_deleteshopaction",
+      "app_actions_superadmin_deleteshopaction_closure_1",
+      "app_actions_superadmin_suspendshopaction",
+      "app_actions_superadmin_suspendshopaction_closure_1",
+      "app_http_controllers_superadmin_usercontroller_usercontroller_destroy",
+      "app_http_controllers_superadmincontroller",
+      "app_http_controllers_superadmincontroller_superadmincontroller",
+      "app_http_controllers_superadmincontroller_superadmincontroller_index",
+      "app_models_superadminauditlog",
+      "app_models_superadminauditlog_superadminauditlog",
+      "app_models_superadminauditlog_superadminauditlog_actor",
+      "app_models_superadminauditlog_superadminauditlog_record",
+      "self"
+    ],
+    "24": [
+      "database_seeders_categoryseeder",
+      "database_seeders_categoryseeder_categoryseeder",
+      "database_seeders_categoryseeder_categoryseeder_run",
+      "database_seeders_databaseseeder",
+      "database_seeders_databaseseeder_databaseseeder",
+      "database_seeders_databaseseeder_databaseseeder_run",
+      "database_seeders_superadminseeder",
+      "database_seeders_superadminseeder_superadminseeder",
+      "database_seeders_superadminseeder_superadminseeder_run",
+      "illuminate_database_seeder",
+      "illuminate_support_facades_hash",
+      "tests_feature_auth_passwordupdatetest",
+      "tests_feature_auth_passwordupdatetest_passwordupdatetest",
+      "tests_feature_auth_passwordupdatetest_passwordupdatetest_test_correct_password_must_be_provided_to_update_password",
+      "tests_feature_auth_passwordupdatetest_passwordupdatetest_test_password_can_be_updated"
+    ],
+    "25": [
+      "routes_web",
+      "routes_web_closure_1",
+      "routes_web_closure_10",
+      "routes_web_closure_11",
+      "routes_web_closure_2",
+      "routes_web_closure_3",
+      "routes_web_closure_4",
+      "routes_web_closure_5",
+      "routes_web_closure_6",
+      "routes_web_closure_7",
+      "routes_web_closure_8",
+      "routes_web_closure_9",
+      "routes_web_get",
+      "routes_web_get_admin_kitchen_orders",
+      "routes_web_get_harga"
+    ],
+    "26": [
+      "database_migrations_2026_08_30_084041_create_personal_access_tokens_table",
+      "database_migrations_2026_08_30_084041_create_personal_access_tokens_table_closure_1",
+      "database_migrations_2026_08_30_084041_create_personal_access_tokens_table_down",
+      "database_migrations_2026_08_30_084041_create_personal_access_tokens_table_up",
+      "database_migrations_2026_08_30_125424_add_operating_hours_to_shops_table",
+      "database_migrations_2026_08_30_125424_add_operating_hours_to_shops_table_closure_1",
+      "database_migrations_2026_08_30_125424_add_operating_hours_to_shops_table_closure_2",
+      "database_migrations_2026_08_30_125424_add_operating_hours_to_shops_table_down",
+      "database_migrations_2026_08_30_125424_add_operating_hours_to_shops_table_up",
+      "database_migrations_2026_09_02_035819_create_cash_register_sessions_table",
+      "database_migrations_2026_09_02_035819_create_cash_register_sessions_table_closure_1",
+      "database_migrations_2026_09_02_035819_create_cash_register_sessions_table_down",
+      "database_migrations_2026_09_02_035819_create_cash_register_sessions_table_up",
+      "illuminate_support_facades_schema"
+    ],
+    "27": [
+      "admin_dashboard_tabs_analytics",
+      "admin_dashboard_tabs_crew",
+      "admin_dashboard_tabs_inventory",
+      "admin_dashboard_tabs_logs",
+      "admin_dashboard_tabs_menu",
+      "admin_dashboard_tabs_orders",
+      "admin_dashboard_tabs_profile",
+      "admin_dashboard_tabs_qr",
+      "admin_dashboard_tabs_receipt",
+      "admin_dashboard_tabs_report",
+      "admin_dashboard_tabs_settings",
+      "admin_dashboard_tabs_shifts",
+      "resources_views_admin_dashboard_dashboard_blade"
+    ],
+    "28": [
+      "app_actions_crew_createshift",
+      "app_actions_crew_createshift_closure_1",
+      "app_actions_order_cancelorder",
+      "app_actions_order_cancelorder_cancelorder",
+      "app_actions_order_cancelorder_cancelorder_execute",
+      "app_actions_order_cancelorder_closure_1",
+      "app_actions_pos_applydiscount",
+      "app_actions_pos_applydiscount_applydiscount",
+      "app_actions_pos_applydiscount_applydiscount_execute",
+      "app_services_reportingservice",
+      "exception",
+      "illuminate_support_carbon",
+      "illuminate_support_facades_db"
+    ],
+    "29": [
+      "app_console_commands_createsuperadmin",
+      "app_console_commands_createsuperadmin_createsuperadmin",
+      "app_console_commands_createsuperadmin_createsuperadmin_handle",
+      "app_console_commands_fixmigrations",
+      "app_console_commands_fixmigrations_fixmigrations",
+      "app_console_commands_fixmigrations_fixmigrations_handle",
+      "command",
+      "illuminate_console_attributes_description",
+      "illuminate_console_attributes_signature",
+      "illuminate_console_command",
+      "illuminate_support_facades_file",
+      "illuminate_support_facades_validator"
+    ],
+    "30": [
+      "app_http_controllers_admin_gobizintegrationcontroller",
+      "app_http_controllers_admin_gobizintegrationcontroller_gobizintegrationcontroller",
+      "app_http_controllers_admin_gobizintegrationcontroller_gobizintegrationcontroller_callback",
+      "app_http_controllers_admin_gobizintegrationcontroller_gobizintegrationcontroller_connect",
+      "app_http_controllers_admin_gobizintegrationcontroller_gobizintegrationcontroller_construct",
+      "app_http_controllers_admin_gobizintegrationcontroller_gobizintegrationcontroller_synccatalog",
+      "app_services_gobizservice_gobizservice",
+      "app_services_gobizservice_gobizservice_construct",
+      "app_services_gobizservice_gobizservice_exchangetoken",
+      "app_services_gobizservice_gobizservice_getauthorizationurl",
+      "app_services_gobizservice_gobizservice_refreshtoken",
+      "app_services_gobizservice_gobizservice_syncmenu"
+    ],
+    "31": [
+      "app_http_controllers_admin_inventorycontroller_inventorycontroller",
+      "app_http_controllers_admin_inventorycontroller_inventorycontroller_adjuststock",
+      "app_http_controllers_admin_inventorycontroller_inventorycontroller_construct",
+      "app_http_controllers_admin_inventorycontroller_inventorycontroller_deletematerial",
+      "app_http_controllers_admin_inventorycontroller_inventorycontroller_getproductrecipes",
+      "app_http_controllers_admin_inventorycontroller_inventorycontroller_index",
+      "app_http_controllers_admin_inventorycontroller_inventorycontroller_savematerial",
+      "app_http_controllers_admin_inventorycontroller_inventorycontroller_saveproductrecipes",
+      "app_services_inventoryservice_inventoryservice",
+      "app_services_inventoryservice_inventoryservice_deductstockfororder",
+      "app_services_inventoryservice_inventoryservice_ensuretablesexist",
+      "app_services_inventoryservice_inventoryservice_syncproducthpp"
+    ],
+    "32": [
+      "illuminate_foundation_testing_testcase",
+      "tests_feature_exampletest",
+      "tests_feature_exampletest_exampletest",
+      "tests_feature_exampletest_exampletest_test_the_application_returns_a_successful_response",
+      "tests_feature_paymentprocessingtest",
+      "tests_feature_paymentprocessingtest_paymentprocessingtest",
+      "tests_feature_paymentprocessingtest_paymentprocessingtest_test_example",
+      "tests_feature_securityisolationtest",
+      "tests_feature_securityisolationtest_securityisolationtest",
+      "tests_feature_securityisolationtest_securityisolationtest_test_example",
+      "tests_testcase",
+      "tests_testcase_testcase"
+    ],
+    "33": [
+      "app_actions_payment_processpayment",
+      "app_actions_payment_processpayment_closure_1",
+      "app_actions_payment_processpayment_closure_2",
+      "app_actions_payment_processpayment_closure_3",
+      "app_http_controllers_admin_reportcontroller",
+      "app_http_controllers_admin_reportcontroller_closure_1",
+      "app_http_controllers_admin_reportcontroller_reportcontroller",
+      "app_http_controllers_admin_reportcontroller_reportcontroller_index",
+      "app_models_payment_payment",
+      "app_models_payment_payment_order",
+      "app_models_payment_payment_shop"
+    ],
+    "34": [
+      "app_actions_crew_createshift_createshift",
+      "app_actions_crew_createshift_createshift_execute",
+      "app_http_controllers_admin_shiftcontroller",
+      "app_http_controllers_admin_shiftcontroller_closure_1",
+      "app_http_controllers_admin_shiftcontroller_closure_2",
+      "app_http_controllers_admin_shiftcontroller_shiftcontroller",
+      "app_http_controllers_admin_shiftcontroller_shiftcontroller_index",
+      "app_http_controllers_admin_shiftcontroller_shiftcontroller_myschedule",
+      "app_http_controllers_admin_shiftcontroller_shiftcontroller_store",
+      "carbon_carbon"
+    ],
+    "35": [
+      "app_events_ordercreated",
+      "app_events_ordercreated_ordercreated",
+      "app_events_ordercreated_ordercreated_broadcastas",
+      "app_events_ordercreated_ordercreated_broadcaston",
+      "app_events_ordercreated_ordercreated_broadcastwith",
+      "app_events_ordercreated_ordercreated_construct",
+      "illuminate_broadcasting_interactswithsockets",
+      "illuminate_broadcasting_privatechannel",
+      "illuminate_contracts_broadcasting_shouldbroadcastnow",
+      "illuminate_foundation_events_dispatchable"
+    ],
+    "36": [
+      "app_models_product",
+      "app_models_product_closure_1",
+      "app_models_rawmaterial",
+      "app_models_rawmaterial_rawmaterial",
+      "app_models_rawmaterial_rawmaterial_islowstock",
+      "app_models_rawmaterial_rawmaterial_mutations",
+      "app_models_rawmaterial_rawmaterial_recipes",
+      "app_models_rawmaterial_rawmaterial_shop",
+      "illuminate_database_eloquent_relations_hasmany",
+      "illuminate_database_eloquent_softdeletes"
+    ],
+    "37": [
+      "composer_allow_plugins_pestphp_pest_plugin",
+      "composer_allow_plugins_php_http_discovery",
+      "composer_config",
+      "composer_config_allow_plugins",
+      "composer_config_optimize_autoloader",
+      "composer_config_platform",
+      "composer_config_platform_check",
+      "composer_config_preferred_install",
+      "composer_config_sort_packages",
+      "composer_platform_php"
+    ],
+    "38": [
+      "composer_require_dev",
+      "composer_require_dev_fakerphp_faker",
+      "composer_require_dev_laravel_boost",
+      "composer_require_dev_laravel_breeze",
+      "composer_require_dev_laravel_pail",
+      "composer_require_dev_laravel_pao",
+      "composer_require_dev_laravel_pint",
+      "composer_require_dev_mockery_mockery",
+      "composer_require_dev_nunomaduro_collision",
+      "composer_require_dev_phpunit_phpunit"
+    ],
+    "39": [
+      "illuminate_auth_notifications_resetpassword",
+      "illuminate_support_facades_notification",
+      "tests_feature_auth_passwordresettest",
+      "tests_feature_auth_passwordresettest_closure_1",
+      "tests_feature_auth_passwordresettest_closure_2",
+      "tests_feature_auth_passwordresettest_passwordresettest",
+      "tests_feature_auth_passwordresettest_passwordresettest_test_password_can_be_reset_with_valid_token",
+      "tests_feature_auth_passwordresettest_passwordresettest_test_reset_password_link_can_be_requested",
+      "tests_feature_auth_passwordresettest_passwordresettest_test_reset_password_link_screen_can_be_rendered",
+      "tests_feature_auth_passwordresettest_passwordresettest_test_reset_password_screen_can_be_rendered"
+    ],
+    "40": [
+      "app_http_controllers_api_gobizwebhookcontroller",
+      "app_http_controllers_api_gobizwebhookcontroller_gobizwebhookcontroller",
+      "app_http_controllers_api_gobizwebhookcontroller_gobizwebhookcontroller_handle",
+      "app_http_controllers_api_gobizwebhookcontroller_gobizwebhookcontroller_processneworder",
+      "app_services_gobizservice",
+      "app_services_gobizservice_closure_1",
+      "app_services_gobizservice_closure_2",
+      "illuminate_support_facades_http",
+      "illuminate_support_facades_log"
+    ],
+    "41": [
+      "app_http_controllers_superadmin_usercontroller",
+      "app_http_controllers_superadmin_usercontroller_closure_1",
+      "app_http_controllers_superadmin_usercontroller_closure_2",
+      "app_http_controllers_superadmin_usercontroller_usercontroller",
+      "app_http_controllers_superadmin_usercontroller_usercontroller_create",
+      "app_http_controllers_superadmin_usercontroller_usercontroller_edit",
+      "app_http_controllers_superadmin_usercontroller_usercontroller_index",
+      "app_http_controllers_superadmin_usercontroller_usercontroller_store",
+      "app_http_controllers_superadmin_usercontroller_usercontroller_update"
+    ],
+    "42": [
+      "app_providers_appserviceprovider",
+      "app_providers_appserviceprovider_appserviceprovider",
+      "app_providers_appserviceprovider_appserviceprovider_boot",
+      "app_providers_appserviceprovider_appserviceprovider_register",
+      "app_providers_appserviceprovider_closure_1",
+      "app_providers_appserviceprovider_closure_2",
+      "bootstrap_providers",
+      "illuminate_support_facades_gate",
+      "illuminate_support_serviceprovider"
+    ],
+    "43": [
+      "bootstrap_app",
+      "bootstrap_app_closure_1",
+      "bootstrap_app_closure_2",
+      "bootstrap_app_closure_3",
+      "bootstrap_app_closure_4",
+      "illuminate_foundation_application",
+      "illuminate_foundation_configuration_exceptions",
+      "illuminate_foundation_configuration_middleware",
+      "public_index"
+    ],
+    "44": [
+      "composer",
+      "composer_description",
+      "composer_keywords",
+      "composer_license",
+      "composer_minimum_stability",
+      "composer_name",
+      "composer_prefer_stable",
+      "composer_schema",
+      "composer_type"
+    ],
+    "45": [
+      "composer_scripts",
+      "composer_scripts_dev",
+      "composer_scripts_post_autoload_dump",
+      "composer_scripts_post_create_project_cmd",
+      "composer_scripts_post_root_package_install",
+      "composer_scripts_post_update_cmd",
+      "composer_scripts_pre_package_uninstall",
+      "composer_scripts_setup",
+      "composer_scripts_test"
+    ],
+    "46": [
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_deletemenu",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_getlogs",
+      "app_http_controllers_admin_dashboardcontroller_dashboardcontroller_logactivity",
+      "app_models_activitylog",
+      "app_models_activitylog_activitylog",
+      "app_models_activitylog_activitylog_entity",
+      "app_models_activitylog_activitylog_shop",
+      "app_models_activitylog_activitylog_user"
+    ],
+    "47": [
+      "app_http_middleware_checkrole",
+      "app_http_middleware_checkrole_checkrole",
+      "app_http_middleware_checkrole_checkrole_handle",
+      "app_http_middleware_issuperadmin",
+      "app_http_middleware_issuperadmin_issuperadmin",
+      "app_http_middleware_issuperadmin_issuperadmin_handle",
+      "closure",
+      "symfony_component_httpfoundation_response"
+    ],
+    "48": [
+      "composer_require",
+      "composer_require_barryvdh_laravel_dompdf",
+      "composer_require_intervention_image",
+      "composer_require_laravel_framework",
+      "composer_require_laravel_sanctum",
+      "composer_require_laravel_tinker",
+      "composer_require_php",
+      "composer_require_pusher_pusher_php_server"
+    ],
+    "49": [
+      "database_migrations_0001_01_01_000000_create_users_table",
+      "database_migrations_0001_01_01_000000_create_users_table_closure_1",
+      "database_migrations_0001_01_01_000000_create_users_table_closure_2",
+      "database_migrations_0001_01_01_000000_create_users_table_closure_3",
+      "database_migrations_0001_01_01_000000_create_users_table_down",
+      "database_migrations_0001_01_01_000000_create_users_table_up"
+    ],
+    "50": [
+      "database_migrations_0001_01_01_000002_create_jobs_table",
+      "database_migrations_0001_01_01_000002_create_jobs_table_closure_1",
+      "database_migrations_0001_01_01_000002_create_jobs_table_closure_2",
+      "database_migrations_0001_01_01_000002_create_jobs_table_closure_3",
+      "database_migrations_0001_01_01_000002_create_jobs_table_down",
+      "database_migrations_0001_01_01_000002_create_jobs_table_up"
+    ],
+    "51": [
+      "database_migrations_2026_10_16_012047_create_inventory_and_recipes_tables",
+      "database_migrations_2026_10_16_012047_create_inventory_and_recipes_tables_closure_1",
+      "database_migrations_2026_10_16_012047_create_inventory_and_recipes_tables_closure_2",
+      "database_migrations_2026_10_16_012047_create_inventory_and_recipes_tables_closure_3",
+      "database_migrations_2026_10_16_012047_create_inventory_and_recipes_tables_down",
+      "database_migrations_2026_10_16_012047_create_inventory_and_recipes_tables_up"
+    ],
+    "52": [
+      "illuminate_support_facades_event",
+      "tests_feature_auth_emailverificationtest",
+      "tests_feature_auth_emailverificationtest_emailverificationtest",
+      "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_can_be_verified",
+      "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_is_not_verified_with_invalid_hash",
+      "tests_feature_auth_emailverificationtest_emailverificationtest_test_email_verification_screen_can_be_rendered"
+    ],
+    "53": [
+      "app_http_controllers_admin_api_analyticsapicontroller",
+      "app_http_controllers_admin_api_analyticsapicontroller_analyticsapicontroller",
+      "app_http_controllers_admin_api_analyticsapicontroller_analyticsapicontroller_index",
+      "app_services_reportingservice_reportingservice",
+      "app_services_reportingservice_reportingservice_getdashboardanalytics"
+    ],
+    "54": [
+      "app_http_controllers_auth_verifyemailcontroller",
+      "app_http_controllers_auth_verifyemailcontroller_verifyemailcontroller",
+      "app_http_controllers_auth_verifyemailcontroller_verifyemailcontroller_invoke",
+      "illuminate_auth_events_verified",
+      "illuminate_foundation_auth_emailverificationrequest"
+    ],
+    "55": [
+      "composer_autoload",
+      "composer_autoload_psr_4",
+      "composer_psr_4_app",
+      "composer_psr_4_database_factories",
+      "composer_psr_4_database_seeders"
+    ],
+    "56": [
+      "config_logging",
+      "monolog_handler_nullhandler",
+      "monolog_handler_streamhandler",
+      "monolog_handler_syslogudphandler",
+      "monolog_processor_psrlogmessageprocessor"
+    ],
+    "57": [
+      "config_sanctum",
+      "illuminate_cookie_middleware_encryptcookies",
+      "illuminate_foundation_http_middleware_validatecsrftoken",
+      "laravel_sanctum_http_middleware_authenticatesession",
+      "laravel_sanctum_sanctum"
+    ],
+    "58": [
+      "database_migrations_0001_01_01_000001_create_cache_table",
+      "database_migrations_0001_01_01_000001_create_cache_table_closure_1",
+      "database_migrations_0001_01_01_000001_create_cache_table_closure_2",
+      "database_migrations_0001_01_01_000001_create_cache_table_down",
+      "database_migrations_0001_01_01_000001_create_cache_table_up"
+    ],
+    "59": [
+      "database_migrations_2026_08_28_104623_add_role_to_users_table",
+      "database_migrations_2026_08_28_104623_add_role_to_users_table_closure_1",
+      "database_migrations_2026_08_28_104623_add_role_to_users_table_closure_2",
+      "database_migrations_2026_08_28_104623_add_role_to_users_table_down",
+      "database_migrations_2026_08_28_104623_add_role_to_users_table_up"
+    ],
+    "60": [
+      "database_migrations_2026_08_30_041719_add_branding_fields_to_shops_table",
+      "database_migrations_2026_08_30_041719_add_branding_fields_to_shops_table_closure_1",
+      "database_migrations_2026_08_30_041719_add_branding_fields_to_shops_table_closure_2",
+      "database_migrations_2026_08_30_041719_add_branding_fields_to_shops_table_down",
+      "database_migrations_2026_08_30_041719_add_branding_fields_to_shops_table_up"
+    ],
+    "61": [
+      "database_migrations_2026_08_30_083657_add_gobiz_credentials_to_shops_table",
+      "database_migrations_2026_08_30_083657_add_gobiz_credentials_to_shops_table_closure_1",
+      "database_migrations_2026_08_30_083657_add_gobiz_credentials_to_shops_table_closure_2",
+      "database_migrations_2026_08_30_083657_add_gobiz_credentials_to_shops_table_down",
+      "database_migrations_2026_08_30_083657_add_gobiz_credentials_to_shops_table_up"
+    ],
+    "62": [
+      "database_migrations_2026_08_30_130702_add_is_banner_active_to_shops_table",
+      "database_migrations_2026_08_30_130702_add_is_banner_active_to_shops_table_closure_1",
+      "database_migrations_2026_08_30_130702_add_is_banner_active_to_shops_table_closure_2",
+      "database_migrations_2026_08_30_130702_add_is_banner_active_to_shops_table_down",
+      "database_migrations_2026_08_30_130702_add_is_banner_active_to_shops_table_up"
+    ],
+    "63": [
+      "database_migrations_2026_09_02_033948_change_default_role_to_owner_in_users_table",
+      "database_migrations_2026_09_02_033948_change_default_role_to_owner_in_users_table_closure_1",
+      "database_migrations_2026_09_02_033948_change_default_role_to_owner_in_users_table_closure_2",
+      "database_migrations_2026_09_02_033948_change_default_role_to_owner_in_users_table_down",
+      "database_migrations_2026_09_02_033948_change_default_role_to_owner_in_users_table_up"
+    ],
+    "64": [
+      "database_migrations_2026_09_02_041728_upgrade_activity_logs_for_audit_trail",
+      "database_migrations_2026_09_02_041728_upgrade_activity_logs_for_audit_trail_closure_1",
+      "database_migrations_2026_09_02_041728_upgrade_activity_logs_for_audit_trail_closure_2",
+      "database_migrations_2026_09_02_041728_upgrade_activity_logs_for_audit_trail_down",
+      "database_migrations_2026_09_02_041728_upgrade_activity_logs_for_audit_trail_up"
+    ],
+    "65": [
+      "database_migrations_2026_09_02_053445_add_category_name_to_products_table",
+      "database_migrations_2026_09_02_053445_add_category_name_to_products_table_closure_1",
+      "database_migrations_2026_09_02_053445_add_category_name_to_products_table_closure_2",
+      "database_migrations_2026_09_02_053445_add_category_name_to_products_table_down",
+      "database_migrations_2026_09_02_053445_add_category_name_to_products_table_up"
+    ],
+    "66": [
+      "database_migrations_2026_09_02_090000_add_lifecycle_fields_to_shops_table",
+      "database_migrations_2026_09_02_090000_add_lifecycle_fields_to_shops_table_closure_1",
+      "database_migrations_2026_09_02_090000_add_lifecycle_fields_to_shops_table_closure_2",
+      "database_migrations_2026_09_02_090000_add_lifecycle_fields_to_shops_table_down",
+      "database_migrations_2026_09_02_090000_add_lifecycle_fields_to_shops_table_up"
+    ],
+    "67": [
+      "database_migrations_2026_09_03_045523_add_unique_constraint_to_categories_table",
+      "database_migrations_2026_09_03_045523_add_unique_constraint_to_categories_table_closure_1",
+      "database_migrations_2026_09_03_045523_add_unique_constraint_to_categories_table_closure_2",
+      "database_migrations_2026_09_03_045523_add_unique_constraint_to_categories_table_down",
+      "database_migrations_2026_09_03_045523_add_unique_constraint_to_categories_table_up"
+    ],
+    "68": [
+      "database_migrations_2026_09_03_101159_add_address_and_email_to_shops_table",
+      "database_migrations_2026_09_03_101159_add_address_and_email_to_shops_table_closure_1",
+      "database_migrations_2026_09_03_101159_add_address_and_email_to_shops_table_closure_2",
+      "database_migrations_2026_09_03_101159_add_address_and_email_to_shops_table_down",
+      "database_migrations_2026_09_03_101159_add_address_and_email_to_shops_table_up"
+    ],
+    "69": [
+      "database_migrations_2026_09_06_062034_add_onboarding_fields_to_shops_table",
+      "database_migrations_2026_09_06_062034_add_onboarding_fields_to_shops_table_closure_1",
+      "database_migrations_2026_09_06_062034_add_onboarding_fields_to_shops_table_closure_2",
+      "database_migrations_2026_09_06_062034_add_onboarding_fields_to_shops_table_down",
+      "database_migrations_2026_09_06_062034_add_onboarding_fields_to_shops_table_up"
+    ],
+    "70": [
+      "database_migrations_2026_09_22_005113_add_title_font_family_to_shops_table",
+      "database_migrations_2026_09_22_005113_add_title_font_family_to_shops_table_closure_1",
+      "database_migrations_2026_09_22_005113_add_title_font_family_to_shops_table_closure_2",
+      "database_migrations_2026_09_22_005113_add_title_font_family_to_shops_table_down",
+      "database_migrations_2026_09_22_005113_add_title_font_family_to_shops_table_up"
+    ],
+    "71": [
+      "database_migrations_2026_09_22_010707_add_receipt_fields_to_shops_table",
+      "database_migrations_2026_09_22_010707_add_receipt_fields_to_shops_table_closure_1",
+      "database_migrations_2026_09_22_010707_add_receipt_fields_to_shops_table_closure_2",
+      "database_migrations_2026_09_22_010707_add_receipt_fields_to_shops_table_down",
+      "database_migrations_2026_09_22_010707_add_receipt_fields_to_shops_table_up"
+    ],
+    "72": [
+      "fix_fixed",
+      "fix_fixed_fs",
+      "ref_fs",
+      "remove_md",
+      "remove_md_fs"
+    ],
+    "73": [
+      "app_http_controllers_auth_passwordcontroller",
+      "app_http_controllers_auth_passwordcontroller_passwordcontroller",
+      "app_http_controllers_auth_passwordcontroller_passwordcontroller_update",
+      "illuminate_validation_rules_password"
+    ],
+    "74": [
+      "app_traits_belongstoshop",
+      "app_traits_belongstoshop_closure_1",
+      "app_traits_belongstoshop_closure_2",
+      "illuminate_database_eloquent_builder"
+    ],
+    "75": [
+      "database_migrations_0000_01_01_000000_create_shops_table",
+      "database_migrations_0000_01_01_000000_create_shops_table_closure_1",
+      "database_migrations_0000_01_01_000000_create_shops_table_down",
+      "database_migrations_0000_01_01_000000_create_shops_table_up"
+    ],
+    "76": [
+      "database_migrations_2026_08_28_014637_create_categories_table",
+      "database_migrations_2026_08_28_014637_create_categories_table_closure_1",
+      "database_migrations_2026_08_28_014637_create_categories_table_down",
+      "database_migrations_2026_08_28_014637_create_categories_table_up"
+    ],
+    "77": [
+      "database_migrations_2026_08_28_014639_create_tables_table",
+      "database_migrations_2026_08_28_014639_create_tables_table_closure_1",
+      "database_migrations_2026_08_28_014639_create_tables_table_down",
+      "database_migrations_2026_08_28_014639_create_tables_table_up"
+    ],
+    "78": [
+      "database_migrations_2026_08_28_014640_create_orders_table",
+      "database_migrations_2026_08_28_014640_create_orders_table_closure_1",
+      "database_migrations_2026_08_28_014640_create_orders_table_down",
+      "database_migrations_2026_08_28_014640_create_orders_table_up"
+    ],
+    "79": [
+      "database_migrations_2026_08_28_014641_create_order_items_table",
+      "database_migrations_2026_08_28_014641_create_order_items_table_closure_1",
+      "database_migrations_2026_08_28_014641_create_order_items_table_down",
+      "database_migrations_2026_08_28_014641_create_order_items_table_up"
+    ],
+    "80": [
+      "database_migrations_2026_08_31_041527_create_shift_templates_table",
+      "database_migrations_2026_08_31_041527_create_shift_templates_table_closure_1",
+      "database_migrations_2026_08_31_041527_create_shift_templates_table_down",
+      "database_migrations_2026_08_31_041527_create_shift_templates_table_up"
+    ],
+    "81": [
+      "database_migrations_2026_08_31_041528_create_crew_shifts_table",
+      "database_migrations_2026_08_31_041528_create_crew_shifts_table_closure_1",
+      "database_migrations_2026_08_31_041528_create_crew_shifts_table_down",
+      "database_migrations_2026_08_31_041528_create_crew_shifts_table_up"
+    ],
+    "82": [
+      "database_migrations_2026_08_31_041529_create_activity_logs_table",
+      "database_migrations_2026_08_31_041529_create_activity_logs_table_closure_1",
+      "database_migrations_2026_08_31_041529_create_activity_logs_table_down",
+      "database_migrations_2026_08_31_041529_create_activity_logs_table_up"
+    ],
+    "83": [
+      "database_migrations_2026_09_02_034952_create_product_variants_table",
+      "database_migrations_2026_09_02_034952_create_product_variants_table_closure_1",
+      "database_migrations_2026_09_02_034952_create_product_variants_table_down",
+      "database_migrations_2026_09_02_034952_create_product_variants_table_up"
+    ],
+    "84": [
+      "database_migrations_2026_09_02_035003_create_modifiers_table",
+      "database_migrations_2026_09_02_035003_create_modifiers_table_closure_1",
+      "database_migrations_2026_09_02_035003_create_modifiers_table_down",
+      "database_migrations_2026_09_02_035003_create_modifiers_table_up"
+    ],
+    "85": [
+      "database_migrations_2026_09_02_035527_create_payments_table",
+      "database_migrations_2026_09_02_035527_create_payments_table_closure_1",
+      "database_migrations_2026_09_02_035527_create_payments_table_down",
+      "database_migrations_2026_09_02_035527_create_payments_table_up"
+    ],
+    "86": [
+      "database_migrations_2026_09_02_035824_create_cash_drawer_transactions_table",
+      "database_migrations_2026_09_02_035824_create_cash_drawer_transactions_table_closure_1",
+      "database_migrations_2026_09_02_035824_create_cash_drawer_transactions_table_down",
+      "database_migrations_2026_09_02_035824_create_cash_drawer_transactions_table_up"
+    ],
+    "87": [
+      "database_migrations_2026_09_02_041632_create_payment_methods_table",
+      "database_migrations_2026_09_02_041632_create_payment_methods_table_closure_1",
+      "database_migrations_2026_09_02_041632_create_payment_methods_table_down",
+      "database_migrations_2026_09_02_041632_create_payment_methods_table_up"
+    ],
+    "88": [
+      "database_migrations_2026_09_02_090100_create_superadmin_audit_logs_table",
+      "database_migrations_2026_09_02_090100_create_superadmin_audit_logs_table_closure_1",
+      "database_migrations_2026_09_02_090100_create_superadmin_audit_logs_table_down",
+      "database_migrations_2026_09_02_090100_create_superadmin_audit_logs_table_up"
+    ],
+    "89": [
+      "database_migrations_2026_09_03_045328_create_shop_slug_histories_table",
+      "database_migrations_2026_09_03_045328_create_shop_slug_histories_table_closure_1",
+      "database_migrations_2026_09_03_045328_create_shop_slug_histories_table_down",
+      "database_migrations_2026_09_03_045328_create_shop_slug_histories_table_up"
+    ],
+    "90": [
+      "database_migrations_2026_09_03_101206_create_receipt_deliveries_table",
+      "database_migrations_2026_09_03_101206_create_receipt_deliveries_table_closure_1",
+      "database_migrations_2026_09_03_101206_create_receipt_deliveries_table_down",
+      "database_migrations_2026_09_03_101206_create_receipt_deliveries_table_up"
+    ],
+    "91": [
+      "illuminate_foundation_inspiring",
+      "illuminate_support_facades_artisan",
+      "routes_console",
+      "routes_console_closure_1"
+    ],
+    "92": [
+      "illuminate_support_facades_broadcast",
+      "routes_channels",
+      "routes_channels_closure_1",
+      "routes_channels_closure_2"
+    ],
+    "93": [
+      "phpunit_framework_testcase",
+      "tests_unit_exampletest",
+      "tests_unit_exampletest_exampletest",
+      "tests_unit_exampletest_exampletest_test_that_true_is_true"
+    ],
+    "94": [
+      "profile_partials_delete_user_form",
+      "profile_partials_update_password_form",
+      "profile_partials_update_profile_information_form",
+      "resources_views_profile_edit_blade"
+    ],
+    "95": [
+      "re",
+      "sys",
+      "update_ui",
+      "update_ui_process_file"
+    ],
+    "96": [
+      "application",
+      "argvinput",
+      "artisan"
+    ],
+    "97": [
+      "composer_autoload_dev",
+      "composer_autoload_dev_psr_4",
+      "composer_psr_4_tests"
+    ],
+    "98": [
+      "composer_extra",
+      "composer_extra_laravel",
+      "composer_laravel_dont_discover"
+    ],
+    "99": [
+      "admin_layouts_app",
+      "resources_views_admin_shift_my_schedule_blade"
+    ],
+    "100": [
+      "layouts_sidebar",
+      "resources_views_layouts_app_blade"
+    ],
+    "101": [
+      "public_js_data",
+      "public_js_data_apidata"
+    ],
+    "102": [
+      "public_js_store",
+      "public_js_store_cartstore"
+    ],
+    "103": [
+      "resources_views_admin_auth_login_admin_blade",
+      "resources_views_admin_auth_login_admin_blade_php_admin_layouts_admin_auth_master"
+    ],
+    "104": [
+      "resources_views_admin_auth_register_admin_blade",
+      "resources_views_admin_auth_register_admin_blade_php_admin_layouts_admin_auth_master"
+    ],
+    "105": [
+      "resources_views_admin_reports_index_blade",
+      "resources_views_admin_reports_index_blade_php_admin_layouts_admin_auth_master"
+    ],
+    "106": [
+      "resources_views_shop_cart_blade",
+      "resources_views_shop_cart_blade_php_shop_scripts"
+    ],
+    "107": [
+      "resources_views_shop_menu_blade",
+      "resources_views_shop_menu_blade_php_shop_scripts"
+    ],
+    "108": [
+      "resources_views_shop_tracking_blade",
+      "resources_views_shop_tracking_blade_php_shop_scripts"
+    ],
+    "109": [
+      "resources_views_superadmin_dashboard_blade",
+      "resources_views_superadmin_dashboard_blade_php_superadmin_layouts_app"
+    ],
+    "110": [
+      "resources_views_superadmin_shops_edit_blade",
+      "resources_views_superadmin_shops_edit_blade_php_superadmin_layouts_app"
+    ],
+    "111": [
+      "resources_views_superadmin_shops_index_blade",
+      "resources_views_superadmin_shops_index_blade_php_superadmin_layouts_app"
+    ],
+    "112": [
+      "resources_views_superadmin_shops_show_blade",
+      "resources_views_superadmin_shops_show_blade_php_superadmin_layouts_app"
+    ],
+    "113": [
+      "resources_views_superadmin_users_create_blade",
+      "resources_views_superadmin_users_create_blade_php_superadmin_layouts_app"
+    ],
+    "114": [
+      "resources_views_superadmin_users_edit_blade",
+      "resources_views_superadmin_users_edit_blade_php_superadmin_layouts_app"
+    ],
+    "115": [
+      "resources_views_superadmin_users_index_blade",
+      "resources_views_superadmin_users_index_blade_php_superadmin_layouts_app"
+    ],
+    "116": [
+      "check"
+    ],
+    "117": [
+      "config_app"
+    ],
+    "118": [
+      "config_broadcasting"
+    ],
+    "119": [
+      "config_filesystems"
+    ],
+    "120": [
+      "config_gobiz"
+    ],
+    "121": [
+      "config_mail"
+    ],
+    "122": [
+      "config_queue"
+    ],
+    "123": [
+      "config_reverb"
+    ],
+    "124": [
+      "config_services"
+    ],
+    "125": [
+      "postcss_config"
+    ],
+    "126": [
+      "resources_views_admin_dashboard_tabs_analytics_blade"
+    ],
+    "127": [
+      "resources_views_admin_dashboard_tabs_crew_blade"
+    ],
+    "128": [
+      "resources_views_admin_dashboard_tabs_inventory_blade"
+    ],
+    "129": [
+      "resources_views_admin_dashboard_tabs_logs_blade"
+    ],
+    "130": [
+      "resources_views_admin_dashboard_tabs_menu_blade"
+    ],
+    "131": [
+      "resources_views_admin_dashboard_tabs_orders_blade"
+    ],
+    "132": [
+      "resources_views_admin_dashboard_tabs_profile_blade"
+    ],
+    "133": [
+      "resources_views_admin_dashboard_tabs_qr_blade"
+    ],
+    "134": [
+      "resources_views_admin_dashboard_tabs_receipt_blade"
+    ],
+    "135": [
+      "resources_views_admin_dashboard_tabs_report_blade"
+    ],
+    "136": [
+      "resources_views_admin_dashboard_tabs_settings_blade"
+    ],
+    "137": [
+      "resources_views_admin_dashboard_tabs_shifts_blade"
+    ],
+    "138": [
+      "resources_views_admin_kitchen_index_blade"
+    ],
+    "139": [
+      "resources_views_admin_layouts_admin_auth_master_blade"
+    ],
+    "140": [
+      "resources_views_admin_layouts_admin_master_blade"
+    ],
+    "141": [
+      "resources_views_admin_layouts_sidebar_blade"
+    ],
+    "142": [
+      "resources_views_admin_liveorders_live_orders_blade"
+    ],
+    "143": [
+      "resources_views_admin_menucms_menu_cms_blade"
+    ],
+    "144": [
+      "resources_views_admin_onboarding_index_blade"
+    ],
+    "145": [
+      "resources_views_admin_orders_print_blade"
+    ],
+    "146": [
+      "resources_views_admin_pos_index_blade"
+    ],
+    "147": [
+      "resources_views_auth_confirm_password_blade"
+    ],
+    "148": [
+      "resources_views_auth_forgot_password_blade"
+    ],
+    "149": [
+      "resources_views_auth_login_blade"
+    ],
+    "150": [
+      "resources_views_auth_register_blade"
+    ],
+    "151": [
+      "resources_views_auth_reset_password_blade"
+    ],
+    "152": [
+      "resources_views_auth_verify_email_blade"
+    ],
+    "153": [
+      "resources_views_components_application_logo_blade"
+    ],
+    "154": [
+      "resources_views_components_auth_session_status_blade"
+    ],
+    "155": [
+      "resources_views_components_danger_button_blade"
+    ],
+    "156": [
+      "resources_views_components_dropdown_blade"
+    ],
+    "157": [
+      "resources_views_components_dropdown_link_blade"
+    ],
+    "158": [
+      "resources_views_components_input_error_blade"
+    ],
+    "159": [
+      "resources_views_components_input_label_blade"
+    ],
+    "160": [
+      "resources_views_components_modal_blade"
+    ],
+    "161": [
+      "resources_views_components_nav_link_blade"
+    ],
+    "162": [
+      "resources_views_components_order_notification_blade"
+    ],
+    "163": [
+      "resources_views_components_primary_button_blade"
+    ],
+    "164": [
+      "resources_views_components_responsive_nav_link_blade"
+    ],
+    "165": [
+      "resources_views_components_secondary_button_blade"
+    ],
+    "166": [
+      "resources_views_components_text_input_blade"
+    ],
+    "167": [
+      "resources_views_dashboard_blade"
+    ],
+    "168": [
+      "resources_views_emails_order_receipt_blade"
+    ],
+    "169": [
+      "resources_views_emails_order_receipt_text_blade"
+    ],
+    "170": [
+      "resources_views_harga_blade"
+    ],
+    "171": [
+      "resources_views_landing_blade"
+    ],
+    "172": [
+      "resources_views_layouts_guest_blade"
+    ],
+    "173": [
+      "resources_views_layouts_navigation_blade"
+    ],
+    "174": [
+      "resources_views_layouts_sidebar_blade"
+    ],
+    "175": [
+      "resources_views_profile_partials_delete_user_form_blade"
+    ],
+    "176": [
+      "resources_views_profile_partials_update_password_form_blade"
+    ],
+    "177": [
+      "resources_views_profile_partials_update_profile_information_form_blade"
+    ],
+    "178": [
+      "resources_views_receipts_pdf_blade"
+    ],
+    "179": [
+      "resources_views_receipts_thermal_blade"
+    ],
+    "180": [
+      "resources_views_receipts_web_blade"
+    ],
+    "181": [
+      "resources_views_shop_scripts_blade"
+    ],
+    "182": [
+      "resources_views_superadmin_layouts_app_blade"
+    ],
+    "183": [
+      "resources_views_welcome_saas_blade"
+    ]
+  },
+  "cohesion": {
+    "0": 0.05660377358490566,
+    "1": 0.05893719806763285,
+    "2": 0.05365853658536585,
+    "3": 0.08907563025210084,
+    "4": 0.14482758620689656,
+    "5": 0.11264367816091954,
+    "6": 0.1330049261083744,
+    "7": 0.1341991341991342,
+    "8": 0.12987012987012986,
+    "9": 0.12121212121212122,
+    "10": 0.1380952380952381,
+    "11": 0.15714285714285714,
+    "12": 0.1,
+    "13": 0.16374269005847952,
+    "14": 0.1111111111111111,
+    "15": 0.13071895424836602,
+    "16": 0.16911764705882354,
+    "17": 0.16176470588235295,
+    "18": 0.14705882352941177,
+    "19": 0.15,
+    "20": 0.18333333333333332,
+    "21": 0.125,
+    "22": 0.15,
+    "23": 0.17142857142857143,
+    "24": 0.17142857142857143,
+    "25": 0.13333333333333333,
+    "26": 0.14285714285714285,
+    "27": 0.15384615384615385,
+    "28": 0.16666666666666666,
+    "29": 0.19696969696969696,
+    "30": 0.19696969696969696,
+    "31": 0.19696969696969696,
+    "32": 0.22727272727272727,
+    "33": 0.21818181818181817,
+    "34": 0.2222222222222222,
+    "35": 0.26666666666666666,
+    "36": 0.26666666666666666,
+    "37": 0.2,
+    "38": 0.2,
+    "39": 0.2,
+    "40": 0.25,
+    "41": 0.2222222222222222,
+    "42": 0.25,
+    "43": 0.2777777777777778,
+    "44": 0.2222222222222222,
+    "45": 0.2222222222222222,
+    "46": 0.25,
+    "47": 0.42857142857142855,
+    "48": 0.25,
+    "49": 0.3333333333333333,
+    "50": 0.3333333333333333,
+    "51": 0.3333333333333333,
+    "52": 0.3333333333333333,
+    "53": 0.5,
+    "54": 0.5,
+    "55": 0.4,
+    "56": 0.4,
+    "57": 0.4,
+    "58": 0.4,
+    "59": 0.4,
+    "60": 0.4,
+    "61": 0.4,
+    "62": 0.4,
+    "63": 0.4,
+    "64": 0.4,
+    "65": 0.4,
+    "66": 0.4,
+    "67": 0.4,
+    "68": 0.4,
+    "69": 0.4,
+    "70": 0.4,
+    "71": 0.4,
+    "72": 0.4,
+    "73": 0.5,
+    "74": 0.6666666666666666,
+    "75": 0.5,
+    "76": 0.5,
+    "77": 0.5,
+    "78": 0.5,
+    "79": 0.5,
+    "80": 0.5,
+    "81": 0.5,
+    "82": 0.5,
+    "83": 0.5,
+    "84": 0.5,
+    "85": 0.5,
+    "86": 0.5,
+    "87": 0.5,
+    "88": 0.5,
+    "89": 0.5,
+    "90": 0.5,
+    "91": 0.5,
+    "92": 0.5,
+    "93": 0.6666666666666666,
+    "94": 0.5,
+    "95": 0.5,
+    "96": 0.6666666666666666,
+    "97": 0.6666666666666666,
+    "98": 0.6666666666666666,
+    "99": 1.0,
+    "100": 1.0,
+    "101": 1.0,
+    "102": 1.0,
+    "103": 1.0,
+    "104": 1.0,
+    "105": 1.0,
+    "106": 1.0,
+    "107": 1.0,
+    "108": 1.0,
+    "109": 1.0,
+    "110": 1.0,
+    "111": 1.0,
+    "112": 1.0,
+    "113": 1.0,
+    "114": 1.0,
+    "115": 1.0,
+    "116": 1.0,
+    "117": 1.0,
+    "118": 1.0,
+    "119": 1.0,
+    "120": 1.0,
+    "121": 1.0,
+    "122": 1.0,
+    "123": 1.0,
+    "124": 1.0,
+    "125": 1.0,
+    "126": 1.0,
+    "127": 1.0,
+    "128": 1.0,
+    "129": 1.0,
+    "130": 1.0,
+    "131": 1.0,
+    "132": 1.0,
+    "133": 1.0,
+    "134": 1.0,
+    "135": 1.0,
+    "136": 1.0,
+    "137": 1.0,
+    "138": 1.0,
+    "139": 1.0,
+    "140": 1.0,
+    "141": 1.0,
+    "142": 1.0,
+    "143": 1.0,
+    "144": 1.0,
+    "145": 1.0,
+    "146": 1.0,
+    "147": 1.0,
+    "148": 1.0,
+    "149": 1.0,
+    "150": 1.0,
+    "151": 1.0,
+    "152": 1.0,
+    "153": 1.0,
+    "154": 1.0,
+    "155": 1.0,
+    "156": 1.0,
+    "157": 1.0,
+    "158": 1.0,
+    "159": 1.0,
+    "160": 1.0,
+    "161": 1.0,
+    "162": 1.0,
+    "163": 1.0,
+    "164": 1.0,
+    "165": 1.0,
+    "166": 1.0,
+    "167": 1.0,
+    "168": 1.0,
+    "169": 1.0,
+    "170": 1.0,
+    "171": 1.0,
+    "172": 1.0,
+    "173": 1.0,
+    "174": 1.0,
+    "175": 1.0,
+    "176": 1.0,
+    "177": 1.0,
+    "178": 1.0,
+    "179": 1.0,
+    "180": 1.0,
+    "181": 1.0,
+    "182": 1.0,
+    "183": 1.0
+  },
+  "gods": [
+    {
+      "id": "app_models_user_user",
+      "label": "User",
+      "degree": 74
+    },
+    {
+      "id": "app_http_controllers_controller_controller",
+      "label": "Controller",
+      "degree": 71
+    },
+    {
+      "id": "app_models_shop_shop",
+      "label": "Shop",
+      "degree": 71
+    },
+    {
+      "id": "app_models_product_product",
+      "label": "Product",
+      "degree": 53
+    },
+    {
+      "id": "app_models_order_order",
+      "label": "Order",
+      "degree": 52
+    },
+    {
+      "id": "tests_testcase_testcase",
+      "label": "TestCase",
+      "degree": 26
+    },
+    {
+      "id": "app_traits_belongstoshop_belongstoshop",
+      "label": "BelongsToShop",
+      "degree": 24
+    },
+    {
+      "id": "app_http_controllers_admin_dashboardcontroller_dashboardcontroller",
+      "label": "DashboardController",
+      "degree": 23
+    },
+    {
+      "id": "app_models_table_table",
+      "label": "Table",
+      "degree": 22
+    },
+    {
+      "id": "app_models_cashregistersession_cashregistersession",
+      "label": "CashRegisterSession",
+      "degree": 21
+    }
+  ],
+  "surprises": [
+    {
+      "source": "GET /admin/kitchen/orders()",
+      "target": "Order",
+      "source_files": [
+        "routes/web.php",
+        "app/Models/Order.php"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities; peripheral node `GET /admin/kitchen/orders()` unexpectedly reaches hub `Order`"
+    },
+    {
+      "source": "up()",
+      "target": "Table",
+      "source_files": [
+        "database/migrations/2026_09_03_045028_add_public_token_to_tables.php",
+        "app/Models/Table.php"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities; peripheral node `up()` unexpectedly reaches hub `Table`"
+    },
+    {
+      "source": "{closure#1}()",
+      "target": "ShopSlugHistory",
+      "source_files": [
+        "app/Models/Shop.php",
+        "app/Models/ShopSlugHistory.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities; peripheral node `{closure#1}()` unexpectedly reaches hub `ShopSlugHistory`"
+    },
+    {
+      "source": "{closure#3}()",
+      "target": "SendOrderReceiptEmail",
+      "source_files": [
+        "app/Actions/Payment/ProcessPayment.php",
+        "app/Jobs/SendOrderReceiptEmail.php"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `{closure#3}()` unexpectedly reaches hub `SendOrderReceiptEmail`"
+    },
+    {
+      "source": "{closure#1}()",
+      "target": "User",
+      "source_files": [
+        "app/Http/Controllers/Auth/NewPasswordController.php",
+        "app/Models/User.php"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "bridges separate communities; peripheral node `{closure#1}()` unexpectedly reaches hub `User`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `Table` connect `Community 16` to `Community 0`, `Community 1`, `Community 4`, `Community 5`, `Community 11`, `Community 15`?",
+      "why": "High betweenness centrality (0.112) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `$schema`, `name`, `type` to the rest of the system?",
+      "why": "101 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.05660377358490566 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `User` connect `Community 8` to `Community 1`, `Community 34`, `Community 4`, `Community 7`, `Community 39`, `Community 41`, `Community 42`, `Community 11`, `Community 12`, `Community 9`, `Community 16`, `Community 17`, `Community 52`, `Community 22`, `Community 23`, `Community 24`, `Community 28`, `Community 29`?",
+      "why": "High betweenness centrality (0.093) - this node is a cross-community bridge."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.05893719806763285 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Order` connect `Community 18` to `Community 0`, `Community 33`, `Community 1`, `Community 35`, `Community 3`, `Community 4`, `Community 40`, `Community 9`, `Community 11`, `Community 13`, `Community 15`, `Community 16`, `Community 53`, `Community 23`, `Community 25`, `Community 28`, `Community 31`?",
+      "why": "High betweenness centrality (0.083) - this node is a cross-community bridge."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 2` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.05365853658536585 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

@@ -110,7 +110,7 @@
                         <!-- Opsi Layout Menu -->
                         <div>
                             <label class="block text-sm font-bold text-ink mb-2">Opsi Layout Menu Pelanggan</label>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                                 <!-- List -->
                                 <button type="button" @click="settings.theme_style = 'list'" :class="settings.theme_style === 'list' ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-line hover:border-gray-300 bg-white'" class="p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all group">
                                     <div class="flex items-center justify-between mb-2">
@@ -161,6 +161,32 @@
                                     <div>
                                         <span class="block text-xs font-bold text-ink">Hero Cards</span>
                                         <span class="block text-[10px] text-muted leading-tight mt-0.5">Artisan Showcase</span>
+                                    </div>
+                                </button>
+                                <!-- Sticker Grid -->
+                                <button type="button" @click="settings.theme_style = 'sticker'" :class="settings.theme_style === 'sticker' ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-line hover:border-gray-300 bg-white'" class="p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all group">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-100 group-hover:bg-primary/10 transition-colors">
+                                            <i class="fas fa-tag text-xs" :class="settings.theme_style === 'sticker' ? 'text-primary' : 'text-gray-500'"></i>
+                                        </div>
+                                        <span x-show="settings.theme_style === 'sticker'" class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-bold text-ink">Sticker Grid</span>
+                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Bulat & Sticker</span>
+                                    </div>
+                                </button>
+                                <!-- Bistro List -->
+                                <button type="button" @click="settings.theme_style = 'bistro'" :class="settings.theme_style === 'bistro' ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'border-line hover:border-gray-300 bg-white'" class="p-3.5 rounded-2xl border text-left flex flex-col justify-between transition-all group">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-gray-100 group-hover:bg-primary/10 transition-colors">
+                                            <i class="fas fa-circle-dot text-xs" :class="settings.theme_style === 'bistro' ? 'text-primary' : 'text-gray-500'"></i>
+                                        </div>
+                                        <span x-show="settings.theme_style === 'bistro'" class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs font-bold text-ink">Bistro List</span>
+                                        <span class="block text-[10px] text-muted leading-tight mt-0.5">Minimalist Bulat</span>
                                     </div>
                                 </button>
                             </div>
@@ -1079,6 +1105,65 @@
                                                     + Tambah
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- 5. Sticker Grid Theme (Circle Image + Slanted Sticker Badge) -->
+                            <div x-show="settings.theme_style === 'sticker'" class="grid grid-cols-2 gap-1.5">
+                                <template x-for="item in previewProducts" :key="item.id">
+                                    <div class="bg-white p-1.5 rounded-[12px] shadow-2xs border border-gray-200 flex flex-col justify-between relative overflow-hidden">
+                                        <div>
+                                            <h4 class="font-bold text-[9.5px] text-gray-800 leading-tight truncate" x-text="item.name"></h4>
+                                            <p class="text-[7.5px] text-gray-400 truncate mt-0.5" x-text="item.description || 'Menu pilihan'"></p>
+                                        </div>
+                                        <div class="relative my-1 flex items-center justify-center">
+                                            <div class="w-13 h-13 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center relative shadow-xs">
+                                                <template x-if="item.image_url">
+                                                    <img :src="item.image_url" :alt="item.name" class="w-full h-full object-cover">
+                                                </template>
+                                                <template x-if="!item.image_url">
+                                                    <i class="fas fa-coffee text-xs text-gray-300"></i>
+                                                </template>
+                                            </div>
+                                            <!-- Slanted Yellow Sticker Price Badge -->
+                                            <span class="absolute -top-0.5 right-0.5 bg-yellow-300 text-gray-900 text-[7px] font-black px-1.5 py-0.5 rounded -rotate-6 shadow-2xs border border-black/10 z-10" x-text="formatRp(item.effective_price || item.price)"></span>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-0.5 pt-0.5 border-t border-gray-50">
+                                            <span class="font-bold text-[8px] text-gray-600 truncate" x-text="item.category_name || 'Menu'"></span>
+                                            <div class="w-4.5 h-4.5 rounded-full border border-gray-800 flex items-center justify-center text-gray-800 text-[7.5px] shadow-2xs">
+                                                <i class="fas fa-plus"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- 6. Bistro List Theme (Minimalist Circular Dish Row) -->
+                            <div x-show="settings.theme_style === 'bistro'" class="flex flex-col gap-1.5">
+                                <template x-for="item in previewProducts" :key="item.id">
+                                    <div class="bg-white p-1.5 rounded-[12px] shadow-2xs border border-gray-200 flex gap-2 items-center relative overflow-hidden">
+                                        <div class="w-11 h-11 rounded-full bg-gray-100 border border-gray-200 shrink-0 flex items-center justify-center text-gray-300 overflow-hidden relative shadow-xs">
+                                            <template x-if="item.image_url">
+                                                <img :src="item.image_url" :alt="item.name" class="w-full h-full object-cover">
+                                            </template>
+                                            <template x-if="!item.image_url">
+                                                <i class="fas fa-utensils text-xs text-gray-300"></i>
+                                            </template>
+                                        </div>
+                                        <div class="flex-1 min-w-0 pr-6">
+                                            <h4 class="font-bold text-[10px] text-gray-800 leading-tight truncate" x-text="item.name"></h4>
+                                            <p class="text-[7.5px] text-gray-400 mt-0.5 line-clamp-1" x-text="item.description || 'Menu pilihan lezat'"></p>
+                                            <div class="flex items-center gap-1 mt-0.5">
+                                                <span class="font-black text-[9.5px]" :style="'color: ' + (settings.primary_color || '#1e5a7a')" x-text="formatRp(item.effective_price || item.price)"></span>
+                                                <template x-if="item.has_active_discount && (settings.discount_settings?.show_discount_badge ?? true)">
+                                                    <span class="text-[7px] text-gray-400 line-through" x-text="formatRp(item.price)"></span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="absolute right-1.5 bottom-2 w-5 h-5 rounded-full border border-gray-800 flex items-center justify-center text-gray-800 text-[8px] shadow-2xs">
+                                            <i class="fas fa-plus"></i>
                                         </div>
                                     </div>
                                 </template>

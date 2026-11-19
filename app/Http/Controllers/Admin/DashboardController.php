@@ -758,7 +758,7 @@ class DashboardController extends Controller
             'name' => 'required|string|max:255',
             'primary_color' => 'nullable|string|max:20',
             'logo' => 'nullable|mimes:jpeg,png,jpg,webp|max:2048',
-            'theme_style' => 'nullable|string|in:grid,list,compact,cards',
+            'theme_style' => 'nullable|string|in:grid,list,compact,cards,sticker,bistro',
             'is_open' => 'nullable|boolean',
             'slogan' => 'nullable|string|max:255',
             'font_family' => 'nullable|string|max:50',

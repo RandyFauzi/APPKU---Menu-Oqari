@@ -1889,7 +1889,7 @@
                     logoFile: null,
                     slogan: window.INITIAL_DATA.shop?.slogan || '',
                     is_open: window.INITIAL_DATA.shop?.is_open ?? true,
-                    theme_style: ['list', 'grid', 'compact', 'cards'].includes(window.INITIAL_DATA.shop?.theme_style) ? window.INITIAL_DATA.shop?.theme_style : 'list',
+                    theme_style: ['list', 'grid', 'compact', 'cards', 'sticker', 'bistro'].includes(window.INITIAL_DATA.shop?.theme_style) ? window.INITIAL_DATA.shop?.theme_style : 'list',
                     font_family: window.INITIAL_DATA.shop?.font_family || 'poppins',
                     title_font_family: window.INITIAL_DATA.shop?.title_font_family || 'poppins',
                     receipt_header: window.INITIAL_DATA.shop?.receipt_header || '',
