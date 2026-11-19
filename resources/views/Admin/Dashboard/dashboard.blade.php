@@ -2696,8 +2696,17 @@
                 },
                 openOrderDetail(item) {
                     if (!item) return;
-                    const target = item.rawOrder || (this.orders || []).find(o => o.id === item.orderId || o.id === item.id) || item;
-                    this.viewOrderDetails(target);
+                    const rawId = item.orderId || (item.rawOrder && item.rawOrder.id) || item.id;
+                    const orderId = rawId ? String(rawId).split('-')[0] : null;
+                    if (!orderId) return;
+
+                    if (this.currentTab === 'orders') {
+                        const target = item.rawOrder || (this.orders || []).find(o => String(o.id) === String(orderId)) || item;
+                        this.viewOrderDetails(target);
+                    } else {
+                        const ordersUrl = '{{ route('admin.orders.index') }}';
+                        window.location.assign(`${ordersUrl}?order=${orderId}`);
+                    }
                 },
                 async markOrderReady(item) {
                     if (!item) return;
@@ -3252,6 +3261,10 @@
                 viewOrderDetails(order) {
                     this.selectedOrder = order;
                     this.showOrderDetailModal = true;
+                    if (typeof window !== 'undefined' && window.history && window.location.search.includes('order=')) {
+                        const cleanUrl = window.location.pathname;
+                        window.history.replaceState({}, document.title, cleanUrl);
+                    }
                 },
 
                 openCreateOpenBillModal() {
@@ -3881,6 +3894,11 @@ if (res.ok) {
                             if (urlOrderParam && this.currentTab === 'orders') {
                                 const target = this.orders.find(o => String(o.id) === String(urlOrderParam));
                                 if (target) {
+                                    if (this.isOpenBillOrder(target)) {
+                                        this.activeOrderFilter = 'open_bill';
+                                    } else {
+                                        this.activeOrderFilter = 'all';
+                                    }
                                     this.$nextTick(() => this.viewOrderDetails(target));
                                 }
                             }

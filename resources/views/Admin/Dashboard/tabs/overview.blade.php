@@ -196,14 +196,13 @@
                                     </div>
                                 </div>
 
-                                <!-- Action Buttons -->
-                                <div class="mt-3 flex items-center gap-2">
-                                    <button type="button" @click="openOrderDetail(item)" class="flex-1 py-1.5 px-3 rounded-[8px] border border-[#e9ebf0] hover:bg-orange-50/40 text-[12px] font-medium text-[#c94d00] text-center transition-colors cursor-pointer">
-                                        Lihat Detail
-                                    </button>
-                                    <button type="button" @click="markOrderReady(item)" class="flex-1 py-1.5 px-3 rounded-[8px] bg-gradient-to-r from-[#f9731f] to-[#ea580c] hover:from-[#ea580c] hover:to-[#c2410c] text-[12px] font-medium text-white flex items-center justify-center gap-1.5 shadow-[0_2px_4px_rgba(249,115,31,0.2)] transition-all cursor-pointer">
-                                        <img src="{{ asset('images/sparta/check-bold.svg') }}" class="w-3.5 h-3.5" alt="">
-                                        <span>Siap Disajikan</span>
+                                <!-- Action Button: Lihat Detail (Mengarahkan ke Pesanan Aktif & Membuka Popup) -->
+                                <div class="mt-3">
+                                    <button type="button" 
+                                            @click="openOrderDetail(item)" 
+                                            class="w-full py-2 px-3 rounded-[8px] border border-[#e9ebf0] bg-white hover:bg-[#fff6f0] hover:border-[#ffd6bd] text-[12px] font-semibold text-[#c94d00] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs group">
+                                        <span>Lihat Detail</span>
+                                        <i class="fas fa-arrow-right text-[10px] text-[#c94d00] transition-transform group-hover:translate-x-0.5"></i>
                                     </button>
                                 </div>
                             </div>
