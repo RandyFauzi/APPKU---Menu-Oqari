@@ -376,6 +376,9 @@
                 search: '',
                 activeCategory: null,
                 channel: null,
+                hasLocalCashier: false,
+                lastTapAt: 0,
+                lastTapProductId: null,
                 paidResetTimer: null,
                 products: {{ Illuminate\Support\Js::from($products->map(fn($p) => [
                     'id' => $p->id,
@@ -441,12 +444,17 @@
                     if ('BroadcastChannel' in window) {
                         this.channel = new BroadcastChannel(`oqari_pos_cfd_${this.shopId}`);
                         this.channel.onmessage = (event) => {
-                            if (event.data && event.data.type === 'CFD_SYNC') {
+                            if (!event.data) return;
+                            if (event.data.type === 'CFD_SYNC' || event.data.type === 'CFD_ACK') {
+                                this.hasLocalCashier = true;
                                 this.syncMode = 'Dual Screen';
                                 this.isConnected = true;
-                                this.applyState(event.data.payload);
+                                if (event.data.type === 'CFD_SYNC') {
+                                    this.applyState(event.data.payload);
+                                }
                             }
                         };
+                        this.channel.postMessage({ type: 'CFD_HELLO' });
                     }
 
                     this.$nextTick(() => {
@@ -480,6 +488,14 @@
 
                 handleProductTap(product) {
                     if (product.is_sold_out) return;
+
+                    const now = Date.now();
+                    if (this.lastTapProductId === product.id && (now - this.lastTapAt) < 250) {
+                        return;
+                    }
+                    this.lastTapProductId = product.id;
+                    this.lastTapAt = now;
+
                     const hasVariants = product.variants && product.variants.length > 0;
                     const hasModifiers = product.modifier_groups && product.modifier_groups.length > 0;
 
@@ -577,6 +593,11 @@
                         ? window.crypto.randomUUID()
                         : `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
                     const payload = { action_id: actionId, action, ...data };
+
+                    if (this.channel && this.hasLocalCashier) {
+                        this.channel.postMessage({ type: 'CFD_CUSTOMER_ACTION', payload });
+                        return;
+                    }
 
                     if (this.channel) {
                         this.channel.postMessage({ type: 'CFD_CUSTOMER_ACTION', payload });

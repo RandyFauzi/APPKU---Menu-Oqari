@@ -1671,10 +1671,19 @@ function posApp() {
         },
 
         initCustomerDisplaySync() {
+            if (this._cfdInitialized) return;
+            this._cfdInitialized = true;
+
             if ('BroadcastChannel' in window) {
                 this.cfdChannel = new BroadcastChannel(`oqari_pos_cfd_${this.cfdShopId}`);
                 this.cfdChannel.onmessage = (event) => {
-                    if (event.data && event.data.type === 'CFD_CUSTOMER_ACTION') {
+                    if (!event.data) return;
+                    if (event.data.type === 'CFD_HELLO') {
+                        this.cfdChannel.postMessage({ type: 'CFD_ACK' });
+                        this.syncCustomerDisplay();
+                        return;
+                    }
+                    if (event.data.type === 'CFD_CUSTOMER_ACTION') {
                         this.handleCustomerKioskAction(event.data.payload);
                     }
                 };
@@ -1703,12 +1712,14 @@ function posApp() {
             if (!payload || !payload.action) return;
 
             if (payload.action_id) {
-                if (this.processedKioskActionIds.includes(payload.action_id)) {
+                window.__oqariProcessedKioskActions = window.__oqariProcessedKioskActions || new Set();
+                if (window.__oqariProcessedKioskActions.has(payload.action_id)) {
                     return;
                 }
-                this.processedKioskActionIds.push(payload.action_id);
-                if (this.processedKioskActionIds.length > 100) {
-                    this.processedKioskActionIds.shift();
+                window.__oqariProcessedKioskActions.add(payload.action_id);
+                if (window.__oqariProcessedKioskActions.size > 200) {
+                    const firstKey = window.__oqariProcessedKioskActions.values().next().value;
+                    window.__oqariProcessedKioskActions.delete(firstKey);
                 }
             }
 
