@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Events\PosCustomerAction;
 use App\Events\PosDisplayUpdated;
 use App\Models\Shop;
 use App\Models\User;
@@ -89,5 +90,51 @@ class PosCustomerDisplayTest extends TestCase
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['status']);
+    }
+
+    public function test_pos_user_can_view_customer_kiosk_touchscreen_mode(): void
+    {
+        $shop = Shop::factory()->create();
+        $user = User::factory()->create([
+            'shop_id' => $shop->id,
+            'role' => 'admin',
+        ]);
+
+        $response = $this->actingAs($user)
+            ->get(route('admin.pos.customer-kiosk'));
+
+        $response->assertOk()
+            ->assertSee('Pilih Menu Mandiri (Touchscreen)');
+    }
+
+    public function test_customer_kiosk_action_dispatches_event(): void
+    {
+        Event::fake([PosCustomerAction::class]);
+
+        $shop = Shop::factory()->create();
+        $user = User::factory()->create([
+            'shop_id' => $shop->id,
+            'role' => 'admin',
+        ]);
+
+        $response = $this->actingAs($user)
+            ->postJson(route('admin.pos.customer-kiosk.action'), [
+                'action' => 'add_item',
+                'item' => [
+                    'id' => 1,
+                    'name' => 'Americano',
+                    'qty' => 1,
+                    'price' => 20000,
+                    'subtotal' => 20000,
+                ],
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true);
+
+        Event::assertDispatched(PosCustomerAction::class, function (PosCustomerAction $event) use ($shop): bool {
+            return $event->shopId === $shop->id
+                && $event->payload['action'] === 'add_item';
+        });
     }
 }

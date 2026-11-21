@@ -7,6 +7,7 @@ use App\Actions\POS\ApplyDiscount;
 use App\Actions\POS\CalculateCart;
 use App\Actions\POS\SubmitPosOrder;
 use App\Events\OrderCreated;
+use App\Events\PosCustomerAction;
 use App\Events\PosDisplayUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\HoldPosOrderRequest;
@@ -604,6 +605,59 @@ class PosController extends Controller
 
         try {
             event(new PosDisplayUpdated((int) $shop->id, $payload));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    // ──────────────────────────────────────────────
+    //  CUSTOMER KIOSK (TOUCHSCREEN 2-WAY SYNC)
+    // ──────────────────────────────────────────────
+
+    public function customerKiosk()
+    {
+        $user = Auth::user();
+        $shop = $user->shop;
+
+        abort_unless($shop, 404);
+
+        $products = Product::where('shop_id', $shop->id)
+            ->with(['category', 'variants', 'modifierGroups.modifiers'])
+            ->orderBy('category_id')
+            ->get()
+            ->each(function (Product $product): void {
+                $product->setAttribute('category_name', $product->category?->name ?? 'Menu');
+            });
+
+        $categories = $products
+            ->where('category_id', '!=', null)
+            ->map(fn ($p) => ['id' => $p->category_id, 'name' => $p->category?->name ?? 'Uncategorized'])
+            ->unique('id')
+            ->values();
+
+        return view('Admin.pos.customer-kiosk', compact('shop', 'products', 'categories'));
+    }
+
+    public function customerKioskAction(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $shop = $user->shop;
+
+        if (! $shop) {
+            return response()->json(['success' => false, 'message' => 'Shop not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'action' => 'required|string|in:add_item,update_qty,remove_item,clear_cart',
+            'item' => 'nullable|array',
+            'index' => 'nullable|integer|min:0',
+            'delta' => 'nullable|integer|in:-1,1',
+        ]);
+
+        try {
+            event(new PosCustomerAction((int) $shop->id, $validated));
         } catch (\Throwable $e) {
             report($e);
         }

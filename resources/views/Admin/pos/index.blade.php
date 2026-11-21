@@ -115,14 +115,22 @@
             <span class="bg-[#df5826] text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold" x-text="cart.reduce((s,i)=>s+i.qty,0)"></span>
         </button>
 
-        {{-- Customer Facing Display (Dual Screen) Button --}}
-        <button type="button" @click="openCustomerDisplay()"
-                class="h-[34px] px-[10px] rounded-[9px] bg-white border border-[#e6e5e0] hover:border-[#df5826] text-[11px] font-semibold text-[#1e211f] inline-flex items-center gap-1.5 transition cursor-pointer"
-                :title="hasMultipleScreens ? '2 Layar Terdeteksi — Buka Layar Pelanggan di Layar Kedua' : 'Buka Layar Pelanggan (Customer Display)'">
-            <i class="fas fa-desktop text-[#df5826]"></i>
-            <span class="hidden sm:inline">Layar Pelanggan</span>
-            <span x-show="hasMultipleScreens" x-cloak class="w-1.5 h-1.5 rounded-full bg-[#289e5c]"></span>
-        </button>
+        {{-- Customer Facing Display (Dual Screen) Buttons --}}
+        <div class="inline-flex items-center rounded-[9px] border border-[#e6e5e0] bg-white overflow-hidden">
+            <button type="button" @click="openCustomerDisplay('display')"
+                    class="h-[34px] px-[10px] hover:bg-[#f8f9fa] text-[11px] font-semibold text-[#1e211f] inline-flex items-center gap-1.5 transition cursor-pointer"
+                    :title="hasMultipleScreens ? '2 Layar Terdeteksi — Buka Layar Pelanggan (Display)' : 'Buka Layar Pelanggan (Mode Display)'">
+                <i class="fas fa-desktop text-[#df5826]"></i>
+                <span class="hidden sm:inline">Layar Pelanggan</span>
+                <span x-show="hasMultipleScreens" x-cloak class="w-1.5 h-1.5 rounded-full bg-[#289e5c]"></span>
+            </button>
+            <button type="button" @click="openCustomerDisplay('kiosk')"
+                    class="h-[34px] px-[9px] border-l border-[#e6e5e0] hover:bg-[#fff6f0] text-[11px] font-semibold text-[#53565a] hover:text-[#df5826] inline-flex items-center gap-1 transition cursor-pointer"
+                    title="Buka Mode Touchscreen (Pelanggan Pilih Menu Mandiri)">
+                <i class="fas fa-hand-pointer text-[10px]"></i>
+                <span class="hidden xl:inline">Touch</span>
+            </button>
+        </div>
 
         @if($activeSession)
         <a href="{{ route('admin.register.index') }}" class="h-[34px] px-[10px] rounded-[9px] bg-white border border-[#e6e5e0] hover:border-[#df5826] text-[11px] font-semibold text-[#1e211f] inline-flex items-center gap-1.5 transition">
@@ -1634,6 +1642,7 @@ function posApp() {
 
         // Customer Facing Display (Dual Screen) state
         cfdUrl: '{{ route('admin.pos.customer-display') }}',
+        cfdKioskUrl: '{{ route('admin.pos.customer-kiosk') }}',
         cfdShopId: {{ (int) $shop->id }},
         cfdChannel: null,
         cfdWindow: null,
@@ -1663,6 +1672,18 @@ function posApp() {
         initCustomerDisplaySync() {
             if ('BroadcastChannel' in window) {
                 this.cfdChannel = new BroadcastChannel(`oqari_pos_cfd_${this.cfdShopId}`);
+                this.cfdChannel.onmessage = (event) => {
+                    if (event.data && event.data.type === 'CFD_CUSTOMER_ACTION') {
+                        this.handleCustomerKioskAction(event.data.payload);
+                    }
+                };
+            }
+
+            if (window.Echo) {
+                window.Echo.private(`shop.${this.cfdShopId}.pos-display`)
+                    .listen('.pos.customer.action', (payload) => {
+                        this.handleCustomerKioskAction(payload);
+                    });
             }
 
             if (window.screen && typeof window.screen.addEventListener === 'function') {
@@ -1675,6 +1696,44 @@ function posApp() {
                 .forEach(prop => this.$watch(prop, () => this.syncCustomerDisplay()));
 
             this.syncCustomerDisplay();
+        },
+
+        handleCustomerKioskAction(payload) {
+            if (!payload || !payload.action) return;
+
+            if (payload.action === 'add_item' && payload.item) {
+                const incoming = payload.item;
+                const incomingModIds = (incoming.modifiers || []).map(m => m.id).sort().join(',');
+                const existing = this.cart.find(c =>
+                    Number(c.id) === Number(incoming.id)
+                    && (c.variant_id || null) === (incoming.variant_id || null)
+                    && ((c.modifiers || []).map(m => m.id).sort().join(',') === incomingModIds)
+                    && !c.notes
+                );
+                if (existing) {
+                    existing.qty += Number(incoming.qty || 1);
+                    existing.subtotal = Number(existing.price) * existing.qty;
+                } else {
+                    this.cart.push({
+                        ...incoming,
+                        showNotes: false,
+                    });
+                }
+            } else if (payload.action === 'update_qty' && typeof payload.index === 'number') {
+                const item = this.cart[payload.index];
+                if (!item) return;
+                const nextQty = Number(item.qty || 1) + Number(payload.delta || 0);
+                if (nextQty <= 0) {
+                    this.cart.splice(payload.index, 1);
+                } else {
+                    item.qty = nextQty;
+                    item.subtotal = Number(item.price) * nextQty;
+                }
+            } else if (payload.action === 'remove_item' && typeof payload.index === 'number') {
+                this.cart.splice(payload.index, 1);
+            } else if (payload.action === 'clear_cart') {
+                this.clearCart();
+            }
         },
 
         buildCfdPayload() {
@@ -1739,7 +1798,8 @@ function posApp() {
             }, 200);
         },
 
-        async openCustomerDisplay() {
+        async openCustomerDisplay(mode = 'display') {
+            const targetUrl = mode === 'kiosk' ? this.cfdKioskUrl : this.cfdUrl;
             let features = 'noopener,noreferrer';
 
             if ('getScreenDetails' in window) {
@@ -1756,9 +1816,12 @@ function posApp() {
             }
 
             if (this.cfdWindow && !this.cfdWindow.closed) {
+                if (this.cfdWindow.location && this.cfdWindow.location.href !== targetUrl) {
+                    this.cfdWindow.location.href = targetUrl;
+                }
                 this.cfdWindow.focus();
             } else {
-                this.cfdWindow = window.open(this.cfdUrl, 'oqari_customer_display', features);
+                this.cfdWindow = window.open(targetUrl, 'oqari_customer_display', features);
             }
 
             setTimeout(() => this.syncCustomerDisplay(), 400);

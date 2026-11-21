@@ -50,6 +50,13 @@
                 <div class="text-[10.5px] text-[#71717a] leading-tight" x-text="clockDate"></div>
             </div>
 
+            <a href="{{ route('admin.pos.customer-kiosk') }}"
+               class="h-9 px-3 rounded-[10px] bg-[#f8f9fa] hover:bg-gray-200 border border-[#e6e5e0] text-[11.5px] font-semibold text-[#53565a] inline-flex items-center gap-1.5 transition"
+               title="Beralih ke Mode Touchscreen (Pelanggan Pilih Menu)">
+                <i class="fas fa-hand-pointer text-[#df5826]"></i>
+                <span class="hidden sm:inline">Mode Touchscreen</span>
+            </a>
+
             <button type="button" @click="toggleFullscreen()"
                     class="w-9 h-9 rounded-[10px] bg-[#f8f9fa] hover:bg-gray-200 border border-[#e6e5e0] text-[#53565a] flex items-center justify-center transition cursor-pointer"
                     title="Layar Penuh">
