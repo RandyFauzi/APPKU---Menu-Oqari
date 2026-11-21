@@ -1742,11 +1742,14 @@ function posApp() {
             if (payload.action === 'add_item' && payload.item) {
                 const incoming = payload.item;
                 const incomingModIds = (incoming.modifiers || []).map(m => m.id).sort().join(',');
+                const incomingNotes = (incoming.notes || '').trim();
+                const incomingServing = incoming.serving_type || 'DINE_IN';
                 const existing = this.cart.find(c =>
                     Number(c.id) === Number(incoming.id)
                     && (c.variant_id || null) === (incoming.variant_id || null)
                     && ((c.modifiers || []).map(m => m.id).sort().join(',') === incomingModIds)
-                    && !c.notes
+                    && (c.notes || '').trim() === incomingNotes
+                    && (c.serving_type || 'DINE_IN') === incomingServing
                 );
                 if (existing) {
                     existing.qty += Number(incoming.qty || 1);
