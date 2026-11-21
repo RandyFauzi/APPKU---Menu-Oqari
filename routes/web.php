@@ -79,6 +79,8 @@ Route::middleware(['auth'])->group(function () {
     // POS Terminal + APIs
     Route::middleware(['can:access-pos', 'schema:pos'])->group(function () {
         Route::get('/admin/pos', [PosController::class, 'index'])->name('admin.pos.index');
+        Route::get('/admin/pos/customer-display', [PosController::class, 'customerDisplay'])->name('admin.pos.customer-display');
+        Route::post('/admin/pos/customer-display/sync', [PosController::class, 'syncCustomerDisplay'])->name('admin.pos.customer-display.sync');
         Route::post('/admin/pos/orders', [PosController::class, 'submitOrder'])->middleware(['can:manage-payments', 'schema:checkout'])->name('admin.pos.orders.submit');
         Route::post('/admin/pos/orders/hold', [PosController::class, 'holdOrder'])->middleware('schema:checkout')->name('admin.pos.orders.hold');
         Route::get('/admin/pos/orders/held', [PosController::class, 'heldOrders'])->name('admin.pos.orders.held');

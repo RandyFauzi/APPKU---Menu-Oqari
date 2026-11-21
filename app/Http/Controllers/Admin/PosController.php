@@ -7,6 +7,7 @@ use App\Actions\POS\ApplyDiscount;
 use App\Actions\POS\CalculateCart;
 use App\Actions\POS\SubmitPosOrder;
 use App\Events\OrderCreated;
+use App\Events\PosDisplayUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\HoldPosOrderRequest;
 use App\Http\Requests\SubmitPosOrderRequest;
@@ -545,5 +546,68 @@ class PosController extends Controller
             'message' => 'Pengaturan diskon kasir berhasil disimpan.',
             'discount_settings' => $shop->discount_settings,
         ]);
+    }
+
+    // ──────────────────────────────────────────────
+    //  CUSTOMER FACING DISPLAY (DUAL SCREEN)
+    // ──────────────────────────────────────────────
+
+    public function customerDisplay()
+    {
+        $user = Auth::user();
+        $shop = $user->shop;
+
+        abort_unless($shop, 404);
+
+        return view('Admin.pos.customer-display', compact('shop'));
+    }
+
+    public function syncCustomerDisplay(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $shop = $user->shop;
+
+        if (! $shop) {
+            return response()->json(['success' => false, 'message' => 'Shop not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|string|in:idle,ordering,payment,paid',
+            'items' => 'nullable|array|max:100',
+            'items.*.name' => 'required_with:items|string|max:150',
+            'items.*.variant' => 'nullable|string|max:100',
+            'items.*.modifiers' => 'nullable|array',
+            'items.*.modifiers.*' => 'nullable|string|max:100',
+            'items.*.notes' => 'nullable|string|max:200',
+            'items.*.qty' => 'required_with:items|integer|min:1|max:999',
+            'items.*.price' => 'required_with:items|numeric|min:0',
+            'items.*.subtotal' => 'required_with:items|numeric|min:0',
+            'items.*.serving_type' => 'nullable|string|max:20',
+            'subtotal' => 'required|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
+            'discount_label' => 'nullable|string|max:120',
+            'grand_total' => 'required|numeric|min:0',
+            'customer_name' => 'nullable|string|max:100',
+            'table_name' => 'nullable|string|max:60',
+            'fulfillment_type' => 'nullable|string|in:DINE_IN,TAKEAWAY,DELIVERY',
+            'payment_method' => 'nullable|string|in:CASH,QRIS,CARD',
+            'amount_paid' => 'nullable|numeric|min:0',
+            'change' => 'nullable|numeric|min:0',
+            'order_id' => 'nullable|integer|min:1',
+        ]);
+
+        $payload = array_merge($validated, [
+            'items' => $validated['items'] ?? [],
+            'discount_amount' => (float) ($validated['discount_amount'] ?? 0),
+            'updated_at' => now()->toIso8601String(),
+        ]);
+
+        try {
+            event(new PosDisplayUpdated((int) $shop->id, $payload));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

@@ -115,6 +115,15 @@
             <span class="bg-[#df5826] text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold" x-text="cart.reduce((s,i)=>s+i.qty,0)"></span>
         </button>
 
+        {{-- Customer Facing Display (Dual Screen) Button --}}
+        <button type="button" @click="openCustomerDisplay()"
+                class="h-[34px] px-[10px] rounded-[9px] bg-white border border-[#e6e5e0] hover:border-[#df5826] text-[11px] font-semibold text-[#1e211f] inline-flex items-center gap-1.5 transition cursor-pointer"
+                :title="hasMultipleScreens ? '2 Layar Terdeteksi — Buka Layar Pelanggan di Layar Kedua' : 'Buka Layar Pelanggan (Customer Display)'">
+            <i class="fas fa-desktop text-[#df5826]"></i>
+            <span class="hidden sm:inline">Layar Pelanggan</span>
+            <span x-show="hasMultipleScreens" x-cloak class="w-1.5 h-1.5 rounded-full bg-[#289e5c]"></span>
+        </button>
+
         @if($activeSession)
         <a href="{{ route('admin.register.index') }}" class="h-[34px] px-[10px] rounded-[9px] bg-white border border-[#e6e5e0] hover:border-[#df5826] text-[11px] font-semibold text-[#1e211f] inline-flex items-center gap-1.5 transition">
             <span>Kas &amp; Tutup Shift</span>
@@ -1623,9 +1632,19 @@ function posApp() {
         tablesCount: {{ $tables->count() }} || 0,
         salesModes: @json($shop->sales_modes ?? ['DINE_IN', 'TAKEAWAY', 'DELIVERY']),
 
+        // Customer Facing Display (Dual Screen) state
+        cfdUrl: '{{ route('admin.pos.customer-display') }}',
+        cfdShopId: {{ (int) $shop->id }},
+        cfdChannel: null,
+        cfdWindow: null,
+        cfdSyncTimer: null,
+        hasMultipleScreens: Boolean(window.screen && window.screen.isExtended),
+
         init() {
             this.fetchIncoming();
             setInterval(() => this.fetchIncoming(), 5000);
+
+            this.initCustomerDisplaySync();
 
             // Auto-recall order from URL query (?recall=12&pay=1)
             const urlParams = new URLSearchParams(window.location.search);
@@ -1639,6 +1658,110 @@ function posApp() {
                     }
                 });
             }
+        },
+
+        initCustomerDisplaySync() {
+            if ('BroadcastChannel' in window) {
+                this.cfdChannel = new BroadcastChannel(`oqari_pos_cfd_${this.cfdShopId}`);
+            }
+
+            if (window.screen && typeof window.screen.addEventListener === 'function') {
+                window.screen.addEventListener('change', () => {
+                    this.hasMultipleScreens = Boolean(window.screen.isExtended);
+                });
+            }
+
+            ['cart', 'discount', 'customerName', 'selectedTable', 'fulfillmentType', 'paymentModal', 'successScreen']
+                .forEach(prop => this.$watch(prop, () => this.syncCustomerDisplay()));
+
+            this.syncCustomerDisplay();
+        },
+
+        buildCfdPayload() {
+            let status = 'idle';
+            if (this.successScreen?.show) {
+                status = 'paid';
+            } else if (this.paymentModal?.show) {
+                status = 'payment';
+            } else if (this.cart.length > 0) {
+                status = 'ordering';
+            }
+
+            const items = (this.cart || []).map(item => ({
+                name: item.name,
+                variant: item.variant || null,
+                modifiers: Array.isArray(item.modifiers) ? item.modifiers.map(m => m.name || String(m)) : [],
+                notes: item.notes || null,
+                qty: Number(item.qty || 1),
+                price: Number(item.price || 0),
+                subtotal: Number(item.subtotal || (Number(item.price || 0) * Number(item.qty || 1))),
+                serving_type: item.serving_type || 'DINE_IN',
+            }));
+
+            return {
+                status,
+                items,
+                subtotal: Number(this.subtotal || 0),
+                discount_amount: Number(this.discountAmount || 0),
+                discount_label: this.discount?.code
+                    ? `Voucher (${this.discount.code})`
+                    : (this.discount?.reason || 'Diskon'),
+                grand_total: status === 'paid' ? Number(this.successScreen?.total || 0) : Number(this.grandTotal || 0),
+                customer_name: (this.customerName || '').trim() || null,
+                table_name: this.fulfillmentType === 'DINE_IN' && this.selectedTable ? `Meja ${this.selectedTable}` : null,
+                fulfillment_type: this.paymentModal?.show ? (this.paymentModal.fulfillment || 'DINE_IN') : (this.fulfillmentType || 'DINE_IN'),
+                payment_method: this.paymentModal?.method || 'CASH',
+                amount_paid: Number(this.paymentModal?.amountPaid || 0),
+                change: status === 'paid' ? Number(this.successScreen?.change || 0) : 0,
+                order_id: this.successScreen?.orderId || null,
+            };
+        },
+
+        syncCustomerDisplay() {
+            const payload = this.buildCfdPayload();
+
+            try {
+                localStorage.setItem(`oqari_pos_cfd_state_${this.cfdShopId}`, JSON.stringify(payload));
+            } catch (e) {}
+
+            if (this.cfdChannel) {
+                this.cfdChannel.postMessage({ type: 'CFD_SYNC', payload });
+            }
+
+            clearTimeout(this.cfdSyncTimer);
+            this.cfdSyncTimer = setTimeout(async () => {
+                if (!window.Echo) return;
+                try {
+                    await this.post('{{ route('admin.pos.customer-display.sync') }}', payload);
+                } catch (e) {
+                    // silent fallback — BroadcastChannel already synced locally
+                }
+            }, 200);
+        },
+
+        async openCustomerDisplay() {
+            let features = 'noopener,noreferrer';
+
+            if ('getScreenDetails' in window) {
+                try {
+                    const details = await window.getScreenDetails();
+                    const secondary = details.screens.find(s => s !== details.currentScreen) || details.screens[1];
+                    if (secondary) {
+                        this.hasMultipleScreens = true;
+                        features = `left=${secondary.availLeft},top=${secondary.availTop},width=${secondary.availWidth},height=${secondary.availHeight},menubar=no,toolbar=no,location=no,status=no`;
+                    }
+                } catch (e) {
+                    // Permission denied or unsupported — fallback to standard popup/tab
+                }
+            }
+
+            if (this.cfdWindow && !this.cfdWindow.closed) {
+                this.cfdWindow.focus();
+            } else {
+                this.cfdWindow = window.open(this.cfdUrl, 'oqari_customer_display', features);
+            }
+
+            setTimeout(() => this.syncCustomerDisplay(), 400);
         },
 
         normalizeLiveOrder(o) {
