@@ -235,29 +235,49 @@
 
         {{-- 2. MENU CATALOG SECTION (Figma 45:12312) --}}
         <section class="bg-white border border-[#e6e5e0] rounded-[16px] p-[14px] flex flex-col">
-            {{-- Search & Category Filter Row (Figma 45:12313) --}}
-            <div class="pb-[12px] border-b border-[#e6e5e0] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-[12px]">
-                <div class="flex-1 bg-[#f8f9fa] border border-[#d8dce2] rounded-[9px] px-[13px] py-[9px] flex items-center gap-[8px] focus-within:border-[#df5826] focus-within:bg-white transition">
-                    <img src="{{ asset('images/sparta/search.svg') }}" alt="" class="w-[16px] h-[16px] shrink-0">
-                    <input x-ref="searchInput" x-model="search" type="text" placeholder="Search menu"
-                        class="w-full bg-transparent border-none outline-none text-[12px] font-medium text-[#1e211f] placeholder-[#8b8e93] p-0 focus:ring-0">
+            {{-- Search & Category Filter Row (Figma 45:12313) - Dynamic Responsive UI/UX --}}
+            <div class="pb-[12px] border-b border-[#e6e5e0] flex flex-col items-stretch justify-between gap-2.5 sm:gap-3 transition-all"
+                 :class="isCartMinimized ? 'xl:flex-row xl:items-center' : '2xl:flex-row 2xl:items-center'">
+                
+                {{-- Search Box with Full Click Area, Clear Button, and Keyboard Shortcut Hint --}}
+                <div @click="$refs.searchInput?.focus()"
+                     class="w-full bg-[#f8f9fa] hover:bg-white focus-within:bg-white border border-[#d8dce2] focus-within:border-[#df5826] focus-within:ring-2 focus-within:ring-[#df5826]/15 rounded-[10px] px-[13px] py-[9px] flex items-center gap-[8px] transition cursor-text shadow-2xs group shrink-0"
+                     :class="isCartMinimized ? 'xl:w-[280px]' : '2xl:w-[280px]'">
+                    <img src="{{ asset('images/sparta/search.svg') }}" alt="" class="w-[16px] h-[16px] shrink-0 opacity-70 group-focus-within:opacity-100 transition-opacity">
+                    <input x-ref="searchInput" x-model="search" type="text" placeholder="Cari menu... (F1)"
+                        class="w-full bg-transparent border-none outline-none text-[12px] sm:text-[12.5px] font-medium text-[#1e211f] placeholder-[#8b8e93] p-0 focus:ring-0">
+                    
+                    {{-- Quick Clear Button --}}
+                    <button type="button" x-show="search" x-cloak
+                            @click.stop="search = ''; $refs.searchInput?.focus()"
+                            class="w-5 h-5 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 flex items-center justify-center text-[9px] shrink-0 transition cursor-pointer"
+                            title="Hapus pencarian">
+                        <i class="fas fa-times"></i>
+                    </button>
+
+                    {{-- Shortcut Hint --}}
+                    <span x-show="!search" class="hidden sm:inline-flex items-center text-[9.5px] font-bold text-[#8b8e93] bg-white border border-[#d8dce2] px-1.5 py-0.5 rounded shadow-2xs shrink-0 select-none">
+                        F1
+                    </span>
                 </div>
 
-                <div class="flex items-center gap-[6px] overflow-x-auto hide-scroll shrink-0">
+                {{-- Category Filter Pills (Smooth Horizontal Scroll, Never Overflows / Compresses Search) --}}
+                <div class="flex-1 min-w-0 w-full flex items-center gap-[6px] overflow-x-auto hide-scroll py-0.5 select-none scroll-smooth">
                     <button type="button" @click="activeCategory = null"
-                        :class="activeCategory === null ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
-                        class="border rounded-[9px] px-[12px] py-[6px] text-[11px] leading-[16.5px] transition whitespace-nowrap">
+                        :class="activeCategory === null ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-bold shadow-xs ring-1 ring-[#df5826]/20' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93] hover:text-[#1e211f] hover:bg-white'"
+                        class="border rounded-[9px] px-[12px] py-[6px] text-[11px] leading-[16.5px] transition whitespace-nowrap shrink-0 cursor-pointer active:scale-95">
                         All
                     </button>
                     <button type="button" @click="activeCategory = 'best_seller'"
-                        :class="activeCategory === 'best_seller' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
-                        class="border rounded-[9px] px-[12px] py-[6px] text-[11px] leading-[16.5px] transition whitespace-nowrap">
-                        Best Seller
+                        :class="activeCategory === 'best_seller' ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-bold shadow-xs ring-1 ring-[#df5826]/20' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93] hover:text-[#1e211f] hover:bg-white'"
+                        class="border rounded-[9px] px-[12px] py-[6px] text-[11px] leading-[16.5px] transition whitespace-nowrap shrink-0 flex items-center gap-1 cursor-pointer active:scale-95">
+                        <i class="fas fa-crown text-[10px] text-amber-500"></i>
+                        <span>Best Seller</span>
                     </button>
                     @foreach($categories as $cat)
                     <button type="button" @click="activeCategory = {{ $cat['id'] }}"
-                        :class="activeCategory === {{ $cat['id'] }} ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-semibold' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93]'"
-                        class="border rounded-[9px] px-[12px] py-[6px] text-[11px] leading-[16.5px] transition whitespace-nowrap">
+                        :class="activeCategory === {{ $cat['id'] }} ? 'bg-[#fff6f0] border-[#df5826] text-[#df5826] font-bold shadow-xs ring-1 ring-[#df5826]/20' : 'bg-[#f8f9fa] border-[#d8dce2] text-[#53565a] font-medium hover:border-[#8b8e93] hover:text-[#1e211f] hover:bg-white'"
+                        class="border rounded-[9px] px-[12px] py-[6px] text-[11px] leading-[16.5px] transition whitespace-nowrap shrink-0 cursor-pointer active:scale-95">
                         {{ $cat['name'] }}
                     </button>
                     @endforeach
@@ -398,6 +418,23 @@
                         </div>
                     </div>
                     @endforeach
+
+                    {{-- Empty Search / Filter State --}}
+                    <div x-show="matchingProductsCount === 0" x-cloak class="col-span-full py-12 px-4 text-center">
+                        <div class="w-12 h-12 rounded-full bg-[#f8f9fa] border border-[#d8dce2] text-[#8b8e93] flex items-center justify-center mx-auto mb-3 shadow-2xs">
+                            <i class="fas fa-search text-base text-[#df5826]/70"></i>
+                        </div>
+                        <p class="text-[14px] font-bold text-[#1e211f]">Menu tidak ditemukan</p>
+                        <p class="text-[12px] text-[#8b8e93] mt-1 max-w-[320px] mx-auto">
+                            <span x-show="search">Tidak ada menu yang cocok dengan kata kunci "<span class="font-semibold text-[#1e211f]" x-text="search"></span>".</span>
+                            <span x-show="!search">Tidak ada menu yang tersedia dalam kategori ini.</span>
+                        </p>
+                        <button type="button" @click="search = ''; activeCategory = null; $refs.searchInput?.focus()" 
+                            class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[9px] bg-[#fff6f0] border border-[#df5826] text-[#df5826] text-[12px] font-bold hover:bg-[#ffece0] transition active:scale-95 cursor-pointer shadow-2xs">
+                            <i class="fas fa-rotate-left text-[11px]"></i>
+                            <span>Reset Pencarian &amp; Kategori</span>
+                        </button>
+                    </div>
                 </div>
             @endif
         </section>
@@ -1513,6 +1550,16 @@ function posApp() {
         paymentPending: false,
         checkoutRequestId: null,
         toast: { show: false, message: '', type: 'success', timeout: null },
+        allProducts: {{ Illuminate\Support\Js::from($products->map(fn($p) => [
+            'id' => $p->id,
+            'name' => $p->name,
+            'category_id' => $p->category_id,
+            'is_best_seller' => (bool)$p->is_best_seller,
+            'sold_count' => (int)($p->sold_count ?? 0),
+        ])) }},
+        get matchingProductsCount() {
+            return this.allProducts.filter(p => this.matchesFilter(p.category_id, p.name, p.sold_count, p.is_best_seller)).length;
+        },
 
         // Modals
         modifierModal: {
