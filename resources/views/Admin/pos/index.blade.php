@@ -1674,6 +1674,21 @@ function posApp() {
             if (this._cfdInitialized) return;
             this._cfdInitialized = true;
 
+            try {
+                const pendingRaw = localStorage.getItem(`oqari_pos_kiosk_pending_${this.cfdShopId}`);
+                if (pendingRaw && this.cart.length === 0) {
+                    const pending = JSON.parse(pendingRaw);
+                    if (pending && Array.isArray(pending.items) && pending.items.length > 0) {
+                        this.cart = pending.items.map(item => ({
+                            ...item,
+                            modifiers: Array.isArray(item.modifiers) ? item.modifiers : [],
+                            showNotes: false,
+                        }));
+                    }
+                    localStorage.removeItem(`oqari_pos_kiosk_pending_${this.cfdShopId}`);
+                }
+            } catch (e) {}
+
             if ('BroadcastChannel' in window) {
                 this.cfdChannel = new BroadcastChannel(`oqari_pos_cfd_${this.cfdShopId}`);
                 this.cfdChannel.onmessage = (event) => {
@@ -1687,6 +1702,7 @@ function posApp() {
                         this.handleCustomerKioskAction(event.data.payload);
                     }
                 };
+                this.cfdChannel.postMessage({ type: 'CFD_CASHIER_READY' });
             }
 
             if (window.Echo) {
@@ -1755,7 +1771,17 @@ function posApp() {
                 this.cart.splice(payload.index, 1);
             } else if (payload.action === 'clear_cart') {
                 this.clearCart();
+            } else if (payload.action === 'sync_cart' && Array.isArray(payload.items) && this.cart.length === 0) {
+                this.cart = payload.items.map(item => ({
+                    ...item,
+                    modifiers: Array.isArray(item.modifiers) ? item.modifiers : [],
+                    showNotes: false,
+                }));
             }
+
+            try {
+                localStorage.removeItem(`oqari_pos_kiosk_pending_${this.cfdShopId}`);
+            } catch (e) {}
         },
 
         buildCfdPayload() {

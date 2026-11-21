@@ -651,8 +651,9 @@ class PosController extends Controller
 
         $validated = $request->validate([
             'action_id' => 'nullable|string|max:80',
-            'action' => 'required|string|in:add_item,update_qty,remove_item,clear_cart',
+            'action' => 'required|string|in:add_item,update_qty,remove_item,clear_cart,sync_cart',
             'item' => 'nullable|array',
+            'items' => 'nullable|array',
             'index' => 'nullable|integer|min:0',
             'delta' => 'nullable|integer|in:-1,1',
         ]);

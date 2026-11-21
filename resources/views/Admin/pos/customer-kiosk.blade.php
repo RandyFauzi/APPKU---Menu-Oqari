@@ -435,7 +435,8 @@
                     });
 
                     try {
-                        const saved = localStorage.getItem(`oqari_pos_cfd_state_${this.shopId}`);
+                        const pending = localStorage.getItem(`oqari_pos_kiosk_pending_${this.shopId}`);
+                        const saved = pending || localStorage.getItem(`oqari_pos_cfd_state_${this.shopId}`);
                         if (saved) {
                             this.applyState(JSON.parse(saved));
                         }
@@ -450,7 +451,17 @@
                                 this.syncMode = 'Dual Screen';
                                 this.isConnected = true;
                                 if (event.data.type === 'CFD_SYNC') {
+                                    try {
+                                        localStorage.removeItem(`oqari_pos_kiosk_pending_${this.shopId}`);
+                                    } catch (e) {}
                                     this.applyState(event.data.payload);
+                                }
+                            } else if (event.data.type === 'CFD_CASHIER_READY') {
+                                this.hasLocalCashier = true;
+                                this.syncMode = 'Dual Screen';
+                                this.isConnected = true;
+                                if (this.state.items.length > 0 && this.state.status === 'ordering') {
+                                    this.sendCustomerAction('sync_cart', { items: this.state.items });
                                 }
                             }
                         };
@@ -588,7 +599,73 @@
                     this.sendCustomerAction('clear_cart', {});
                 },
 
+                applyOptimisticAction(action, data = {}) {
+                    if (this.state.status === 'paid' || this.state.status === 'payment') return;
+
+                    let items = Array.isArray(this.state.items) ? [...this.state.items] : [];
+
+                    if (action === 'add_item' && data.item) {
+                        const incoming = data.item;
+                        const incomingModIds = (incoming.modifiers || []).map(m => m.id ?? m).sort().join(',');
+                        const existingIdx = items.findIndex(c =>
+                            Number(c.id) === Number(incoming.id)
+                            && (c.variant_id || null) === (incoming.variant_id || null)
+                            && ((c.modifiers || []).map(m => m.id ?? m).sort().join(',') === incomingModIds)
+                            && !c.notes
+                        );
+                        if (existingIdx !== -1) {
+                            const updated = { ...items[existingIdx] };
+                            updated.qty = Number(updated.qty || 1) + Number(incoming.qty || 1);
+                            updated.subtotal = Number(updated.price) * updated.qty;
+                            items[existingIdx] = updated;
+                        } else {
+                            items.push({
+                                ...incoming,
+                                modifiers: Array.isArray(incoming.modifiers)
+                                    ? incoming.modifiers.map(m => m.name || String(m))
+                                    : [],
+                            });
+                        }
+                    } else if (action === 'update_qty' && typeof data.index === 'number') {
+                        const target = items[data.index];
+                        if (target) {
+                            const nextQty = Number(target.qty || 1) + Number(data.delta || 0);
+                            if (nextQty <= 0) {
+                                items.splice(data.index, 1);
+                            } else {
+                                items[data.index] = {
+                                    ...target,
+                                    qty: nextQty,
+                                    subtotal: Number(target.price) * nextQty,
+                                };
+                            }
+                        }
+                    } else if (action === 'clear_cart') {
+                        items = [];
+                    }
+
+                    const subtotal = items.reduce((sum, i) => sum + Number(i.subtotal || (Number(i.price || 0) * Number(i.qty || 1))), 0);
+                    const discount = Number(this.state.discount_amount || 0);
+                    const grandTotal = Math.max(0, subtotal - discount);
+
+                    this.state = {
+                        ...this.state,
+                        status: items.length > 0 ? 'ordering' : 'idle',
+                        items,
+                        subtotal,
+                        grand_total: grandTotal,
+                    };
+
+                    try {
+                        localStorage.setItem(`oqari_pos_kiosk_pending_${this.shopId}`, JSON.stringify(this.state));
+                    } catch (e) {}
+                },
+
                 async sendCustomerAction(action, data = {}) {
+                    if (action !== 'sync_cart') {
+                        this.applyOptimisticAction(action, data);
+                    }
+
                     const actionId = (window.crypto && typeof window.crypto.randomUUID === 'function')
                         ? window.crypto.randomUUID()
                         : `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
