@@ -17,6 +17,7 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .kiosk-card:active { transform: scale(0.97); }
+        button { touch-action: manipulation; }
     </style>
     <x-theme-head :shop="$shop ?? null" />
 </head>
@@ -24,70 +25,71 @@
       x-data="customerKioskApp({{ (int) $shop->id }})">
 
     {{-- Top Header --}}
-    <header class="h-[56px] bg-white border-b border-[#e6e5e0] px-5 flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-3 min-w-0">
+    <header class="h-[56px] bg-white border-b border-[#e6e5e0] px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0">
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
             @if(!empty($shop->logo_url))
-                <img src="{{ $shop->logo_url }}" alt="{{ $shop->name }}" class="w-9 h-9 rounded-[10px] object-cover border border-[#e6e5e0] shrink-0">
+                <img src="{{ $shop->logo_url }}" alt="{{ $shop->name }}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] object-cover border border-[#e6e5e0] shrink-0">
             @else
-                <div class="w-9 h-9 rounded-[10px] bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center shrink-0">
-                    <i class="fas fa-mug-hot text-[#df5826] text-base"></i>
+                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] bg-[#fff6f0] border border-[#f5d5c6] flex items-center justify-center shrink-0">
+                    <i class="fas fa-mug-hot text-[#df5826] text-sm sm:text-base"></i>
                 </div>
             @endif
             <div class="min-w-0">
-                <h1 class="text-[15px] font-bold text-[#111827] truncate leading-tight">{{ $shop->name }}</h1>
-                <p class="text-[11px] text-[#71717a] leading-tight">Pilih Menu Mandiri (Touchscreen)</p>
+                <h1 class="text-[14px] sm:text-[15px] font-bold text-[#111827] truncate leading-tight">{{ $shop->name }}</h1>
+                <p class="text-[10.5px] sm:text-[11px] text-[#71717a] truncate leading-tight">Pilih Menu Mandiri (Touchscreen)</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-2.5">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+        <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            <span class="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10.5px] sm:text-[11px] font-semibold"
                   :class="isConnected ? 'bg-[#eaf7ef] text-[#289e5c]' : 'bg-amber-50 text-amber-700'">
-                <span class="w-2 h-2 rounded-full" :class="isConnected ? 'bg-[#289e5c] animate-pulse' : 'bg-amber-500'"></span>
-                <span x-text="syncLabel"></span>
+                <span class="w-2 h-2 rounded-full shrink-0" :class="isConnected ? 'bg-[#289e5c] animate-pulse' : 'bg-amber-500'"></span>
+                <span class="hidden sm:inline" x-text="syncLabel"></span>
+                <span class="sm:hidden" x-text="isConnected ? 'Aktif' : '...'"></span>
             </span>
 
             <a href="{{ route('admin.pos.customer-display') }}"
-               class="h-9 px-3 rounded-[10px] bg-[#f8f9fa] hover:bg-gray-200 border border-[#e6e5e0] text-[11.5px] font-semibold text-[#53565a] inline-flex items-center gap-1.5 transition"
+               class="h-8 sm:h-9 px-2.5 sm:px-3 rounded-[10px] bg-[#f8f9fa] hover:bg-gray-200 border border-[#e6e5e0] text-[11px] sm:text-[11.5px] font-semibold text-[#53565a] inline-flex items-center gap-1.5 transition"
                title="Beralih ke Mode Display (Non-Touch)">
                 <i class="fas fa-tv text-[#df5826]"></i>
                 <span class="hidden sm:inline">Mode Display</span>
             </a>
 
             <button type="button" @click="toggleFullscreen()"
-                    class="w-9 h-9 rounded-[10px] bg-[#f8f9fa] hover:bg-gray-200 border border-[#e6e5e0] text-[#53565a] flex items-center justify-center transition cursor-pointer"
+                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-[10px] bg-[#f8f9fa] hover:bg-gray-200 border border-[#e6e5e0] text-[#53565a] flex items-center justify-center transition cursor-pointer"
                     title="Layar Penuh">
-                <i class="fas" :class="isFullscreen ? 'fa-compress' : 'fa-expand'"></i>
+                <i class="fas text-xs sm:text-sm" :class="isFullscreen ? 'fa-compress' : 'fa-expand'"></i>
             </button>
         </div>
     </header>
 
-    {{-- Main Workspace --}}
-    <main class="flex-1 min-h-0 p-4 flex flex-col lg:flex-row gap-4">
+    {{-- Main Workspace: Side-by-side from md (768px+), Full-height Catalog + Bottom Bar on < md --}}
+    <main class="flex-1 min-h-0 p-2.5 sm:p-4 flex flex-col md:flex-row gap-3 sm:gap-4 relative">
 
         {{-- Left: Search, Categories & Product Catalog --}}
-        <section class="flex-1 min-w-0 bg-white border border-[#e6e5e0] rounded-[18px] p-4 flex flex-col overflow-hidden shadow-2xs">
+        <section class="flex-1 min-w-0 min-h-0 bg-white border border-[#e6e5e0] rounded-[16px] sm:rounded-[18px] p-3 sm:p-4 flex flex-col overflow-hidden shadow-2xs">
             {{-- Search & Category Filter --}}
-            <div class="pb-3 border-b border-[#e6e5e0] flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-                <div class="w-full sm:w-[240px] bg-[#f8f9fa] border border-[#d8dce2] focus-within:border-[#df5826] rounded-[10px] px-3 py-2 flex items-center gap-2 shrink-0">
+            <div class="pb-2.5 sm:pb-3 border-b border-[#e6e5e0] flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5 shrink-0">
+                <div class="w-full lg:w-[220px] xl:w-[250px] bg-[#f8f9fa] border border-[#d8dce2] focus-within:border-[#df5826] rounded-[10px] px-3 py-2 flex items-center gap-2 shrink-0">
                     <i class="fas fa-search text-[#8b8e93] text-xs"></i>
                     <input type="text" x-model="search" placeholder="Cari menu favorit..."
-                           class="w-full bg-transparent border-none outline-none text-[13px] font-medium text-[#1e211f] placeholder-[#8b8e93] p-0 focus:ring-0">
+                           class="w-full bg-transparent border-none outline-none text-[12.5px] sm:text-[13px] font-medium text-[#1e211f] placeholder-[#8b8e93] p-0 focus:ring-0">
                     <button type="button" x-show="search" x-cloak @click="search = ''"
                             class="w-5 h-5 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-[10px] cursor-pointer">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
 
-                <div class="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto hide-scroll py-0.5">
+                <div class="flex-1 min-w-0 flex items-center gap-1.5 sm:gap-2 overflow-x-auto hide-scroll py-0.5">
                     <button type="button" @click="activeCategory = null"
                             :class="activeCategory === null ? 'bg-[#df5826] text-white border-[#df5826]' : 'bg-[#f8f9fa] text-[#53565a] border-[#e6e5e0] hover:border-[#df5826]/50'"
-                            class="px-3.5 py-2 rounded-[10px] border text-[12px] font-semibold whitespace-nowrap transition cursor-pointer shrink-0">
+                            class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-[10px] border text-[11.5px] sm:text-[12px] font-semibold whitespace-nowrap transition cursor-pointer shrink-0">
                         Semua Menu
                     </button>
                     @foreach($categories as $cat)
                         <button type="button" @click="activeCategory = {{ (int) $cat['id'] }}"
                                 :class="activeCategory === {{ (int) $cat['id'] }} ? 'bg-[#df5826] text-white border-[#df5826]' : 'bg-[#f8f9fa] text-[#53565a] border-[#e6e5e0] hover:border-[#df5826]/50'"
-                                class="px-3.5 py-2 rounded-[10px] border text-[12px] font-semibold whitespace-nowrap transition cursor-pointer shrink-0">
+                                class="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-[10px] border text-[11.5px] sm:text-[12px] font-semibold whitespace-nowrap transition cursor-pointer shrink-0">
                             {{ $cat['name'] }}
                         </button>
                     @endforeach
@@ -95,15 +97,15 @@
             </div>
 
             {{-- Product Grid --}}
-            <div class="flex-1 overflow-y-auto pt-4 hide-scroll">
-                <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3.5 pb-2">
+            <div class="flex-1 min-h-0 overflow-y-auto pt-3 sm:pt-4 hide-scroll pb-16 md:pb-2">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3.5">
                     <template x-for="product in filteredProducts" :key="product.id">
                         <button type="button"
                                 @click="handleProductTap(product)"
                                 :disabled="product.is_sold_out"
                                 :class="product.is_sold_out ? 'opacity-60 cursor-not-allowed bg-gray-50' : 'bg-white hover:border-[#df5826]/60 hover:shadow-sm cursor-pointer kiosk-card'"
-                                class="border border-[#e6e5e0] rounded-[16px] overflow-hidden flex flex-col text-left transition-all">
-                            <div class="relative h-[115px] w-full bg-[#f3f4f6] overflow-hidden shrink-0">
+                                class="border border-[#e6e5e0] rounded-[14px] sm:rounded-[16px] overflow-hidden flex flex-col text-left transition-all">
+                            <div class="relative h-[95px] sm:h-[115px] w-full bg-[#f3f4f6] overflow-hidden shrink-0">
                                 <template x-if="product.image_url">
                                     <img :src="product.image_url" :alt="product.name" class="w-full h-full object-cover">
                                 </template>
@@ -119,11 +121,11 @@
                                     <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-[#df5826] text-white text-[10px] font-bold">Favorit</span>
                                 </template>
                             </div>
-                            <div class="p-3 flex-1 flex flex-col justify-between gap-1.5 w-full">
-                                <h3 class="text-[13.5px] font-bold text-[#111827] leading-snug line-clamp-2" x-text="product.name"></h3>
+                            <div class="p-2.5 sm:p-3 flex-1 flex flex-col justify-between gap-1.5 w-full">
+                                <h3 class="text-[12.5px] sm:text-[13.5px] font-bold text-[#111827] leading-snug line-clamp-2" x-text="product.name"></h3>
                                 <div class="flex items-center justify-between gap-1">
-                                    <span class="text-[13.5px] font-bold text-[#df5826]" x-text="'Rp ' + formatRp(product.effective_price)"></span>
-                                    <span class="w-7 h-7 rounded-full bg-[#fff6f0] text-[#df5826] flex items-center justify-center text-xs shrink-0">
+                                    <span class="text-[12.5px] sm:text-[13.5px] font-bold text-[#df5826]" x-text="'Rp ' + formatRp(product.effective_price)"></span>
+                                    <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#fff6f0] text-[#df5826] flex items-center justify-center text-[10px] sm:text-xs shrink-0">
                                         <i class="fas fa-plus"></i>
                                     </span>
                                 </div>
@@ -131,40 +133,75 @@
                         </button>
                     </template>
                 </div>
+
+                <div x-show="filteredProducts.length === 0" x-cloak class="py-12 text-center text-[#8b8e93]">
+                    <i class="fas fa-search text-2xl mb-2 opacity-50"></i>
+                    <p class="text-[13px] font-medium">Menu tidak ditemukan</p>
+                </div>
             </div>
         </section>
 
-        {{-- Right: Live Synced Cart & Payment Status --}}
-        <aside class="w-full lg:w-[360px] xl:w-[390px] bg-white border border-[#e6e5e0] rounded-[18px] flex flex-col overflow-hidden shrink-0 shadow-2xs">
-            <div class="px-5 py-4 border-b border-[#e6e5e0] flex items-center justify-between shrink-0">
-                <div>
-                    <h2 class="text-[16px] font-bold text-[#111827]">Pesanan Anda</h2>
-                    <p class="text-[11.5px] text-[#71717a]" x-text="totalItemsCount + ' item • Otomatis terkirim ke kasir'"></p>
+        {{-- Mobile Floating Cart Bar (< md) --}}
+        <div class="md:hidden fixed bottom-3 inset-x-3 z-30">
+            <button type="button" @click="showMobileCart = true"
+                    class="w-full bg-[#111827] text-white rounded-[14px] px-4 py-3 shadow-xl flex items-center justify-between gap-3 cursor-pointer">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-[9px] bg-[#df5826] flex items-center justify-center text-xs font-bold"
+                          x-text="totalItemsCount"></span>
+                    <div class="text-left">
+                        <div class="text-[12.5px] font-bold leading-tight">Lihat Pesanan</div>
+                        <div class="text-[10.5px] text-gray-300 leading-tight" x-text="totalItemsCount > 0 ? 'Otomatis masuk ke kasir' : 'Keranjang masih kosong'"></div>
+                    </div>
                 </div>
-                <button type="button" x-show="state.items.length > 0 && state.status === 'ordering'" x-cloak
-                        @click="clearCart()"
-                        class="text-[11.5px] font-semibold text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition cursor-pointer">
-                    Kosongkan
-                </button>
+                <div class="flex items-center gap-2">
+                    <span class="text-[14px] font-bold text-[#fb923c]" x-text="'Rp ' + formatRp(state.grand_total)"></span>
+                    <i class="fas fa-chevron-up text-xs text-gray-400"></i>
+                </div>
+            </button>
+        </div>
+
+        {{-- Mobile Backdrop (< md) --}}
+        <div x-show="showMobileCart" x-cloak x-transition.opacity @click="showMobileCart = false"
+             class="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-xs"></div>
+
+        {{-- Right: Live Synced Cart (Sidebar on md+, Slide-up Drawer on < md) --}}
+        <aside :class="showMobileCart ? 'translate-y-0' : 'translate-y-full md:translate-y-0'"
+               class="fixed inset-x-0 bottom-0 z-50 h-[82dvh] md:static md:h-auto md:z-auto w-full md:w-[295px] lg:w-[345px] xl:w-[390px] bg-white border border-[#e6e5e0] rounded-t-[20px] md:rounded-[18px] flex flex-col overflow-hidden shrink-0 shadow-2xl md:shadow-2xs transition-transform duration-250 ease-out">
+            <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-[#e6e5e0] flex items-center justify-between shrink-0">
+                <div>
+                    <h2 class="text-[15px] sm:text-[16px] font-bold text-[#111827]">Pesanan Anda</h2>
+                    <p class="text-[11px] sm:text-[11.5px] text-[#71717a]" x-text="totalItemsCount + ' item • Otomatis terkirim ke kasir'"></p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button type="button" x-show="state.items.length > 0 && state.status === 'ordering'" x-cloak
+                            @click="clearCart()"
+                            class="text-[11px] font-semibold text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition cursor-pointer">
+                        Kosongkan
+                    </button>
+                    <button type="button" @click="showMobileCart = false"
+                            class="md:hidden w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center cursor-pointer">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
             </div>
 
             {{-- Cart Items --}}
-            <div class="flex-1 overflow-y-auto p-4 space-y-2.5 hide-scroll">
+            <div class="flex-1 min-h-0 overflow-y-auto p-3.5 sm:p-4 space-y-2.5 hide-scroll">
                 <template x-if="state.items.length === 0">
-                    <div class="h-full flex flex-col items-center justify-center text-center px-4 py-10 text-[#8b8e93]">
-                        <div class="w-14 h-14 rounded-full bg-[#f8f9fa] border border-[#e6e5e0] flex items-center justify-center mb-3">
-                            <i class="fas fa-hand-pointer text-xl text-[#df5826]"></i>
+                    <div class="h-full flex flex-col items-center justify-center text-center px-4 py-8 text-[#8b8e93]">
+                        <div class="w-12 h-12 rounded-full bg-[#f8f9fa] border border-[#e6e5e0] flex items-center justify-center mb-3">
+                            <i class="fas fa-hand-pointer text-lg text-[#df5826]"></i>
                         </div>
-                        <p class="text-[14px] font-bold text-[#111827]">Sentuh Menu di Sebelah Kiri</p>
-                        <p class="text-[12px] mt-1">Menu yang Anda pilih akan langsung muncul di sini dan di layar kasir.</p>
+                        <p class="text-[13.5px] font-bold text-[#111827]">Sentuh Menu untuk Memesan</p>
+                        <p class="text-[11.5px] mt-1">Menu yang Anda pilih akan langsung muncul di sini dan di layar kasir.</p>
                     </div>
                 </template>
 
                 <template x-for="(item, idx) in state.items" :key="idx">
-                    <div class="bg-[#f8f9fa] border border-[#e6e5e0] rounded-[14px] p-3 flex flex-col gap-2">
+                    <div class="bg-[#f8f9fa] border border-[#e6e5e0] rounded-[12px] sm:rounded-[14px] p-2.5 sm:p-3 flex flex-col gap-2">
                         <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0">
-                                <h4 class="text-[13.5px] font-bold text-[#111827] leading-snug" x-text="item.name"></h4>
+                                <h4 class="text-[13px] sm:text-[13.5px] font-bold text-[#111827] leading-snug" x-text="item.name"></h4>
                                 <div class="flex flex-wrap gap-1 mt-1">
                                     <template x-if="item.variant">
                                         <span class="text-[10.5px] px-1.5 py-0.5 rounded bg-white border border-[#e6e5e0] text-[#53565a]" x-text="item.variant"></span>
@@ -174,20 +211,20 @@
                                     </template>
                                 </div>
                             </div>
-                            <span class="text-[13.5px] font-bold text-[#111827] shrink-0" x-text="'Rp ' + formatRp(item.subtotal)"></span>
+                            <span class="text-[13px] sm:text-[13.5px] font-bold text-[#111827] shrink-0" x-text="'Rp ' + formatRp(item.subtotal)"></span>
                         </div>
 
                         <div class="flex items-center justify-between pt-1">
                             <span class="text-[11px] text-[#71717a]" x-text="'@ Rp ' + formatRp(item.price)"></span>
                             <div class="flex items-center gap-2">
                                 <button type="button" @click="updateQty(idx, -1)"
-                                        class="w-8 h-8 rounded-[9px] bg-white border border-[#d8dce2] hover:border-[#df5826] text-[#111827] font-bold flex items-center justify-center cursor-pointer">
-                                    <i class="fas fa-minus text-xs"></i>
+                                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] sm:rounded-[9px] bg-white border border-[#d8dce2] hover:border-[#df5826] text-[#111827] font-bold flex items-center justify-center cursor-pointer">
+                                    <i class="fas fa-minus text-[10px] sm:text-xs"></i>
                                 </button>
-                                <span class="w-6 text-center text-[13.5px] font-bold text-[#111827]" x-text="item.qty"></span>
+                                <span class="w-5 text-center text-[13px] font-bold text-[#111827]" x-text="item.qty"></span>
                                 <button type="button" @click="updateQty(idx, 1)"
-                                        class="w-8 h-8 rounded-[9px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] font-bold flex items-center justify-center cursor-pointer">
-                                    <i class="fas fa-plus text-xs"></i>
+                                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-[8px] sm:rounded-[9px] bg-[#fff6f0] border border-[#f5d5c6] text-[#df5826] font-bold flex items-center justify-center cursor-pointer">
+                                    <i class="fas fa-plus text-[10px] sm:text-xs"></i>
                                 </button>
                             </div>
                         </div>
@@ -196,28 +233,28 @@
             </div>
 
             {{-- Summary Footer --}}
-            <div class="p-4 border-t border-[#e6e5e0] bg-[#fcfcfd] space-y-2.5 shrink-0">
-                <div class="flex items-center justify-between text-[13px] text-[#53565a]">
+            <div class="p-3.5 sm:p-4 border-t border-[#e6e5e0] bg-[#fcfcfd] space-y-2 shrink-0">
+                <div class="flex items-center justify-between text-[12.5px] sm:text-[13px] text-[#53565a]">
                     <span>Subtotal</span>
                     <span class="font-semibold text-[#111827]" x-text="'Rp ' + formatRp(state.subtotal)"></span>
                 </div>
 
                 <template x-if="Number(state.discount_amount) > 0">
-                    <div class="flex items-center justify-between text-[13px] text-[#289e5c]">
+                    <div class="flex items-center justify-between text-[12.5px] sm:text-[13px] text-[#289e5c]">
                         <span x-text="state.discount_label || 'Diskon'"></span>
                         <span class="font-bold" x-text="'- Rp ' + formatRp(state.discount_amount)"></span>
                     </div>
                 </template>
 
                 <div class="pt-2 border-t border-dashed border-[#d8dce2] flex items-baseline justify-between">
-                    <span class="text-[14px] font-bold text-[#111827]">Total Bayar</span>
-                    <span class="text-[24px] font-bold text-[#df5826]" x-text="'Rp ' + formatRp(state.grand_total)"></span>
+                    <span class="text-[13.5px] sm:text-[14px] font-bold text-[#111827]">Total Bayar</span>
+                    <span class="text-[22px] sm:text-[24px] font-bold text-[#df5826]" x-text="'Rp ' + formatRp(state.grand_total)"></span>
                 </div>
 
                 <div x-show="state.items.length > 0" x-cloak
-                     class="bg-[#fff6f0] border border-[#f5d5c6] rounded-[12px] px-3.5 py-2.5 text-center text-[12px] font-semibold text-[#b84218]">
-                    <i class="fas fa-cash-register mr-1.5"></i>
-                    Pesanan sudah masuk ke Kasir — silakan lakukan pembayaran di kasir
+                     class="bg-[#fff6f0] border border-[#f5d5c6] rounded-[10px] px-3 py-2 text-center text-[11px] sm:text-[11.5px] font-semibold text-[#b84218]">
+                    <i class="fas fa-cash-register mr-1"></i>
+                    Pesanan sudah masuk ke Kasir — silakan bayar di kasir
                 </div>
             </div>
         </aside>
@@ -285,7 +322,7 @@
     {{-- Payment / Paid Overlay when Cashier triggers Checkout --}}
     <div x-show="state.status === 'payment' || state.status === 'paid'" x-cloak x-transition.opacity
          class="fixed inset-0 z-50 bg-black/55 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white border border-[#e6e5e0] rounded-[24px] shadow-2xl w-full max-w-md p-7 text-center">
+        <div class="bg-white border border-[#e6e5e0] rounded-[24px] shadow-2xl w-full max-w-md p-6 sm:p-7 text-center">
             <template x-if="state.status === 'payment'">
                 <div>
                     <div class="w-16 h-16 rounded-2xl bg-[#fff6f0] border border-[#f5d5c6] mx-auto flex items-center justify-center mb-4">
@@ -296,7 +333,7 @@
                         Pembayaran <span x-text="state.payment_method || 'TUNAI'"></span>
                     </h2>
                     <p class="text-[13px] text-[#71717a] mt-1">Total yang harus dibayar:</p>
-                    <p class="text-[34px] font-bold text-[#df5826] my-3" x-text="'Rp ' + formatRp(state.grand_total)"></p>
+                    <p class="text-[32px] sm:text-[34px] font-bold text-[#df5826] my-3" x-text="'Rp ' + formatRp(state.grand_total)"></p>
                     <p class="text-[12px] text-[#53565a]">
                         <span x-show="state.payment_method === 'QRIS'">Silakan scan QRIS di meja kasir</span>
                         <span x-show="state.payment_method !== 'QRIS'">Menunggu konfirmasi kasir...</span>
@@ -335,6 +372,7 @@
                 isConnected: true,
                 syncMode: 'BroadcastChannel',
                 isFullscreen: false,
+                showMobileCart: false,
                 search: '',
                 activeCategory: null,
                 channel: null,
@@ -432,6 +470,7 @@
                         items: Array.isArray(payload.items) ? payload.items : [],
                     };
                     if (this.state.status === 'paid') {
+                        this.showMobileCart = false;
                         this.paidResetTimer = setTimeout(() => {
                             this.state.status = 'idle';
                             this.state.items = [];
@@ -534,7 +573,10 @@
                 },
 
                 async sendCustomerAction(action, data = {}) {
-                    const payload = { action, ...data };
+                    const actionId = (window.crypto && typeof window.crypto.randomUUID === 'function')
+                        ? window.crypto.randomUUID()
+                        : `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+                    const payload = { action_id: actionId, action, ...data };
 
                     if (this.channel) {
                         this.channel.postMessage({ type: 'CFD_CUSTOMER_ACTION', payload });

@@ -1648,6 +1648,7 @@ function posApp() {
         cfdWindow: null,
         cfdSyncTimer: null,
         hasMultipleScreens: Boolean(window.screen && window.screen.isExtended),
+        processedKioskActionIds: [],
 
         init() {
             this.fetchIncoming();
@@ -1700,6 +1701,16 @@ function posApp() {
 
         handleCustomerKioskAction(payload) {
             if (!payload || !payload.action) return;
+
+            if (payload.action_id) {
+                if (this.processedKioskActionIds.includes(payload.action_id)) {
+                    return;
+                }
+                this.processedKioskActionIds.push(payload.action_id);
+                if (this.processedKioskActionIds.length > 100) {
+                    this.processedKioskActionIds.shift();
+                }
+            }
 
             if (payload.action === 'add_item' && payload.item) {
                 const incoming = payload.item;

@@ -107,10 +107,10 @@
 
         {{-- 2. ORDERING & PAYMENT STATE --}}
         <section x-show="state.status === 'ordering' || state.status === 'payment'" x-cloak x-transition.opacity
-                 class="h-full w-full grid grid-cols-1 lg:grid-cols-12 gap-5">
+                 class="h-full w-full grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 overflow-y-auto md:overflow-hidden">
 
             {{-- Left: Itemized Order List --}}
-            <div class="lg:col-span-7 xl:col-span-8 bg-white border border-[#e6e5e0] rounded-[20px] flex flex-col overflow-hidden shadow-xs">
+            <div class="md:col-span-7 xl:col-span-8 bg-white border border-[#e6e5e0] rounded-[20px] flex flex-col overflow-hidden shadow-xs min-h-[260px]">
                 <div class="px-6 py-4 border-b border-[#e6e5e0] flex items-center justify-between shrink-0">
                     <div>
                         <h2 class="text-[18px] font-bold text-[#111827]">Rincian Pesanan</h2>
@@ -161,7 +161,7 @@
             </div>
 
             {{-- Right: Summary & Payment Prompt --}}
-            <div class="lg:col-span-5 xl:col-span-4 bg-white border border-[#e6e5e0] rounded-[20px] p-6 flex flex-col justify-between shadow-xs">
+            <div class="md:col-span-5 xl:col-span-4 bg-white border border-[#e6e5e0] rounded-[20px] p-5 lg:p-6 flex flex-col justify-between shadow-xs">
                 <div class="space-y-4">
                     <template x-if="state.customer_name">
                         <div class="bg-[#f8f9fa] border border-[#e6e5e0] rounded-[12px] px-4 py-3 flex items-center justify-between">
