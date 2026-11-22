@@ -36,6 +36,14 @@ const CartStore = {
         CartStore.set(cart);
         return cart;
     },
+
+    updateNotes: (index, notes) => {
+        const cart = CartStore.get();
+        if (!cart[index]) return cart;
+        cart[index].notes = String(notes || '').trim().slice(0, 200);
+        CartStore.set(cart);
+        return cart;
+    },
     
     clear: () => {
         localStorage.removeItem(CartStore.getKey());

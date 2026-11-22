@@ -1009,23 +1009,47 @@ function renderCartDetail() {
     btnPay.classList.remove('opacity-50', 'cursor-not-allowed');
 
     container.innerHTML = cart.map((item, index) => {
-        let notesText = item.notes ? `<p class="text-[10px] mt-1 p-1 bg-bgbase rounded text-primary">📝 ${escapeHtml(item.notes)}</p>` : '';
+        const isEditingNote = window.__editingCartNoteIndex === index;
+        const noteDisplay = item.notes
+            ? `<button type="button" onclick="toggleCartNoteEditor(${index})" class="mt-1.5 text-left inline-flex items-center gap-1.5 text-[11px] px-2 py-1 rounded-lg bg-orange-50/80 border border-primary/20 text-primary font-medium hover:bg-orange-100/70 transition-colors max-w-full">
+                    <i class="fas fa-pen text-[9px] shrink-0"></i>
+                    <span class="truncate">${escapeHtml(item.notes)}</span>
+               </button>`
+            : `<button type="button" onclick="toggleCartNoteEditor(${index})" class="mt-1.5 inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-primary font-medium transition-colors">
+                    <i class="far fa-comment-dots text-[11px]"></i>
+                    <span>Tambah catatan</span>
+               </button>`;
+
+        const noteEditor = isEditingNote
+            ? `<div class="mt-2 pt-2 border-t border-dashed border-gray-200 flex items-center gap-1.5">
+                    <input id="cart-note-input-${index}" type="text" maxlength="200" value="${escapeHtml(item.notes || '')}"
+                        placeholder="Contoh: tanpa es, less sugar..."
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();saveCartItemNote(${index});}else if(event.key==='Escape'){closeCartNoteEditor();}"
+                        class="flex-1 min-w-0 bg-gray-50 border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-primary focus:bg-white transition-colors">
+                    <button type="button" onclick="saveCartItemNote(${index})" class="px-2.5 py-1.5 rounded-lg bg-primary text-white text-[11px] font-bold shrink-0 active:scale-95 transition-transform">Simpan</button>
+               </div>`
+            : '';
+
         return `
-        <div class="flex items-center gap-4 bg-white p-3 rounded-xl border-2 border-primary/10 mb-3 relative">
-            <img src="${safeImageUrl(item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" loading="lazy" class="w-16 h-16 rounded-lg object-cover">
-            <div class="flex-grow">
-                <h4 class="font-bold text-sm text-textdark leading-tight font-heading">${escapeHtml(item.name)}</h4>
-                <div class="flex items-center gap-1.5 mt-1">
-                    <p class="text-primary font-bold text-sm">${formatRp(item.price)}</p>
-                    ${item.has_discount ? '<span class="bg-[#fff0e6] text-primary text-[9px] font-bold px-1.5 py-0.5 rounded border border-[#ffd2b8]">PROMO</span>' : ''}
+        <div class="bg-white p-3 rounded-xl border-2 border-primary/10 mb-3 relative">
+            <div class="flex items-center gap-4">
+                <img src="${safeImageUrl(item.img)}" onerror="this.onerror=null; this.src='/Assests/null%20image.webp'" loading="lazy" class="w-16 h-16 rounded-lg object-cover shrink-0">
+                <div class="flex-grow min-w-0">
+                    <h4 class="font-bold text-sm text-textdark leading-tight font-heading truncate">${escapeHtml(item.name)}</h4>
+                    <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                        ${item.has_discount && Number(item.regular_price) > Number(item.price) ? `<span class="text-[11px] text-gray-400 line-through">${formatRp(item.regular_price)}</span>` : ''}
+                        <p class="text-primary font-bold text-sm">${formatRp(item.price)}</p>
+                        ${item.has_discount ? '<span class="bg-[#fff0e6] text-primary text-[9px] font-bold px-1.5 py-0.5 rounded border border-[#ffd2b8]">PROMO</span>' : ''}
+                    </div>
+                    ${isEditingNote ? '' : noteDisplay}
                 </div>
-                ${notesText}
+                <div class="flex flex-col items-center gap-1 shrink-0">
+                    <button onclick="handleUpdateQty(${index}, 1)" class="w-6 h-6 rounded-md bg-primary text-white flex items-center justify-center shadow-sm active:scale-95 transition-transform"><i class="fas fa-plus text-[10px]"></i></button>
+                    <span class="text-xs font-bold w-6 text-center text-textdark">${item.qty}</span>
+                    <button onclick="handleUpdateQty(${index}, -1)" class="w-6 h-6 rounded-md bg-bgbase text-primary border border-primary/20 flex items-center justify-center shadow-sm active:scale-95 transition-transform"><i class="fas fa-minus text-[10px]"></i></button>
+                </div>
             </div>
-            <div class="flex flex-col items-center gap-1">
-                <button onclick="handleUpdateQty(${index}, 1)" class="w-6 h-6 rounded-md bg-primary text-white flex items-center justify-center shadow-sm active:scale-95 transition-transform"><i class="fas fa-plus text-[10px]"></i></button>
-                <span class="text-xs font-bold w-6 text-center text-textdark">${item.qty}</span>
-                <button onclick="handleUpdateQty(${index}, -1)" class="w-6 h-6 rounded-md bg-bgbase text-primary border border-primary/20 flex items-center justify-center shadow-sm active:scale-95 transition-transform"><i class="fas fa-minus text-[10px]"></i></button>
-            </div>
+            ${noteEditor}
         </div>
         `;
     }).join('');
@@ -1057,7 +1081,39 @@ function renderCartDetail() {
     window.currentGrandTotal = grandTotal;
 }
 
-function handleUpdateQty(index, change) { CartStore.updateQty(index, change); renderCartDetail(); }
+function handleUpdateQty(index, change) {
+    window.__editingCartNoteIndex = null;
+    CartStore.updateQty(index, change);
+    renderCartDetail();
+}
+
+function toggleCartNoteEditor(index) {
+    window.__editingCartNoteIndex = (window.__editingCartNoteIndex === index) ? null : index;
+    renderCartDetail();
+    if (window.__editingCartNoteIndex === index) {
+        setTimeout(() => {
+            const input = document.getElementById(`cart-note-input-${index}`);
+            if (input) {
+                input.focus();
+                input.setSelectionRange(input.value.length, input.value.length);
+            }
+        }, 20);
+    }
+}
+
+function closeCartNoteEditor() {
+    window.__editingCartNoteIndex = null;
+    renderCartDetail();
+}
+
+function saveCartItemNote(index) {
+    const input = document.getElementById(`cart-note-input-${index}`);
+    if (input) {
+        CartStore.updateNotes(index, input.value);
+    }
+    window.__editingCartNoteIndex = null;
+    renderCartDetail();
+}
 
 async function applyPromoCode() {
     const promoInput = document.getElementById('customer-promo');
