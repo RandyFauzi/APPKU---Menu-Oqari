@@ -1319,40 +1319,24 @@ function onPaymentMethodChange(method) {
     const isQris = method === 'QRIS';
     const labelQris = document.getElementById('payment-label-qris');
     const labelCash = document.getElementById('payment-label-cash');
-    const checkQris = document.getElementById('payment-check-qris');
-    const checkCash = document.getElementById('payment-check-cash');
     const btnLabel = document.getElementById('btn-pay-label');
 
     if (isQris) {
         if (labelQris) {
-            labelQris.className = 'flex items-center justify-between p-3.5 border-2 border-primary bg-primary/5 rounded-2xl cursor-pointer transition-all';
+            labelQris.className = 'flex items-center gap-3 p-3.5 border-2 border-primary bg-primary/5 rounded-2xl cursor-pointer transition-all';
         }
         if (labelCash) {
-            labelCash.className = 'flex items-center justify-between p-3.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-2xl cursor-pointer transition-all';
-        }
-        if (checkQris) {
-            checkQris.className = 'fas fa-check-circle text-primary text-lg';
-            checkQris.classList.remove('hidden');
-        }
-        if (checkCash) {
-            checkCash.classList.add('hidden');
+            labelCash.className = 'flex items-center gap-3 p-3.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-2xl cursor-pointer transition-all';
         }
         if (btnLabel) {
             btnLabel.innerText = 'Bayar Sekarang & Buat Pesanan';
         }
     } else {
         if (labelCash) {
-            labelCash.className = 'flex items-center justify-between p-3.5 border-2 border-primary bg-primary/5 rounded-2xl cursor-pointer transition-all';
+            labelCash.className = 'flex items-center gap-3 p-3.5 border-2 border-primary bg-primary/5 rounded-2xl cursor-pointer transition-all';
         }
         if (labelQris) {
-            labelQris.className = 'flex items-center justify-between p-3.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-2xl cursor-pointer transition-all';
-        }
-        if (checkCash) {
-            checkCash.className = 'fas fa-check-circle text-primary text-lg';
-            checkCash.classList.remove('hidden');
-        }
-        if (checkQris) {
-            checkQris.classList.add('hidden');
+            labelQris.className = 'flex items-center gap-3 p-3.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-2xl cursor-pointer transition-all';
         }
         if (btnLabel) {
             btnLabel.innerText = 'Pesan & Bayar di Kasir';

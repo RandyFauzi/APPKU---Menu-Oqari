@@ -387,7 +387,6 @@ class OrderCreationTest extends TestCase
         $response->assertOk()
             ->assertSee('Metode Pembayaran')
             ->assertSee('QRIS')
-            ->assertSee('Otomatis Lunas')
             ->assertSee('Bayar di Kasir')
             ->assertSee('Bayar Sekarang', false);
     }
