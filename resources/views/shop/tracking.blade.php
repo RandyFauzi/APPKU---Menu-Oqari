@@ -31,17 +31,22 @@
     </div>
 
     <!-- Teks Status -->
-    <h1 class="text-2xl font-extrabold text-gray-800 mb-2">Orderan Sedang Diproses!</h1>
-    <p class="text-gray-500 mb-8 text-sm">Pesanan <b id="track-type" class="text-primary">Dine-in</b> senilai <b id="track-total">Rp 0</b> telah diterima. Barista dan tim dapur {{ $shop->name }} langsung menyiapkan pesanan Anda.</p>
+    <h1 id="track-title" class="text-2xl font-extrabold text-gray-800 mb-2">Orderan Sedang Diproses!</h1>
+    <p id="track-description" class="text-gray-500 mb-8 text-sm leading-relaxed">Pesanan <b id="track-type" class="text-primary">Dine-in</b> senilai <b id="track-total">Rp 0</b> telah diterima. Barista dan tim dapur {{ $shop->name }} langsung menyiapkan pesanan Anda.</p>
 
     <!-- Info Box -->
-    <div class="bg-gray-50 rounded-2xl p-4 w-full mb-8 border border-gray-100 flex items-center gap-4 text-left">
-        <div class="bg-white w-12 h-12 rounded-xl flex items-center justify-center shadow-sm text-primary flex-shrink-0">
-            <i class="fas fa-receipt text-xl"></i>
+    <div class="bg-gray-50 rounded-2xl p-4 w-full mb-8 border border-gray-100 flex items-center justify-between text-left">
+        <div class="flex items-center gap-3.5">
+            <div class="bg-white w-12 h-12 rounded-xl flex items-center justify-center shadow-sm text-primary flex-shrink-0">
+                <i class="fas fa-receipt text-xl"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">No. Pesanan</p>
+                <p class="font-bold text-gray-800 text-lg">#ORD-<span id="display-order-number">Menunggu...</span></p>
+            </div>
         </div>
-        <div>
-            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">No. Pesanan</p>
-            <p class="font-bold text-gray-800 text-lg">#ORD-<span id="display-order-number">Menunggu...</span></p>
+        <div id="track-payment-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200 shrink-0">
+            Lunas (QRIS)
         </div>
     </div>
 

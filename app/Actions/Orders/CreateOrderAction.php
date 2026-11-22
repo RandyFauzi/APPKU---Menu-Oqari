@@ -3,9 +3,11 @@
 namespace App\Actions\Orders;
 
 use App\Models\ActivityLog;
+use App\Models\CashRegisterSession;
 use App\Models\Modifier;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Shop;
@@ -136,6 +138,10 @@ class CreateOrderAction
                 }
             }
 
+            $rawPaymentMethod = strtoupper(trim((string) ($data['payment_method'] ?? 'QRIS')));
+            $isPaidOnline = in_array($rawPaymentMethod, ['QRIS', 'ONLINE', 'MIDTRANS', 'XENDIT', 'TRANSFER', 'E-WALLET', 'DEBIT', 'CARD'], true);
+            $grandTotal = max(0, $total - $discountAmount);
+
             // 4. Create the Order Parent
             $order = Order::create([
                 'shop_id' => $shop->id,
@@ -143,17 +149,43 @@ class CreateOrderAction
                 'customer_name' => $data['customer_name'],
                 'customer_email' => $data['customer_email'] ?? null,
                 'customer_phone' => $data['customer_phone'] ?? null,
-                'payment_method' => $data['payment_method'],
+                'payment_method' => $rawPaymentMethod,
                 'subtotal' => $total,
                 'discount_amount' => $discountAmount,
                 'voucher_code' => $voucher?->code,
                 'discount_reason' => $voucher?->name,
-                'grand_total' => max(0, $total - $discountAmount),
+                'grand_total' => $grandTotal,
+                'amount_paid' => $isPaidOnline ? $grandTotal : 0,
+                'change_amount' => 0,
+                'paid_at' => $isPaidOnline ? now() : null,
                 'total_cogs' => $totalCogs,
                 'order_status' => 'CONFIRMED',
-                'payment_status' => 'UNPAID',
+                'payment_status' => $isPaidOnline ? 'PAID' : 'UNPAID',
                 'fulfillment_type' => $fulfillmentType,
             ]);
+
+            // 5. If paid online (e.g. QRIS/E-Wallet), record Payment ledger and link to open shift
+            if ($isPaidOnline) {
+                Payment::create([
+                    'shop_id' => $shop->id,
+                    'order_id' => $order->id,
+                    'payment_method' => $rawPaymentMethod,
+                    'amount' => $grandTotal,
+                    'reference_number' => 'QR-'.strtoupper(uniqid()),
+                ]);
+
+                // Increment sales on open session if one exists for the shop
+                $session = CashRegisterSession::whereHas('register', fn ($query) => $query->where('shop_id', $shop->id))
+                    ->where('status', 'OPEN')
+                    ->first();
+                if ($session) {
+                    if ($rawPaymentMethod === 'QRIS') {
+                        $session->increment('total_qris_sales', $grandTotal);
+                    } else {
+                        $session->increment('total_other_sales', $grandTotal);
+                    }
+                }
+            }
 
             // 4. Attach Items
             $hasPriceColumn = Schema::hasColumn('order_items', 'price');
@@ -180,13 +212,14 @@ class CreateOrderAction
 
             if (class_exists(ActivityLog::class)) {
                 $tableLabel = $tableModel ? 'Meja '.$tableModel->name : ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja');
+                $statusLabel = $isPaidOnline ? 'Lunas ('.$rawPaymentMethod.')' : 'Belum Lunas (Bayar di Kasir)';
                 ActivityLog::create([
                     'shop_id' => $shop->id,
                     'user_id' => auth()->id(),
                     'action' => 'order.qr_placed',
                     'entity_type' => Order::class,
                     'entity_id' => $order->id,
-                    'description' => 'Pesanan baru masuk via QR Menu #'.$order->id.' ('.$tableLabel.' · '.($order->customer_name ?: 'Pelanggan').') - Total: Rp '.number_format((float) $order->grand_total, 0, ',', '.'),
+                    'description' => 'Pesanan baru masuk via QR Menu #'.$order->id.' ('.$tableLabel.' · '.($order->customer_name ?: 'Pelanggan').') - Total: Rp '.number_format((float) $order->grand_total, 0, ',', '.').' ['.$statusLabel.']',
                     'ip_address' => request()->ip(),
                     'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
                 ]);

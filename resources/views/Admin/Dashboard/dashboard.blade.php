@@ -3838,13 +3838,21 @@
                     setTimeout(() => this.closeActiveOrder(), 1200);
                 },
                 handleNewOrderFromSocket(newOrder) {
+                    const isOpenBill = Boolean(newOrder.is_open_bill || (newOrder.payment_status && newOrder.payment_status.toUpperCase() === 'UNPAID') || (newOrder.order_status === 'HOLD' || newOrder.status === 'HOLD'));
                     const mappedOrder = {
                         id: newOrder.id,
                         customer: newOrder.customer_name || ('Meja ' + (newOrder.table ? (newOrder.table.name || newOrder.table) : '-')),
+                        raw_customer_name: newOrder.customer_name || '',
                         table: newOrder.table ? (newOrder.table.name || newOrder.table) : 'TA',
+                        raw_table: newOrder.table ? (newOrder.table.name || newOrder.table) : '',
                         type: newOrder.fulfillment_type === 'DINE_IN' ? 'Dine In' : (newOrder.fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Delivery'),
-                        status: newOrder.order_status || newOrder.status,
-                        total: parseFloat(newOrder.total || newOrder.grand_total || newOrder.total_price || 0),
+                        fulfillment_type: newOrder.fulfillment_type || 'DINE_IN',
+                        status: newOrder.order_status || newOrder.status || 'CONFIRMED',
+                        order_status: newOrder.order_status || newOrder.status || 'CONFIRMED',
+                        payment_status: newOrder.payment_status || (isOpenBill ? 'UNPAID' : 'PAID'),
+                        is_open_bill: isOpenBill,
+                        total: parseFloat(newOrder.total || newOrder.grand_total || newOrder.total_price || newOrder.total_amount || 0),
+                        payment_method: newOrder.payment_method || (isOpenBill ? 'CASH' : 'QRIS'),
                         time: newOrder.created_at,
                         items: (newOrder.items || []).map(i => ({
                             id: i.product_id || (i.product ? i.product.id : i.id),

@@ -69,6 +69,8 @@ class OrderCreated implements ShouldBroadcastNow, ShouldDispatchAfterCommit
         }
 
         $grandTotal = (float) ($this->order->grand_total ?? 0);
+        $paymentStatus = strtoupper((string) ($this->order->payment_status ?? 'PAID'));
+        $isOpenBill = ($paymentStatus === 'UNPAID' || strtoupper((string) ($this->order->order_status ?? '')) === 'HOLD');
 
         return [
             'id' => $this->order->id,
@@ -78,6 +80,10 @@ class OrderCreated implements ShouldBroadcastNow, ShouldDispatchAfterCommit
             'table' => $tableName,
             'fulfillment_type' => $this->order->fulfillment_type ?? 'DINE_IN',
             'status' => $this->order->order_status ?? 'CONFIRMED',
+            'order_status' => $this->order->order_status ?? 'CONFIRMED',
+            'payment_status' => $paymentStatus,
+            'payment_method' => $this->order->payment_method ?? 'QRIS',
+            'is_open_bill' => $isOpenBill,
             'total' => $grandTotal,
             'total_amount' => $grandTotal,
             'items_count' => count($items),

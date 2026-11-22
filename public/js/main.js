@@ -1315,12 +1315,60 @@ function triggerPaymentGateway() {
 
 function cancelPayment() { document.getElementById('modal-payment').classList.add('hidden'); }
 
+function onPaymentMethodChange(method) {
+    const isQris = method === 'QRIS';
+    const labelQris = document.getElementById('payment-label-qris');
+    const labelCash = document.getElementById('payment-label-cash');
+    const checkQris = document.getElementById('payment-check-qris');
+    const checkCash = document.getElementById('payment-check-cash');
+    const btnLabel = document.getElementById('btn-pay-label');
+
+    if (isQris) {
+        if (labelQris) {
+            labelQris.className = 'flex items-center justify-between p-3.5 border-2 border-primary bg-primary/5 rounded-2xl cursor-pointer transition-all';
+        }
+        if (labelCash) {
+            labelCash.className = 'flex items-center justify-between p-3.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-2xl cursor-pointer transition-all';
+        }
+        if (checkQris) {
+            checkQris.className = 'fas fa-check-circle text-primary text-lg';
+            checkQris.classList.remove('hidden');
+        }
+        if (checkCash) {
+            checkCash.classList.add('hidden');
+        }
+        if (btnLabel) {
+            btnLabel.innerText = 'Bayar Sekarang & Buat Pesanan';
+        }
+    } else {
+        if (labelCash) {
+            labelCash.className = 'flex items-center justify-between p-3.5 border-2 border-primary bg-primary/5 rounded-2xl cursor-pointer transition-all';
+        }
+        if (labelQris) {
+            labelQris.className = 'flex items-center justify-between p-3.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-2xl cursor-pointer transition-all';
+        }
+        if (checkCash) {
+            checkCash.className = 'fas fa-check-circle text-primary text-lg';
+            checkCash.classList.remove('hidden');
+        }
+        if (checkQris) {
+            checkQris.classList.add('hidden');
+        }
+        if (btnLabel) {
+            btnLabel.innerText = 'Pesan & Bayar di Kasir';
+        }
+    }
+}
+window.onPaymentMethodChange = onPaymentMethodChange;
+
 function processSimulatedPayment() {
     const btn = document.getElementById('btn-pay');
-    btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Memproses...`;
+    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'QRIS';
+    const isQris = paymentMethod === 'QRIS';
+
+    btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> ${isQris ? 'Memproses Pembayaran...' : 'Membuat Pesanan...'}`;
     btn.disabled = true;
 
-    const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'QRIS';
     const name = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_name') || 'Guest';
     const email = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_email') || '';
     const phone = localStorage.getItem((window.SHOP_SLUG || 'default') + '_customer_phone') || '';
@@ -1333,21 +1381,53 @@ function processSimulatedPayment() {
     // Create order using database.js engine
     DB.createOrder(table, name, email, phone, paymentMethod, items, total, fulfillmentType, promo)
         .then(data => {
+            const returnedOrder = data.order || {};
             localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_type', fulfillmentType === 'TAKEAWAY' ? 'Take Away' : 'Dine In');
-            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_total', data.order.grand_total);
+            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_total', returnedOrder.grand_total ?? total);
+            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_payment_method', paymentMethod);
+            localStorage.setItem((window.SHOP_SLUG || 'default') + '_last_order_payment_status', returnedOrder.payment_status || (isQris ? 'PAID' : 'UNPAID'));
             CartStore.clear(); 
             window.location.href = window.SHOP_TRACKING_URL;
         })
         .catch(err => {
-            alert('Gagal membuat pesanan. Silakan coba lagi.');
+            alert(err?.message || 'Gagal membuat pesanan. Silakan coba lagi.');
             btn.disabled = false;
-            btn.innerHTML = `Bayar Sekarang`;
+            btn.innerHTML = `<span id="btn-pay-label">${isQris ? 'Bayar Sekarang & Buat Pesanan' : 'Pesan & Bayar di Kasir'}</span> <i class="fas fa-arrow-right text-xs"></i>`;
         });
 }
 
 function initTrackingPage() {
-    document.getElementById('track-type').innerText = localStorage.getItem((window.SHOP_SLUG || 'default') + '_last_order_type') || 'Dine-in';
-    document.getElementById('track-total').innerText = formatRp(Number(localStorage.getItem((window.SHOP_SLUG || 'default') + '_last_order_total') || '0'));
+    const slug = window.SHOP_SLUG || 'default';
+    const orderType = localStorage.getItem(slug + '_last_order_type') || 'Dine In';
+    const orderTotal = Number(localStorage.getItem(slug + '_last_order_total') || '0');
+    const paymentMethod = localStorage.getItem(slug + '_last_order_payment_method') || 'QRIS';
+    const paymentStatus = localStorage.getItem(slug + '_last_order_payment_status') || (paymentMethod === 'QRIS' ? 'PAID' : 'UNPAID');
+
+    const typeEl = document.getElementById('track-type');
+    const totalEl = document.getElementById('track-total');
+    const titleEl = document.getElementById('track-title');
+    const descEl = document.getElementById('track-description');
+    const badgeEl = document.getElementById('track-payment-badge');
+
+    if (typeEl) typeEl.innerText = orderType;
+    if (totalEl) totalEl.innerText = formatRp(orderTotal);
+
+    if (paymentStatus === 'PAID' || paymentMethod === 'QRIS') {
+        if (titleEl) titleEl.innerText = 'Pembayaran Berhasil & Diproses!';
+        if (descEl) descEl.innerHTML = `Pesanan <b class="text-primary">${escapeHtml(orderType)}</b> senilai <b>${formatRp(orderTotal)}</b> sudah lunas (QRIS). Barista dan tim dapur langsung menyiapkan pesanan Anda.`;
+        if (badgeEl) {
+            badgeEl.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200';
+            badgeEl.innerText = 'Lunas (QRIS)';
+        }
+    } else {
+        if (titleEl) titleEl.innerText = 'Pesanan Berhasil Masuk!';
+        if (descEl) descEl.innerHTML = `Pesanan <b class="text-primary">${escapeHtml(orderType)}</b> senilai <b>${formatRp(orderTotal)}</b> telah dicatat. Silakan lakukan pembayaran di kasir agar pesanan segera disiapkan.`;
+        if (badgeEl) {
+            badgeEl.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200';
+            badgeEl.innerText = 'Menunggu Pembayaran di Kasir';
+        }
+    }
+
     setTimeout(() => { const modal = document.getElementById('modal-rating'); if(modal) modal.classList.remove('hidden'); }, 3000);
 }
 

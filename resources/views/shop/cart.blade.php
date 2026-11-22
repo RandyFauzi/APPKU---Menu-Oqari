@@ -139,22 +139,55 @@
         <div class="relative bg-white w-full rounded-t-3xl p-6 flex flex-col max-h-[90vh] overflow-hidden overflow-y-auto">
             <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-5"></div>
             
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-5">
                 <div>
-                    <h3 class="font-bold text-xl text-gray-800">Payment Method</h3>
-                    <p class="text-xs text-gray-500 mt-1 uppercase tracking-wider font-bold">{{ $shop->name }}</p>
+                    <h3 class="font-bold text-xl text-gray-800">Metode Pembayaran</h3>
+                    <p class="text-xs text-gray-500 mt-0.5 uppercase tracking-wider font-semibold">{{ $shop->name }}</p>
                 </div>
-                <div class="bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-sm font-bold border border-primary/20" id="pg-total">Rp 0</div>
+                <div class="bg-primary/10 text-primary px-3 py-1.5 rounded-xl text-sm font-extrabold border border-primary/20" id="pg-total">Rp 0</div>
             </div>
             
-            <label class="flex items-center gap-4 p-4 border-2 border-primary bg-primary/5 rounded-2xl mb-8 cursor-pointer">
-                <input type="radio" name="payment" value="QRIS" checked class="accent-primary w-5 h-5">
-                <div class="bg-primary p-1 rounded-md"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" class="h-5 filter invert" alt="QRIS"></div>
-                <span class="font-bold text-sm text-primary">QRIS (GoPay, Dana, dll)</span>
-            </label>
+            <div class="space-y-3 mb-6">
+                <!-- Pilihan 1: QRIS (Otomatis) -->
+                <label id="payment-label-qris" class="flex items-center justify-between p-3.5 border-2 border-primary bg-primary/5 rounded-2xl cursor-pointer transition-all">
+                    <div class="flex items-center gap-3">
+                        <input type="radio" name="payment" value="QRIS" checked onchange="onPaymentMethodChange(this.value)" class="accent-primary w-4.5 h-4.5">
+                        <div class="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center p-1.5 shadow-2xs shrink-0">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" class="h-4 object-contain" alt="QRIS">
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-sm text-gray-900">QRIS</span>
+                                <span class="bg-emerald-100 text-emerald-700 text-[9.5px] font-bold px-1.5 py-0.5 rounded-full">Otomatis Lunas</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">GoPay, OVO, Dana, BCA • Langsung diproses</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-check-circle text-primary text-lg" id="payment-check-qris"></i>
+                </label>
+
+                <!-- Pilihan 2: Bayar di Kasir (Tunai) -->
+                <label id="payment-label-cash" class="flex items-center justify-between p-3.5 border border-gray-200 bg-white hover:bg-gray-50 rounded-2xl cursor-pointer transition-all">
+                    <div class="flex items-center gap-3">
+                        <input type="radio" name="payment" value="CASH" onchange="onPaymentMethodChange(this.value)" class="accent-primary w-4.5 h-4.5">
+                        <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center text-sm shadow-2xs shrink-0">
+                            <i class="fas fa-cash-register"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-sm text-gray-900">Bayar di Kasir</span>
+                                <span class="bg-amber-100 text-amber-700 text-[9.5px] font-bold px-1.5 py-0.5 rounded-full">Tunai</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 leading-tight mt-0.5">Pesan sekarang, bayar tunai di kasir</p>
+                        </div>
+                    </div>
+                    <i class="far fa-circle text-gray-300 text-lg hidden" id="payment-check-cash"></i>
+                </label>
+            </div>
             
-            <button id="btn-pay" onclick="processSimulatedPayment()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all flex justify-center items-center gap-2">
-                Order Now
+            <button id="btn-pay" onclick="processSimulatedPayment()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold text-base shadow-lg hover:shadow-xl active:scale-95 transition-all flex justify-center items-center gap-2">
+                <span id="btn-pay-label">Bayar Sekarang & Buat Pesanan</span>
+                <i class="fas fa-arrow-right text-xs"></i>
             </button>
         </div>
     </div>

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Shop;
@@ -296,5 +297,98 @@ class OrderCreationTest extends TestCase
             ->assertSee('Kode Promo')
             ->assertSee('(Opsional)')
             ->assertSee('customer-promo');
+    }
+
+    public function test_qris_order_is_automatically_marked_as_paid_with_payment_record(): void
+    {
+        $product = Product::factory()->create([
+            'shop_id' => $this->shop->id,
+            'price' => 35000,
+            'is_sold_out' => false,
+        ]);
+
+        $payload = [
+            'fulfillment_type' => 'DINE_IN',
+            'table_id' => 'Meja 1',
+            'customer_name' => 'Auto Paid User',
+            'payment_method' => 'QRIS',
+            'items' => [
+                ['id' => $product->id, 'qty' => 1],
+            ],
+        ];
+
+        $response = $this->postJson(route('shop.order.submit', ['slug' => $this->shop->slug]), $payload);
+
+        $response->assertOk()->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('orders', [
+            'shop_id' => $this->shop->id,
+            'customer_name' => 'Auto Paid User',
+            'payment_method' => 'QRIS',
+            'payment_status' => 'PAID',
+            'grand_total' => 35000,
+            'amount_paid' => 35000,
+        ]);
+
+        $order = Order::where('customer_name', 'Auto Paid User')->first();
+        $this->assertNotNull($order);
+        $this->assertNotNull($order->paid_at);
+
+        $this->assertDatabaseHas('payments', [
+            'shop_id' => $this->shop->id,
+            'order_id' => $order->id,
+            'payment_method' => 'QRIS',
+            'amount' => 35000,
+        ]);
+    }
+
+    public function test_cash_order_is_marked_unpaid_for_cashier_payment(): void
+    {
+        $product = Product::factory()->create([
+            'shop_id' => $this->shop->id,
+            'price' => 28000,
+            'is_sold_out' => false,
+        ]);
+
+        $payload = [
+            'fulfillment_type' => 'DINE_IN',
+            'table_id' => 'Meja 1',
+            'customer_name' => 'Pay at Cashier User',
+            'payment_method' => 'CASH',
+            'items' => [
+                ['id' => $product->id, 'qty' => 1],
+            ],
+        ];
+
+        $response = $this->postJson(route('shop.order.submit', ['slug' => $this->shop->slug]), $payload);
+
+        $response->assertOk()->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('orders', [
+            'shop_id' => $this->shop->id,
+            'customer_name' => 'Pay at Cashier User',
+            'payment_method' => 'CASH',
+            'payment_status' => 'UNPAID',
+            'grand_total' => 28000,
+        ]);
+
+        $order = Order::where('customer_name', 'Pay at Cashier User')->first();
+        $this->assertNotNull($order);
+        $this->assertNull($order->paid_at);
+        $this->assertDatabaseMissing('payments', [
+            'order_id' => $order->id,
+        ]);
+    }
+
+    public function test_cart_page_renders_qris_and_bayar_di_kasir_payment_options(): void
+    {
+        $response = $this->get(route('shop.cart', ['slug' => $this->shop->slug]));
+
+        $response->assertOk()
+            ->assertSee('Metode Pembayaran')
+            ->assertSee('QRIS')
+            ->assertSee('Otomatis Lunas')
+            ->assertSee('Bayar di Kasir')
+            ->assertSee('Bayar Sekarang', false);
     }
 }
