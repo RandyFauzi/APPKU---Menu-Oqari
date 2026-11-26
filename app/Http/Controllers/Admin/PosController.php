@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Order\CreateOrder;
+use App\Actions\Orders\CreateOrderAction;
 use App\Actions\POS\ApplyDiscount;
 use App\Actions\POS\CalculateCart;
 use App\Actions\POS\SubmitPosOrder;
@@ -651,11 +652,15 @@ class PosController extends Controller
 
         $validated = $request->validate([
             'action_id' => 'nullable|string|max:80',
-            'action' => 'required|string|in:add_item,update_qty,remove_item,clear_cart,sync_cart',
+            'action' => 'required|string|in:add_item,update_qty,remove_item,clear_cart,sync_cart,request_payment',
             'item' => 'nullable|array',
             'items' => 'nullable|array',
             'index' => 'nullable|integer|min:0',
             'delta' => 'nullable|integer|in:-1,1',
+            'payment_method' => 'nullable|string|in:QRIS,CASH,CARD',
+            'fulfillment_type' => 'nullable|string|in:DINE_IN,TAKEAWAY,DELIVERY',
+            'customer_name' => 'nullable|string|max:100',
+            'table_name' => 'nullable|string|max:60',
         ]);
 
         try {
@@ -665,5 +670,70 @@ class PosController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function customerKioskCheckout(Request $request, CreateOrderAction $createOrder): JsonResponse
+    {
+        $user = Auth::user();
+        $shop = $user->shop;
+
+        if (! $shop) {
+            return response()->json(['success' => false, 'message' => 'Shop not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'customer_name' => 'nullable|string|max:255',
+            'table_id' => 'nullable|string|max:50',
+            'fulfillment_type' => 'nullable|string|in:DINE_IN,TAKEAWAY',
+            'payment_method' => 'required|string|in:QRIS,CASH,CARD',
+            'items' => 'required|array|min:1|max:100',
+            'items.*.id' => 'required|exists:products,id',
+            'items.*.qty' => 'required|integer|min:1|max:100',
+            'items.*.notes' => 'nullable|string|max:200',
+            'items.*.variant_id' => 'nullable|integer',
+            'items.*.modifiers' => 'nullable|array',
+            'items.*.serving_type' => 'nullable|string|in:DINE_IN,TAKEAWAY',
+        ]);
+
+        $fulfillmentType = $validated['fulfillment_type'] ?? 'DINE_IN';
+        $payload = [
+            'table_id' => $fulfillmentType === 'DINE_IN' ? ($validated['table_id'] ?? null) : null,
+            'customer_name' => trim((string) ($validated['customer_name'] ?? '')) ?: 'Pelanggan Kiosk',
+            'payment_method' => $validated['payment_method'],
+            'items' => $validated['items'],
+            'source' => 'kiosk',
+        ];
+
+        try {
+            $order = $createOrder->execute($shop, $payload, $fulfillmentType);
+
+            OrderCreated::dispatch($order);
+
+            try {
+                event(new PosDisplayUpdated((int) $shop->id, [
+                    'status' => $order->payment_status === 'PAID' ? 'paid' : 'idle',
+                    'items' => [],
+                    'subtotal' => (float) $order->subtotal,
+                    'discount_amount' => (float) $order->discount_amount,
+                    'grand_total' => (float) $order->grand_total,
+                    'payment_method' => $order->payment_method,
+                    'order_id' => $order->id,
+                    'updated_at' => now()->toIso8601String(),
+                ]));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan berhasil dibuat',
+                'order' => $order,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
     }
 }

@@ -112,6 +112,7 @@ class CreateOrderAction
                     'subtotal' => $subtotal,
                     'cogs_total' => $itemCogs,
                     'notes' => $item['notes'] ?? null,
+                    'serving_type' => $item['serving_type'] ?? $fulfillmentType,
                 ];
             }
 
@@ -139,7 +140,7 @@ class CreateOrderAction
             }
 
             $rawPaymentMethod = strtoupper(trim((string) ($data['payment_method'] ?? 'QRIS')));
-            $isPaidOnline = in_array($rawPaymentMethod, ['QRIS', 'ONLINE', 'MIDTRANS', 'XENDIT', 'TRANSFER', 'E-WALLET', 'DEBIT', 'CARD'], true);
+            $isPaidOnline = in_array($rawPaymentMethod, ['QRIS', 'ONLINE', 'MIDTRANS', 'XENDIT', 'TRANSFER', 'E-WALLET'], true);
             $grandTotal = max(0, $total - $discountAmount);
 
             // 4. Create the Order Parent
@@ -191,6 +192,7 @@ class CreateOrderAction
             $hasPriceColumn = Schema::hasColumn('order_items', 'price');
             $hasBatchNoColumn = Schema::hasColumn('order_items', 'batch_no');
             $hasStatusColumn = Schema::hasColumn('order_items', 'status');
+            $hasServingTypeColumn = Schema::hasColumn('order_items', 'serving_type');
             foreach ($orderItems as $orderItem) {
                 $orderItem['order_id'] = $order->id;
                 if ($hasPriceColumn && ! isset($orderItem['price'])) {
@@ -201,6 +203,9 @@ class CreateOrderAction
                 }
                 if ($hasStatusColumn && ! isset($orderItem['status'])) {
                     $orderItem['status'] = 'new';
+                }
+                if (! $hasServingTypeColumn) {
+                    unset($orderItem['serving_type']);
                 }
                 OrderItem::create($orderItem);
             }
@@ -213,13 +218,15 @@ class CreateOrderAction
             if (class_exists(ActivityLog::class)) {
                 $tableLabel = $tableModel ? 'Meja '.$tableModel->name : ($order->fulfillment_type === 'TAKEAWAY' ? 'Takeaway' : 'Tanpa Meja');
                 $statusLabel = $isPaidOnline ? 'Lunas ('.$rawPaymentMethod.')' : 'Belum Lunas (Bayar di Kasir)';
+                $isKiosk = ($data['source'] ?? '') === 'kiosk';
+                $channelLabel = $isKiosk ? 'Kiosk Mandiri' : 'QR Menu';
                 ActivityLog::create([
                     'shop_id' => $shop->id,
                     'user_id' => auth()->id(),
-                    'action' => 'order.qr_placed',
+                    'action' => $isKiosk ? 'order.kiosk_placed' : 'order.qr_placed',
                     'entity_type' => Order::class,
                     'entity_id' => $order->id,
-                    'description' => 'Pesanan baru masuk via QR Menu #'.$order->id.' ('.$tableLabel.' · '.($order->customer_name ?: 'Pelanggan').') - Total: Rp '.number_format((float) $order->grand_total, 0, ',', '.').' ['.$statusLabel.']',
+                    'description' => 'Pesanan baru masuk via '.$channelLabel.' #'.$order->id.' ('.$tableLabel.' · '.($order->customer_name ?: 'Pelanggan').') - Total: Rp '.number_format((float) $order->grand_total, 0, ',', '.').' ['.$statusLabel.']',
                     'ip_address' => request()->ip(),
                     'user_agent' => mb_substr((string) request()->userAgent(), 0, 255),
                 ]);

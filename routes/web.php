@@ -83,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/pos/customer-display/sync', [PosController::class, 'syncCustomerDisplay'])->name('admin.pos.customer-display.sync');
         Route::get('/admin/pos/customer-kiosk', [PosController::class, 'customerKiosk'])->name('admin.pos.customer-kiosk');
         Route::post('/admin/pos/customer-kiosk/action', [PosController::class, 'customerKioskAction'])->name('admin.pos.customer-kiosk.action');
+        Route::post('/admin/pos/customer-kiosk/checkout', [PosController::class, 'customerKioskCheckout'])->middleware('schema:checkout')->name('admin.pos.customer-kiosk.checkout');
         Route::post('/admin/pos/orders', [PosController::class, 'submitOrder'])->middleware(['can:manage-payments', 'schema:checkout'])->name('admin.pos.orders.submit');
         Route::post('/admin/pos/orders/hold', [PosController::class, 'holdOrder'])->middleware('schema:checkout')->name('admin.pos.orders.hold');
         Route::get('/admin/pos/orders/held', [PosController::class, 'heldOrders'])->name('admin.pos.orders.held');

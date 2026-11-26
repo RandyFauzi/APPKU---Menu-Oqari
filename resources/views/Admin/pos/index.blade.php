@@ -1780,6 +1780,26 @@ function posApp() {
                     modifiers: Array.isArray(item.modifiers) ? item.modifiers : [],
                     showNotes: false,
                 }));
+            } else if (payload.action === 'request_payment') {
+                if (payload.fulfillment_type) {
+                    this.fulfillmentType = payload.fulfillment_type;
+                }
+                if (payload.customer_name) {
+                    this.customerName = payload.customer_name;
+                }
+                if (payload.table_name) {
+                    this.selectedTable = payload.table_name;
+                }
+                if (this.cart.length > 0) {
+                    const method = ['QRIS', 'CASH', 'CARD'].includes(payload.payment_method) ? payload.payment_method : 'QRIS';
+                    this.paymentModal = {
+                        show: true,
+                        method,
+                        amountPaid: this.grandTotal,
+                        fulfillment: this.fulfillmentType || 'DINE_IN',
+                    };
+                    this.notify(`Pelanggan Kiosk memilih bayar via ${method}`, 'info');
+                }
             }
 
             try {

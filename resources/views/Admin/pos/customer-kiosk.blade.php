@@ -290,11 +290,15 @@
                     <span class="text-[22px] sm:text-[24px] font-extrabold text-[#df5826]" x-text="'Rp' + formatRp(state.grand_total)"></span>
                 </div>
 
-                <div x-show="state.items.length > 0" x-cloak
-                     class="bg-[#fff6f0] border border-[#f5d5c6] rounded-[10px] px-3 py-2 text-center text-[11px] font-semibold text-[#b84218]">
-                    <i class="fas fa-cash-register mr-1"></i>
-                    Pesanan sudah masuk ke Kasir — silakan bayar di kasir
-                </div>
+                <button type="button"
+                        x-show="state.items.length > 0 && state.status !== 'payment' && state.status !== 'paid'"
+                        x-cloak
+                        @click="openCheckoutModal()"
+                        class="w-full mt-2 py-3.5 px-4 bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white font-bold text-[13.5px] rounded-[12px] shadow-md hover:opacity-95 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fas fa-wallet text-sm"></i>
+                    <span>Pilih Pembayaran — Rp<span x-text="formatRp(state.grand_total)"></span></span>
+                    <i class="fas fa-arrow-right text-xs opacity-85"></i>
+                </button>
             </div>
         </aside>
     </main>
@@ -442,6 +446,226 @@
         </div>
     </div>
 
+    {{-- ═══════════════════════════════════════════════════════════ --}}
+    {{-- KIOSK SELF-CHECKOUT & PAYMENT MODAL                         --}}
+    {{-- ═══════════════════════════════════════════════════════════ --}}
+    <div x-show="checkoutModal.show" x-cloak x-transition.opacity
+         class="fixed inset-0 z-50 bg-[#1e211f]/65 backdrop-blur-[2px] flex items-center justify-center p-4"
+         @click.self="if (!checkoutModal.submitting && checkoutModal.step !== 'success') closeCheckoutModal()">
+        <div class="bg-white border border-[#e6e5e0] rounded-[24px] shadow-2xl w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden">
+
+            {{-- STEP 1: PILIH TIPE & METODE PEMBAYARAN --}}
+            <template x-if="checkoutModal.step === 'select'">
+                <div class="flex flex-col max-h-[92vh]">
+                    <div class="px-6 py-4 border-b border-[#e6e5e0] flex items-center justify-between shrink-0">
+                        <div>
+                            <h3 class="text-[17px] font-bold text-[#111827]">Pembayaran Pesanan</h3>
+                            <p class="text-[11.5px] text-[#71717a]">Pilih tipe pesanan & metode pembayaran</p>
+                        </div>
+                        <button type="button" @click="closeCheckoutModal()"
+                                class="w-8 h-8 rounded-full bg-[#f8f9fa] border border-[#d8dce2] flex items-center justify-center text-[#53565a] hover:bg-gray-200 cursor-pointer">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-5 overflow-y-auto space-y-4 hide-scroll">
+                        {{-- Total Banner --}}
+                        <div class="bg-[#fcfcfd] border border-[#e6e5e0] rounded-[14px] p-3.5 flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] font-semibold uppercase tracking-wider text-[#71717a] block">Total Pembayaran</span>
+                                <span class="text-[11.5px] text-[#53565a]" x-text="totalItemsCount + ' item dipesan'"></span>
+                            </div>
+                            <span class="text-[22px] font-extrabold text-[#df5826]" x-text="'Rp' + formatRp(state.grand_total)"></span>
+                        </div>
+
+                        {{-- Tipe Pesanan --}}
+                        <div>
+                            <label class="block text-[11px] font-bold text-[#53565a] uppercase tracking-wider mb-1.5">Tipe Pesanan</label>
+                            <div class="grid grid-cols-2 gap-2 p-1 bg-[#f4f4f5] rounded-[12px]">
+                                <button type="button" @click="checkoutModal.fulfillment = 'DINE_IN'"
+                                        :class="checkoutModal.fulfillment === 'DINE_IN' ? 'bg-white text-[#111827] shadow-xs border border-[#d8dce2]' : 'text-[#71717a]'"
+                                        class="py-2 px-3 rounded-[9px] text-[12.5px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer">
+                                    <i class="fas fa-utensils text-[#df5826]"></i>
+                                    <span>Dine In</span>
+                                </button>
+                                <button type="button" @click="checkoutModal.fulfillment = 'TAKEAWAY'"
+                                        :class="checkoutModal.fulfillment === 'TAKEAWAY' ? 'bg-white text-[#111827] shadow-xs border border-[#d8dce2]' : 'text-[#71717a]'"
+                                        class="py-2 px-3 rounded-[9px] text-[12.5px] font-bold flex items-center justify-center gap-1.5 transition cursor-pointer">
+                                    <i class="fas fa-bag-shopping text-[#df5826]"></i>
+                                    <span>Takeaway</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Nama & Meja (Opsional) --}}
+                        <div class="grid gap-2.5" :class="checkoutModal.fulfillment === 'DINE_IN' ? 'grid-cols-2' : 'grid-cols-1'">
+                            <div>
+                                <label for="kiosk-customer-name" class="block text-[11px] font-semibold text-[#53565a] mb-1">Nama <span class="text-[#8b8e93] font-normal">(Opsional)</span></label>
+                                <input id="kiosk-customer-name" type="text" x-model="checkoutModal.customerName" placeholder="Nama Anda"
+                                       class="w-full px-3 py-2 text-[12.5px] rounded-[10px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:outline-none focus:border-[#df5826]">
+                            </div>
+                            <div x-show="checkoutModal.fulfillment === 'DINE_IN'">
+                                <label for="kiosk-table-id" class="block text-[11px] font-semibold text-[#53565a] mb-1">No. Meja <span class="text-[#8b8e93] font-normal">(Opsional)</span></label>
+                                <input id="kiosk-table-id" type="text" x-model="checkoutModal.tableId" placeholder="Contoh: 05"
+                                       class="w-full px-3 py-2 text-[12.5px] rounded-[10px] border border-[#d8dce2] bg-[#f8f9fa] focus:bg-white focus:outline-none focus:border-[#df5826]">
+                            </div>
+                        </div>
+
+                        {{-- Metode Pembayaran --}}
+                        <div>
+                            <label class="block text-[11px] font-bold text-[#53565a] uppercase tracking-wider mb-2">Metode Pembayaran</label>
+                            <div class="space-y-2.5">
+                                {{-- QRIS --}}
+                                <label @click="checkoutModal.method = 'QRIS'"
+                                       :class="checkoutModal.method === 'QRIS' ? 'border-2 border-[#df5826] bg-[#fff6f0]' : 'border border-[#d8dce2] bg-white hover:bg-[#f8f9fa]'"
+                                       class="flex items-center gap-3 p-3.5 rounded-[14px] cursor-pointer transition">
+                                    <input type="radio" name="kiosk_payment" value="QRIS" :checked="checkoutModal.method === 'QRIS'" class="accent-[#df5826] w-4 h-4">
+                                    <div class="w-10 h-10 rounded-[10px] bg-white border border-[#e6e5e0] flex items-center justify-center p-1.5 shrink-0">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" class="h-4 object-contain">
+                                    </div>
+                                    <div class="flex-1 text-left">
+                                        <span class="text-[13.5px] font-bold text-[#111827] block">QRIS (Bayar Langsung)</span>
+                                        <span class="text-[11px] text-[#71717a]">Scan langsung di layar ini (GoPay, OVO, Dana, BCA)</span>
+                                    </div>
+                                </label>
+
+                                {{-- Tunai di Kasir --}}
+                                <label @click="checkoutModal.method = 'CASH'"
+                                       :class="checkoutModal.method === 'CASH' ? 'border-2 border-[#df5826] bg-[#fff6f0]' : 'border border-[#d8dce2] bg-white hover:bg-[#f8f9fa]'"
+                                       class="flex items-center gap-3 p-3.5 rounded-[14px] cursor-pointer transition">
+                                    <input type="radio" name="kiosk_payment" value="CASH" :checked="checkoutModal.method === 'CASH'" class="accent-[#df5826] w-4 h-4">
+                                    <div class="w-10 h-10 rounded-[10px] bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center text-sm shrink-0">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div class="flex-1 text-left">
+                                        <span class="text-[13.5px] font-bold text-[#111827] block">Bayar di Kasir (Tunai)</span>
+                                        <span class="text-[11px] text-[#71717a]">Pesan sekarang, bayar tunai di meja kasir</span>
+                                    </div>
+                                </label>
+
+                                {{-- Kartu / EDC di Kasir --}}
+                                <label @click="checkoutModal.method = 'CARD'"
+                                       :class="checkoutModal.method === 'CARD' ? 'border-2 border-[#df5826] bg-[#fff6f0]' : 'border border-[#d8dce2] bg-white hover:bg-[#f8f9fa]'"
+                                       class="flex items-center gap-3 p-3.5 rounded-[14px] cursor-pointer transition">
+                                    <input type="radio" name="kiosk_payment" value="CARD" :checked="checkoutModal.method === 'CARD'" class="accent-[#df5826] w-4 h-4">
+                                    <div class="w-10 h-10 rounded-[10px] bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center text-sm shrink-0">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                    <div class="flex-1 text-left">
+                                        <span class="text-[13.5px] font-bold text-[#111827] block">Kartu Debit / Kredit (EDC)</span>
+                                        <span class="text-[11px] text-[#71717a]">Tap atau gesek kartu di mesin EDC kasir</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <template x-if="checkoutModal.error">
+                            <div class="p-3 rounded-[10px] bg-red-50 border border-red-200 text-[12px] text-red-700 font-medium" x-text="checkoutModal.error"></div>
+                        </template>
+                    </div>
+
+                    <div class="p-4 border-t border-[#e6e5e0] bg-[#fcfcfd] shrink-0">
+                        <button type="button"
+                                @click="proceedKioskPayment()"
+                                :disabled="checkoutModal.submitting"
+                                class="w-full py-3.5 px-4 bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white font-bold text-[14px] rounded-[12px] shadow-md hover:opacity-95 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60">
+                            <i class="fas" :class="checkoutModal.submitting ? 'fa-circle-notch fa-spin' : (checkoutModal.method === 'QRIS' ? 'fa-qrcode' : 'fa-check')"></i>
+                            <span x-text="checkoutModal.submitting ? 'Memproses...' : (checkoutModal.method === 'QRIS' ? 'Tampilkan QRIS — Rp' + formatRp(state.grand_total) : 'Buat Pesanan & Bayar di Kasir')"></span>
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            {{-- STEP 2: LAYAR SCAN QRIS LANGSUNG DI KIOSK --}}
+            <template x-if="checkoutModal.step === 'qris'">
+                <div class="p-6 text-center space-y-4">
+                    <div class="flex items-center justify-between">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" class="h-5">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-[11px] font-bold">
+                            <i class="fas fa-clock text-[10px]"></i>
+                            <span x-text="formatCountdown(checkoutModal.countdown)"></span>
+                        </span>
+                    </div>
+
+                    <div>
+                        <p class="text-[12px] text-[#71717a]">Total Tagihan</p>
+                        <p class="text-[28px] font-extrabold text-[#df5826] leading-tight" x-text="'Rp' + formatRp(state.grand_total)"></p>
+                    </div>
+
+                    {{-- QR Code Container --}}
+                    <div class="bg-[#f8f9fa] border border-[#e6e5e0] rounded-[18px] p-4 inline-flex flex-col items-center mx-auto">
+                        <div class="w-44 h-44 bg-white p-2.5 rounded-[12px] border border-[#e6e5e0] flex items-center justify-center" x-html="checkoutModal.qrSvg"></div>
+                        <span class="text-[10.5px] font-mono text-[#71717a] mt-2" x-text="checkoutModal.qrisRef"></span>
+                    </div>
+
+                    <p class="text-[12px] text-[#53565a] leading-relaxed">
+                        Scan kode QRIS di atas menggunakan GoPay, OVO, Dana, ShopeePay, atau aplikasi Mobile Banking Anda.
+                    </p>
+
+                    <template x-if="checkoutModal.error">
+                        <div class="p-2.5 rounded-[10px] bg-red-50 border border-red-200 text-[12px] text-red-700 font-medium" x-text="checkoutModal.error"></div>
+                    </template>
+
+                    <div class="flex gap-2.5 pt-1">
+                        <button type="button"
+                                @click="checkoutModal.step = 'select'; stopQrisTimer()"
+                                :disabled="checkoutModal.submitting"
+                                class="px-4 py-3 rounded-[12px] border border-[#d8dce2] text-[12.5px] font-semibold text-[#53565a] hover:bg-gray-50 cursor-pointer">
+                            Ganti Metode
+                        </button>
+                        <button type="button"
+                                @click="submitKioskCheckout('QRIS')"
+                                :disabled="checkoutModal.submitting"
+                                class="flex-1 py-3 px-4 bg-[#289e5c] hover:bg-[#22864e] text-white font-bold text-[13.5px] rounded-[12px] shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60">
+                            <i class="fas" :class="checkoutModal.submitting ? 'fa-circle-notch fa-spin' : 'fa-check-circle'"></i>
+                            <span x-text="checkoutModal.submitting ? 'Memverifikasi...' : 'Konfirmasi Sudah Bayar'"></span>
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            {{-- STEP 3: BERHASIL --}}
+            <template x-if="checkoutModal.step === 'success'">
+                <div class="p-6 sm:p-7 text-center space-y-4">
+                    <div class="w-16 h-16 rounded-full mx-auto flex items-center justify-center border"
+                         :class="checkoutModal.completedOrder?.payment_status === 'PAID' ? 'bg-[#eaf7ef] border-[#bfe5cd] text-[#289e5c]' : 'bg-[#fff6f0] border-[#f5d5c6] text-[#df5826]'">
+                        <i class="fas text-3xl" :class="checkoutModal.completedOrder?.payment_status === 'PAID' ? 'fa-check' : 'fa-cash-register'"></i>
+                    </div>
+
+                    <div>
+                        <h3 class="text-[21px] font-bold text-[#111827]"
+                            x-text="checkoutModal.completedOrder?.payment_status === 'PAID' ? 'Pembayaran Berhasil!' : 'Pesanan Masuk ke Kasir!'"></h3>
+                        <p class="text-[12.5px] text-[#71717a] mt-1"
+                           x-text="checkoutModal.completedOrder?.payment_status === 'PAID' ? 'Pesanan Anda langsung disiapkan oleh barista & tim dapur.' : 'Silakan menuju meja kasir untuk menyelesaikan pembayaran.'"></p>
+                    </div>
+
+                    <div class="bg-[#f8f9fa] border border-[#e6e5e0] rounded-[16px] p-4 space-y-2 text-left">
+                        <div class="flex items-center justify-between text-[13px]">
+                            <span class="text-[#71717a]">No. Pesanan</span>
+                            <span class="font-extrabold text-[#111827]" x-text="'#ORD-' + (checkoutModal.completedOrder?.id || '-')"></span>
+                        </div>
+                        <div class="flex items-center justify-between text-[13px]">
+                            <span class="text-[#71717a]">Total</span>
+                            <span class="font-bold text-[#df5826]" x-text="'Rp' + formatRp(checkoutModal.completedOrder?.grand_total || 0)"></span>
+                        </div>
+                        <div class="flex items-center justify-between text-[13px]">
+                            <span class="text-[#71717a]">Status</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+                                  :class="checkoutModal.completedOrder?.payment_status === 'PAID' ? 'bg-[#eaf7ef] text-[#289e5c]' : 'bg-amber-50 text-amber-700'"
+                                  x-text="checkoutModal.completedOrder?.payment_status === 'PAID' ? 'Lunas (QRIS)' : 'Bayar di Kasir'"></span>
+                        </div>
+                    </div>
+
+                    <button type="button"
+                            @click="resetAfterKioskSuccess()"
+                            class="w-full py-3.5 px-4 bg-[#111827] hover:opacity-90 text-white font-bold text-[13.5px] rounded-[12px] transition cursor-pointer">
+                        Buat Pesanan Baru
+                    </button>
+                </div>
+            </template>
+        </div>
+    </div>
+
     {{-- Payment / Paid Overlay when Cashier triggers Checkout --}}
     <div x-show="state.status === 'payment' || state.status === 'paid'" x-cloak x-transition.opacity
          class="fixed inset-0 z-50 bg-[#1e211f]/60 backdrop-blur-[2px] flex items-center justify-center p-4">
@@ -541,6 +765,22 @@
                     notes: '',
                     servingType: 'DINE_IN',
                 },
+                checkoutModal: {
+                    show: false,
+                    step: 'select',
+                    method: 'QRIS',
+                    fulfillment: 'DINE_IN',
+                    customerName: '',
+                    tableId: '',
+                    submitting: false,
+                    error: '',
+                    qrisRef: '',
+                    qrSvg: '',
+                    countdown: 300,
+                    completedOrder: null,
+                },
+                qrisTimerInterval: null,
+                kioskSuccessTimer: null,
                 state: {
                     status: 'idle',
                     items: [],
@@ -638,6 +878,8 @@
                     };
                     if (this.state.status === 'paid') {
                         this.showMobileCart = false;
+                        this.checkoutModal.show = false;
+                        this.stopQrisTimer();
                         this.paidResetTimer = setTimeout(() => {
                             this.state.status = 'idle';
                             this.state.items = [];
@@ -774,6 +1016,9 @@
                         } else {
                             items.push({
                                 ...incoming,
+                                modifier_ids: Array.isArray(incoming.modifiers)
+                                    ? incoming.modifiers.map(m => Number(m.id ?? m)).filter(id => !isNaN(id) && id > 0)
+                                    : [],
                                 modifiers: Array.isArray(incoming.modifiers)
                                     ? incoming.modifiers.map(m => m.name || String(m))
                                     : [],
@@ -847,6 +1092,188 @@
                             });
                         } catch (e) {}
                     }
+                },
+
+                openCheckoutModal() {
+                    if (!this.state.items || this.state.items.length === 0) return;
+                    clearTimeout(this.kioskSuccessTimer);
+                    this.stopQrisTimer();
+                    this.showMobileCart = false;
+                    this.checkoutModal = {
+                        show: true,
+                        step: 'select',
+                        method: 'QRIS',
+                        fulfillment: 'DINE_IN',
+                        customerName: '',
+                        tableId: '',
+                        submitting: false,
+                        error: '',
+                        qrisRef: '',
+                        qrSvg: '',
+                        countdown: 300,
+                        completedOrder: null,
+                    };
+                },
+
+                closeCheckoutModal() {
+                    this.stopQrisTimer();
+                    this.checkoutModal.show = false;
+                },
+
+                proceedKioskPayment() {
+                    this.checkoutModal.error = '';
+                    if (this.checkoutModal.method === 'QRIS') {
+                        const ref = `QRIS-${this.shopId}-${Date.now().toString().slice(-6)}`;
+                        this.checkoutModal.qrisRef = ref;
+                        this.checkoutModal.qrSvg = this.buildQrSvg(`${ref}|${this.state.grand_total}`);
+                        this.checkoutModal.step = 'qris';
+                        this.startQrisTimer();
+
+                        this.sendCustomerAction('request_payment', {
+                            payment_method: 'QRIS',
+                            fulfillment_type: this.checkoutModal.fulfillment,
+                            customer_name: (this.checkoutModal.customerName || '').trim() || null,
+                            table_name: this.checkoutModal.fulfillment === 'DINE_IN' ? ((this.checkoutModal.tableId || '').trim() || null) : null,
+                        });
+                        return;
+                    }
+
+                    this.submitKioskCheckout(this.checkoutModal.method);
+                },
+
+                startQrisTimer() {
+                    this.stopQrisTimer();
+                    this.checkoutModal.countdown = 300;
+                    this.qrisTimerInterval = setInterval(() => {
+                        if (this.checkoutModal.countdown > 0) {
+                            this.checkoutModal.countdown--;
+                        } else {
+                            this.stopQrisTimer();
+                        }
+                    }, 1000);
+                },
+
+                stopQrisTimer() {
+                    if (this.qrisTimerInterval) {
+                        clearInterval(this.qrisTimerInterval);
+                        this.qrisTimerInterval = null;
+                    }
+                },
+
+                formatCountdown(seconds) {
+                    const s = Math.max(0, Number(seconds || 0));
+                    const mins = String(Math.floor(s / 60)).padStart(2, '0');
+                    const secs = String(s % 60).padStart(2, '0');
+                    return `${mins}:${secs}`;
+                },
+
+                buildQrSvg(seedText) {
+                    const size = 21;
+                    const grid = Array.from({ length: size }, () => Array(size).fill(false));
+                    const drawFinder = (ox, oy) => {
+                        for (let y = 0; y < 7; y++) {
+                            for (let x = 0; x < 7; x++) {
+                                const border = x === 0 || x === 6 || y === 0 || y === 6;
+                                const inner = x >= 2 && x <= 4 && y >= 2 && y <= 4;
+                                grid[oy + y][ox + x] = border || inner;
+                            }
+                        }
+                    };
+                    drawFinder(0, 0);
+                    drawFinder(size - 7, 0);
+                    drawFinder(0, size - 7);
+
+                    let hash = 2166136261;
+                    for (let i = 0; i < seedText.length; i++) {
+                        hash ^= seedText.charCodeAt(i);
+                        hash = Math.imul(hash, 16777619);
+                    }
+                    for (let y = 0; y < size; y++) {
+                        for (let x = 0; x < size; x++) {
+                            const inTopLeft = x < 8 && y < 8;
+                            const inTopRight = x >= size - 8 && y < 8;
+                            const inBottomLeft = x < 8 && y >= size - 8;
+                            if (inTopLeft || inTopRight || inBottomLeft) continue;
+                            hash ^= (x * 31 + y * 17);
+                            hash = Math.imul(hash, 16777619);
+                            grid[y][x] = ((hash >>> 0) % 10) < 5;
+                        }
+                    }
+
+                    let rects = '';
+                    for (let y = 0; y < size; y++) {
+                        for (let x = 0; x < size; x++) {
+                            if (grid[y][x]) {
+                                rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="#111827"/>`;
+                            }
+                        }
+                    }
+                    return `<svg viewBox="0 0 ${size} ${size}" class="w-full h-full" shape-rendering="crispEdges">${rects}</svg>`;
+                },
+
+                async submitKioskCheckout(method) {
+                    if (this.checkoutModal.submitting || !this.state.items || this.state.items.length === 0) return;
+                    this.checkoutModal.submitting = true;
+                    this.checkoutModal.error = '';
+
+                    const itemsPayload = this.state.items.map(item => ({
+                        id: Number(item.id),
+                        qty: Number(item.qty || 1),
+                        notes: item.notes || null,
+                        variant_id: item.variant_id ? Number(item.variant_id) : null,
+                        modifiers: Array.isArray(item.modifier_ids) ? item.modifier_ids : [],
+                        serving_type: item.serving_type || this.checkoutModal.fulfillment || 'DINE_IN',
+                    }));
+
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                        const res = await fetch('{{ route('admin.pos.customer-kiosk.checkout') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token || '',
+                            },
+                            body: JSON.stringify({
+                                customer_name: (this.checkoutModal.customerName || '').trim() || 'Pelanggan Kiosk',
+                                table_id: this.checkoutModal.fulfillment === 'DINE_IN' ? ((this.checkoutModal.tableId || '').trim() || null) : null,
+                                fulfillment_type: this.checkoutModal.fulfillment || 'DINE_IN',
+                                payment_method: method,
+                                items: itemsPayload,
+                            }),
+                        });
+
+                        const data = await res.json();
+                        if (!res.ok || !data.success) {
+                            throw new Error(data.message || 'Gagal memproses pesanan.');
+                        }
+
+                        this.stopQrisTimer();
+                        this.checkoutModal.completedOrder = data.order;
+                        this.checkoutModal.step = 'success';
+
+                        this.clearCart();
+                        try {
+                            localStorage.removeItem(`oqari_pos_kiosk_pending_${this.shopId}`);
+                        } catch (e) {}
+
+                        clearTimeout(this.kioskSuccessTimer);
+                        this.kioskSuccessTimer = setTimeout(() => {
+                            this.resetAfterKioskSuccess();
+                        }, 8000);
+                    } catch (err) {
+                        this.checkoutModal.error = err?.message || 'Gagal memproses pesanan. Silakan coba lagi.';
+                    } finally {
+                        this.checkoutModal.submitting = false;
+                    }
+                },
+
+                resetAfterKioskSuccess() {
+                    clearTimeout(this.kioskSuccessTimer);
+                    this.stopQrisTimer();
+                    this.checkoutModal.show = false;
+                    this.checkoutModal.step = 'select';
+                    this.checkoutModal.completedOrder = null;
                 },
 
                 formatRp(val) {
