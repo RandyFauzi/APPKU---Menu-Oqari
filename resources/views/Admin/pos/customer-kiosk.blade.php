@@ -37,23 +37,21 @@
             @endif
             <div class="min-w-0">
                 <h1 class="text-[14px] sm:text-[15px] font-bold text-[#111827] truncate leading-tight">{{ $shop->name }}</h1>
-                <p class="text-[10.5px] sm:text-[11px] text-[#71717a] truncate leading-tight">Pilih Menu Mandiri (Touchscreen)</p>
+                <p class="text-[10.5px] sm:text-[11px] text-[#71717a] truncate leading-tight">Pesan Mandiri • Sentuh menu untuk memesan</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] sm:text-[11px] font-semibold"
                   :class="isConnected ? 'bg-[#eaf7ef] text-[#289e5c]' : 'bg-amber-50 text-amber-700'">
                 <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="isConnected ? 'bg-[#289e5c] animate-pulse' : 'bg-amber-500'"></span>
-                <span class="hidden sm:inline" x-text="syncLabel"></span>
-                <span class="sm:hidden" x-text="isConnected ? 'Aktif' : '...'"></span>
+                <span x-text="isConnected ? 'Siap Memesan' : 'Menghubungkan...'"></span>
             </span>
 
             <a href="{{ route('admin.pos.customer-display') }}"
-               class="h-8 sm:h-9 px-2.5 sm:px-3 rounded-[9px] bg-white hover:bg-[#f8f9fa] border border-[#e6e5e0] text-[11px] sm:text-[11.5px] font-semibold text-[#1e211f] inline-flex items-center gap-1.5 transition"
-               title="Beralih ke Mode Display (Non-Touch)">
-                <i class="fas fa-tv text-[#df5826]"></i>
-                <span class="hidden sm:inline">Mode Display</span>
+               class="w-8 h-8 sm:w-9 sm:h-9 rounded-[9px] bg-white hover:bg-[#f8f9fa] border border-[#e6e5e0] text-[#71717a] hover:text-[#111827] flex items-center justify-center transition"
+               title="Mode Display Staf (Non-Touch)">
+                <i class="fas fa-tv text-xs sm:text-sm"></i>
             </a>
 
             <button type="button" @click="toggleFullscreen()"
@@ -122,6 +120,12 @@
                                         <i class="fas fa-tag text-[8px]"></i> <span x-text="'-' + product.discount_percentage + '%'"></span>
                                     </span>
                                 </template>
+                                <template x-if="getProductCartQty(product.id) > 0">
+                                    <span class="absolute bottom-2 right-2 z-10 bg-[#df5826] text-white text-[10.5px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md border border-white/80 flex items-center gap-1">
+                                        <i class="fas fa-shopping-bag text-[9px]"></i>
+                                        <span x-text="getProductCartQty(product.id) + 'x'"></span>
+                                    </span>
+                                </template>
 
                                 <template x-if="product.image_url">
                                     <img :src="product.image_url" :alt="product.name"
@@ -155,10 +159,14 @@
                                 </div>
 
                                 <button type="button" :disabled="product.is_sold_out"
-                                        :class="product.is_sold_out ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-[#fff6f0] hover:bg-[#df5826] text-[#df5826] hover:text-white border-[#f5d5c6] hover:border-[#df5826]'"
-                                        class="w-full py-2 rounded-[10px] border text-[11.5px] font-bold transition flex items-center justify-center gap-1.5">
-                                    <i class="fas" :class="product.is_sold_out ? 'fa-ban' : 'fa-plus text-[10px]'"></i>
-                                    <span x-text="product.is_sold_out ? 'Habis' : 'Pilih Menu'"></span>
+                                        :class="product.is_sold_out
+                                            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                            : (getProductCartQty(product.id) > 0
+                                                ? 'bg-[#df5826] text-white border-[#df5826] shadow-xs active:scale-95 cursor-pointer'
+                                                : 'bg-[#fff6f0] hover:bg-[#df5826] text-[#df5826] hover:text-white border-[#f5d5c6] hover:border-[#df5826] active:scale-95 cursor-pointer')"
+                                        class="w-full py-2.5 rounded-[11px] border text-[12px] font-bold transition flex items-center justify-center gap-1.5">
+                                    <i class="fas" :class="product.is_sold_out ? 'fa-ban' : (getProductCartQty(product.id) > 0 ? 'fa-plus text-[10px]' : 'fa-plus text-[10px]')"></i>
+                                    <span x-text="product.is_sold_out ? 'Habis' : (getProductCartQty(product.id) > 0 ? 'Tambah Lagi (' + getProductCartQty(product.id) + ')' : 'Tambah ke Pesanan')"></span>
                                 </button>
                             </div>
                         </div>
@@ -201,7 +209,7 @@
             <div class="px-4 py-3.5 border-b border-[#e6e5e0] flex items-center justify-between shrink-0">
                 <div>
                     <h2 class="text-[15px] font-bold text-[#111827]">Pesanan Anda</h2>
-                    <p class="text-[11px] text-[#71717a]" x-text="totalItemsCount + ' item • Otomatis terkirim ke kasir'"></p>
+                    <p class="text-[11px] text-[#71717a]" x-text="totalItemsCount > 0 ? totalItemsCount + ' item • Periksa sebelum bayar' : 'Belum ada menu dipilih'"></p>
                 </div>
                 <div class="flex items-center gap-1.5">
                     <button type="button" x-show="state.items.length > 0 && state.status === 'ordering'" x-cloak
@@ -255,16 +263,23 @@
 
                         <div class="flex items-center justify-between pt-1">
                             <span class="text-[11px] text-[#71717a]" x-text="'@ Rp' + formatRp(item.price)"></span>
-                            <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-0.5 flex items-center gap-1.5">
-                                <button type="button" @click="updateQty(idx, -1)"
-                                        class="w-7 h-7 rounded-full flex items-center justify-center hover:bg-gray-200 transition cursor-pointer">
-                                    <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-3.5 h-3.5">
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" @click="updateQty(idx, -Number(item.qty || 1))"
+                                        title="Hapus item"
+                                        class="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center transition cursor-pointer">
+                                    <i class="fas fa-trash-alt text-[11px]"></i>
                                 </button>
-                                <span class="w-5 text-center text-[12.5px] font-bold text-[#111827]" x-text="item.qty"></span>
-                                <button type="button" @click="updateQty(idx, 1)"
-                                        class="w-7 h-7 rounded-full bg-[#111827] flex items-center justify-center hover:opacity-90 transition cursor-pointer">
-                                    <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-3.5 h-3.5">
-                                </button>
+                                <div class="bg-[#f8f9fa] border border-[#d8dce2] rounded-full p-0.5 flex items-center gap-1.5">
+                                    <button type="button" @click="updateQty(idx, -1)"
+                                            class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 transition cursor-pointer">
+                                        <img src="{{ asset('images/sparta/pos-minus.svg') }}" alt="-" class="w-3.5 h-3.5">
+                                    </button>
+                                    <span class="w-5 text-center text-[13px] font-bold text-[#111827]" x-text="item.qty"></span>
+                                    <button type="button" @click="updateQty(idx, 1)"
+                                            class="w-8 h-8 rounded-full bg-[#111827] flex items-center justify-center hover:opacity-90 transition cursor-pointer">
+                                        <img src="{{ asset('images/sparta/pos-plus.svg') }}" alt="+" class="w-3.5 h-3.5">
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -291,13 +306,16 @@
                 </div>
 
                 <button type="button"
-                        x-show="state.items.length > 0 && state.status !== 'payment' && state.status !== 'paid'"
-                        x-cloak
+                        :disabled="state.items.length === 0 || state.status === 'payment' || state.status === 'paid'"
                         @click="openCheckoutModal()"
-                        class="w-full mt-2 py-3.5 px-4 bg-gradient-to-b from-[#f06428] to-[#df5826] border border-[#df5826] text-white font-bold text-[13.5px] rounded-[12px] shadow-md hover:opacity-95 active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer">
+                        :class="state.items.length > 0 && state.status !== 'payment' && state.status !== 'paid'
+                            ? 'bg-gradient-to-b from-[#f06428] to-[#df5826] border-[#df5826] text-white shadow-md hover:opacity-95 active:scale-[0.99] cursor-pointer'
+                            : 'bg-[#f4f4f5] border-[#e4e4e7] text-[#a1a1aa] cursor-not-allowed'"
+                        class="w-full mt-2 py-3.5 px-4 border font-bold text-[13.5px] rounded-[12px] transition flex items-center justify-center gap-2">
                     <i class="fas fa-wallet text-sm"></i>
-                    <span>Pilih Pembayaran — Rp<span x-text="formatRp(state.grand_total)"></span></span>
-                    <i class="fas fa-arrow-right text-xs opacity-85"></i>
+                    <span x-show="state.items.length > 0">Pilih Pembayaran — Rp<span x-text="formatRp(state.grand_total)"></span></span>
+                    <span x-show="state.items.length === 0">Pilih Menu Terlebih Dahulu</span>
+                    <i x-show="state.items.length > 0" class="fas fa-arrow-right text-xs opacity-85"></i>
                 </button>
             </div>
         </aside>
@@ -712,6 +730,13 @@
         </div>
     </div>
 
+    {{-- Toast Feedback --}}
+    <div x-show="toast.show" x-cloak x-transition
+         class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-[#111827] text-white px-4 py-2.5 rounded-full shadow-xl flex items-center gap-2 text-[12.5px] font-semibold pointer-events-none">
+        <i class="fas fa-check-circle text-[#289e5c]"></i>
+        <span x-text="toast.message"></span>
+    </div>
+
     <script>
         function customerKioskApp(shopId) {
             return {
@@ -781,6 +806,7 @@
                 },
                 qrisTimerInterval: null,
                 kioskSuccessTimer: null,
+                toast: { show: false, message: '', timer: null },
                 state: {
                     status: 'idle',
                     items: [],
@@ -937,6 +963,7 @@
                             serving_type: 'DINE_IN',
                         }
                     });
+                    this.showKioskToast(`+1 ${product.name} ditambahkan`);
                 },
 
                 isModifierSelected(id) {
@@ -981,6 +1008,7 @@
                         }
                     });
                     this.modifierModal.show = false;
+                    this.showKioskToast(`+${qty} ${p.name} ditambahkan`);
                 },
 
                 updateQty(index, delta) {
@@ -1274,6 +1302,21 @@
                     this.checkoutModal.show = false;
                     this.checkoutModal.step = 'select';
                     this.checkoutModal.completedOrder = null;
+                },
+
+                getProductCartQty(productId) {
+                    return (this.state.items || [])
+                        .filter(i => Number(i.id) === Number(productId))
+                        .reduce((sum, i) => sum + Number(i.qty || 1), 0);
+                },
+
+                showKioskToast(message) {
+                    clearTimeout(this.toast.timer);
+                    this.toast.message = message;
+                    this.toast.show = true;
+                    this.toast.timer = setTimeout(() => {
+                        this.toast.show = false;
+                    }, 1800);
                 },
 
                 formatRp(val) {

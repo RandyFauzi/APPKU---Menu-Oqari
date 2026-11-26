@@ -107,7 +107,7 @@ class PosCustomerDisplayTest extends TestCase
             ->get(route('admin.pos.customer-kiosk'));
 
         $response->assertOk()
-            ->assertSee('Pilih Menu Mandiri (Touchscreen)');
+            ->assertSee('Pesan Mandiri');
     }
 
     public function test_customer_kiosk_action_dispatches_event(): void
